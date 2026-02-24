@@ -1,0 +1,5 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<Binding name="FEEDOMATIC" header="FEEDOMATIC">
+		FOM_Feed();
+	</Binding>
+</Ui>

@@ -1,0 +1,8 @@
+<!--
+SmartAmmo Module Loader
+Owns Smart Ammo runtime and hooks as a standalone MetaHunt module
+-->
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+  <Include file="module.lua"/>
+  <Include file="engine.lua"/>
+</Ui>

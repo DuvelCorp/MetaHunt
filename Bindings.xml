@@ -1,0 +1,121 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<!-- FeedOMatic Bindings -->
+	<Binding name="FEEDOMATIC" header="FEEDOMATIC">
+		FOM_Feed();
+	</Binding>
+	
+	<!-- zhunter Aspect Bindings -->
+	<Binding name="ZAspect Parent" header="ZAspectHeader">
+		zButtonAspect_KeyBinding()
+	</Binding>
+	<Binding name="ZAspect 1" header="ZAspectHeader">
+		zButtonAspect_KeyBinding(1)
+	</Binding>
+	<Binding name="ZAspect 2" header="ZAspectHeader">
+		zButtonAspect_KeyBinding(2)
+	</Binding>
+	<Binding name="ZAspect 3" header="ZAspectHeader">
+		zButtonAspect_KeyBinding(3)
+	</Binding>
+	<Binding name="ZAspect 4" header="ZAspectHeader">
+		zButtonAspect_KeyBinding(4)
+	</Binding>
+	<Binding name="ZAspect 5" header="ZAspectHeader">
+		zButtonAspect_KeyBinding(5)
+	</Binding>
+	<Binding name="ZAspect 6" header="ZAspectHeader">
+		zButtonAspect_KeyBinding(6)
+	</Binding>
+	
+	<!-- zhunter Track Bindings -->
+	<Binding name="ZTrack Parent" header="ZTrackHeader">
+		zButtonTrack_KeyBinding()
+	</Binding>
+	<Binding name="ZTrack 1" header="ZTrackHeader">
+		zButtonTrack_KeyBinding(1)
+	</Binding>
+	<Binding name="ZTrack 2" header="ZTrackHeader">
+		zButtonTrack_KeyBinding(2)
+	</Binding>
+	<Binding name="ZTrack 3" header="ZTrackHeader">
+		zButtonTrack_KeyBinding(3)
+	</Binding>
+	<Binding name="ZTrack 4" header="ZTrackHeader">
+		zButtonTrack_KeyBinding(4)
+	</Binding>
+	<Binding name="ZTrack 5" header="ZTrackHeader">
+		zButtonTrack_KeyBinding(5)
+	</Binding>
+	<Binding name="ZTrack 6" header="ZTrackHeader">
+		zButtonTrack_KeyBinding(6)
+	</Binding>
+	
+	<!-- zhunter Trap Bindings -->
+	<Binding name="ZTrap Parent" header="ZTrapHeader">
+		zButtonTrap_KeyBinding()
+	</Binding>
+	<Binding name="ZTrap 1" header="ZTrapHeader">
+		zButtonTrap_KeyBinding(1)
+	</Binding>
+	<Binding name="ZTrap 2" header="ZTrapHeader">
+		zButtonTrap_KeyBinding(2)
+	</Binding>
+	<Binding name="ZTrap 3" header="ZTrapHeader">
+		zButtonTrap_KeyBinding(3)
+	</Binding>
+	<Binding name="ZTrap 4" header="ZTrapHeader">
+		zButtonTrap_KeyBinding(4)
+	</Binding>
+	<Binding name="ZTrap 5" header="ZTrapHeader">
+		zButtonTrap_KeyBinding(5)
+	</Binding>
+	<Binding name="ZTrap 6" header="ZTrapHeader">
+		zButtonTrap_KeyBinding(6)
+	</Binding>
+	
+	<!-- zhunter Ammo Bindings -->
+	<Binding name="ZAmmo Parent" header="ZAmmoHeader">
+		zButtonAmmo_KeyBinding()
+	</Binding>
+	<Binding name="ZAmmo 1" header="ZAmmoHeader">
+		zButtonAmmo_KeyBinding(1)
+	</Binding>
+	<Binding name="ZAmmo 2" header="ZAmmoHeader">
+		zButtonAmmo_KeyBinding(2)
+	</Binding>
+	<Binding name="ZAmmo 3" header="ZAmmoHeader">
+		zButtonAmmo_KeyBinding(3)
+	</Binding>
+	<Binding name="ZAmmo 4" header="ZAmmoHeader">
+		zButtonAmmo_KeyBinding(4)
+	</Binding>
+	<Binding name="ZAmmo 5" header="ZAmmoHeader">
+		zButtonAmmo_KeyBinding(5)
+	</Binding>
+	<Binding name="ZAmmo 6" header="ZAmmoHeader">
+		zButtonAmmo_KeyBinding(6)
+	</Binding>
+	
+	<!-- zhunter Pet Bindings -->
+	<Binding name="ZPet Parent" header="ZPetHeader">
+		zButtonPet_KeyBinding()
+	</Binding>
+	<Binding name="ZPet 1" header="ZPetHeader">
+		zButtonPet_KeyBinding(1)
+	</Binding>
+	<Binding name="ZPet 2" header="ZPetHeader">
+		zButtonPet_KeyBinding(2)
+	</Binding>
+	<Binding name="ZPet 3" header="ZPetHeader">
+		zButtonPet_KeyBinding(3)
+	</Binding>
+	<Binding name="ZPet 4" header="ZPetHeader">
+		zButtonPet_KeyBinding(4)
+	</Binding>
+	<Binding name="ZPet 5" header="ZPetHeader">
+		zButtonPet_KeyBinding(5)
+	</Binding>
+	<Binding name="ZPet 6" header="ZPetHeader">
+		zButtonPet_KeyBinding(6)
+	</Binding>
+</Ui>

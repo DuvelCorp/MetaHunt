@@ -1,0 +1,50 @@
+<!--
+zhunter Module Loader
+Loads all zhunter addon code and wraps it in the MTH module system
+-->
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+  <!-- Load module wrapper first so module registration is always available -->
+  <Include file="module.lua"/>
+
+  <!-- Load localization first -->
+  <Include file="Localization.lua"/>
+
+  <!-- Load button template XML first (creates frame definitions) -->
+  <Include file="ZSpellButtonTemplate.xml"/>
+  
+  <!-- Load individual button XMLs (creates all button frame instances) -->
+  <Include file="zButtonAspect.xml"/>
+  <Include file="zButtonTrack.xml"/>
+  <Include file="zButtonTrap.xml"/>
+  <Include file="zButtonAmmo.xml"/>
+  <Include file="zButtonPet.xml"/>
+  <Include file="zButtonMounts.xml"/>
+  <Include file="zButtonCompanions.xml"/>
+  <Include file="zButtonToys.xml"/>
+  
+  <!-- Load main ZHunterMod.lua FIRST so ZHunterMod_Saved table exists before button files use it -->
+  <Include file="ZHunterMod.lua"/>
+  
+  <!-- NOW load all Lua files (which use the frames created above) -->
+  <Include file="ZSpellButtonTemplate.lua"/>
+  
+  <!-- Load individual button Lua files -->
+  <Include file="zButtonAspect.lua"/>
+  
+  <Include file="zButtonTrack.lua"/>
+  
+  <Include file="zButtonTrap.lua"/>
+  
+  <Include file="zButtonAmmo.lua"/>
+  
+  <Include file="zButtonPet.lua"/>
+
+  <Include file="zButtonMounts.lua"/>
+
+  <Include file="zButtonCompanions.lua"/>
+
+  <Include file="zButtonToys.lua"/>
+  
+  <!-- Deferred initialization - runs LAST after all parsing is complete -->
+  <Include file="DeferredInit.lua"/>
+</Ui>

@@ -1,0 +1,333 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+  <Frame name="MTH_BOOK_Template" toplevel="true" frameStrata="DIALOG" movable="true" enableMouse="true" hidden="true" parent="UIParent" virtual="true">
+    <Size>
+      <AbsDimension x="760" y="560"/>
+    </Size>
+    <Anchors>
+      <Anchor point="CENTER"/>
+    </Anchors>
+    <Backdrop bgFile="Interface\Buttons\WHITE8X8" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
+      <BackgroundInsets>
+        <AbsInset left="11" right="12" top="12" bottom="11"/>
+      </BackgroundInsets>
+      <TileSize><AbsValue val="32"/></TileSize>
+      <EdgeSize><AbsValue val="32"/></EdgeSize>
+    </Backdrop>
+
+    <Layers>
+      <Layer level="ARTWORK">
+        <FontString name="$parentHeaderText" inherits="GameFontNormal" text="The Book of Hunters">
+          <Anchors>
+            <Anchor point="TOP">
+              <Offset><AbsDimension x="0" y="-18"/></Offset>
+            </Anchor>
+          </Anchors>
+        </FontString>
+
+        <FontString name="$parentStatsText" inherits="GameFontNormalSmall" text="Beasts: 0 | Filtered: 0 | Page 1/1">
+          <Anchors>
+            <Anchor point="TOPLEFT">
+              <Offset><AbsDimension x="20" y="-530"/></Offset>
+            </Anchor>
+          </Anchors>
+        </FontString>
+
+        <FontString name="$parentSearchLabel" inherits="GameFontNormalSmall" text="Search">
+          <Anchors>
+            <Anchor point="TOPLEFT">
+              <Offset><AbsDimension x="18" y="-82"/></Offset>
+            </Anchor>
+          </Anchors>
+        </FontString>
+
+        <FontString name="$parentMinLabel" inherits="GameFontNormalSmall" text="Min Lvl">
+          <Anchors>
+            <Anchor point="TOPLEFT">
+              <Offset><AbsDimension x="266" y="-82"/></Offset>
+            </Anchor>
+          </Anchors>
+        </FontString>
+
+        <FontString name="$parentMaxLabel" inherits="GameFontNormalSmall" text="Max Lvl">
+          <Anchors>
+            <Anchor point="TOPLEFT">
+              <Offset><AbsDimension x="374" y="-82"/></Offset>
+            </Anchor>
+          </Anchors>
+        </FontString>
+
+      </Layer>
+    </Layers>
+
+    <Frames>
+      <Frame name="$parentListBackdrop">
+        <Size><AbsDimension x="564" y="354"/></Size>
+        <Anchors>
+          <Anchor point="TOPLEFT"><Offset><AbsDimension x="16" y="-166"/></Offset></Anchor>
+        </Anchors>
+        <Backdrop bgFile="Interface\Buttons\WHITE8X8" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
+          <BackgroundInsets><AbsInset left="3" right="3" top="3" bottom="3"/></BackgroundInsets>
+          <TileSize><AbsValue val="16"/></TileSize>
+          <EdgeSize><AbsValue val="16"/></EdgeSize>
+        </Backdrop>
+      </Frame>
+
+      <Frame name="$parentDetailBackdrop">
+        <Size><AbsDimension x="136" y="324"/></Size>
+        <Anchors>
+          <Anchor point="TOPLEFT"><Offset><AbsDimension x="608" y="-166"/></Offset></Anchor>
+        </Anchors>
+        <Backdrop bgFile="Interface\Buttons\WHITE8X8" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
+          <BackgroundInsets><AbsInset left="3" right="3" top="3" bottom="3"/></BackgroundInsets>
+          <TileSize><AbsValue val="16"/></TileSize>
+          <EdgeSize><AbsValue val="16"/></EdgeSize>
+        </Backdrop>
+        <Frames>
+          <EditBox name="$parentDetailText" autoFocus="false" multiLine="true" text="Select an entry to view details.">
+            <Size><AbsDimension x="120" y="306"/></Size>
+            <Anchors>
+              <Anchor point="TOPLEFT"><Offset><AbsDimension x="8" y="-8"/></Offset></Anchor>
+            </Anchors>
+          </EditBox>
+        </Frames>
+      </Frame>
+
+      <Button name="$parentOpenMapButton" inherits="UIPanelButtonTemplate" text="Open Map" hidden="true">
+        <Size><AbsDimension x="136" y="22"/></Size>
+        <Anchors>
+          <Anchor point="TOPLEFT"><Offset><AbsDimension x="608" y="-496"/></Offset></Anchor>
+        </Anchors>
+      </Button>
+
+      <Button name="$parentCloseButton" inherits="UIPanelButtonTemplate" text="X">
+        <Size><AbsDimension x="22" y="22"/></Size>
+        <Anchors>
+          <Anchor point="TOPRIGHT"><Offset><AbsDimension x="-8" y="-8"/></Offset></Anchor>
+        </Anchors>
+      </Button>
+
+      <Frame name="$parentTopAreaBackdrop">
+        <Size><AbsDimension x="728" y="472"/></Size>
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="$parentTabBar" relativePoint="BOTTOMLEFT"><Offset><AbsDimension x="-2" y="-2"/></Offset></Anchor>
+        </Anchors>
+        <Backdrop bgFile="Interface\Buttons\WHITE8X8" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
+          <BackgroundInsets><AbsInset left="3" right="3" top="3" bottom="3"/></BackgroundInsets>
+          <TileSize><AbsValue val="16"/></TileSize>
+          <EdgeSize><AbsValue val="16"/></EdgeSize>
+        </Backdrop>
+      </Frame>
+
+      <Frame name="$parentTabBar">
+        <Size><AbsDimension x="620" y="24"/></Size>
+        <Anchors>
+          <Anchor point="TOPLEFT"><Offset><AbsDimension x="18" y="-44"/></Offset></Anchor>
+        </Anchors>
+      </Frame>
+
+      <Button name="$parentSectionStable" inherits="TabButtonTemplate" text="Stable">
+        <Size><AbsDimension x="86" y="24"/></Size>
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="$parentTabBar"><Offset><AbsDimension x="0" y="0"/></Offset></Anchor>
+        </Anchors>
+      </Button>
+      <Button name="$parentSectionPetAbilities" inherits="TabButtonTemplate" text="Pet Abilities">
+        <Size><AbsDimension x="108" y="24"/></Size>
+        <Anchors>
+          <Anchor point="LEFT" relativeTo="$parentSectionStable" relativePoint="RIGHT"><Offset><AbsDimension x="2" y="0"/></Offset></Anchor>
+        </Anchors>
+      </Button>
+      <Button name="$parentSectionPets" inherits="TabButtonTemplate" text="Beast Lore">
+        <Size><AbsDimension x="98" y="24"/></Size>
+        <Anchors>
+          <Anchor point="LEFT" relativeTo="$parentSectionPetAbilities" relativePoint="RIGHT"><Offset><AbsDimension x="2" y="0"/></Offset></Anchor>
+        </Anchors>
+      </Button>
+      <Button name="$parentSectionFamilies" inherits="TabButtonTemplate" text="Families">
+        <Size><AbsDimension x="92" y="24"/></Size>
+        <Anchors>
+          <Anchor point="LEFT" relativeTo="$parentSectionPets" relativePoint="RIGHT"><Offset><AbsDimension x="2" y="0"/></Offset></Anchor>
+        </Anchors>
+      </Button>
+      <Button name="$parentSectionNPCs" inherits="TabButtonTemplate" text="NPC Finder">
+        <Size><AbsDimension x="110" y="24"/></Size>
+        <Anchors>
+          <Anchor point="LEFT" relativeTo="$parentSectionFamilies" relativePoint="RIGHT"><Offset><AbsDimension x="2" y="0"/></Offset></Anchor>
+        </Anchors>
+      </Button>
+      <Button name="$parentSectionItems" inherits="TabButtonTemplate" text="Weapons">
+        <Size><AbsDimension x="104" y="24"/></Size>
+        <Anchors>
+          <Anchor point="LEFT" relativeTo="$parentSectionNPCs" relativePoint="RIGHT"><Offset><AbsDimension x="2" y="0"/></Offset></Anchor>
+        </Anchors>
+      </Button>
+      <Button name="$parentSectionPetHistory" inherits="TabButtonTemplate" text="Pet History">
+        <Size><AbsDimension x="104" y="24"/></Size>
+        <Anchors>
+          <Anchor point="LEFT" relativeTo="$parentSectionItems" relativePoint="RIGHT"><Offset><AbsDimension x="2" y="0"/></Offset></Anchor>
+        </Anchors>
+      </Button>
+
+      <EditBox name="$parentSearch" inherits="InputBoxTemplate">
+        <Size><AbsDimension x="180" y="20"/></Size>
+        <Anchors>
+          <Anchor point="TOPLEFT"><Offset><AbsDimension x="54" y="-80"/></Offset></Anchor>
+        </Anchors>
+      </EditBox>
+
+      <EditBox name="$parentMinLevel" inherits="InputBoxTemplate">
+        <Size><AbsDimension x="45" y="20"/></Size>
+        <Anchors>
+          <Anchor point="TOPLEFT"><Offset><AbsDimension x="302" y="-80"/></Offset></Anchor>
+        </Anchors>
+      </EditBox>
+
+      <EditBox name="$parentMaxLevel" inherits="InputBoxTemplate">
+        <Size><AbsDimension x="45" y="20"/></Size>
+        <Anchors>
+          <Anchor point="TOPLEFT"><Offset><AbsDimension x="414" y="-80"/></Offset></Anchor>
+        </Anchors>
+      </EditBox>
+
+      <Button name="$parentApplyButton" inherits="UIPanelButtonTemplate" text="Apply">
+        <Size><AbsDimension x="60" y="20"/></Size>
+        <Anchors>
+          <Anchor point="TOPLEFT"><Offset><AbsDimension x="478" y="-80"/></Offset></Anchor>
+        </Anchors>
+      </Button>
+
+      <Frame name="$parentPetLearnSourceDropdown" inherits="UIDropDownMenuTemplate" hidden="true">
+        <Anchors>
+          <Anchor point="TOPLEFT"><Offset><AbsDimension x="12" y="-80"/></Offset></Anchor>
+        </Anchors>
+      </Frame>
+
+      <Frame name="$parentItemSubtypeDropdown" inherits="UIDropDownMenuTemplate" hidden="true">
+        <Anchors>
+          <Anchor point="TOPLEFT"><Offset><AbsDimension x="12" y="-108"/></Offset></Anchor>
+        </Anchors>
+      </Frame>
+
+      <CheckButton name="$parentPetOnlyMyLevel" inherits="UICheckButtonTemplate" hidden="true">
+        <Anchors>
+          <Anchor point="TOPLEFT"><Offset><AbsDimension x="228" y="-80"/></Offset></Anchor>
+        </Anchors>
+      </CheckButton>
+
+      <Button name="$parentPetBookScanButton" inherits="UIPanelButtonTemplate" text="Scan from Pet Book" hidden="true">
+        <Size><AbsDimension x="130" y="20"/></Size>
+        <Anchors>
+          <Anchor point="TOPLEFT"><Offset><AbsDimension x="614" y="-80"/></Offset></Anchor>
+        </Anchors>
+      </Button>
+
+      <Button name="$parentResetButton" inherits="UIPanelButtonTemplate" text="Reset">
+        <Size><AbsDimension x="60" y="20"/></Size>
+        <Anchors>
+          <Anchor point="TOPLEFT"><Offset><AbsDimension x="546" y="-80"/></Offset></Anchor>
+        </Anchors>
+      </Button>
+
+      <Button name="$parentFilter1" inherits="UIPanelButtonTemplate" text="All"><Size><AbsDimension x="70" y="20"/></Size><Anchors><Anchor point="TOPLEFT"><Offset><AbsDimension x="18" y="-114"/></Offset></Anchor></Anchors></Button>
+      <Button name="$parentFilter2" inherits="UIPanelButtonTemplate" text=""><Size><AbsDimension x="70" y="20"/></Size><Anchors><Anchor point="TOPLEFT"><Offset><AbsDimension x="92" y="-114"/></Offset></Anchor></Anchors></Button>
+      <Button name="$parentFilter3" inherits="UIPanelButtonTemplate" text=""><Size><AbsDimension x="70" y="20"/></Size><Anchors><Anchor point="TOPLEFT"><Offset><AbsDimension x="166" y="-114"/></Offset></Anchor></Anchors></Button>
+      <Button name="$parentFilter4" inherits="UIPanelButtonTemplate" text=""><Size><AbsDimension x="70" y="20"/></Size><Anchors><Anchor point="TOPLEFT"><Offset><AbsDimension x="240" y="-114"/></Offset></Anchor></Anchors></Button>
+      <Button name="$parentFilter5" inherits="UIPanelButtonTemplate" text=""><Size><AbsDimension x="70" y="20"/></Size><Anchors><Anchor point="TOPLEFT"><Offset><AbsDimension x="314" y="-114"/></Offset></Anchor></Anchors></Button>
+      <Button name="$parentFilter6" inherits="UIPanelButtonTemplate" text=""><Size><AbsDimension x="70" y="20"/></Size><Anchors><Anchor point="TOPLEFT"><Offset><AbsDimension x="388" y="-114"/></Offset></Anchor></Anchors></Button>
+
+      <Frame name="$parentFamilyDropdown" inherits="UIDropDownMenuTemplate" hidden="true">
+        <Anchors>
+          <Anchor point="TOPLEFT"><Offset><AbsDimension x="10" y="-108"/></Offset></Anchor>
+        </Anchors>
+      </Frame>
+      <Frame name="$parentAbilityDropdown" inherits="UIDropDownMenuTemplate" hidden="true">
+        <Anchors>
+          <Anchor point="TOPLEFT"><Offset><AbsDimension x="180" y="-108"/></Offset></Anchor>
+        </Anchors>
+      </Frame>
+      <Frame name="$parentRankDropdown" inherits="UIDropDownMenuTemplate" hidden="true">
+        <Anchors>
+          <Anchor point="TOPLEFT"><Offset><AbsDimension x="350" y="-108"/></Offset></Anchor>
+        </Anchors>
+      </Frame>
+      <CheckButton name="$parentPetInZoneOnly" inherits="UICheckButtonTemplate" hidden="true">
+        <Anchors>
+          <Anchor point="TOPLEFT"><Offset><AbsDimension x="488" y="-112"/></Offset></Anchor>
+        </Anchors>
+      </CheckButton>
+      <Button name="$parentShowAllOnMapButton" inherits="UIPanelButtonTemplate" text="Show all on map" hidden="true">
+        <Size><AbsDimension x="122" y="20"/></Size>
+        <Anchors>
+          <Anchor point="TOPLEFT"><Offset><AbsDimension x="602" y="-110"/></Offset></Anchor>
+        </Anchors>
+      </Button>
+      <Frame name="$parentNPCFunctionDropdown" inherits="UIDropDownMenuTemplate" hidden="true">
+        <Anchors>
+          <Anchor point="TOPLEFT"><Offset><AbsDimension x="242" y="-80"/></Offset></Anchor>
+        </Anchors>
+      </Frame>
+      <CheckButton name="$parentNPCInZoneOnly" inherits="UICheckButtonTemplate" hidden="true">
+        <Anchors>
+          <Anchor point="TOPLEFT"><Offset><AbsDimension x="404" y="-84"/></Offset></Anchor>
+        </Anchors>
+      </CheckButton>
+
+      <CheckButton name="$parentRequireVendor" inherits="UICheckButtonTemplate">
+        <Anchors><Anchor point="TOPLEFT"><Offset><AbsDimension x="18" y="-140"/></Offset></Anchor></Anchors>
+      </CheckButton>
+      <CheckButton name="$parentRequireDrop" inherits="UICheckButtonTemplate">
+        <Anchors><Anchor point="TOPLEFT"><Offset><AbsDimension x="86" y="-140"/></Offset></Anchor></Anchors>
+      </CheckButton>
+      <CheckButton name="$parentRequireObject" inherits="UICheckButtonTemplate">
+        <Anchors><Anchor point="TOPLEFT"><Offset><AbsDimension x="154" y="-140"/></Offset></Anchor></Anchors>
+      </CheckButton>
+      <CheckButton name="$parentHideNoAbilities" inherits="UICheckButtonTemplate">
+        <Anchors><Anchor point="TOPLEFT"><Offset><AbsDimension x="232" y="-140"/></Offset></Anchor></Anchors>
+      </CheckButton>
+      <CheckButton name="$parentHideUnknown" inherits="UICheckButtonTemplate">
+        <Anchors><Anchor point="TOPLEFT"><Offset><AbsDimension x="372" y="-140"/></Offset></Anchor></Anchors>
+      </CheckButton>
+
+      <Frame name="$parentListSliderBackdrop">
+        <Size><AbsDimension x="22" y="322"/></Size>
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="$parentListBackdrop" relativePoint="TOPRIGHT"><Offset><AbsDimension x="2" y="-20"/></Offset></Anchor>
+        </Anchors>
+        <Backdrop bgFile="Interface\Buttons\WHITE8X8" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
+          <BackgroundInsets><AbsInset left="2" right="2" top="2" bottom="2"/></BackgroundInsets>
+          <TileSize><AbsValue val="16"/></TileSize>
+          <EdgeSize><AbsValue val="16"/></EdgeSize>
+        </Backdrop>
+      </Frame>
+
+      <Slider name="$parentListSlider" inherits="UISliderTemplate" orientation="VERTICAL" minValue="1" maxValue="1" defaultValue="1" valueStep="1">
+        <Size><AbsDimension x="20" y="322"/></Size>
+        <Anchors>
+          <Anchor point="CENTER" relativeTo="$parentListSliderBackdrop"><Offset><AbsDimension x="0" y="0"/></Offset></Anchor>
+        </Anchors>
+      </Slider>
+
+      <Button name="$parentPrevButton" inherits="UIPanelButtonTemplate" text="Prev">
+        <Size><AbsDimension x="80" y="22"/></Size>
+        <Anchors><Anchor point="TOPLEFT"><Offset><AbsDimension x="280" y="-524"/></Offset></Anchor></Anchors>
+      </Button>
+      <Button name="$parentNextButton" inherits="UIPanelButtonTemplate" text="Next">
+        <Size><AbsDimension x="80" y="22"/></Size>
+        <Anchors><Anchor point="TOPLEFT"><Offset><AbsDimension x="368" y="-524"/></Offset></Anchor></Anchors>
+      </Button>
+    </Frames>
+
+    <Scripts>
+      <OnLoad>
+        this:RegisterForDrag("LeftButton")
+      </OnLoad>
+      <OnDragStart>
+        this:StartMoving();
+      </OnDragStart>
+      <OnDragStop>
+        this:StopMovingOrSizing();
+      </OnDragStop>
+    </Scripts>
+  </Frame>
+</Ui>

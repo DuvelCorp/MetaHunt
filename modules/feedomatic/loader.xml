@@ -1,0 +1,18 @@
+<!--
+FeedOMatic Module Loader
+Loads all FeedOMatic addon code and wraps it in the MTH module system
+-->
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+  <!-- Load original FeedOMatic addon files -->
+  <Include file="GFWUtils.lua"/>
+  <Include file="GFWTable.lua"/>
+  <Include file="localization.lua"/>
+  <Include file="FeedOMatic_Emotes.lua"/>
+  <Include file="FeedOMatic_Foods.lua"/>
+  <Include file="FeedOMatic.lua"/>
+  <Include file="runtime.xml"/>
+  <Include file="UpdateUI.xml"/>
+  
+  <!-- Load ModuleHunt wrapper -->
+  <Include file="module.lua"/>
+</Ui>

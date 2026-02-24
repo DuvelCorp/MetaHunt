@@ -1,0 +1,17 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+  <Include file="libs\AceLibrary\AceLibrary.lua"/>
+  <Include file="libs\AceOO-2.0\AceOO-2.0.lua"/>
+  <Include file="libs\AceEvent-2.0\AceEvent-2.0.lua"/>
+  <Include file="libs\AceHook-2.1\AceHook-2.1.lua"/>
+  <Include file="libs\AceAddon-2.0\AceAddon-2.0.lua"/>
+
+  <Include file="libs\CandyBar-2.0\CandyBar-2.0.lua"/>
+
+  <Include file="libs\ParserLib\FixGlobalString.lua"/>
+  <Include file="libs\ParserLib\ParserLib.lua"/>
+  <Include file="libs\ParserLib\optimizer-enUS.lua"/>
+
+  <Include file="engine.lua"/>
+  <Include file="data-hunter.lua"/>
+  <Include file="module.lua"/>
+</Ui>

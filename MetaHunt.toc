@@ -1,0 +1,45 @@
+## Interface: 11200
+## Version: 1.0.3
+## Title: MetaHunt - |cff00ff00Hunter
+## Author: Metasploit
+## Notes: Unified addon suite for huntards making old addons compatible with TurtleWoW, and adding an arsenal of never seen Hunter's utilities.
+## SavedVariables: MTH_SavedVariables, FOM_Config, FOM_FoodQuality, FOM_AddedFoods, FOM_RemovedFoods, FOM_Cooking, FOM_QuestFood, FOM_LocaleInfo
+## SavedVariablesPerCharacter: ZHunterMod_Saved, MTH_CharSavedVariables
+
+
+data\init.lua
+Bindings.xml
+
+## Load initialization and core framework
+init\env.xml
+init\compat.xml
+init\libs.xml
+init\api.xml
+api\core-feed-tracking.lua
+init\skins.xml
+
+## Load database files (DB files must come before data\init.lua)
+data\ds-beasts.lua
+data\ds-beasts-extra.lua
+data\ds-beasts-html-enrichment.lua
+data\ds-vendors.lua
+data\ds-vendors-extra.lua
+data\ds-items.lua
+data\ds-items-extra.lua
+data\ds-items-atlas-sources.lua
+data\ds-zones.lua
+data\ds-zones-fallback.lua
+data\ds-minimap-sizes.lua
+data\ds-unit-coords.lua
+data\ds-creature-coords.lua
+data\ds-beasts-families.lua
+data\ds-pet-spells.lua
+data\ds-pet-spells-trainer.lua
+data\ds-racial.lua
+data\init.lua
+
+## Load main addon entry point
+MetaHunt.lua
+
+## Load modules (each addon is now a self-contained module)
+init\modules.xml

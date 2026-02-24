@@ -1,0 +1,7 @@
+<!--
+MetaHunt Tooltips Module Loader
+Standalone tooltip augmentation using MetaHunt data only.
+-->
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+  <Include file="module.lua"/>
+</Ui>

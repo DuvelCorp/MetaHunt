@@ -1,0 +1,171 @@
+------------------------------------------------------
+-- MetaHunt Minimap Button
+------------------------------------------------------
+
+if not MTH_MinimapButton then
+	MTH_MinimapButton = {}
+end
+
+local function MTH_MB_GetStore()
+	if not MTH_CharSavedVariables then
+		MTH_CharSavedVariables = {}
+	end
+	if type(MTH_CharSavedVariables.minimapButton) ~= "table" then
+		MTH_CharSavedVariables.minimapButton = {}
+	end
+	local store = MTH_CharSavedVariables.minimapButton
+	if store.angle == nil then
+		store.angle = 220
+	end
+	return store
+end
+
+local function MTH_MB_GetRadius()
+	return 80
+end
+
+local function MTH_MB_UpdatePosition()
+	if not MTH_MinimapButton.frame then
+		return
+	end
+	local store = MTH_MB_GetStore()
+	local angle = tonumber(store.angle) or 220
+	local rad = math.rad(angle)
+	local radius = MTH_MB_GetRadius()
+	local x = math.cos(rad) * radius
+	local y = math.sin(rad) * radius
+	MTH_MinimapButton.frame:ClearAllPoints()
+	MTH_MinimapButton.frame:SetPoint("CENTER", Minimap, "CENTER", x, y)
+end
+
+local function MTH_MB_UpdateDragPosition()
+	if not MTH_MinimapButton.frame then
+		return
+	end
+	local mx, my = Minimap:GetCenter()
+	local px, py = GetCursorPosition()
+	local scale = Minimap:GetEffectiveScale()
+	if scale and scale ~= 0 then
+		px = px / scale
+		py = py / scale
+	end
+	local dx = px - mx
+	local dy = py - my
+	local angle = math.deg(math.atan2(dy, dx))
+	local store = MTH_MB_GetStore()
+	store.angle = angle
+	MTH_MB_UpdatePosition()
+end
+
+local function MTH_MB_SetHunterIcon(texture)
+	if not texture then
+		return
+	end
+	texture:SetTexture("Interface\\GLUES\\CHARACTERCREATE\\UI-CHARACTERCREATE-CLASSES")
+	if CLASS_ICON_TCOORDS and CLASS_ICON_TCOORDS["HUNTER"] then
+		local coords = CLASS_ICON_TCOORDS["HUNTER"]
+		texture:SetTexCoord(coords[1], coords[2], coords[3], coords[4])
+	else
+		texture:SetTexCoord(0, 0.25, 0.25, 0.5)
+	end
+end
+
+function MTH_MinimapButton:Initialize()
+	if self.frame then
+		MTH_MB_UpdatePosition()
+		self.frame:Show()
+		return
+	end
+
+	local button = CreateFrame("Button", "MTH_MinimapButtonFrame", Minimap)
+	if not button then
+		return
+	end
+
+	button:SetWidth(31)
+	button:SetHeight(31)
+	button:SetFrameStrata("MEDIUM")
+	button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+	button:RegisterForDrag("LeftButton")
+
+	local border = button:CreateTexture(nil, "OVERLAY")
+	border:SetTexture("Interface\\Minimap\\MiniMap-TrackingBorder")
+	border:SetWidth(54)
+	border:SetHeight(54)
+	border:SetPoint("TOPLEFT", button, "TOPLEFT", 0, 0)
+
+	local icon = button:CreateTexture(nil, "BACKGROUND")
+	icon:SetWidth(20)
+	icon:SetHeight(20)
+	icon:SetPoint("CENTER", button, "CENTER", 0, 0)
+	MTH_MB_SetHunterIcon(icon)
+
+	local highlight = button:CreateTexture(nil, "HIGHLIGHT")
+	highlight:SetTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight")
+	highlight:SetBlendMode("ADD")
+	highlight:SetWidth(31)
+	highlight:SetHeight(31)
+	highlight:SetPoint("CENTER", button, "CENTER", 0, 0)
+
+	button:SetScript("OnEnter", function(self)
+		self = self or this
+		if not self then return end
+		GameTooltip:SetOwner(self, "ANCHOR_LEFT")
+		GameTooltip:SetText("MetaHunt", 1, 0.82, 0)
+		GameTooltip:AddLine("Left-Click: Open Hunter Book", 1, 1, 1)
+		GameTooltip:AddLine("Right-Click: Open MetaHunt Options", 1, 1, 1)
+		GameTooltip:AddLine("Drag: Move button", 0.8, 0.8, 0.8)
+		GameTooltip:Show()
+	end)
+
+	button:SetScript("OnLeave", function()
+		GameTooltip:Hide()
+	end)
+
+	button:SetScript("OnDragStart", function(self)
+		self = self or this
+		if not self then return end
+		self.dragging = 1
+		self:SetScript("OnUpdate", function()
+			MTH_MB_UpdateDragPosition()
+		end)
+	end)
+
+	button:SetScript("OnDragStop", function(self)
+		self = self or this
+		if not self then return end
+		self.dragging = nil
+		self:SetScript("OnUpdate", nil)
+		MTH_MB_UpdateDragPosition()
+	end)
+
+	button:SetScript("OnClick", function(_, mouseButton)
+		mouseButton = mouseButton or arg1
+		if mouseButton == "RightButton" then
+			if type(MTH_OpenOptions) == "function" then
+				MTH_OpenOptions("General")
+			end
+			return
+		end
+
+		if type(MTH_OpenHunterBook) == "function" then
+			MTH_OpenHunterBook()
+		elseif type(MTH_ToggleHunterBook) == "function" then
+			MTH_ToggleHunterBook()
+		end
+	end)
+
+	self.frame = button
+	self.icon = icon
+	MTH_MB_UpdatePosition()
+end
+
+local loader = CreateFrame("Frame", "MTH_MinimapButtonLoader")
+loader:RegisterEvent("ADDON_LOADED")
+loader:SetScript("OnEvent", function(_, eventName, addonName)
+	eventName = eventName or event
+	addonName = addonName or arg1
+	if eventName == "ADDON_LOADED" and addonName == "MetaHunt" then
+		MTH_MinimapButton:Initialize()
+	end
+end)

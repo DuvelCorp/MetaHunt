@@ -1,0 +1,37 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+  <Include file="..\api\constants.lua"/>
+  <Include file="..\api\debug-frame.lua"/>
+  <Include file="..\api\minimap-button.lua"/>
+  <Include file="..\api\AutoStrip.xml"/>
+  <Include file="..\api\AutoStrip.lua"/>
+  <Include file="..\api\AntiDaze.lua"/>
+  <Include file="..\api\uilib.lua"/>
+  <Include file="..\api\uirenderer.lua"/>
+  <Include file="..\api\options-tree.lua"/>
+  <Include file="..\api\options.xml"/>
+  <Include file="..\api\options.lua"/>
+  <Include file="..\api\options-chronometer.lua"/>
+  <Include file="..\api\options-credits.lua"/>
+  <Include file="..\api\options-autobuy.lua"/>
+  <Include file="..\api\options-shell.lua"/>
+  <Include file="..\api\options-zbuttons.lua"/>
+  <Include file="..\api\options-feedomatic.lua"/>
+  <Include file="..\api\hunterbook.xml"/>
+  <Include file="..\api\hunterbook.lua"/>
+  <Include file="..\api\hunterbook-tab-beastlore.lua"/>
+  <Include file="..\api\hunterbook-tab-families.lua"/>
+  <Include file="..\api\hunterbook-tab-petabilities.lua"/>
+  <Include file="..\api\hunterbook-tab-weapons.lua"/>
+  <Include file="..\api\hunterbook-tab-npcfinder.lua"/>
+  <Include file="..\api\hunterbook-tab-stable.lua"/>
+  <Include file="..\api\hunterbook-tab-pethistory.lua"/>
+  <Include file="..\api\map-markers.lua"/>
+  <Include file="..\api\core-framework.lua"/>
+  <Include file="..\api\core-scan-stablemaster.lua"/>
+  <Include file="..\api\core-scan-beasttraining.lua"/>
+  <Include file="..\api\core-scan-spellbookpet.lua"/>
+  <Include file="..\api\core.lua"/>
+  <Include file="..\api\localization.lua"/>
+  <Include file="..\api\config.lua"/>
+</Ui>

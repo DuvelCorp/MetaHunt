@@ -1,0 +1,8 @@
+<!--
+MetaHunt AutoBuy Module Loader
+Standalone auto-buy foundation for pet food and ammo.
+-->
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+  <Include file="engine.lua"/>
+  <Include file="module.lua"/>
+</Ui>

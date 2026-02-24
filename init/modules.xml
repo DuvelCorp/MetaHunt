@@ -1,0 +1,23 @@
+<!--
+MetaHunt Module Loader
+
+-->
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+  <!-- FeedOMatic Module - ENABLED -->
+  <Include file="..\modules\feedomatic\loader.xml"/>
+  
+  <!-- Tooltips Module - ENABLED -->
+  <Include file="..\modules\tooltips\loader.xml"/>
+
+  <!-- Chronometer Module - ENABLED -->
+  <Include file="..\modules\chronometer\loader.xml"/>
+
+  <!-- ZHunter Module - ENABLED -->
+  <Include file="..\modules\zhunter\loader.xml"/>
+
+  <!-- SmartAmmo Module - ENABLED -->
+  <Include file="..\modules\smartammo\loader.xml"/>
+
+  <!-- AutoBuy Module - ENABLED -->
+  <Include file="..\modules\autobuy\loader.xml"/>
+</Ui>
