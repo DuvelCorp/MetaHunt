@@ -99,6 +99,43 @@ local function zButtonAspect_ApplyRuntimeSettings()
 	zButtonAspect.hideonclick = saved["children"] and saved["children"]["hideonclick"] and true or false
 end
 
+local function zButtonAspect_IsKnownAspectSpellId(spellId)
+	if not spellId then
+		return false
+	end
+	local spellName = GetSpellName(spellId, "spell")
+	if not spellName or spellName == "" then
+		return false
+	end
+	for i = 1, table.getn(ZHunterMod_Aspect_Spells) do
+		if ZHunterMod_Aspect_Spells[i] == spellName then
+			return true
+		end
+	end
+	return false
+end
+
+local function zButtonAspect_EnsureValidParentId()
+	if not (zButtonAspect and zButtonAspect.count) then
+		return
+	end
+
+	if zButtonAspect_IsKnownAspectSpellId(zButtonAspect.id) then
+		return
+	end
+
+	for i = 1, zButtonAspect.count do
+		local child = getglobal(zButtonAspect.name .. i)
+		if child and child.id and zButtonAspect_IsKnownAspectSpellId(child.id) then
+			zButtonAspect.id = child.id
+			zButtonAspect.isspell = 1
+			ZSpellButton_UpdateButton(zButtonAspect)
+			ZSpellButton_UpdateCooldown(zButtonAspect)
+			return
+		end
+	end
+end
+
 function zButtonAspect_OnLoad()
 	this:RegisterEvent("VARIABLES_LOADED")
 end
@@ -117,6 +154,9 @@ function zButtonAspect_OnEvent()
 		zButtonAspectAdjustment = CreateFrame("Frame", "zButtonAspectAdjustment")
 		zButtonAspectAdjustment:RegisterEvent("PLAYER_AURAS_CHANGED")
 		zButtonAspectAdjustment:RegisterEvent("PLAYER_ENTERING_WORLD")
+		zButtonAspectAdjustment:RegisterEvent("SPELLS_CHANGED")
+		zButtonAspectAdjustment:RegisterEvent("CHARACTER_POINTS_CHANGED")
+		zButtonAspectAdjustment:RegisterEvent("LEARNED_SPELL_IN_TAB")
 		zButtonAspectAdjustment:SetScript("OnEvent", zButtonAspectAdjustment_OnEvent)
 		zButtonAspect_Tooltip = CreateFrame("GameTooltip", "zButtonAspect_Tooltip", nil, "GameTooltipTemplate")
 		zButtonAspect_SetupSizeAndPosition()
@@ -144,6 +184,7 @@ function zButtonAspect_CreateButtons()
 	end
 	zButtonAspect.found = ZSpellButton_SetButtons(zButtonAspect, info)
 	zButtonAspect_ApplyRuntimeSettings()
+	zButtonAspect_EnsureValidParentId()
 end
 
 function zButtonAspect_SetupSizeAndPosition()
@@ -193,7 +234,14 @@ function zButtonAspectAdjustment_OnEvent()
 	if not zButtonAspect or not zButtonAspect.count then
 		return
 	end
-	if event == "PLAYER_AURAS_CHANGED" or event == "PLAYER_ENTERING_WORLD" then
+	if event == "SPELLS_CHANGED" or event == "CHARACTER_POINTS_CHANGED" or event == "LEARNED_SPELL_IN_TAB" then
+		zButtonAspect_CreateButtons()
+		zButtonAspect_SetupSizeAndPosition()
+		zButtonAspect_EnsureValidParentId()
+	end
+	if event == "PLAYER_AURAS_CHANGED" or event == "PLAYER_ENTERING_WORLD"
+		or event == "SPELLS_CHANGED" or event == "CHARACTER_POINTS_CHANGED" or event == "LEARNED_SPELL_IN_TAB" then
+		zButtonAspect_EnsureValidParentId()
 		if not zButtonAspect1.id then
 			return
 		end

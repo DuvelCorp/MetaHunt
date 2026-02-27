@@ -1267,7 +1267,7 @@ local function MTH_PETS_ApplySnapshotToRow(row, snapshot, source, context)
 			or tonumber(row.tamedAt) ~= nil
 			or tonumber(row.tameBeastId) ~= nil
 			or (type(row.tameZone) == "string" and row.tameZone ~= "")
-		if not hasTameRecord then
+		if not hasTameRecord and hasPendingTame then
 			local sourceText = tostring(source or "")
 			if sourceText == "unit-pet-acquire" or sourceText == "refresh-current-pet" then
 				row.tameRecorded = true
@@ -1758,7 +1758,9 @@ function MTH_PETS_RecordPetRunaway(source, rawMessage)
 	if MTH and MTH.Print then
 		local displayName = MTH_PETS_NormalizeText(petName)
 		if displayName == "" then displayName = "Unknown" end
-		MTH:Print("YOUR PET " .. tostring(displayName) .. " HAS RUNAWAY FOREVER :-( Try to feed it better next time.")
+		if MTH:IsMessageEnabled("petRanAway", true) then
+			MTH:Print("YOUR PET " .. tostring(displayName) .. " HAS RUNAWAY FOREVER :-( Try to feed it better next time.")
+		end
 	end
 
 	return true

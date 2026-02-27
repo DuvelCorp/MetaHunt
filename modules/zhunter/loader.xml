@@ -16,6 +16,7 @@ Loads all zhunter addon code and wraps it in the MTH module system
   <Include file="zButtonAspect.xml"/>
   <Include file="zButtonTrack.xml"/>
   <Include file="zButtonTrap.xml"/>
+  <Include file="zButtonRanged.xml"/>
   <Include file="zButtonAmmo.xml"/>
   <Include file="zButtonPet.xml"/>
   <Include file="zButtonMounts.xml"/>
@@ -34,6 +35,8 @@ Loads all zhunter addon code and wraps it in the MTH module system
   <Include file="zButtonTrack.lua"/>
   
   <Include file="zButtonTrap.lua"/>
+
+  <Include file="zButtonRanged.lua"/>
   
   <Include file="zButtonAmmo.lua"/>
   

@@ -4,8 +4,6 @@
 FOM_VERSION = "11200.2";
 ------------------------------------------------------
 
--- TODO: if you don't auto-feed, have an option to make the need to feed more noticeable (e.g., pulsing halo around the pet-happiness icon).
-
 -- constants
 FOM_WARNING_INTERVAL = 10; -- don't warn more than once per this many seconds
 MAX_QUALITY = 35 * 60 + 1; -- We store a notion of a food's "quality": its best happiness-per-tick multiplied by the pet's level as of when that tick occurred. We use "best" because a pet that's closer to "sated" (maximum happiness) will receive less happiness per tick than he would from the same food if he were hungrier. (So, a food that gives 35 happiness per tick to a level 60 pet is "better" than a food that's worth 35 happiness per tick to a level 30 pet.) Foods whose quality hasn't been observed yet are given this value when sorting, so we can prioritize the discovery of new foods' quality ratings.
@@ -366,9 +364,7 @@ function MTH_GetMerchantFoodsByDiet()
 end
 
 local function FOM_DebugLog(message)
-	if (type(MTH_Log) == "function") then
-		MTH_Log("[FeedOMatic] " .. tostring(message or ""), "debug");
-	end
+	return;
 end
 
 local function FOM_DebugLogMerchantFoods(sourceEvent)
@@ -1551,8 +1547,10 @@ function FOM_CheckHappiness()
 				else
 					msg = FOM_PET_VERY_HUNGRY;
 				end
-				GFWUtils.Print(string.format(msg, pet));
-				GFWUtils.Note(string.format(msg, pet));
+				if (not (MTH and MTH.IsMessageEnabled) or MTH:IsMessageEnabled("petHungry", false)) then
+					GFWUtils.Print(string.format(msg, pet));
+					GFWUtils.Note(string.format(msg, pet));
+				end
 			end
 			FOM_PlayHungrySound();
 			FOM_LastWarning = GetTime();

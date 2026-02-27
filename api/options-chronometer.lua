@@ -336,25 +336,36 @@ local function MTH_CHRON_NormalizeSection(tabKey)
 	return "general"
 end
 
-local function MTH_CHRON_RenderTimerSection(container, profile, title, items, bucket)
-	local timerX = 20
-	local timerY = -84
-	MTH_CHRON_MakeTitle(container, "MetaHuntOptionsChronometerTimersHeader", title, timerX, timerY)
+local function MTH_CHRON_RenderTimerSection(container, profile, title, items, bucket, opts)
+	opts = opts or {}
+	local timerX = opts.x or 20
+	local timerY = opts.y or -84
+	local prefix = tostring(opts.prefix or "Main")
+
+	MTH_CHRON_MakeTitle(container, "MetaHuntOptionsChronometerTimersHeader" .. prefix, title, timerX, timerY)
 	timerY = timerY - 24
 
 	if table.getn(items) == 0 then
-		MTH_CHRON_MakeSmall(container, "MetaHuntOptionsChronometerSectionEmpty", "(none)", timerX + 8, timerY)
+		MTH_CHRON_MakeSmall(container, "MetaHuntOptionsChronometerSectionEmpty" .. prefix, "(none)", timerX + 8, timerY)
 		return
 	end
 
 	for i = 1, table.getn(items) do
 		if timerY < -560 then
-			MTH_CHRON_MakeSmall(container, "MetaHuntOptionsChronometerOverflow", "...more", timerX + 8, timerY)
+			MTH_CHRON_MakeSmall(container, "MetaHuntOptionsChronometerOverflow" .. prefix, "...more", timerX + 8, timerY)
 			break
 		end
-		local timerName = items[i]
-		local controlName = "MetaHuntOptionsChronometerTimer" .. tostring(bucket) .. tostring(i)
-		local check = MTH_CreateCheckbox(container, controlName, tostring(timerName), timerY, timerX)
+		local row = items[i]
+		local timerName = row
+		local label = row
+		if type(row) == "table" then
+			timerName = row.key or row.timer or row.name
+			label = row.label or row.name or row.key
+		end
+		timerName = tostring(timerName or "")
+		label = tostring(label or timerName)
+		local controlName = "MetaHuntOptionsChronometerTimer" .. prefix .. tostring(bucket) .. tostring(i)
+		local check = MTH_CreateCheckbox(container, controlName, label, timerY, timerX)
 		if check then
 			check:SetChecked(profile.disabledSpells[bucket][timerName] == nil and true or false)
 			check:SetScript("OnClick", function(self)
@@ -369,6 +380,43 @@ local function MTH_CHRON_RenderTimerSection(container, profile, title, items, bu
 		end
 		timerY = timerY - 20
 	end
+end
+
+local MTH_CHRON_HUNTER_TRINKETS = {
+	{ labelToken = "Devilsaur Eye", timerToken = "Devilsaur Fury" },
+	{ labelToken = "Zandalarian Hero Medallion", timerToken = "Restless Strength" },
+	{ labelToken = "Earthstrike", timerToken = "Earthstrike" },
+	{ labelToken = "Badge of the Swarmguard", timerToken = "Badge of the Swarmguard" },
+	{ labelToken = "Jom Gabbar", timerToken = "Jom Gabbar" },
+	{ labelToken = "Kiss of the Spider", timerToken = "Kiss of the Spider" },
+	{ labelToken = "Slayer's Crest", timerToken = "Slayer's Crest" },
+}
+
+local function MTH_CHRON_LocalizeTimerToken(token)
+	if MTH and MTH.LocalizeSpell then
+		return tostring(MTH:LocalizeSpell(token) or token)
+	end
+	return tostring(token)
+end
+
+local function MTH_CHRON_BuildHunterTrinketItems(classEvents)
+	local eventSet = {}
+	for i = 1, table.getn(classEvents or {}) do
+		eventSet[tostring(classEvents[i])] = true
+	end
+
+	local result = {}
+	for i = 1, table.getn(MTH_CHRON_HUNTER_TRINKETS) do
+		local def = MTH_CHRON_HUNTER_TRINKETS[i]
+		local key = MTH_CHRON_LocalizeTimerToken(def.timerToken)
+		if eventSet[key] then
+			table.insert(result, {
+				key = key,
+				label = MTH_CHRON_LocalizeTimerToken(def.labelToken),
+			})
+		end
+	end
+	return result
 end
 
 function MTH_RefreshChronometerOptions(tabKey)
@@ -582,11 +630,20 @@ function MTH_SetupChronometerOptions(tabKey)
 	else
 		local classSpells, classEvents, racial = MTH_CHRON_BuildTimerLists()
 		if section == "classspells" then
-			MTH_CHRON_RenderTimerSection(container, profile, "Hunter Spells", classSpells, class)
+			MTH_CHRON_RenderTimerSection(container, profile, "Hunter Spells", classSpells, class, {
+				x = 20,
+				y = -84,
+				prefix = "ClassSpells",
+			})
+			MTH_CHRON_RenderTimerSection(container, profile, "Hunter Trinkets", MTH_CHRON_BuildHunterTrinketItems(classEvents), class, {
+				x = 300,
+				y = -84,
+				prefix = "ClassTrinkets",
+			})
 		elseif section == "classevents" then
-			MTH_CHRON_RenderTimerSection(container, profile, "Hunter Events", classEvents, class)
+			MTH_CHRON_RenderTimerSection(container, profile, "Hunter Events", classEvents, class, { prefix = "ClassEvents" })
 		elseif section == "racial" then
-			MTH_CHRON_RenderTimerSection(container, profile, "Racial", racial, "RACIAL")
+			MTH_CHRON_RenderTimerSection(container, profile, "Racial", racial, "RACIAL", { prefix = "Racial" })
 		end
 	end
 end

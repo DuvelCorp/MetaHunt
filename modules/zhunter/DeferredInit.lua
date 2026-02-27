@@ -64,6 +64,8 @@ local function ZHunterMod_EnsureButtonFrame(buttonName)
 			created:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 		elseif buttonName == "zButtonTrap" then
 			created:SetPoint("CENTER", UIParent, "CENTER", 60, 0)
+		elseif buttonName == "zButtonRanged" then
+			created:SetPoint("CENTER", UIParent, "CENTER", 120, 0)
 		elseif buttonName == "zButtonPet" then
 			created:SetPoint("CENTER", UIParent, "CENTER", 0, 60)
 		elseif buttonName == "zButtonMounts" then
@@ -86,6 +88,7 @@ function ZHunterMod_DeferredInit()
 	local aspect = ZHunterMod_EnsureButtonFrame("zButtonAspect")
 	local track = ZHunterMod_EnsureButtonFrame("zButtonTrack")
 	local trap = ZHunterMod_EnsureButtonFrame("zButtonTrap")
+	local ranged = ZHunterMod_EnsureButtonFrame("zButtonRanged")
 	local ammo = ZHunterMod_EnsureButtonFrame("zButtonAmmo")
 	local mounts = ZHunterMod_EnsureButtonFrame("zButtonMounts")
 	local companions = ZHunterMod_EnsureButtonFrame("zButtonCompanions")
@@ -95,6 +98,7 @@ function ZHunterMod_DeferredInit()
 	ZHunterMod_LogDeferred("DeferredInit: Aspect=" .. tostring(aspect ~= nil))
 	ZHunterMod_LogDeferred("DeferredInit: Track=" .. tostring(track ~= nil))
 	ZHunterMod_LogDeferred("DeferredInit: Trap=" .. tostring(trap ~= nil))
+	ZHunterMod_LogDeferred("DeferredInit: Ranged=" .. tostring(ranged ~= nil))
 	ZHunterMod_LogDeferred("DeferredInit: Ammo=" .. tostring(ammo ~= nil))
 	ZHunterMod_LogDeferred("DeferredInit: Mounts=" .. tostring(mounts ~= nil))
 	ZHunterMod_LogDeferred("DeferredInit: Companions=" .. tostring(companions ~= nil))
@@ -106,6 +110,7 @@ function ZHunterMod_DeferredInit()
 	if not aspect then table.insert(missing, "Aspect") end
 	if not track then table.insert(missing, "Track") end
 	if not trap then table.insert(missing, "Trap") end
+	if not ranged then table.insert(missing, "Ranged") end
 	if not ammo then table.insert(missing, "Ammo") end
 	if not mounts then table.insert(missing, "Mounts") end
 	if not companions then table.insert(missing, "Companions") end
@@ -115,7 +120,7 @@ function ZHunterMod_DeferredInit()
 		MTH_ZH_Print("[ZHUNTER] Warning: missing frames: " .. table.concat(missing, ", ") .. ". Continuing with available buttons.", "error")
 	end
 
-	if not (pet or aspect or track or trap or ammo or mounts or companions or toys) then
+	if not (pet or aspect or track or trap or ranged or ammo or mounts or companions or toys) then
 		MTH_ZH_Print("zhunter buttons not created - check for addon conflicts!", "error")
 		return
 	end
@@ -156,6 +161,12 @@ function ZHunterMod_DeferredInit()
 	
 	if trap and zButtonTrap_OnEvent then
 		if ZHunterMod_SafeRunButtonInit(trap, zButtonTrap_OnEvent, "zButtonTrap") then
+			initialized = initialized + 1
+		end
+	end
+
+	if ranged and zButtonRanged_OnEvent then
+		if ZHunterMod_SafeRunButtonInit(ranged, zButtonRanged_OnEvent, "zButtonRanged") then
 			initialized = initialized + 1
 		end
 	end

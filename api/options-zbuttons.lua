@@ -6,6 +6,13 @@ local MTH_ZBUTTONS_READY = MTH_OptionsRequire and MTH_OptionsRequire("options-zb
 	"MTH_CreateActionButton",
 })
 
+local function MTH_ZB_L(key, default)
+	if MTH and MTH.GetLocalization then
+		return MTH:GetLocalization(key, default)
+	end
+	return default or key
+end
+
 local function MTH_ZB_RefreshTab(tabName)
 	if type(MTH_ResetAndSelectOptionsTab) == "function" then
 		MTH_ResetAndSelectOptionsTab(tabName)
@@ -150,6 +157,11 @@ local function MTH_GetButtonItemList(buttonName)
 			end
 		end
 		return getglobal("ZHunterMod_Ammo_Buttons") or sharedArrows
+	elseif buttonName == "zButtonRanged" then
+		local rangedList = getglobal("ZHunterMod_Ranged_Weapons")
+		if rangedList and table.getn(rangedList) > 0 then
+			return rangedList
+		end
 	elseif buttonName == "zButtonMounts" or buttonName == "zButtonCompanions" or buttonName == "zButtonToys" then
 		if ZHunterMod_Saved and ZHunterMod_Saved[buttonName] and ZHunterMod_Saved[buttonName]["spells"] then
 			return ZHunterMod_Saved[buttonName]["spells"]
@@ -191,6 +203,68 @@ local function MTH_EnsureAmmoOptionsWatcher()
 	end)
 end
 
+local function MTH_ZB_GetDefaultEnabled(buttonName)
+	if buttonName == "zButtonMounts" or buttonName == "zButtonCompanions" or buttonName == "zButtonToys" or buttonName == "zButtonRanged" then
+		return false
+	end
+	return true
+end
+
+local function MTH_ZB_EnsureButtonOptionDefaults(buttonName)
+	if not (ZHunterMod_Saved and buttonName) then
+		return nil
+	end
+
+	if type(ZHunterMod_Saved[buttonName]) ~= "table" then
+		ZHunterMod_Saved[buttonName] = {}
+	end
+
+	local saved = ZHunterMod_Saved[buttonName]
+
+	if saved["enabled"] == nil then
+		saved["enabled"] = MTH_ZB_GetDefaultEnabled(buttonName)
+	end
+	saved["enabled"] = saved["enabled"] and true or false
+
+	if saved["tooltip"] == nil then
+		saved["tooltip"] = true
+	end
+	saved["tooltip"] = saved["tooltip"] and true or false
+
+	if type(saved["children"]) ~= "table" then
+		saved["children"] = {}
+	end
+	if saved["children"]["hideonclick"] == nil then
+		saved["children"]["hideonclick"] = true
+	end
+	saved["children"]["hideonclick"] = saved["children"]["hideonclick"] and true or false
+
+	if type(saved["parent"]) ~= "table" then
+		saved["parent"] = {}
+	end
+	if saved["parent"]["hide"] == nil then
+		saved["parent"]["hide"] = false
+	end
+	saved["parent"]["hide"] = saved["parent"]["hide"] and true or false
+	if saved["parent"]["circle"] == nil then
+		saved["parent"]["circle"] = true
+	end
+	saved["parent"]["circle"] = saved["parent"]["circle"] and true or false
+
+	if saved["firstbutton"] ~= "LEFT" and saved["firstbutton"] ~= "RIGHT" then
+		saved["firstbutton"] = "RIGHT"
+	end
+
+	if buttonName == "zButtonAmmo" then
+		if saved["showammoname"] == nil then
+			saved["showammoname"] = true
+		end
+		saved["showammoname"] = saved["showammoname"] and true or false
+	end
+
+	return saved
+end
+
 local function MTH_SetupButtonOptions(containerName, buttonName, displayName, maxButtons)
 	local container = MTH_GetFrame(containerName)
 	if not container then
@@ -205,7 +279,7 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 	if not ZHunterMod_Saved or not ZHunterMod_Saved[buttonName] then
 		local errText = container:CreateFontString(containerName.."Error", "ARTWORK", "GameFontNormal")
 		errText:SetPoint("CENTER", container, "CENTER", 0, 0)
-		errText:SetText("Configuration not loaded for "..displayName)
+		errText:SetText(string.format(MTH_ZB_L("ZB_ERR_CONFIG_NOT_LOADED", "Configuration not loaded for %s"), tostring(displayName)))
 		errText:SetTextColor(1, 0.5, 0.5)
 		if MTH and MTH.Print then
 			MTH:Print("[MTH] zhunter saved data missing for "..buttonName, "error")
@@ -214,6 +288,10 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 	end
 
 	local buttonObj = getglobal(buttonName)
+	local saved = MTH_ZB_EnsureButtonOptionDefaults(buttonName)
+	if not saved then
+		return
+	end
 	local containerWidth = container:GetWidth() or 500
 	local leftWidth = 260
 	local rightX = leftWidth + 44
@@ -236,17 +314,15 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 		return section
 	end
 
-	if ZHunterMod_Saved[buttonName]["enabled"] == nil then
-		ZHunterMod_Saved[buttonName]["enabled"] = true
-	end
+	local enabledValue = saved["enabled"] and true or false
 	local enableLabel = tostring(displayName or "")
 	if string.len(enableLabel) > 0 then
 		enableLabel = string.lower(string.sub(enableLabel, 1, 1)) .. string.sub(enableLabel, 2)
 	end
 
-	local enableButton = MTH_CreateCheckbox(container, containerName.."EnableButton", "Enable "..enableLabel, -8)
+	local enableButton = MTH_CreateCheckbox(container, containerName.."EnableButton", string.format(MTH_ZB_L("ZB_LABEL_ENABLE_FMT", "Enable %s"), enableLabel), -8)
 	if enableButton then
-		enableButton:SetChecked(ZHunterMod_Saved[buttonName]["enabled"] and true or false)
+		enableButton:SetChecked(enabledValue and true or false)
 		enableButton.buttonName = buttonName
 		enableButton.buttonObj = buttonObj
 		enableButton:SetScript("OnClick", function(self)
@@ -257,16 +333,16 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 		end)
 	end
 
-	local parentSection = MTH_ZB_EnsureSection(containerName.."ParentSection", "Parent Button", -52, 116)
-	local childrenSection = MTH_ZB_EnsureSection(containerName.."ChildrenSection", "Children Buttons", -184, 235)
+	local parentSection = MTH_ZB_EnsureSection(containerName.."ParentSection", MTH_ZB_L("ZB_SECTION_PARENT_BUTTON", "Parent Button"), -52, 116)
+	local childrenSection = MTH_ZB_EnsureSection(containerName.."ChildrenSection", MTH_ZB_L("ZB_SECTION_CHILDREN_BUTTONS", "Children Buttons"), -184, 235)
 
 	local parentYOffset = -18
 	local childrenYOffset = -18
 
-	local btnSize = MTH_CreateSlider(childrenSection or container, containerName.."ButtonSize", "Button Size", 10, 100, 1, childrenYOffset)
+	local btnSize = MTH_CreateSlider(childrenSection or container, containerName.."ButtonSize", MTH_ZB_L("ZB_LABEL_BUTTON_SIZE", "Button Size"), 10, 100, 1, childrenYOffset)
 	if btnSize then
 		btnSize:SetWidth(leftWidth - 40)
-		btnSize:SetValue(ZHunterMod_Saved[buttonName]["children"]["size"] or 36)
+		btnSize:SetValue(saved["children"]["size"] or 36)
 		btnSize.buttonName = buttonName
 		btnSize.buttonObj = buttonObj
 		btnSize.itemList = MTH_GetButtonItemList(buttonName)
@@ -285,10 +361,10 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 	end
 	childrenYOffset = childrenYOffset - 50
 
-	local rowCount = MTH_CreateSlider(childrenSection or container, containerName.."RowCount", "Number of Rows", 1, maxButtons, 1, childrenYOffset)
+	local rowCount = MTH_CreateSlider(childrenSection or container, containerName.."RowCount", MTH_ZB_L("ZB_LABEL_NUMBER_OF_ROWS", "Number of Rows"), 1, maxButtons, 1, childrenYOffset)
 	if rowCount then
 		rowCount:SetWidth(leftWidth - 40)
-		rowCount:SetValue(ZHunterMod_Saved[buttonName]["rows"] or 1)
+		rowCount:SetValue(saved["rows"] or 1)
 		rowCount.buttonName = buttonName
 		rowCount.buttonObj = buttonObj
 		rowCount.itemList = MTH_GetButtonItemList(buttonName)
@@ -303,12 +379,9 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 	end
 	childrenYOffset = childrenYOffset - 40
 
-	if ZHunterMod_Saved[buttonName]["firstbutton"] == nil then
-		ZHunterMod_Saved[buttonName]["firstbutton"] = "RIGHT"
-	end
-	local expandLeft = MTH_CreateCheckbox(childrenSection or container, containerName.."ExpandLeft", "Expand Left (opposite side)", childrenYOffset)
+	local expandLeft = MTH_CreateCheckbox(childrenSection or container, containerName.."ExpandLeft", MTH_ZB_L("ZB_LABEL_EXPAND_LEFT", "Expand Left (opposite side)"), childrenYOffset)
 	if expandLeft then
-		expandLeft:SetChecked(ZHunterMod_Saved[buttonName]["firstbutton"] == "LEFT")
+		expandLeft:SetChecked(saved["firstbutton"] == "LEFT")
 		expandLeft.buttonName = buttonName
 		expandLeft.buttonObj = buttonObj
 		expandLeft:SetScript("OnClick", function(self)
@@ -325,13 +398,13 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 	end
 	childrenYOffset = childrenYOffset - 30
 
-	local hideClick = MTH_CreateCheckbox(childrenSection or container, containerName.."HideOnClick", "Hide Buttons On Click", childrenYOffset)
+	local hideClick = MTH_CreateCheckbox(childrenSection or container, containerName.."HideOnClick", MTH_ZB_L("ZB_LABEL_HIDE_BUTTONS_ON_CLICK", "Hide Buttons On Click"), childrenYOffset)
 	if hideClick then
-		hideClick:SetChecked(ZHunterMod_Saved[buttonName]["children"]["hideonclick"])
+		hideClick:SetChecked(saved["children"]["hideonclick"])
 		hideClick.buttonName = buttonName
 		hideClick.buttonObj = buttonObj
 		if hideClick.buttonObj then
-			hideClick.buttonObj.hideonclick = ZHunterMod_Saved[buttonName]["children"]["hideonclick"] and true or false
+			hideClick.buttonObj.hideonclick = saved["children"]["hideonclick"] and true or false
 		end
 		hideClick:SetScript("OnClick", function(self)
 			self = self or this
@@ -344,13 +417,13 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 	end
 	childrenYOffset = childrenYOffset - 25
 
-	local showTooltip = MTH_CreateCheckbox(childrenSection or container, containerName.."ShowTooltip", "Show Tooltip", childrenYOffset)
+	local showTooltip = MTH_CreateCheckbox(childrenSection or container, containerName.."ShowTooltip", MTH_ZB_L("ZB_LABEL_SHOW_TOOLTIP", "Show Tooltip"), childrenYOffset)
 	if showTooltip then
-		showTooltip:SetChecked(ZHunterMod_Saved[buttonName]["tooltip"])
+		showTooltip:SetChecked(saved["tooltip"])
 		showTooltip.buttonName = buttonName
 		showTooltip.buttonObj = buttonObj
 		if showTooltip.buttonObj then
-			showTooltip.buttonObj.tooltip = ZHunterMod_Saved[buttonName]["tooltip"] and true or false
+			showTooltip.buttonObj.tooltip = saved["tooltip"] and true or false
 		end
 		showTooltip:SetScript("OnClick", function(self)
 			self = self or this
@@ -364,12 +437,9 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 	childrenYOffset = childrenYOffset - 25
 
 	if buttonName == "zButtonAmmo" then
-		if ZHunterMod_Saved[buttonName]["showammoname"] == nil then
-			ZHunterMod_Saved[buttonName]["showammoname"] = 1
-		end
-		local showAmmoName = MTH_CreateCheckbox(childrenSection or container, containerName.."ShowAmmoName", "Show ammo name", childrenYOffset)
+		local showAmmoName = MTH_CreateCheckbox(childrenSection or container, containerName.."ShowAmmoName", MTH_ZB_L("ZB_LABEL_SHOW_AMMO_NAME", "Show ammo name"), childrenYOffset)
 		if showAmmoName then
-			showAmmoName:SetChecked(ZHunterMod_Saved[buttonName]["showammoname"])
+			showAmmoName:SetChecked(saved["showammoname"])
 			showAmmoName.buttonName = buttonName
 			showAmmoName.buttonObj = buttonObj
 			showAmmoName.maxButtons = maxButtons
@@ -398,10 +468,10 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 		childrenYOffset = childrenYOffset - 35
 	end
 
-	local mainSize = MTH_CreateSlider(parentSection or container, containerName.."MainButtonSize", "Button Size", 10, 100, 1, parentYOffset)
+	local mainSize = MTH_CreateSlider(parentSection or container, containerName.."MainButtonSize", MTH_ZB_L("ZB_LABEL_BUTTON_SIZE", "Button Size"), 10, 100, 1, parentYOffset)
 	if mainSize then
 		mainSize:SetWidth(leftWidth - 40)
-		mainSize:SetValue(ZHunterMod_Saved[buttonName]["parent"]["size"] or 36)
+		mainSize:SetValue(saved["parent"]["size"] or 36)
 		mainSize.buttonName = buttonName
 		mainSize.buttonObj = buttonObj
 		mainSize.onChange = function(val, slider)
@@ -423,9 +493,9 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 	end
 	parentYOffset = parentYOffset - 35
 
-	local hideButton = MTH_CreateCheckbox(parentSection or container, containerName.."HideButton", "Hide Button", parentYOffset)
+	local hideButton = MTH_CreateCheckbox(parentSection or container, containerName.."HideButton", MTH_ZB_L("ZB_LABEL_HIDE_BUTTON", "Hide Button"), parentYOffset)
 	if hideButton then
-		hideButton:SetChecked(ZHunterMod_Saved[buttonName]["parent"]["hide"])
+		hideButton:SetChecked(saved["parent"]["hide"])
 		hideButton.buttonName = buttonName
 		hideButton.buttonObj = buttonObj
 		hideButton:SetScript("OnClick", function(self)
@@ -440,9 +510,9 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 	end
 	parentYOffset = parentYOffset - 25
 
-	local useCircle = MTH_CreateCheckbox(parentSection or container, containerName.."UseCircle", "Use Circle Button", parentYOffset)
+	local useCircle = MTH_CreateCheckbox(parentSection or container, containerName.."UseCircle", MTH_ZB_L("ZB_LABEL_USE_CIRCLE_BUTTON", "Use Circle Button"), parentYOffset)
 	if useCircle then
-		useCircle:SetChecked(ZHunterMod_Saved[buttonName]["parent"]["circle"])
+		useCircle:SetChecked(saved["parent"]["circle"])
 		useCircle.buttonName = buttonName
 		useCircle.buttonObj = buttonObj
 		useCircle:SetScript("OnClick", function(self)
@@ -456,18 +526,18 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 		end)
 	end
 
-	MTH_SetButtonEnabledState(buttonName, buttonObj, ZHunterMod_Saved[buttonName]["enabled"] and true or false)
+	MTH_SetButtonEnabledState(buttonName, buttonObj, saved["enabled"] and true or false)
 
 	local advHeader = container:CreateFontString(containerName.."AdvHeader", "ARTWORK", "GameFontHighlight")
 	advHeader:SetPoint("TOPLEFT", container, "TOPLEFT", rightX, -10)
-	advHeader:SetText("Spell Order")
+	advHeader:SetText(MTH_ZB_L("ZB_HEADER_SPELL_ORDER", "Spell Order"))
 
 	local itemList = MTH_GetButtonItemList(buttonName)
 
 	if not itemList or not ZHunterMod_Saved[buttonName]["spells"] then
 		local noData = container:CreateFontString(containerName.."NoData", "ARTWORK", "GameFontNormalSmall")
 		noData:SetPoint("TOPRIGHT", container, "TOPRIGHT", -80, -50)
-		noData:SetText("Spell data not loaded")
+		noData:SetText(MTH_ZB_L("ZB_TEXT_SPELL_DATA_NOT_LOADED", "Spell data not loaded"))
 		noData:SetTextColor(1, 0.5, 0.5)
 		return
 	end
@@ -608,6 +678,13 @@ function MTH_SetupTrapOptions()
 	MTH_SetupButtonOptions("MetaHuntOptionsTrap", "zButtonTrap", "ZTrap", 4)
 end
 
+function MTH_SetupRangedOptions()
+	if not MTH_ZBUTTONS_READY then return end
+	local itemList = MTH_GetButtonItemList("zButtonRanged")
+	local maxButtons = itemList and table.getn(itemList) or 1
+	MTH_SetupButtonOptions("MetaHuntOptionsRanged", "zButtonRanged", "ZRanged", maxButtons)
+end
+
 function MTH_SetupAmmoOptions()
 	if not MTH_ZBUTTONS_READY then return end
 	MTH_EnsureAmmoOptionsWatcher()
@@ -674,7 +751,7 @@ function MTH_SetupSmartAmmoOptions()
 		end)
 	end
 
-	local smartToggle = MTH_CreateCheckbox(container, "MetaHuntOptionsSmartAmmoEnabled", "Enable Smart Ammo Swaps", -94)
+	local smartToggle = MTH_CreateCheckbox(container, "MetaHuntOptionsSmartAmmoEnabled", "Enable Junk Shot Swaps", -94)
 	if smartToggle then
 		local enabled = type(MTHSmartAmmo_GetSmartEnabled) == "function" and MTHSmartAmmo_GetSmartEnabled() and true or false
 		smartToggle:SetChecked(enabled)
@@ -708,6 +785,119 @@ function MTH_SetupSmartAmmoOptions()
 			end
 		end)
 	end
+end
+
+function MTH_SetupMessagesOptions()
+	if not MTH_ZBUTTONS_READY then return end
+	local container = MTH_GetFrame("MetaHuntOptionsMessages")
+	if not container then return end
+
+	MTH_ClearContainer(container)
+
+	local section = CreateFrame("Frame", "MetaHuntMessagesSection", container, "OptionFrameBoxTemplate")
+	if not section then return end
+	section:SetPoint("TOPLEFT", container, "TOPLEFT", 8, -8)
+	section:SetPoint("TOPRIGHT", container, "TOPRIGHT", -8, -8)
+	section:SetHeight(268)
+
+	local titleFrame = getglobal("MetaHuntMessagesSectionTitle")
+	if titleFrame then
+		titleFrame:SetText("Messages")
+	end
+
+	local help = section:CreateFontString("MetaHuntMessagesHelp", "ARTWORK")
+	help:SetFont("Fonts\\FRIZQT__.TTF", 10)
+	help:SetJustifyH("LEFT")
+	help:SetPoint("TOPLEFT", section, "TOPLEFT", 14, -12)
+	help:SetPoint("TOPRIGHT", section, "TOPRIGHT", -14, -12)
+	help:SetText("Enable or Disable Metahunt chat messages")
+
+	local msgSettings = (MTH and MTH.GetMessageSettings and MTH:GetMessageSettings()) or {}
+
+	local initModulesToggle = MTH_CreateCheckbox(section, "MetaHuntMessagesInitModules", "Init : modules loaded", -36)
+	if initModulesToggle then
+		initModulesToggle:SetChecked(msgSettings.initModulesLoaded and true or false)
+		initModulesToggle:SetScript("OnClick", function(self)
+			self = self or this
+			if not self then return end
+			if MTH and MTH.SetMessageEnabled then
+				MTH:SetMessageEnabled("initModulesLoaded", self:GetChecked() and true or false)
+			end
+		end)
+	end
+
+	local initWelcomeToggle = MTH_CreateCheckbox(section, "MetaHuntMessagesInitWelcome", "Init : Sarcastic welcome message", -64)
+	if initWelcomeToggle then
+		initWelcomeToggle:SetChecked(msgSettings.initSarcasticWelcome ~= false)
+		initWelcomeToggle:SetScript("OnClick", function(self)
+			self = self or this
+			if not self then return end
+			if MTH and MTH.SetMessageEnabled then
+				MTH:SetMessageEnabled("initSarcasticWelcome", self:GetChecked() and true or false)
+			end
+		end)
+	end
+
+	local petHungryToggle = MTH_CreateCheckbox(section, "MetaHuntMessagesPetHungry", "Pet is hungry (spam)", -92)
+	if petHungryToggle then
+		petHungryToggle:SetChecked(msgSettings.petHungry and true or false)
+		petHungryToggle:SetScript("OnClick", function(self)
+			self = self or this
+			if not self then return end
+			if MTH and MTH.SetMessageEnabled then
+				MTH:SetMessageEnabled("petHungry", self:GetChecked() and true or false)
+			end
+		end)
+	end
+
+	local beastTrainingScanToggle = MTH_CreateCheckbox(section, "MetaHuntMessagesBeastTrainingScan", "Beasttraining scan", -120)
+	if beastTrainingScanToggle then
+		beastTrainingScanToggle:SetChecked(msgSettings.beastTrainingScan ~= false)
+		beastTrainingScanToggle:SetScript("OnClick", function(self)
+			self = self or this
+			if not self then return end
+			if MTH and MTH.SetMessageEnabled then
+				MTH:SetMessageEnabled("beastTrainingScan", self:GetChecked() and true or false)
+			end
+		end)
+	end
+
+	local spellbookScanToggle = MTH_CreateCheckbox(section, "MetaHuntMessagesSpellbookScan", "Spellbook scan", -148)
+	if spellbookScanToggle then
+		spellbookScanToggle:SetChecked(msgSettings.spellbookScan and true or false)
+		spellbookScanToggle:SetScript("OnClick", function(self)
+			self = self or this
+			if not self then return end
+			if MTH and MTH.SetMessageEnabled then
+				MTH:SetMessageEnabled("spellbookScan", self:GetChecked() and true or false)
+			end
+		end)
+	end
+
+	local petRanAwayToggle = MTH_CreateCheckbox(section, "MetaHuntMessagesPetRanAway", "Pet ran away", -176)
+	if petRanAwayToggle then
+		petRanAwayToggle:SetChecked(msgSettings.petRanAway ~= false)
+		petRanAwayToggle:SetScript("OnClick", function(self)
+			self = self or this
+			if not self then return end
+			if MTH and MTH.SetMessageEnabled then
+				MTH:SetMessageEnabled("petRanAway", self:GetChecked() and true or false)
+			end
+		end)
+	end
+
+	local mapMarkersToggle = MTH_CreateCheckbox(section, "MetaHuntMessagesMapMarkers", "Map markers", -204)
+	if mapMarkersToggle then
+		mapMarkersToggle:SetChecked(msgSettings.mapMarkers ~= false)
+		mapMarkersToggle:SetScript("OnClick", function(self)
+			self = self or this
+			if not self then return end
+			if MTH and MTH.SetMessageEnabled then
+				MTH:SetMessageEnabled("mapMarkers", self:GetChecked() and true or false)
+			end
+		end)
+	end
+
 end
 
 function MTH_SetupGeneralOptions()
@@ -806,7 +996,7 @@ function MTH_SetupGeneralOptions()
 		help:Show()
 	end
 
-	local smartAmmoSection = ensureSection("MetaHuntGeneralSmartAmmoBox", "Smart Ammo", topY, 186, "left")
+	local smartAmmoSection = ensureSection("MetaHuntGeneralSmartAmmoBox", "Smart Ammo", topY, 254, "left")
 	if smartAmmoSection then
 		local smartModuleEnabled = MTH and MTH.IsModuleEnabled and MTH:IsModuleEnabled("smartammo", true)
 		local smartModuleToggle = ensureCheckbox(smartAmmoSection, "MetaHuntGeneralSmartAmmoModuleToggle", "Enable module", -10, smartModuleEnabled)
@@ -825,10 +1015,16 @@ function MTH_SetupGeneralOptions()
 			end)
 		end
 
-		ensureHelpText(smartAmmoSection, "MetaHuntGeneralSmartAmmoModuleHelp", "Automatically swaps arrows/bullets based on equipped ranged weapon.", -34)
+		local moduleHelp = getglobal("MetaHuntGeneralSmartAmmoModuleHelp")
+		if moduleHelp then
+			moduleHelp:Hide()
+		end
 
-		local smartEnabled = type(MTHSmartAmmo_GetSmartEnabled) == "function" and MTHSmartAmmo_GetSmartEnabled() and true or false
-		local smartToggle = ensureCheckbox(smartAmmoSection, "MetaHuntGeneralSmartAmmoEnabledToggle", "Enable Smart Ammo Swaps", -68, smartEnabled)
+		local smartEnabled = true
+		if type(MTHSmartAmmo_GetSmartEnabled) == "function" then
+			smartEnabled = MTHSmartAmmo_GetSmartEnabled() and true or false
+		end
+		local smartToggle = ensureCheckbox(smartAmmoSection, "MetaHuntGeneralSmartAmmoEnabledToggle", "Enable Junk Shot Swaps", -58, smartEnabled)
 		if smartToggle then
 			if not smartModuleEnabled then
 				smartToggle:Disable()
@@ -839,7 +1035,7 @@ function MTH_SetupGeneralOptions()
 				end
 			end)
 		end
-		ensureHelpText(smartAmmoSection, "MetaHuntGeneralSmartAmmoEnabledHelp", "Auto-equips arrows or bullets matching your ranged weapon.", -96)
+		ensureHelpText(smartAmmoSection, "MetaHuntGeneralSmartAmmoEnabledHelp", "Swaps to low-tier ammo for shots that don't scale on weapon damage, then swaps back to your previous ammo.", -86)
 
 		local reloadEnabled = type(MTHSmartAmmo_GetReloadEnabled) == "function" and MTHSmartAmmo_GetReloadEnabled() and true or false
 		local reloadToggle = ensureCheckbox(smartAmmoSection, "MetaHuntGeneralSmartAmmoReloadToggle", "Enable Auto-Fallback", -126, reloadEnabled)
@@ -854,9 +1050,23 @@ function MTH_SetupGeneralOptions()
 			end)
 		end
 		ensureHelpText(smartAmmoSection, "MetaHuntGeneralSmartAmmoReloadHelp", "Falls back to any available ammo when preferred ammo is missing.", -154)
+
+		local weaponSwapEnabled = type(MTHSmartAmmo_GetWeaponSwapEnabled) == "function" and MTHSmartAmmo_GetWeaponSwapEnabled() and true or false
+		local weaponSwapToggle = ensureCheckbox(smartAmmoSection, "MetaHuntGeneralSmartAmmoWeaponSwapToggle", "Enable Weapon-Swap Auto Ammo", -180, weaponSwapEnabled)
+		if weaponSwapToggle then
+			if not smartModuleEnabled then
+				weaponSwapToggle:Disable()
+			end
+			weaponSwapToggle:SetScript("OnClick", function()
+				if type(MTHSmartAmmo_SetWeaponSwapEnabled) == "function" then
+					MTHSmartAmmo_SetWeaponSwapEnabled(this:GetChecked() and 1 or nil)
+				end
+			end)
+		end
+		ensureHelpText(smartAmmoSection, "MetaHuntGeneralSmartAmmoWeaponSwapHelp", "When you swap between gun and bow/crossbow, instantly equips the best matching ammo from your bags.", -208)
 	end
 
-	local stripSection = ensureSection("MetaHuntGeneralAutoStripBox", "Auto-Strip", topY - 202, 122, "left")
+	local stripSection = ensureSection("MetaHuntGeneralAutoStripBox", "Auto-Strip", topY - 270, 122, "left")
 	if stripSection then
 		local autoStripToggle = ensureCheckbox(stripSection, "MetaHuntGeneralAutoStripToggle", "Enable Auto-Strip on Combat Exit", -10, stripSaved["autostrip"] and true or false)
 		if autoStripToggle then
@@ -879,7 +1089,7 @@ function MTH_SetupGeneralOptions()
 		ensureHelpText(stripSection, "MetaHuntGeneralAutoStripHelp", "Auto-strip unequips items when combat ends. Requires at least one empty bag slot.", -64)
 	end
 
-	local antiSection = ensureSection("MetaHuntGeneralAntiDazeBox", "Anti-Daze", topY - 338, 96, "left")
+	local antiSection = ensureSection("MetaHuntGeneralAntiDazeBox", "Anti-Daze", topY - 406, 96, "left")
 	if antiSection then
 		local antiDazeEnabled = (AntiDaze_GetEnabled and AntiDaze_GetEnabled()) or false
 		local antiToggle = ensureCheckbox(antiSection, "MetaHuntGeneralAntiDazeToggle", "Enable Anti-Daze", -10, antiDazeEnabled)

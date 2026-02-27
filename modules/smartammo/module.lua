@@ -7,7 +7,7 @@ MTH_SA_MANAGED_HOOKS = true
 local MTH_SmartAmmo = {
 	name = "smartammo",
 	enabled = true,
-	version = "1.0.3",
+	version = "1.0.4",
 	events = {
 		"VARIABLES_LOADED",
 		"PLAYER_ENTERING_WORLD",
@@ -80,6 +80,9 @@ local function MTH_SA_ApplySavedState()
 		if moduleStore.reloadEnabled ~= nil then
 			saved["reload"] = moduleStore.reloadEnabled and 1 or false
 		end
+		if moduleStore.weaponSwapEnabled ~= nil then
+			saved["weaponSwap"] = moduleStore.weaponSwapEnabled and 1 or false
+		end
 	end
 	if saved["enabled"] == nil then
 		saved["enabled"] = 1
@@ -90,10 +93,21 @@ local function MTH_SA_ApplySavedState()
 	if saved["reload"] == nil and type(moduleStore) == "table" then
 		moduleStore.reloadEnabled = saved["reload"] ~= false
 	end
+	if saved["weaponSwap"] == nil then
+		saved["weaponSwap"] = 1
+		if type(moduleStore) == "table" then
+			moduleStore.weaponSwapEnabled = true
+		end
+	elseif type(moduleStore) == "table" and moduleStore.weaponSwapEnabled == nil then
+		moduleStore.weaponSwapEnabled = saved["weaponSwap"] ~= false
+	end
 
 	MTHSmartAmmo_SetSmartEnabled(saved["enabled"] and 1 or nil, 1)
 	if type(MTHSmartAmmo_SetReloadEnabled) == "function" then
 		MTHSmartAmmo_SetReloadEnabled(saved["reload"] ~= false and 1 or nil, 1)
+	end
+	if type(MTHSmartAmmo_SetWeaponSwapEnabled) == "function" then
+		MTHSmartAmmo_SetWeaponSwapEnabled(saved["weaponSwap"] ~= false and 1 or nil, 1)
 	end
 	if type(MTHSmartAmmo_EnsureHooks) == "function" then
 		MTHSmartAmmo_EnsureHooks("module-apply")

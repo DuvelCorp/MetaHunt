@@ -22,13 +22,13 @@ if not root["zButtonAmmo"] then
 	root["zButtonAmmo"]["children"]["hideonclick"] = 1
 	root["zButtonAmmo"]["showammoname"] = 1
 	root["zButtonAmmo"]["lastEquipped"] = nil
-	root["zButtonAmmo"]["debug"] = false
 end
 
 ZHunterMod_Ammo_Buttons = nil
 
 local ZHUNTER_AMMO_MAX_COUNT = math.max(table.getn(MTH_AMMO_ARROWS or {}), table.getn(MTH_AMMO_BULLETS or {}))
 local zButtonAmmo_Cache = {}
+local zButtonAmmo_LastCacheSignature = nil
 
 local function zButtonAmmo_GetSaved()
 	local currentRoot = zButtonAmmo_GetRoot()
@@ -257,6 +257,17 @@ local function zButtonAmmo_AssignButtonFromAmmoInfo(button, ammoInfo)
 	return true
 end
 
+local function zButtonAmmo_GetCacheSignature()
+	local names = {}
+	for ammoName, ammoInfo in pairs(zButtonAmmo_Cache or {}) do
+		if ammoName and ammoInfo and (tonumber(ammoInfo.count) or 0) > 0 then
+			table.insert(names, tostring(ammoName))
+		end
+	end
+	table.sort(names)
+	return table.concat(names, "|")
+end
+
 local function zButtonAmmo_GetEquippedAmmoInfo()
 	local ammoLink = zButtonAmmo_GetEquippedAmmoLink()
 	if not ammoLink then
@@ -350,6 +361,26 @@ end
 
 function zButtonAmmo_SetButtons(parent, ammoList)
 	zButtonAmmo_RebuildCache()
+	local previousByName = {}
+	for i = 1, parent.count do
+		local previous = getglobal(parent.name .. i)
+		if previous and previous.ammoname and not previous.isspell then
+			previousByName[previous.ammoname] = {
+				ammo = previous.ammoname,
+				brol = previous.ammobrol,
+				quality = previous.ammoqual,
+				lvl = previous.ammolvl,
+				type = previous.ammotype,
+				bag = nil,
+				slot = nil,
+				id = previous.ammoid or previous.id,
+				link = previous.ammolink,
+				icon = previous.icon,
+				count = 0,
+				equip = nil,
+			}
+		end
+	end
 
 	for i = 1, parent.count do
 		local button = getglobal(parent.name .. i)
@@ -375,21 +406,12 @@ function zButtonAmmo_SetButtons(parent, ammoList)
 		end
 		local ammoName = ammoList[i]
 		local ammoInfo = ammoName and zButtonAmmo_Cache[ammoName] or nil
+		if not ammoInfo and ammoName then
+			ammoInfo = previousByName[ammoName]
+		end
 		if ammoInfo then
 			local button = getglobal(parent.name .. count)
-			button.id = ammoInfo.id
-			button.icon = ammoInfo.icon
-			button.isspell = nil
-			button.ammoname = ammoInfo.ammo
-			button.ammobrol = ammoInfo.brol
-			button.ammoqual = ammoInfo.quality
-			button.ammolvl = ammoInfo.lvl
-			button.ammotype = ammoInfo.type
-			button.ammobag = ammoInfo.bag
-			button.ammoslot = ammoInfo.slot
-			button.ammoid = ammoInfo.id
-			button.ammolink = ammoInfo.link
-			button.ammocount = ammoInfo.count
+			zButtonAmmo_AssignButtonFromAmmoInfo(button, ammoInfo)
 			zButtonAmmo_UpdateButton(button)
 			button:Show()
 
@@ -439,6 +461,7 @@ function zButtonAmmo_SetButtons(parent, ammoList)
 	else
 		parent:Show()
 	end
+	zButtonAmmo_LastCacheSignature = zButtonAmmo_GetCacheSignature()
 	return count - 1
 end
 
@@ -553,21 +576,6 @@ local function zButtonAmmo_GetEquippedAmmoName()
 	return ammoLink
 end
 
-local function zButtonAmmo_IsDebugEnabled()
-	local saved = zButtonAmmo_GetSaved()
-	return saved["debug"]
-end
-
-local function zButtonAmmo_LogInit(msg)
-	if not zButtonAmmo_IsDebugEnabled() then
-		return
-	end
-	if DEFAULT_CHAT_FRAME and DEFAULT_CHAT_FRAME.AddMessage then
-		MTH_ZH_Print("[AMMO INIT] " .. tostring(msg), "debug")
-	end
-	MTH_ZH_Print("[AMMO INIT] " .. tostring(msg), "debug")
-end
-
 local zButtonAmmo_EquipFromButton
 
 local function zButtonAmmo_DeferredStartupSync()
@@ -590,26 +598,11 @@ local function zButtonAmmo_DeferredStartupSync()
 		syncFrame:SetScript("OnUpdate", nil)
 		local equippedNow = zButtonAmmo_GetEquippedAmmoName()
 		local saved = zButtonAmmo_GetSaved()
-		zButtonAmmo_LogInit("deferred sync equippedNow=" .. tostring(equippedNow) .. " saved.lastEquipped=" .. tostring(saved and saved["lastEquipped"]))
 
 		zButtonAmmo_RebuildCache()
 
 		if equippedNow and (not saved["lastEquipped"] or saved["lastEquipped"] == "") then
 			zButtonAmmo_SaveEquippedAmmo(equippedNow)
-			zButtonAmmo_LogInit("deferred sync seeded lastEquipped=" .. tostring(equippedNow))
-			return
-		end
-
-		if saved["lastEquipped"] and equippedNow and saved["lastEquipped"] ~= equippedNow and zButtonAmmo_Cache[saved["lastEquipped"]] then
-			local restored = false
-			for i = 1, zButtonAmmo.count do
-				local child = getglobal("zButtonAmmo" .. i)
-				if child and child.ammoname == saved["lastEquipped"] then
-					restored = zButtonAmmo_EquipFromButton(child)
-					break
-				end
-			end
-			zButtonAmmo_LogInit("deferred sync restore attempt target=" .. tostring(saved["lastEquipped"]) .. " ok=" .. tostring(restored))
 		end
 	end)
 end
@@ -678,13 +671,10 @@ end
 
 function zButtonAmmo_OnEvent()
 	if event == "VARIABLES_LOADED" then
-		zButtonAmmo_LogInit("VARIABLES_LOADED fired")
 		if not zButtonAmmo then
-			zButtonAmmo_LogInit("abort: zButtonAmmo frame missing")
 			return
 		end
 		if UnitClass("player") ~= ZHUNTER_HUNTER then
-			zButtonAmmo_LogInit("abort: non-hunter")
 			zButtonAmmo:UnregisterAllEvents()
 			zButtonAmmo:Hide()
 			return
@@ -696,13 +686,7 @@ function zButtonAmmo_OnEvent()
 		zButtonAmmoAdjustment:RegisterEvent("UNIT_INVENTORY_CHANGED")
 		zButtonAmmoAdjustment:RegisterEvent("BAG_UPDATE")
 		zButtonAmmoAdjustment:SetScript("OnEvent", zButtonAmmoAdjustment_OnEvent)
-		if zButtonAmmo_IsDebugEnabled() then
-			MTH_ZH_Print("[AMMO] zButtonAmmoAdjustment frame created and events registered", "debug")
-		end
 		zButtonAmmo_SetupSizeAndPosition()
-		local saved = zButtonAmmo_GetSaved()
-		zButtonAmmo_LogInit("post-init saved.lastEquipped=" .. tostring(saved and saved["lastEquipped"]))
-		zButtonAmmo_LogInit("post-init equippedNow=" .. tostring(zButtonAmmo_GetEquippedAmmoName()))
 		zButtonAmmo_DeferredStartupSync()
 	end
 end
@@ -714,9 +698,6 @@ function zButtonAmmo_SaveEquippedAmmo(ammoname)
 		return
 	end
 	saved["lastEquipped"] = ammoname
-	if zButtonAmmo_IsDebugEnabled() then
-		MTH_ZH_Print("[AMMO] Saved equipped ammo to persistent storage: " .. ammoname, "debug")
-	end
 end
 
 function zButtonAmmo_LoadLastEquippedAmmo()
@@ -760,84 +741,8 @@ function zButtonAmmo_CreateButtons()
 	-- Try to restore the last equipped ammo from saved variables
 	local lastEquipped = zButtonAmmo_LoadLastEquippedAmmo()
 	local equippedAmmoNameAtInit = zButtonAmmo_GetEquippedAmmoName()
-	zButtonAmmo_LogInit("CreateButtons saved.lastEquipped=" .. tostring(lastEquipped) .. " equippedNow=" .. tostring(equippedAmmoNameAtInit))
-	if lastEquipped and zButtonAmmo_Cache[lastEquipped] then
-		if zButtonAmmo_IsDebugEnabled() then
-			MTH_ZH_Print("[AMMO] Restoring last equipped ammo from save: " .. lastEquipped, "debug")
-		end
-		-- Set the parent button directly from ammo cache data
-		local ammoInfo = zButtonAmmo_Cache[lastEquipped]
-		zButtonAmmo.ammoname = lastEquipped
-		zButtonAmmo.ammoid = ammoInfo["id"]
-		zButtonAmmo.icon = ammoInfo["icon"]
-		zButtonAmmo.isspell = nil
-		zButtonAmmo.ammobrol = ammoInfo["brol"]
-		zButtonAmmo.ammoqual = ammoInfo["quality"]
-		zButtonAmmo.ammolvl = ammoInfo["lvl"]
-		zButtonAmmo.ammotype = ammoInfo["type"]
-		zButtonAmmo.ammobag = ammoInfo["bag"]
-		zButtonAmmo.ammoslot = ammoInfo["slot"]
-		zButtonAmmo.ammolink = ammoInfo["link"]
-		zButtonAmmo_UpdateButton(zButtonAmmo)
-		zButtonAmmo:Enable()
-
-		local equippedAmmoName = zButtonAmmo_GetEquippedAmmoName()
-		if equippedAmmoName ~= lastEquipped then
-			local restored = false
-			for i = 1, zButtonAmmo.count do
-				local child = getglobal("zButtonAmmo" .. i)
-				if child and child.ammoname == lastEquipped then
-					restored = zButtonAmmo_EquipFromButton(child)
-					break
-				end
-			end
-			if not restored then
-				restored = zButtonAmmo_EquipFromButton({
-					ammoname = lastEquipped,
-					ammobag = ammoInfo["bag"],
-					ammoslot = ammoInfo["slot"],
-					ammoid = ammoInfo["id"],
-				})
-			end
-			if restored then
-				zButtonAmmo_SaveEquippedAmmo(lastEquipped)
-				zButtonAmmo_LogInit("restored to saved ammo=" .. tostring(lastEquipped))
-			else
-				zButtonAmmo_LogInit("restore failed for saved ammo=" .. tostring(lastEquipped))
-			end
-		else
-			zButtonAmmo_LogInit("restore skipped: equipped already matches saved")
-		end
-	else
-		zButtonAmmo_LogInit("restore skipped: no saved lastEquipped in cache")
-		if equippedAmmoNameAtInit then
-			zButtonAmmo_SaveEquippedAmmo(equippedAmmoNameAtInit)
-			zButtonAmmo_LogInit("seeded lastEquipped from equippedNow=" .. tostring(equippedAmmoNameAtInit))
-		else
-			local bestAvailable = nil
-			for i = 1, table.getn(ammoList) do
-				local ammoName = ammoList[i]
-				if ammoName and zButtonAmmo_Cache[ammoName] then
-					bestAvailable = ammoName
-				end
-			end
-
-			if bestAvailable and zButtonAmmo_Cache[bestAvailable] then
-				local bestInfo = zButtonAmmo_Cache[bestAvailable]
-				local equippedBest = zButtonAmmo_EquipFromButton({
-					ammoname = bestAvailable,
-					ammobag = bestInfo["bag"],
-					ammoslot = bestInfo["slot"],
-					ammoid = bestInfo["id"],
-				})
-				if equippedBest then
-					zButtonAmmo_SaveEquippedAmmo(bestAvailable)
-					zButtonAmmo_LogInit("fallback equip bestAvailable=" .. tostring(bestAvailable))
-				else
-					zButtonAmmo_LogInit("fallback equip failed bestAvailable=" .. tostring(bestAvailable))
-				end
-			end
-		end
+	if equippedAmmoNameAtInit then
+		zButtonAmmo_SaveEquippedAmmo(equippedAmmoNameAtInit)
 	end
 end
 
@@ -890,7 +795,6 @@ function zButtonAmmo_Reset()
 	saved["children"]["hideonclick"] = 1
 	saved["showammoname"] = 1
 	saved["lastEquipped"] = nil
-	saved["debug"] = false
 end
 
 function zButtonAmmoAdjustment_OnEvent()
@@ -901,8 +805,11 @@ function zButtonAmmoAdjustment_OnEvent()
 	
 	if event == "UNIT_INVENTORY_CHANGED" or event == "BAG_UPDATE" then
 		local ammoList = zButtonAmmo_GetAmmoList()
-		if ZHunterMod_Ammo_Buttons ~= ammoList then
-			ZHunterMod_Ammo_Buttons = ammoList
+		local listChanged = (ZHunterMod_Ammo_Buttons ~= ammoList)
+		ZHunterMod_Ammo_Buttons = ammoList
+		zButtonAmmo_RebuildCache()
+		local cacheSignature = zButtonAmmo_GetCacheSignature()
+		if listChanged or cacheSignature ~= zButtonAmmo_LastCacheSignature then
 			zButtonAmmo_EnsureSpellOrder(ammoList)
 			local info = {}
 			local infoIndex = 1
@@ -915,8 +822,8 @@ function zButtonAmmoAdjustment_OnEvent()
 			end
 			zButtonAmmo.found = ZSpellButton_SetButtons(zButtonAmmo, info)
 			zButtonAmmo_SetupSizeAndPosition()
+			zButtonAmmo_LastCacheSignature = zButtonAmmo_GetCacheSignature()
 		end
-		zButtonAmmo_RebuildCache()
 		-- Update ammo counts for child buttons
 		for i=1, zButtonAmmo.count do
 			local button = getglobal("zButtonAmmo"..i)
@@ -1013,25 +920,8 @@ SlashCmdList["zButtonAmmo"] = function(msg)
 		zButtonAmmo:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 	elseif msg == "options" then
 		MTH_OpenOptions("Ammo")
-	elseif msg == "debug" then
-		-- Manually trigger ammo rescan with debug output
-		local currentAmmoList = ZHunterMod_Ammo_Buttons or zButtonAmmo_GetAmmoList()
-		zButtonAmmo_EnsureSpellOrder(currentAmmoList)
-		local saved = zButtonAmmo_GetSaved()
-		local info = {}
-		local infoIndex = 1
-		for i=1, table.getn(currentAmmoList) do
-			local ammoIndex = saved["spells"][i]
-			if saved["visible"][ammoIndex] ~= false then
-				info[infoIndex] = currentAmmoList[ammoIndex]
-				infoIndex = infoIndex + 1
-			end
-		end
-		zButtonAmmo.found = ZSpellButton_SetButtons(zButtonAmmo, info)
-		zButtonAmmo_UpdateButton(zButtonAmmo)
-		MTH_ZH_Print("Ammo button rescanned")
 	else
-		MTH_ZH_Print("Possible Commands: \"options\", \"reset\", \"debug\"")
+		MTH_ZH_Print("Possible Commands: \"options\", \"reset\"")
 	end
 end
 

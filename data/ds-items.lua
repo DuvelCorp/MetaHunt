@@ -732,13 +732,6 @@ MTH_DS_AmmoItems = {
       [92217] = 0,
     },
   },
-  [3034] = {
-    ["name"] = "BKP \"Impact\" Shot",
-    ["level"] = 35,
-    ["reqlevel"] = 30,
-    ["icon"] = "INV_Ammo_Bullet_02",
-    ["subtype"] = "bullet",
-  },
   [3464] = {
     ["name"] = "Feathered Arrow",
     ["level"] = 35,

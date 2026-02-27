@@ -1,0 +1,38 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+  <Include file="..\locales\init.lua"/>
+
+  <Include file="..\locales\ui\enUS.lua"/>
+  <Include file="..\locales\ui\deDE.lua"/>
+  <Include file="..\locales\ui\esES.lua"/>
+  <Include file="..\locales\ui\ptBR.lua"/>
+  <Include file="..\locales\ui\ruRU.lua"/>
+  <Include file="..\locales\ui\zhCN.lua"/>
+
+  <Include file="..\locales\spells\enUS.lua"/>
+  <Include file="..\locales\spells\deDE.lua"/>
+  <Include file="..\locales\spells\esES.lua"/>
+  <Include file="..\locales\spells\ptBR.lua"/>
+  <Include file="..\locales\spells\ruRU.lua"/>
+  <Include file="..\locales\spells\zhCN.lua"/>
+
+  <Include file="..\locales\data\vendors\enUS.lua"/>
+  <Include file="..\locales\data\vendors\deDE.lua"/>
+  <Include file="..\locales\data\vendors\esES.lua"/>
+  <Include file="..\locales\data\vendors\ptBR.lua"/>
+  <Include file="..\locales\data\vendors\ruRU.lua"/>
+  <Include file="..\locales\data\vendors\zhCN.lua"/>
+
+  <Include file="..\locales\data\items\enUS.lua"/>
+  <Include file="..\locales\data\items\deDE.lua"/>
+  <Include file="..\locales\data\items\esES.lua"/>
+  <Include file="..\locales\data\items\ptBR.lua"/>
+  <Include file="..\locales\data\items\ruRU.lua"/>
+  <Include file="..\locales\data\items\zhCN.lua"/>
+
+  <Include file="..\locales\data\beasts\enUS.lua"/>
+  <Include file="..\locales\data\beasts\deDE.lua"/>
+  <Include file="..\locales\data\beasts\esES.lua"/>
+  <Include file="..\locales\data\beasts\ptBR.lua"/>
+  <Include file="..\locales\data\beasts\ruRU.lua"/>
+  <Include file="..\locales\data\beasts\zhCN.lua"/>
+</Ui>

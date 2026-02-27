@@ -1667,7 +1667,7 @@ if not MTH_DS_Beasts[61096] then
     ["family"] = "Wind Serpents",
     ["lvl"] = "57-58",
     ["fac"] = "Unknown",
-    ["abilities"] = "TBD",
+    ["abilities"] = "None",
     ["attackSpeed"] = "2.0",
     ["untameable"] = true,
     ["respawnMinSeconds"] = 280,

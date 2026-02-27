@@ -1,5 +1,5 @@
 MTH = MTH or {
-	version = "1.0.3",
+	version = "1.0.4",
 	name = "MetaHunt",
 	modules = {},
 	config = {},
@@ -8,6 +8,15 @@ MTH = MTH or {
 
 local MTH_CHAT_PREFIX = "|cFFFFFFFF[|r|cFFD14A4AMeta|r|cFFABD473Hunt|r|cFFFFFFFF]|r "
 local MTH_NON_HUNTER_BLOCK_MESSAGE = "You are not a hunter and you are not allowed here. Disable the add-on for this character."
+local MTH_MESSAGE_DEFAULTS = {
+	initModulesLoaded = false,
+	initSarcasticWelcome = true,
+	petHungry = false,
+	beastTrainingScan = true,
+	spellbookScan = false,
+	petRanAway = true,
+	mapMarkers = true,
+}
 
 local function MTH_ClassGateTrace(_step, _detail)
 	return
@@ -1003,6 +1012,50 @@ function MTH:Print(msg, severity)
 	return self:Log(msg, severity)
 end
 
+function MTH:GetMessageSettings()
+	if not MTH_SavedVariables then
+		self:InitSavedVariables()
+	end
+	if type(MTH_SavedVariables.messages) ~= "table" then
+		MTH_SavedVariables.messages = {}
+	end
+	local settings = MTH_SavedVariables.messages
+	for key, defaultValue in pairs(MTH_MESSAGE_DEFAULTS) do
+		if settings[key] == nil then
+			settings[key] = defaultValue and true or false
+		else
+			settings[key] = settings[key] and true or false
+		end
+	end
+	return settings
+end
+
+function MTH:IsMessageEnabled(key, defaultEnabled)
+	local settings = self:GetMessageSettings()
+	local value = settings and settings[key]
+	if value == nil then
+		if defaultEnabled ~= nil then
+			value = defaultEnabled and true or false
+		else
+			value = true
+		end
+		settings[key] = value
+	end
+	return value and true or false
+end
+
+function MTH:SetMessageEnabled(key, enabled)
+	if type(key) ~= "string" or key == "" then
+		return false
+	end
+	local settings = self:GetMessageSettings()
+	if not settings then
+		return false
+	end
+	settings[key] = enabled and true or false
+	return true
+end
+
 function MTH:DebugPrint(msg)
 	if self.debug then
 		self:Print("[DEBUG] " .. tostring(msg), "debug")
@@ -1079,6 +1132,16 @@ function MTH:InitSavedVariables()
 	end
 	if not MTH_SavedVariables.modules.zhunter then
 		MTH_SavedVariables.modules.zhunter = MTH_SavedVariables.zhunter or {}
+	end
+	if type(MTH_SavedVariables.messages) ~= "table" then
+		MTH_SavedVariables.messages = {}
+	end
+	for key, defaultValue in pairs(MTH_MESSAGE_DEFAULTS) do
+		if MTH_SavedVariables.messages[key] == nil then
+			MTH_SavedVariables.messages[key] = defaultValue and true or false
+		else
+			MTH_SavedVariables.messages[key] = MTH_SavedVariables.messages[key] and true or false
+		end
 	end
 
 	MTH_SavedVariables.feedomatic = MTH_SavedVariables.modules.feedomatic
@@ -1249,7 +1312,9 @@ function MTH:AnnounceLoadComplete()
 	end
 
 	self:Print("Check ignition: OK! Version " .. tostring(self.version or "unknown") .. " loaded.")
-	--self:Print("Modules enabled : " .. moduleList .. ".")
+	if self:IsMessageEnabled("initModulesLoaded", false) then
+		self:Print("Modules enabled : " .. moduleList .. ".")
+	end
 
 	local petTrainingStore = nil
 	if type(MTH_PETS_GetRootStore) == "function" then
@@ -1284,8 +1349,10 @@ function MTH:AnnounceLoadComplete()
 		end
 	end
 	if not hasCompletedPetScan then
-		local playerLevel = (type(UnitLevel) == "function") and (tonumber(UnitLevel("player")) or 0) or 0
-		if playerLevel >= 12 then
+		local rawPlayerLevel = (type(UnitLevel) == "function") and UnitLevel("player") or nil
+		local playerLevel = tonumber(rawPlayerLevel) or 0
+		local shouldShowBeastTrainingReminder = (playerLevel >= 12 and playerLevel <= 60)
+		if shouldShowBeastTrainingReminder then
 			self:Print("You should open your Beast Training once to save your learned pet abilities.")
 			self._loadCompleteAnnounced = true
 			return
@@ -1293,7 +1360,7 @@ function MTH:AnnounceLoadComplete()
 	end
 
 	local welcomeMessages = {
-		"You are now shipping the latest cutting edge technology.",
+		"You are now shipping the latest cutting-edge Nelf technology.",
 		"SHELLS ARE FOR PUSSIES.",
 		"Sometimes, you just need a little less gun.",
 		"Repeat 5 times : \"Un chasseur sachant chasser sans son chien\".",
@@ -1380,6 +1447,19 @@ function MTH:AnnounceLoadComplete()
 		"Your pet follows orders. Pathing follows dark magic.",
 		"Today’s objective: hit crits and dodge responsibility.",
 		"Go forth, badboy ranger — leave footprints, not explanations.",
+		"MetaHunt loaded. Your plan has been forwarded to Quality Control for comedy review.",
+		"Systems online. Tactical brilliance still listed as a future expansion feature.",
+		"Hunter detected. Restraint not detected.",
+		"Startup complete. Your pet is the adult in this relationship.",
+		"All modules green. Your target selection remains performance art.",
+		"Welcome back. The dungeon requested a waiver after seeing your login.",
+		"Interface stable. Decision-making unstable. Proceed.",
+		"MetaHunt armed. Your confidence has entered the area without supervision.",
+		"Ready to hunt. Ready to kite. Not ready to explain any of it.",
+		"Boot successful. Friendly fire is still technically ‘friendly.’",
+		"Addon synced. Your threat meter just sent a stress signal.",
+		"Loaded cleanly. Reputation with healers currently in freefall.",
+		"Mission start: hit things from far away and deny everything in chat.",
 	}
 
 	local welcomeIndex = 1
@@ -1391,7 +1471,9 @@ function MTH:AnnounceLoadComplete()
 			welcomeIndex = math.random(1, welcomeCount)
 		end
 	end
-	self:Print(welcomeMessages[welcomeIndex])
+	if self:IsMessageEnabled("initSarcasticWelcome", true) then
+		self:Print(welcomeMessages[welcomeIndex])
+	end
 	self._loadCompleteAnnounced = true
 end
 

@@ -284,11 +284,15 @@ function MTH_CommandPetSpellScan()
 
 	local ok, count, changed = MTH_PS_ScanNow("manual")
 	if not ok then
-		MTH:Print("Pet spellbook scan failed.")
+		if not (MTH and MTH.IsMessageEnabled) or MTH:IsMessageEnabled("spellbookScan", false) then
+			MTH:Print("Pet spellbook scan failed.")
+		end
 		MTH_PS_VERBOSE_LOGS = false
 		return
 	end
-	MTH:Print("Pet spellbook scan: " .. tostring(count or 0) .. " spell(s). changed=" .. tostring(changed and true or false))
+	if not (MTH and MTH.IsMessageEnabled) or MTH:IsMessageEnabled("spellbookScan", false) then
+		MTH:Print("Pet spellbook scan: " .. tostring(count or 0) .. " spell(s). changed=" .. tostring(changed and true or false))
+	end
 	local store = MTH_PS_GetStore()
 	MTH_PS_DebugPrint("Store status: lastScan=" .. tostring(store.lastScan or 0) .. " lastCount=" .. tostring(store.lastCount or 0) .. " lastTrigger=" .. tostring(store.lastTrigger or "") .. " lastChangeAt=" .. tostring(store.lastChangeAt or 0), true)
 	MTH_PS_VERBOSE_LOGS = false

@@ -8,6 +8,7 @@
   <Include file="..\api\AntiDaze.lua"/>
   <Include file="..\api\uilib.lua"/>
   <Include file="..\api\uirenderer.lua"/>
+  <Include file="..\init\localization.xml"/>
   <Include file="..\api\options-tree.lua"/>
   <Include file="..\api\options.xml"/>
   <Include file="..\api\options.lua"/>
@@ -32,6 +33,7 @@
   <Include file="..\api\core-scan-beasttraining.lua"/>
   <Include file="..\api\core-scan-spellbookpet.lua"/>
   <Include file="..\api\core.lua"/>
+  <Include file="..\api\version-check.lua"/>
   <Include file="..\api\localization.lua"/>
   <Include file="..\api\config.lua"/>
 </Ui>

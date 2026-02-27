@@ -168,7 +168,8 @@ function MTH_BOOK_NPCMatches(npcId, vendor)
 	if MTH_BOOK_STATE.search ~= "" then
 		local functionSummary = MTH_BOOK_GetNPCFunctionSummary(vendor)
 		local firstZone, firstSubzone = MTH_BOOK_GetNPCZoneSummary(vendor)
-		local hay = MTH_BOOK_SafeLower(tostring(vendor.name or "") .. " " .. tostring(functionSummary or "") .. " " .. tostring(firstZone or "") .. " " .. tostring(firstSubzone or "") .. " " .. tostring(npcId))
+		local displayName = (MTH and MTH.GetLocalizedNPCNameById and MTH:GetLocalizedNPCNameById(npcId, vendor.name)) or vendor.name
+		local hay = MTH_BOOK_SafeLower(tostring(displayName or "") .. " " .. tostring(functionSummary or "") .. " " .. tostring(firstZone or "") .. " " .. tostring(firstSubzone or "") .. " " .. tostring(npcId))
 		if string.find(hay, MTH_BOOK_STATE.search, 1, true) == nil then
 			return false
 		end
@@ -182,8 +183,10 @@ function MTH_BOOK_NPCSort(a, b)
 	local va = vendors and vendors[a]
 	local vb = vendors and vendors[b]
 	if not va or not vb then return a < b end
-	local na = MTH_BOOK_SafeLower(va.name)
-	local nb = MTH_BOOK_SafeLower(vb.name)
+	local vaName = (MTH and MTH.GetLocalizedNPCNameById and MTH:GetLocalizedNPCNameById(a, va.name)) or va.name
+	local vbName = (MTH and MTH.GetLocalizedNPCNameById and MTH:GetLocalizedNPCNameById(b, vb.name)) or vb.name
+	local na = MTH_BOOK_SafeLower(vaName)
+	local nb = MTH_BOOK_SafeLower(vbName)
 	if na ~= nb then return na < nb end
 	return a < b
 end

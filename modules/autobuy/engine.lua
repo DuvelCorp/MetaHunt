@@ -446,6 +446,120 @@ local function AB_ResolveAmmoByName(name)
 	return row.itemId, row.subtype
 end
 
+local function AB_GetInventoryBagSlotByContainerId(containerId)
+	local toInv = _G and _G["ContainerIDToInventoryID"] or nil
+	if type(toInv) == "function" then
+		local invSlot = tonumber(toInv(containerId))
+		if invSlot and invSlot > 0 then
+			return invSlot
+		end
+	end
+	local bag = tonumber(containerId)
+	if bag and bag >= 1 and bag <= 4 then
+		return bag + 19
+	end
+	return nil
+end
+
+local function AB_GetSpecialAmmoBagTargets()
+	local targets = {
+		arrow = {},
+		bullet = {},
+	}
+	local getInvLink = _G and _G["GetInventoryItemLink"] or nil
+	if type(getInvLink) ~= "function" then
+		return targets
+	end
+	for bag = 1, 4 do
+		local invSlot = AB_GetInventoryBagSlotByContainerId(bag)
+		if invSlot then
+			local bagLink = getInvLink("player", invSlot)
+			local bagItemId = AB_ParseItemIdFromLink(bagLink)
+			local bagRow = (MTH_DS_BagItems and bagItemId) and MTH_DS_BagItems[tonumber(bagItemId) or bagItemId] or nil
+			local bagSubtype = bagRow and string.lower(tostring(bagRow.subtype or "")) or ""
+			if bagSubtype == "quiver" then
+				table.insert(targets.arrow, { bag = bag, invSlot = invSlot, itemId = bagItemId, subtype = bagSubtype })
+			elseif bagSubtype == "ammo pouch" then
+				table.insert(targets.bullet, { bag = bag, invSlot = invSlot, itemId = bagItemId, subtype = bagSubtype })
+			end
+		end
+	end
+	return targets
+end
+
+local function AB_MoveAmmoStacksToSpecialBags(maxMoves)
+	local getSlots = _G and _G["GetContainerNumSlots"] or nil
+	local getLink = _G and _G["GetContainerItemLink"] or nil
+	local pick = _G and _G["PickupContainerItem"] or nil
+	local putInBag = _G and _G["PutItemInBag"] or nil
+	local hasCursor = _G and _G["CursorHasItem"] or nil
+	local clearCursor = _G and _G["ClearCursor"] or nil
+	if type(getSlots) ~= "function" or type(getLink) ~= "function"
+		or type(pick) ~= "function" or type(putInBag) ~= "function"
+		or type(hasCursor) ~= "function" or type(clearCursor) ~= "function" then
+		return 0
+	end
+
+	local targets = AB_GetSpecialAmmoBagTargets()
+	local arrowTargets = targets.arrow or {}
+	local bulletTargets = targets.bullet or {}
+	if table.getn(arrowTargets) == 0 and table.getn(bulletTargets) == 0 then
+		return 0
+	end
+
+	local moves = 0
+	local moveLimit = math.floor(tonumber(maxMoves) or 200)
+	if moveLimit < 1 then moveLimit = 200 end
+	local isTargetBag = {}
+	for i = 1, table.getn(arrowTargets) do
+		local bagId = tonumber(arrowTargets[i].bag)
+		if bagId then
+			isTargetBag[bagId] = true
+		end
+	end
+	for i = 1, table.getn(bulletTargets) do
+		local bagId = tonumber(bulletTargets[i].bag)
+		if bagId then
+			isTargetBag[bagId] = true
+		end
+	end
+
+	for sourceBag = 0, 4 do
+		local isSpecialSource = isTargetBag[tonumber(sourceBag)] and true or false
+		if not isSpecialSource then
+			local slots = tonumber(getSlots(sourceBag)) or 0
+			for sourceSlot = 1, slots do
+				local link = getLink(sourceBag, sourceSlot)
+				local itemId = AB_ParseItemIdFromLink(link)
+				local ammoSubtype = itemId and AB_GetAmmoSubtypeByItemId(itemId) or nil
+				if ammoSubtype then
+					local destinationTargets = ammoSubtype == "arrow" and arrowTargets or bulletTargets
+					if table.getn(destinationTargets) > 0 then
+						pick(sourceBag, sourceSlot)
+						if hasCursor() then
+							for i = 1, table.getn(destinationTargets) do
+								putInBag(destinationTargets[i].invSlot)
+								if not hasCursor() then
+									moves = moves + 1
+									break
+								end
+							end
+							if hasCursor() then
+								clearCursor()
+							end
+							if moves >= moveLimit then
+								return moves
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+
+	return moves
+end
+
 local function AB_DefaultRule()
 	return {
 		enabled = false,
@@ -475,16 +589,6 @@ local function AB_EnsureRuleList(bucket)
 	return bucket
 end
 
-local function AB_Log(message, severity)
-	if type(MTH_Log) == "function" then
-		MTH_Log("[AutoBuy] " .. tostring(message or ""), severity)
-	end
-end
-
-local function AB_Trace(message)
-	return
-end
-
 function Engine:GetConfigStore()
 	if MTH and MTH.GetModuleSavedVariables then
 		local store = MTH:GetModuleSavedVariables("autobuy")
@@ -500,9 +604,6 @@ function Engine:EnsureDefaults()
 	local store = self:GetConfigStore()
 	if store.enabled == nil then
 		store.enabled = true
-	end
-	if store.debug == nil then
-		store.debug = false
 	end
 	if type(store.food) ~= "table" then
 		store.food = {}
@@ -607,30 +708,8 @@ function Engine:IsEnabled()
 	return store.enabled and true or false
 end
 
-function Engine:IsDebugEnabled()
-	local store = self:EnsureDefaults()
-	return store.debug and true or false
-end
-
-function Engine:IsTraceEnabled()
-	if self:IsDebugEnabled() then
-		return true
-	end
-	if MTH and MTH.debug then
-		return true
-	end
-	return false
-end
-
-function Engine:Debug(message)
-	if self:IsTraceEnabled() then
-		AB_Log(message, "debug")
-	end
-end
-
 function Engine:Init()
 	self:EnsureDefaults()
-	self:Debug("engine initialized")
 end
 
 function Engine:ScanMerchant()
@@ -1152,92 +1231,34 @@ end
 function Engine:OnMerchantEvent(eventName)
 	if eventName == "MERCHANT_SHOW" then
 		self._merchantSessionExecuted = false
-		AB_Trace("merchant session reset on MERCHANT_SHOW")
 	elseif eventName == "MERCHANT_UPDATE" and self._merchantSessionExecuted then
-		AB_Trace("skip MERCHANT_UPDATE: session already executed")
 		return
 	end
 
-	self:Debug("OnMerchantEvent enter event=" .. tostring(eventName))
-	AB_Trace("OnMerchantEvent " .. tostring(eventName))
 	if not self:IsEnabled() then
-		self:Debug("OnMerchantEvent abort: engine store disabled")
-		local store = self:EnsureDefaults()
-		AB_Trace("abort: store.enabled=" .. tostring(store and store.enabled)
-			.. " projectiles.enabled=" .. tostring(store and store.projectiles and store.projectiles.enabled))
 		return
 	end
 
 	local snapshot = self:ScanMerchant()
-	self:Debug("snapshot count=" .. tostring(snapshot and snapshot.count or 0))
-	AB_Trace("merchant item count=" .. tostring(snapshot and snapshot.count or 0))
 	local foodPlan = self:BuildFoodPlan(snapshot)
 	local ammoPlan = self:BuildAmmoPlan(snapshot)
 
-	self:Debug(tostring(eventName) .. " merchant items=" .. tostring(snapshot.count)
-		.. " foodActions=" .. tostring(table.getn(foodPlan.actions or {}))
-		.. " ammoActions=" .. tostring(table.getn(ammoPlan.actions or {})))
-	self:Debug("ammoPlan reason=" .. tostring(ammoPlan.reason or ""))
-	AB_Trace("ammoPlan reason=" .. tostring(ammoPlan.reason or "")
-		.. " actions=" .. tostring(table.getn(ammoPlan.actions or {})))
-	AB_Trace("foodPlan reason=" .. tostring(foodPlan.reason or "")
-		.. " actions=" .. tostring(table.getn(foodPlan.actions or {})))
-	for i = 1, table.getn(foodPlan.debugLines or {}) do
-		self:Debug("foodPlan " .. tostring(foodPlan.debugLines[i]))
-	end
-	for i = 1, table.getn(ammoPlan.debugLines or {}) do
-		self:Debug("ammoPlan " .. tostring(ammoPlan.debugLines[i]))
-	end
-
 	local totalRequestedStacks = 0
 	if table.getn(foodPlan.actions or {}) > 0 then
-		for i = 1, table.getn(foodPlan.actions or {}) do
-			local action = foodPlan.actions[i]
-			self:Debug("food action#" .. tostring(i)
-				.. " idx=" .. tostring(action.index)
-				.. " item=" .. tostring(action.itemId)
-				.. " diet=" .. tostring(action.diet)
-				.. " qtyStacks=" .. tostring(action.quantityStacks)
-				.. " targetStacks=" .. tostring(action.targetStacks)
-				.. " ownedStacks=" .. tostring(action.ownedStacks)
-				.. " deficit=" .. tostring(action.deficit)
-				.. " pets=" .. tostring(action.petCount)
-				.. " families=" .. tostring(action.familyCount))
-		end
 		local _, requestedStacks = self:ExecutePlan(foodPlan)
 		totalRequestedStacks = totalRequestedStacks + requestedStacks
-		AB_Trace("executed food requestedStacks=" .. tostring(requestedStacks))
 		if requestedStacks > 0 then
 			AB_AnnouncePurchases(foodPlan.actions)
 		end
-	else
-		self:Debug("no food actions to execute")
-		AB_Trace("no food actions to execute")
 	end
 
 	if table.getn(ammoPlan.actions or {}) > 0 then
-		for i = 1, table.getn(ammoPlan.actions or {}) do
-			local action = ammoPlan.actions[i]
-			self:Debug("action#" .. tostring(i)
-				.. " idx=" .. tostring(action.index)
-				.. " item=" .. tostring(action.itemId)
-				.. " qtyStacks=" .. tostring(action.quantityStacks)
-				.. " qtyItems=" .. tostring(action.quantityItems)
-				.. " desiredStacks=" .. tostring(action.desiredStacks)
-				.. " ownedStacks=" .. tostring(action.ownedStacks)
-				.. " deficit=" .. tostring(action.deficit)
-				.. " stackCount=" .. tostring(action.stackCount))
-		end
-		local executedActions, requestedStacks = self:ExecutePlan(ammoPlan)
+		local _, requestedStacks = self:ExecutePlan(ammoPlan)
 		totalRequestedStacks = totalRequestedStacks + requestedStacks
-		AB_Trace("executed actions=" .. tostring(executedActions) .. " requestedStacks=" .. tostring(requestedStacks))
 		if requestedStacks > 0 then
+			AB_MoveAmmoStacksToSpecialBags(300)
 			AB_AnnouncePurchases(ammoPlan.actions)
 		end
-		self:Debug("executed ammo actions=" .. tostring(table.getn(ammoPlan.actions or {})))
-	else
-		self:Debug("no ammo actions to execute")
-		AB_Trace("no actions to execute")
 	end
 
 	if totalRequestedStacks > 0 then
@@ -1247,7 +1268,6 @@ end
 
 function Engine:OnMerchantClosed()
 	self._merchantSessionExecuted = false
-	AB_Trace("merchant session reset on MERCHANT_CLOSED")
 end
 
 function MTH_AutoBuy_GetMerchantSnapshot()

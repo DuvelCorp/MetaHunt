@@ -224,7 +224,9 @@ end
 if type(MTH_CommandPetSpellScan) ~= "function" then
 	function MTH_CommandPetSpellScan()
 		local ok, count = MTH_PS_ScanNow("manual-core-fallback")
-		MTH:Print("Pet spellbook scan: " .. tostring(count or 0) .. " spell(s). ok=" .. tostring(ok and true or false))
+		if not (MTH and MTH.IsMessageEnabled) or MTH:IsMessageEnabled("spellbookScan", false) then
+			MTH:Print("Pet spellbook scan: " .. tostring(count or 0) .. " spell(s). ok=" .. tostring(ok and true or false))
+		end
 	end
 end
 
@@ -243,6 +245,12 @@ function SlashCmdList.MTH(msg, editbox)
 		MTH_CommandOptions()
 	elseif lowerMsg == "book" or lowerMsg == "hunterbook" then
 		MTH_CommandBook()
+	elseif lowerMsg == "err" then
+		if MTH_DebugFrame and type(MTH_DebugFrame.Toggle) == "function" then
+			MTH_DebugFrame:Toggle()
+		else
+			MTH:Print("Debug frame is not available yet")
+		end
 	else
 		MTH:Print("Unknown command: " .. tostring(msg))
 		MTH:Print("Available: /mth options, /mth book")

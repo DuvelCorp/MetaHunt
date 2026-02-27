@@ -8,7 +8,7 @@ MTH_ZH_MANAGED_HOOKS = true
 local MTH_ZHunter = {
 	name = "zhunter",
 	enabled = true,
-	version = "1.0.3",
+	version = "1.0.4",
 	events = {
 		"VARIABLES_LOADED",
 		"PLAYER_ENTERING_WORLD",
@@ -18,6 +18,7 @@ local MTH_ZHunter = {
 		aspect = true,
 		tracking = true,
 		traps = true,
+		ranged = true,
 		ammo = true,
 		pet = true,
 	}
@@ -60,6 +61,7 @@ local function MTH_ZH_ApplyDefaultWidgetSpawnLayoutOnce()
 		"zButtonAmmo",
 		"zButtonTrack",
 		"zButtonTrap",
+		"zButtonRanged",
 		"zButtonPet",
 		"zButtonMounts",
 		"zButtonCompanions",
@@ -195,6 +197,7 @@ MTH_ZH_SetButtonsVisible = function(visible)
 		"zButtonAspect",
 		"zButtonTrack",
 		"zButtonTrap",
+		"zButtonRanged",
 		"zButtonAmmo",
 		"zButtonPet",
 		"zButtonMounts",
@@ -207,13 +210,34 @@ MTH_ZH_SetButtonsVisible = function(visible)
 			return
 		end
 
-		local showChildren = false
-		if show then
-			if type(ZSpellButton_GetChildrenExpanded) == "function" then
-				showChildren = ZSpellButton_GetChildrenExpanded(parentButton)
-			else
-				showChildren = true
+		if not show then
+			if parentButton.children then
+				parentButton.children:Hide()
 			end
+
+			if not parentButton.count then
+				return
+			end
+
+			local hideBaseName = parentButton.name or parentName
+			if not hideBaseName then
+				return
+			end
+
+			for index = 1, parentButton.count do
+				local child = getglobal(hideBaseName .. index)
+				if child then
+					child:Hide()
+				end
+			end
+			return
+		end
+
+		local showChildren = false
+		if type(ZSpellButton_GetChildrenExpanded) == "function" then
+			showChildren = ZSpellButton_GetChildrenExpanded(parentButton)
+		else
+			showChildren = true
 		end
 
 		if parentButton.children then
@@ -233,17 +257,15 @@ MTH_ZH_SetButtonsVisible = function(visible)
 			return
 		end
 
-		for index = 1, parentButton.count do
-			local child = getglobal(baseName .. index)
-			if child then
-				if showChildren then
+		if showChildren then
+			for index = 1, parentButton.count do
+				local child = getglobal(baseName .. index)
+				if child then
 					if child.id then
 						child:Show()
 					else
 						child:Hide()
 					end
-				else
-					child:Hide()
 				end
 			end
 		end
