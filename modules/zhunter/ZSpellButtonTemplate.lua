@@ -189,11 +189,17 @@ function ZSpellButton_SetSize(parent, size, setChildren)
 		local button
 		for i=1, parent.count do
 			button = getglobal(parent.name..i)
-			button:SetHeight(size)
-			button:SetWidth(size)
-			button.background:SetWidth(size * bgscale)
-			button.background:SetHeight(size * bgscale)
-			button.cooldown:SetModelScale(size * cdscale)
+			if button then
+				button:SetHeight(size)
+				button:SetWidth(size)
+				if button.background then
+					button.background:SetWidth(size * bgscale)
+					button.background:SetHeight(size * bgscale)
+				end
+				if button.cooldown then
+					button.cooldown:SetModelScale(size * cdscale)
+				end
+			end
 		end
 	else
 		local cscale = 100/36
@@ -208,16 +214,22 @@ function ZSpellButton_SetSize(parent, size, setChildren)
 		end
 		parent:SetHeight(size)
 		parent:SetWidth(size)
-		parent.background:SetWidth(size * bgscale)
-		parent.background:SetHeight(size * bgscale)
-		parent.cooldown:SetModelScale(size * cdscale)
-		parent.circle:SetWidth(size * cscale)
-		parent.circle:SetHeight(size * cscale)
-		parent.circle:SetPoint("CENTER", size * cxscale, size * cyscale)
-		if circleVisible then
-			parent.circle:Show()
-		else
-			parent.circle:Hide()
+		if parent.background then
+			parent.background:SetWidth(size * bgscale)
+			parent.background:SetHeight(size * bgscale)
+		end
+		if parent.cooldown then
+			parent.cooldown:SetModelScale(size * cdscale)
+		end
+		if parent.circle then
+			parent.circle:SetWidth(size * cscale)
+			parent.circle:SetHeight(size * cscale)
+			parent.circle:SetPoint("CENTER", size * cxscale, size * cyscale)
+			if circleVisible then
+				parent.circle:Show()
+			else
+				parent.circle:Hide()
+			end
 		end
 	end
 end
@@ -253,6 +265,13 @@ end
 
 function ZSpellButton_CreateChildren(parent, name, count)
 	if not (parent and name and count) then return end
+	if parent.children and parent.count and parent.name == name then
+		parent.count = count
+		if type(ZSpellButton_ApplyChildrenExpanded) == "function" then
+			ZSpellButton_ApplyChildrenExpanded(parent)
+		end
+		return
+	end
 	parent.children = CreateFrame("Frame", parent:GetName().."Children", UIParent)
 	parent.count = count
 	parent.name = name
@@ -309,6 +328,7 @@ function ZSpellButton_GetChildrenExpanded(parent)
 	return expanded
 end
 
+
 function ZSpellButton_SetChildrenExpanded(parent, expanded)
 	if not (parent and parent.name) then
 		return
@@ -322,10 +342,30 @@ function ZSpellButton_SetChildrenExpanded(parent, expanded)
 		if parent.children then
 			parent.children:Show()
 		end
+		if parent.count then
+			for i = 1, parent.count do
+				local child = getglobal(parent.name .. i)
+				if child then
+					if child.id then
+						child:Show()
+					else
+						child:Hide()
+					end
+				end
+			end
+		end
 	else
 		saved["children"]["expanded"] = 0
 		if parent.children then
 			parent.children:Hide()
+		end
+		if parent.count then
+			for i = 1, parent.count do
+				local child = getglobal(parent.name .. i)
+				if child then
+					child:Hide()
+				end
+			end
 		end
 	end
 end
@@ -334,11 +374,7 @@ function ZSpellButton_ApplyChildrenExpanded(parent)
 	if not (parent and parent.children) then
 		return
 	end
-	if ZSpellButton_GetChildrenExpanded(parent) then
-		parent.children:Show()
-	else
-		parent.children:Hide()
-	end
+	ZSpellButton_SetChildrenExpanded(parent, ZSpellButton_GetChildrenExpanded(parent))
 end
 
 function ZSpellButton_OnEnter()

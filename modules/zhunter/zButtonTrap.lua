@@ -96,6 +96,7 @@ local function zButtonTrap_ApplyRuntimeSettings()
 	zButtonTrap.hideonclick = saved["children"] and saved["children"]["hideonclick"] and true or false
 end
 
+
 function zButtonTrap_OnLoad()
 	this:RegisterEvent("VARIABLES_LOADED")
 end

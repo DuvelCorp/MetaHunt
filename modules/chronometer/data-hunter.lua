@@ -47,6 +47,13 @@ function MTH_ChronometerHunterInstallData(engine)
 		engine:AddTimer(engine.EVENT, BS["Piercing Shot"], 8, 1, 0, 1, { a = 1, cr = "PURPLE", tx = "Interface\\Icons\\Ability_Hunter_DisarmingShot" })
 		engine:AddTimer(engine.EVENT, BS["Quick Shots"], 12, 0, 1, 1, { a = 1, cr = "MAROON", tx = "Interface\\Icons\\Ability_Hunter_Quickshot" })
 		engine:AddTimer(engine.EVENT, BS["Scorpid Poison"], 10, 1, 0, 0, { gr = 3, cr = "PURPLE", a = 1, dn = 1 })
+		engine:AddTimer(engine.EVENT, BS["Devilsaur Fury"], 20, 0, 1, 1, { a = 1, cr = "PURPLE", xn = BS["Devilsaur Eye"], tx = "Interface\\Icons\\Ability_Hunter_Pet_Raptor" })
+		engine:AddTimer(engine.EVENT, BS["Restless Strength"], 20, 0, 1, 1, { a = 1, cr = "PURPLE", xn = BS["Zandalarian Hero Medallion"], tx = "Interface\\Icons\\INV_Jewelry_Necklace_13" })
+		engine:AddTimer(engine.EVENT, BS["Earthstrike"], 20, 0, 1, 1, { a = 1, cr = "PURPLE", tx = "Interface\\Icons\\Spell_Nature_AbolishMagic" })
+		engine:AddTimer(engine.EVENT, BS["Badge of the Swarmguard"], 30, 0, 1, 1, { a = 1, cr = "PURPLE", tx = "Interface\\Icons\\INV_Misc_AhnQirajTrinket_04" })
+		engine:AddTimer(engine.EVENT, BS["Jom Gabbar"], 20, 0, 1, 1, { a = 1, cr = "PURPLE", tx = "Interface\\Icons\\Ability_Poisons" })
+		engine:AddTimer(engine.EVENT, BS["Kiss of the Spider"], 15, 0, 1, 1, { a = 1, cr = "PURPLE", tx = "Interface\\Icons\\INV_Trinket_Naxxramas04" })
+		engine:AddTimer(engine.EVENT, BS["Slayer's Crest"], 20, 0, 1, 1, { a = 1, cr = "PURPLE", tx = "Interface\\Icons\\INV_Trinket_Naxxramas03" })
 	end
 
 	local _, race = UnitRace("player")

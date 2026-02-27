@@ -238,7 +238,8 @@ function MTH_BOOK_BeastMatches(beastId, beast)
 	end
 
 	if MTH_BOOK_STATE.search ~= "" then
-		local name = MTH_BOOK_SafeLower(beast.name)
+		local localizedName = (MTH and MTH.GetLocalizedBeastName and MTH:GetLocalizedBeastName(beastId, beast.name)) or beast.name
+		local name = MTH_BOOK_SafeLower(localizedName)
 		local family = MTH_BOOK_SafeLower(beast.family)
 		local idText = tostring(beastId)
 		if string.find(name, MTH_BOOK_STATE.search, 1, true) == nil
@@ -260,8 +261,8 @@ function MTH_BOOK_BeastSort(a, b)
 	local la = MTH_BOOK_ParseLevel(ba.lvl) or 0
 	local lb = MTH_BOOK_ParseLevel(bb.lvl) or 0
 	if la ~= lb then return la < lb end
-	local na = ba.name or ""
-	local nb = bb.name or ""
+	local na = (MTH and MTH.GetLocalizedBeastName) and MTH:GetLocalizedBeastName(a, ba.name) or (ba.name or "")
+	local nb = (MTH and MTH.GetLocalizedBeastName) and MTH:GetLocalizedBeastName(b, bb.name) or (bb.name or "")
 	if na ~= nb then return na < nb end
 	return a < b
 end

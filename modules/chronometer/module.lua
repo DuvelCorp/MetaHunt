@@ -1,7 +1,7 @@
 local MTH_ChronometerModule = {
 	name = "chronometer",
 	enabled = true,
-	version = "1.0.3",
+	version = "1.0.4",
 	events = {},
 	initialized = false,
 }

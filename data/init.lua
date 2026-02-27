@@ -26,6 +26,85 @@ end
 
 MTH_DS_MarkNotInGameRangedWeapons()
 
+local function MTH_DS_ApplyCapturedProjectileQualities()
+	if type(MTH_DS_AmmoItems) ~= "table" then return end
+
+	local capturedQualityByItemId = {
+		[2512] = 1,
+		[2515] = 1,
+		[2516] = 1,
+		[2519] = 1,
+		[3030] = 1,
+		[3033] = 1,
+		[3464] = 2,
+		[3465] = 2,
+		[4960] = 1,
+		[5568] = 1,
+		[8067] = 1,
+		[8068] = 1,
+		[8069] = 1,
+		[9399] = 2,
+		[10512] = 2,
+		[10513] = 2,
+		[10579] = 3,
+		[11284] = 1,
+		[11285] = 1,
+		[11630] = 3,
+		[12654] = 3,
+		[13377] = 3,
+		[15997] = 2,
+		[18042] = 2,
+		[19316] = 2,
+		[19317] = 2,
+	}
+
+	for itemId, quality in pairs(capturedQualityByItemId) do
+		local row = MTH_DS_AmmoItems[itemId]
+		if type(row) == "table" then
+			row.quality = quality
+		end
+	end
+end
+
+MTH_DS_ApplyCapturedProjectileQualities()
+
+local function MTH_DS_ApplyCapturedAmmoBagQualities()
+	local bagItems = MTH_DS_BagItems or MTH_DS_Bags
+	if type(bagItems) ~= "table" then return end
+
+	local capturedQualityByItemId = {
+		[2101] = 1,
+		[2102] = 1,
+		[3573] = 1,
+		[3574] = 1,
+		[3604] = 2,
+		[3605] = 2,
+		[5439] = 1,
+		[5441] = 1,
+		[7278] = 1,
+		[7279] = 1,
+		[7371] = 2,
+		[7372] = 2,
+		[8217] = 2,
+		[8218] = 2,
+		[11362] = 1,
+		[11363] = 1,
+		[18714] = 4,
+		[19319] = 3,
+		[19320] = 3,
+		[61549] = 3,
+	}
+
+	for itemId, quality in pairs(capturedQualityByItemId) do
+		local row = bagItems[itemId]
+		if type(row) == "table" then
+			row.quality = quality
+		end
+	end
+end
+
+MTH_DS_ApplyCapturedAmmoBagQualities()
+
 local function MTH_DS_EnsurePetSpellsTrainerGrowl()
 	if not MTH_DS_PetSpells then return end
 	if type(MTH_DS_PetSpells.allSpells) ~= "table" then MTH_DS_PetSpells.allSpells = {} end

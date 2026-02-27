@@ -103,6 +103,7 @@ local function zButtonTrack_ApplyRuntimeSettings()
 	zButtonTrack.hideonclick = saved["children"] and saved["children"]["hideonclick"] and true or false
 end
 
+
 function zButtonTrack_OnLoad()
 	this:RegisterEvent("VARIABLES_LOADED")
 end

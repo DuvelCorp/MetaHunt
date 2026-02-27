@@ -1,7 +1,7 @@
 ## Interface: 11200
-## Version: 1.0.3
+## Version: 1.0.4
 ## Title: MetaHunt - |cff00ff00Hunter
-## Author: Metasploit
+## Author: Metasploit and his Copilot ;)
 ## Notes: Unified addon suite for huntards making old addons compatible with TurtleWoW, and adding an arsenal of never seen Hunter's utilities.
 ## SavedVariables: MTH_SavedVariables, FOM_Config, FOM_FoodQuality, FOM_AddedFoods, FOM_RemovedFoods, FOM_Cooking, FOM_QuestFood, FOM_LocaleInfo
 ## SavedVariablesPerCharacter: ZHunterMod_Saved, MTH_CharSavedVariables
@@ -26,6 +26,8 @@ data\ds-vendors.lua
 data\ds-vendors-extra.lua
 data\ds-items.lua
 data\ds-items-extra.lua
+data\ds-items-origins.lua
+data\ds-bags.lua
 data\ds-items-atlas-sources.lua
 data\ds-zones.lua
 data\ds-zones-fallback.lua

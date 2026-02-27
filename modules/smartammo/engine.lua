@@ -15,7 +15,10 @@ local function MTHSmartAmmo_IsSmartEnabled()
 		return moduleStore.smartEnabled and true or false
 	end
 	local saved = MTHSmartAmmo_GetSaved()
-	return saved["enabled"]
+	if saved["enabled"] == nil then
+		return true
+	end
+	return saved["enabled"] and true or false
 end
 
 local function MTHSmartAmmo_IsReloadEnabled()
@@ -28,6 +31,18 @@ local function MTHSmartAmmo_IsReloadEnabled()
 		return true
 	end
 	return saved["reload"] and true or false
+end
+
+local function MTHSmartAmmo_IsWeaponSwapEnabled()
+	local moduleStore = MTHSmartAmmo_GetModuleStore()
+	if type(moduleStore) == "table" and moduleStore.weaponSwapEnabled ~= nil then
+		return moduleStore.weaponSwapEnabled and true or false
+	end
+	local saved = MTHSmartAmmo_GetSaved()
+	if saved["weaponSwap"] == nil then
+		return true
+	end
+	return saved["weaponSwap"] and true or false
 end
 
 local MTHSmartAmmo_InitializeHooks
@@ -83,8 +98,24 @@ function MTHSmartAmmo_GetReloadEnabled()
 	return MTHSmartAmmo_IsReloadEnabled() and true or false
 end
 
-local function MTHSmartAmmo_Log(msg)
-	return
+function MTHSmartAmmo_SetWeaponSwapEnabled(enabled, silent)
+	local saved = MTHSmartAmmo_GetSaved()
+	if enabled then
+		saved["weaponSwap"] = 1
+	else
+		saved["weaponSwap"] = false
+	end
+	local moduleStore = MTHSmartAmmo_GetModuleStore()
+	if type(moduleStore) == "table" then
+		moduleStore.weaponSwapEnabled = enabled and true or false
+	end
+	if not silent and DEFAULT_CHAT_FRAME then
+		MTH_SA_Print("Smart Ammo weapon-swap auto-equip " .. (enabled and "Enabled." or "Disabled."))
+	end
+end
+
+function MTHSmartAmmo_GetWeaponSwapEnabled()
+	return MTHSmartAmmo_IsWeaponSwapEnabled() and true or false
 end
 
 local MTHSmartAmmo_CastSpell_Hook
@@ -142,6 +173,10 @@ MTH_SA_Quantity = 0
 MTH_SA_LastFallbackAttempt = 0
 MTH_SA_LastKnownEquippedName = nil
 MTH_SA_LastFallbackNotice = { key = nil, time = 0 }
+MTH_SA_LastKnownWeaponAmmoType = nil
+MTH_SA_LastWeaponCheck = 0
+MTH_SA_StartupProtectUntil = (GetTime() or 0) + 2.0
+MTH_SA_StartupPrimed = nil
 
 local function MTHSmartAmmo_RefreshAmmoButtonDisplay()
 	local createButtons = getglobal("zButtonAmmo_CreateButtons")
@@ -211,6 +246,10 @@ local function MTHSmartAmmo_HandleFallbackResult(previousAmmo)
 end
 
 local function MTHSmartAmmo_TryFallbackEquip(reason)
+	local now = GetTime() or 0
+	if now < (MTH_SA_StartupProtectUntil or 0) then
+		return
+	end
 	if not MTH_SA_IsModuleEnabled() then
 		return
 	end
@@ -224,17 +263,104 @@ local function MTHSmartAmmo_TryFallbackEquip(reason)
 		return
 	end
 
-	local now = GetTime() or 0
+	now = GetTime() or 0
 	if MTH_SA_LastFallbackAttempt and (now - MTH_SA_LastFallbackAttempt) < 0.5 then
 		return
 	end
 	MTH_SA_LastFallbackAttempt = now
 	local previousAmmo = MTH_SA_GetEquippedAmmoName() or MTH_SA_LastKnownEquippedName
 
-	MTHSmartAmmo_Log("Fallback equip attempt reason=" .. tostring(reason or "unknown"))
 	if MTH_SA_Check() or MTH_SA_FindAmmo() then
 		MTH_SA_EquipAmmo()
 		MTHSmartAmmo_HandleFallbackResult(previousAmmo)
+	end
+end
+
+local function MTHSmartAmmo_FindBestAmmoForType(ammoType)
+	if not ammoType then
+		return nil
+	end
+	local rankMap = (ammoType == "Bullets" and MTH_AMMO_BULLET_RANK) or MTH_AMMO_ARROW_RANK or {}
+	local best = nil
+	for bag = 4, 0, -1 do
+		for slot = GetContainerNumSlots(bag), 1, -1 do
+			local itemName = MTH_SA_GetContainerItemName(bag, slot)
+			if itemName then
+				local value = rankMap[itemName]
+				if value and (not best or value > best.value) then
+					best = {
+						name = itemName,
+						value = value,
+						bag = bag,
+						slot = slot,
+					}
+				end
+			end
+		end
+	end
+	return best
+end
+
+local function MTHSmartAmmo_EquipAmmoFromSlot(bag, slot)
+	if not bag or not slot then
+		return false
+	end
+	PickupContainerItem(bag, slot)
+	if CursorHasItem and CursorHasItem() then
+		EquipCursorItem(0)
+	end
+	if CursorHasItem and CursorHasItem() then
+		if ClearCursor then
+			ClearCursor()
+		end
+		return false
+	end
+	return true
+end
+
+local function MTHSmartAmmo_HandleWeaponSwapAutoEquip(reason)
+	local now = GetTime() or 0
+	if now < (MTH_SA_StartupProtectUntil or 0) then
+		return
+	end
+	if not MTH_SA_IsModuleEnabled() then
+		return
+	end
+	if not MTHSmartAmmo_IsWeaponSwapEnabled() then
+		return
+	end
+
+	local weaponAmmoType = MTH_SA_GetEquippedWeaponAmmoType()
+	if not weaponAmmoType then
+		MTH_SA_LastKnownWeaponAmmoType = nil
+		MTH_SA_StartupPrimed = true
+		return
+	end
+
+	if not MTH_SA_StartupPrimed then
+		MTH_SA_LastKnownWeaponAmmoType = weaponAmmoType
+		MTH_SA_StartupPrimed = true
+		return
+	end
+
+	if MTH_SA_LastKnownWeaponAmmoType == weaponAmmoType then
+		return
+	end
+	MTH_SA_LastKnownWeaponAmmoType = weaponAmmoType
+
+	local bestAmmo = MTHSmartAmmo_FindBestAmmoForType(weaponAmmoType)
+	if not bestAmmo then
+		return
+	end
+
+	local equippedNow = MTH_SA_GetEquippedAmmoName()
+	if equippedNow and equippedNow == bestAmmo.name then
+		return
+	end
+
+	if MTHSmartAmmo_EquipAmmoFromSlot(bestAmmo.bag, bestAmmo.slot) then
+		MTH_SA_LastKnownEquippedName = bestAmmo.name
+		MTHSmartAmmo_RefreshAmmoButtonDisplay()
 	end
 end
 
@@ -245,6 +371,7 @@ frame:RegisterEvent("SPELLCAST_INTERRUPTED")
 frame:RegisterEvent("SPELLCAST_FAILED")
 frame:RegisterEvent("SPELLCAST_STOP")
 frame:RegisterEvent("SPELLCAST_DELAYED")
+frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 
 frame:SetScript("OnEvent", function()
@@ -252,28 +379,28 @@ frame:SetScript("OnEvent", function()
 		if MTHSmartAmmo_EnsureHooks then
 			MTHSmartAmmo_EnsureHooks("EVENT:START_AUTOREPEAT_SPELL")
 		end
-		local castHook, actionHook, byNameHook = MTHSmartAmmo_AreHooksInstalled()
-		MTHSmartAmmo_Log("EVENT START_AUTOREPEAT_SPELL smart=" .. tostring(MTHSmartAmmo_IsSmartEnabled()) .. " module=" .. tostring(MTH_SA_IsModuleEnabled()) .. " hooks=" .. tostring(castHook) .. "/" .. tostring(actionHook) .. "/" .. tostring(byNameHook))
 		MTH_SA_AutoShot = 1
 		MTHSmartAmmo_TryFallbackEquip("START_AUTOREPEAT_SPELL")
 	elseif event == "STOP_AUTOREPEAT_SPELL" then
-		MTHSmartAmmo_Log("EVENT STOP_AUTOREPEAT_SPELL")
 		MTH_SA_AutoShot = nil
+
+	elseif event == "PLAYER_ENTERING_WORLD" then
+		local now = GetTime() or 0
+		MTH_SA_StartupProtectUntil = now + 2.0
+		MTH_SA_StartupPrimed = nil
+		MTH_SA_LastKnownWeaponAmmoType = MTH_SA_GetEquippedWeaponAmmoType()
+		MTH_SA_LastKnownEquippedName = MTH_SA_GetEquippedAmmoName()
+		MTH_SA_LastWeaponCheck = now
 
 	elseif event == "SPELLCAST_START" then
 		--DEFAULT_CHAT_FRAME:AddMessage("SPELLCAST_START ", 0, 1, 1)
 
 	elseif event == "SPELLCAST_STOP" or event == "SPELLCAST_FAILED" or event == "SPELLCAST_INTERRUPTED" or event == "SPELLCAST_DELAYED"  then
-		local castHook, actionHook, byNameHook = MTHSmartAmmo_AreHooksInstalled()
-		MTHSmartAmmo_Log("EVENT " .. tostring(event) .. " waitJunk=" .. tostring(MTH_SA_IsWaitingSwapJunk) .. " waitGood=" .. tostring(MTH_SA_IsWaitingSwapGood) .. " lastSpell=" .. tostring(MTH_SA_LastSpell) .. " smart=" .. tostring(MTHSmartAmmo_IsSmartEnabled()) .. " module=" .. tostring(MTH_SA_IsModuleEnabled()) .. " hooks=" .. tostring(castHook) .. "/" .. tostring(actionHook) .. "/" .. tostring(byNameHook))
 		if MTH_SA_IsWaitingSwapJunk then
-			MTHSmartAmmo_Log("EVENT swap request -> JUNK equipped=" .. tostring(MTH_SA_GetEquippedAmmoName()) .. " current=" .. tostring(MTH_SA.curname))
 			MTH_SA_EquipAmmo(1)
 		elseif MTH_SA_IsWaitingSwapGood then
-			MTHSmartAmmo_Log("EVENT swap request -> GOOD equipped=" .. tostring(MTH_SA_GetEquippedAmmoName()) .. " current=" .. tostring(MTH_SA.curname))
 			MTH_SA_EquipAmmo()
 		end
-		MTHSmartAmmo_Log("EVENT clear pending flags")
 		MTH_SA_IsWaitingSwapJunk = nil 
 		MTH_SA_IsWaitingSwapGood = nil
 		MTH_SA_LastSpell = nil
@@ -298,19 +425,21 @@ frame:SetScript("OnUpdate", function(self, elapsed)
 	end
 
 	if MTH_SA_AmmoLastSwitch and (GetTime()-MTH_SA_AmmoLastSwitch > 0.5) and (MTH_SA_IsWaitingSwapJunk or MTH_SA_IsWaitingSwapGood) then
-		MTHSmartAmmo_Log("OnUpdate pending swap elapsed>0.5 equipped=" .. tostring(MTH_SA_GetEquippedAmmoName()) .. " waitJunk=" .. tostring(MTH_SA_IsWaitingSwapJunk) .. " waitGood=" .. tostring(MTH_SA_IsWaitingSwapGood))
 		if MTH_SA_IsWaitingSwapJunk then
-			MTHSmartAmmo_Log("OnUpdate swap request -> JUNK")
 			MTH_SA_EquipAmmo(1)
 		elseif MTH_SA_IsWaitingSwapGood then
-			MTHSmartAmmo_Log("OnUpdate swap request -> GOOD")
 			MTH_SA_EquipAmmo()
 		end
-		MTHSmartAmmo_Log("OnUpdate clear pending flags")
 		MTH_SA_IsWaitingSwapJunk = nil 
 		MTH_SA_IsWaitingSwapGood = nil
 		MTH_SA_LastSpell = nil
 	end 
+
+	local now = GetTime() or 0
+	if (now - (MTH_SA_LastWeaponCheck or 0)) >= 0.25 then
+		MTH_SA_LastWeaponCheck = now
+		MTHSmartAmmo_HandleWeaponSwapAutoEquip("OnUpdate-weapon-check")
+	end
 end)
 
 function MTH_SA_CountEquippedAmmo()
@@ -358,12 +487,9 @@ function MTH_SA_GetContainerItemName(bag, slot)
 end
 
 function MTH_SA_EquipAmmo(junk)
-	MTHSmartAmmo_Log("EquipAmmo enter junk=" .. tostring(junk) .. " equipped=" .. tostring(MTH_SA_GetEquippedAmmoName()) .. " cur=" .. tostring(MTH_SA.curname) .. " junk=" .. tostring(MTH_SA.junkname))
-	
 	if not MTH_SA_AmmoLastSwitch then MTH_SA_AmmoLastSwitch = GetTime() end
 
 	if not (MTH_SA_Check() or MTH_SA_FindAmmo()) then
-		MTHSmartAmmo_Log("EquipAmmo abort: cache invalid and FindAmmo failed")
 		return
 	end
 	local bag, slot
@@ -377,15 +503,12 @@ function MTH_SA_EquipAmmo(junk)
 
 		if MTH_SA_GetEquippedAmmoName() ~= MTH_SA.curname and GetTime()-MTH_SA_AmmoLastSwitch > 0.5 then
 			if not MTH_SA_FindAmmo() then
-				MTHSmartAmmo_Log("EquipAmmo abort: AMMO NOT FOUND during junk swap")
 				return
 			end
 		end
 		bag, slot = MTH_SA.junkbag, MTH_SA.junkslot
-		MTHSmartAmmo_Log("Swap GOOD->JUNK bag=" .. tostring(bag) .. " slot=" .. tostring(slot) .. " cur=" .. tostring(MTH_SA.curname) .. " curSlot=" .. tostring(MTH_SA.curslot) .. " junk=" .. tostring(MTH_SA.junkname) .. " junkSlot=" .. tostring(MTH_SA.junkslot))
 	else
 		bag, slot = MTH_SA.curbag, MTH_SA.curslot
-		MTHSmartAmmo_Log("Swap JUNK->GOOD bag=" .. tostring(bag) .. " slot=" .. tostring(slot) .. " cur=" .. tostring(MTH_SA.curname) .. " curSlot=" .. tostring(MTH_SA.curslot) .. " junk=" .. tostring(MTH_SA.junkname) .. " junkSlot=" .. tostring(MTH_SA.junkslot))
 	end
 	
 
@@ -393,7 +516,6 @@ function MTH_SA_EquipAmmo(junk)
 	--UseContainerItem(bag, slot)
 	PickupContainerItem(bag,slot)	
 	EquipCursorItem(0)	
-	MTHSmartAmmo_Log("EquipCursorItem applied bag=" .. tostring(bag) .. " slot=" .. tostring(slot))
 	if junk then
 		MTH_SA_IsWaitingSwapJunk = nil 
 		MTH_SA_IsWaitingSwapGood = 1
@@ -401,7 +523,6 @@ function MTH_SA_EquipAmmo(junk)
 		MTH_SA_IsWaitingSwapJunk = nil
 		MTH_SA_IsWaitingSwapGood = nil
 	end 
-	MTHSmartAmmo_Log("Pending flags set waitJunk=" .. tostring(MTH_SA_IsWaitingSwapJunk) .. " waitGood=" .. tostring(MTH_SA_IsWaitingSwapGood))
 	--PickupInventoryItem(0)
 	--AutoEquipCursorItem()
 	--EquipCursorItem(0)	
@@ -410,20 +531,16 @@ function MTH_SA_EquipAmmo(junk)
 end
 
 function MTH_SA_FindAmmo()
-	MTHSmartAmmo_Log("FindAmmo start")
 	MTH_SA = {}
 	MTH_SA_List = {}
 	local ammotype = MTH_SA_GetEquippedWeaponAmmoType()
 	if not ammotype then
-		MTHSmartAmmo_Log("FindAmmo abort: no ranged weapon ammo type")
 		return
 	end
 	local curammo = MTH_SA_GetEquippedAmmoName()
 	if not curammo and not MTHSmartAmmo_IsReloadEnabled() then
-		MTHSmartAmmo_Log("FindAmmo abort: no equipped ammo and reload disabled")
 		return
 	end
-	MTHSmartAmmo_Log("FindAmmo type=" .. tostring(ammotype) .. " equipped=" .. tostring(curammo))
 	local ammolist = (ammotype == "Bullets" and MTH_AMMO_BULLET_RANK) or MTH_AMMO_ARROW_RANK or {}
 	MTH_SA_List = ammolist
 	local item, value
@@ -473,11 +590,9 @@ function MTH_SA_FindAmmo()
 		end
 	end
 	if not goodvalue or junkvalue > goodvalue then
-		MTHSmartAmmo_Log("FindAmmo failed: goodvalue=" .. tostring(goodvalue) .. " junkvalue=" .. tostring(junkvalue))
 		MTH_SA.error = 1
 		return
 	end
-	MTHSmartAmmo_Log("FindAmmo selected cur=" .. tostring(MTH_SA.curname) .. " junk=" .. tostring(MTH_SA.junkname) .. " curValue=" .. tostring(MTH_SA.curvalue) .. " junkValue=" .. tostring(junkvalue))
 	return 1
 end
 
@@ -502,11 +617,8 @@ MTHSmartAmmo_CastSpell_Hook = function(spell, tab)
 	if MTHSmartAmmo_IsSmartEnabled() then
 		local name = GetSpellName(spell, tab)
 		MTH_SA_LastSpell = name
-		MTHSmartAmmo_Log("HOOK CastSpell name=" .. tostring(name))
 		if name and MTH_AMMO_JUNKSHOT_SET and MTH_AMMO_JUNKSHOT_SET[name] then
-			MTHSmartAmmo_Log("HOOK CastSpell junk-shot detected name=" .. tostring(name))
 			if MTH_SA_Check() or MTH_SA_FindAmmo() then
-				MTHSmartAmmo_Log("HOOK CastSpell pre-swap -> junk")
 				MTH_SA_EquipAmmo(1)
 			end
 		end
@@ -539,11 +651,8 @@ MTHSmartAmmo_UseAction_Hook = function(slot, checkCursor, onSelf)
 		MTH_SA_Tooltip:SetAction(slot)
 		local name = MTH_SA_TooltipTextLeft1:GetText()
 		MTH_SA_LastSpell = name
-		MTHSmartAmmo_Log("HOOK UseAction slot=" .. tostring(slot) .. " name=" .. tostring(name))
 		if name and MTH_AMMO_JUNKSHOT_SET and MTH_AMMO_JUNKSHOT_SET[name] then
-			MTHSmartAmmo_Log("HOOK UseAction junk-shot detected name=" .. tostring(name))
 			if MTH_SA_Check() or MTH_SA_FindAmmo() then
-				MTHSmartAmmo_Log("HOOK UseAction pre-swap -> junk")
 				MTH_SA_EquipAmmo(1)
 			end
 		end
@@ -573,11 +682,8 @@ MTHSmartAmmo_CastSpellByName_Hook = function(spell, onSelf)
 
 	local _, _, name = string.find(spell or "", "([%w%'%s]+)")
 	MTH_SA_LastSpell = name
-	MTHSmartAmmo_Log("HOOK CastSpellByName name=" .. tostring(name))
 	if name and MTHSmartAmmo_IsSmartEnabled() and MTH_AMMO_JUNKSHOT_SET and MTH_AMMO_JUNKSHOT_SET[name] then
-		MTHSmartAmmo_Log("HOOK CastSpellByName junk-shot detected name=" .. tostring(name))
 		if MTH_SA_Check() or MTH_SA_FindAmmo() then
-			MTHSmartAmmo_Log("HOOK CastSpellByName pre-swap -> junk")
 			MTH_SA_EquipAmmo(1)
 		end
 	end
@@ -598,26 +704,22 @@ end
 -- Defer hooking until after tables are initialized
 MTHSmartAmmo_InitializeHooks = function()
 	if not MTH_SA_IsModuleEnabled() then
-		MTHSmartAmmo_Log("InitializeHooks skip: module disabled")
 		return
 	end
 
 	if CastSpell ~= MTHSmartAmmo_CastSpell_Hook then
 		MTH_SA_CastSpell = CastSpell
 		CastSpell = MTHSmartAmmo_CastSpell_Hook
-		MTHSmartAmmo_Log("InitializeHooks: CastSpell hook installed")
 	end
 
 	if UseAction ~= MTHSmartAmmo_UseAction_Hook then
 		MTH_SA_UseAction = UseAction
 		UseAction = MTHSmartAmmo_UseAction_Hook
-		MTHSmartAmmo_Log("InitializeHooks: UseAction hook installed")
 	end
 
 	if CastSpellByName ~= MTHSmartAmmo_CastSpellByName_Hook then
 		MTH_SA_CastSpellByName = CastSpellByName
 		CastSpellByName = MTHSmartAmmo_CastSpellByName_Hook
-		MTHSmartAmmo_Log("InitializeHooks: CastSpellByName hook installed")
 	end
 end
 

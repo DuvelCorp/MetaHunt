@@ -6,6 +6,13 @@ if not MTH_MinimapButton then
 	MTH_MinimapButton = {}
 end
 
+local function MTH_MB_L(key, default)
+	if MTH and MTH.GetLocalization then
+		return MTH:GetLocalization(key, default)
+	end
+	return default or key
+end
+
 local function MTH_MB_GetStore()
 	if not MTH_CharSavedVariables then
 		MTH_CharSavedVariables = {}
@@ -111,10 +118,10 @@ function MTH_MinimapButton:Initialize()
 		self = self or this
 		if not self then return end
 		GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-		GameTooltip:SetText("MetaHunt", 1, 0.82, 0)
-		GameTooltip:AddLine("Left-Click: Open Hunter Book", 1, 1, 1)
-		GameTooltip:AddLine("Right-Click: Open MetaHunt Options", 1, 1, 1)
-		GameTooltip:AddLine("Drag: Move button", 0.8, 0.8, 0.8)
+		GameTooltip:SetText(MTH_MB_L("MINIMAP_TITLE", "MetaHunt"), 1, 0.82, 0)
+		GameTooltip:AddLine(MTH_MB_L("MINIMAP_HINT_LEFT_CLICK", "Left-Click: Open Hunter Book"), 1, 1, 1)
+		GameTooltip:AddLine(MTH_MB_L("MINIMAP_HINT_RIGHT_CLICK", "Right-Click: Open MetaHunt Options"), 1, 1, 1)
+		GameTooltip:AddLine(MTH_MB_L("MINIMAP_HINT_DRAG", "Drag: Move button"), 0.8, 0.8, 0.8)
 		GameTooltip:Show()
 	end)
 

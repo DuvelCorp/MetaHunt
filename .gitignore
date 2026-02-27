@@ -4,3 +4,9 @@
 
 # Keep this ignore file tracked
 !.gitignore
+
+# Exclude non-runtime localization helper artifacts
+tools/
+LOC*.md
+LOCALIZATION*.md
+CHANGELOG.md

@@ -13,6 +13,13 @@ local MTH_OPTIONS_SHELL_READY = MTH_OptionsRequire and MTH_OptionsRequire("optio
 	"MTH_BuildOptionsTree",
 })
 
+local function MTH_OPT_L(key, default)
+	if MTH and MTH.GetLocalization then
+		return MTH:GetLocalization(key, default)
+	end
+	return default or key
+end
+
 local function MTH_RegisterEscClose(frameName)
 	if not (frameName and UISpecialFrames) then
 		return
@@ -33,7 +40,7 @@ local function MTH_EnsureOptionsFrame()
 	MetaHuntOptions = CreateFrame("Frame", "MetaHuntOptions", UIParent, "MetaHuntOptionsTemplate")
 	if not MetaHuntOptions then
 		if MTH and MTH.Print then
-			MTH:Print("[MTH OPTIONS] Failed to create MetaHuntOptions", "error")
+			MTH:Print(MTH_OPT_L("OPT_ERR_CREATE_OPTIONS_FRAME", "[MTH OPTIONS] Failed to create MetaHuntOptions"), "error")
 		end
 		return nil
 	end
@@ -68,7 +75,7 @@ local function MTH_EnsureOptionsFrame()
 		closeBtn:SetPoint("TOPRIGHT", MetaHuntOptions, "TOPRIGHT", MTH_OPTIONS_CONST.CLOSE_BTN_OFFSET_X, MTH_OPTIONS_CONST.CLOSE_BTN_OFFSET_Y)
 		closeBtn:SetWidth(MTH_OPTIONS_CONST.CLOSE_BTN_SIZE)
 		closeBtn:SetHeight(MTH_OPTIONS_CONST.CLOSE_BTN_SIZE)
-		closeBtn:SetText("X")
+		closeBtn:SetText(MTH_OPT_L("COMMON_CLOSE_SHORT", "X"))
 		closeBtn:SetScript("OnClick", function() MetaHuntOptions:Hide() end)
 	end
 
@@ -110,6 +117,17 @@ function MTH_SelectOptionsTab(tabKey)
 			MTH_SetupGeneralOptions()
 			MTH_OPTIONS_SETUP["General"] = true
 		end
+	elseif tabKey == "Messages" then
+		if not MTH_OPTIONS_SETUP["Messages"] then
+			if type(MTH_SetupMessagesOptions) == "function" then
+				MTH_SetupMessagesOptions()
+				MTH_OPTIONS_SETUP["Messages"] = true
+			end
+		else
+			if type(MTH_SetupMessagesOptions) == "function" then
+				MTH_SetupMessagesOptions()
+			end
+		end
 	elseif tabKey == "Pet" then
 		if not MTH_OPTIONS_SETUP["Pet"] then
 			MTH_SetupPetOptions()
@@ -129,6 +147,13 @@ function MTH_SelectOptionsTab(tabKey)
 		if not MTH_OPTIONS_SETUP["Trap"] then
 			MTH_SetupTrapOptions()
 			MTH_OPTIONS_SETUP["Trap"] = true
+		end
+	elseif tabKey == "Ranged" then
+		if not MTH_OPTIONS_SETUP["Ranged"] then
+			MTH_SetupRangedOptions()
+			MTH_OPTIONS_SETUP["Ranged"] = true
+		else
+			MTH_SetupRangedOptions()
 		end
 	elseif tabKey == "Ammo" then
 		if not MTH_OPTIONS_SETUP["Ammo"] then
@@ -185,7 +210,7 @@ function MTH_SelectOptionsTab(tabKey)
 				MTH_SetupChronometerOptions()
 				MTH_OPTIONS_SETUP[tabKey] = true
 			elseif MTH and MTH.Print then
-				MTH:Print("Chronometer options module not loaded", "error")
+				MTH:Print(MTH_OPT_L("OPT_ERR_CHRON_NOT_LOADED", "Chronometer options module not loaded"), "error")
 			end
 		else
 			if _G then

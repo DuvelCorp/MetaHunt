@@ -66,10 +66,12 @@
 
 			<!-- Content Areas -->
 			<Frame name="$parentGeneral" hidden="true" enableMouse="true"/>
+			<Frame name="$parentMessages" hidden="true" enableMouse="true"/>
 			<Frame name="$parentPet" hidden="true" enableMouse="true"/>
 			<Frame name="$parentTrack" hidden="true" enableMouse="true"/>
 			<Frame name="$parentAspect" hidden="true" enableMouse="true"/>
 			<Frame name="$parentTrap" hidden="true" enableMouse="true"/>
+			<Frame name="$parentRanged" hidden="true" enableMouse="true"/>
 			<Frame name="$parentAmmo" hidden="true" enableMouse="true"/>
 			<Frame name="$parentMounts" hidden="true" enableMouse="true"/>
 			<Frame name="$parentCompanions" hidden="true" enableMouse="true"/>

@@ -8,6 +8,11 @@ local function MTH_BOOK_GetTabDefinition(mode)
 	return MTH_HUNTERBOOK_TABS[tostring(mode or "")]
 end
 
+local function MTH_BOOK_IsItemMode(mode)
+	local resolved = tostring(mode or (MTH_BOOK_STATE and MTH_BOOK_STATE.mode) or "")
+	return resolved == "items" or resolved == "projectiles" or resolved == "ammobags"
+end
+
 MTH_BOOK_Browser = nil
 local MTH_BOOK_RefreshFilter
 local MTH_BOOK_UpdateResults
@@ -19,6 +24,31 @@ local MTH_BOOK_BEAST_DATABASE_URL = "https://database.turtlecraft.gg/?npc=%d"
 local MTH_BOOK_NPC_DATABASE_URL = "https://database.turtlecraft.gg/?npc=%d"
 local MTH_BOOK_ITEM_DATABASE_URL = "https://database.turtlecraft.gg/?item=%d"
 local MTH_BOOK_STABLE_CURRENT_ID_CACHE = nil
+
+local MTH_BOOK_FALLBACK_BAG_ITEMS = {
+	[2101] = { name = "Light Quiver", subtype = "quiver", slots = 6, reqlevel = nil, quality = 1, sourceUrl = "https://database.turtlecraft.gg/?item=2101" },
+	[2102] = { name = "Small Ammo Pouch", subtype = "ammo pouch", slots = 6, reqlevel = nil, quality = 1, sourceUrl = "https://database.turtlecraft.gg/?item=2102" },
+	[2662] = { name = "Ribbly's Quiver", subtype = "quiver", slots = 16, reqlevel = 50, quality = 2, sourceUrl = "https://database.turtlecraft.gg/?item=2662" },
+	[2663] = { name = "Ribbly's Bandolier", subtype = "ammo pouch", slots = 16, reqlevel = 50, quality = 2, sourceUrl = "https://database.turtlecraft.gg/?item=2663" },
+	[3573] = { name = "Hunting Quiver", subtype = "quiver", slots = 10, reqlevel = nil, quality = 1, sourceUrl = "https://database.turtlecraft.gg/?item=3573" },
+	[3574] = { name = "Hunting Ammo Sack", subtype = "ammo pouch", slots = 10, reqlevel = nil, quality = 1, sourceUrl = "https://database.turtlecraft.gg/?item=3574" },
+	[3604] = { name = "Bandolier of the Night Watch", subtype = "ammo pouch", slots = 12, reqlevel = nil, quality = 2, sourceUrl = "https://database.turtlecraft.gg/?item=3604" },
+	[3605] = { name = "Quiver of the Night Watch", subtype = "quiver", slots = 12, reqlevel = nil, quality = 2, sourceUrl = "https://database.turtlecraft.gg/?item=3605" },
+	[5439] = { name = "Small Quiver", subtype = "quiver", slots = 8, reqlevel = nil, quality = 1, sourceUrl = "https://database.turtlecraft.gg/?item=5439" },
+	[5441] = { name = "Small Shot Pouch", subtype = "ammo pouch", slots = 8, reqlevel = nil, quality = 1, sourceUrl = "https://database.turtlecraft.gg/?item=5441" },
+	[7278] = { name = "Light Leather Quiver", subtype = "quiver", slots = 8, reqlevel = nil, quality = 1, sourceUrl = "https://database.turtlecraft.gg/?item=7278" },
+	[7279] = { name = "Small Leather Ammo Pouch", subtype = "ammo pouch", slots = 8, reqlevel = nil, quality = 1, sourceUrl = "https://database.turtlecraft.gg/?item=7279" },
+	[7371] = { name = "Heavy Quiver", subtype = "quiver", slots = 14, reqlevel = 30, quality = 2, sourceUrl = "https://database.turtlecraft.gg/?item=7371" },
+	[7372] = { name = "Heavy Leather Ammo Pouch", subtype = "ammo pouch", slots = 14, reqlevel = 30, quality = 2, sourceUrl = "https://database.turtlecraft.gg/?item=7372" },
+	[8217] = { name = "Quickdraw Quiver", subtype = "quiver", slots = 16, reqlevel = 40, quality = 2, sourceUrl = "https://database.turtlecraft.gg/?item=8217" },
+	[8218] = { name = "Thick Leather Ammo Pouch", subtype = "ammo pouch", slots = 16, reqlevel = 40, quality = 2, sourceUrl = "https://database.turtlecraft.gg/?item=8218" },
+	[11362] = { name = "Medium Quiver", subtype = "quiver", slots = 10, reqlevel = 10, quality = 1, sourceUrl = "https://database.turtlecraft.gg/?item=11362" },
+	[11363] = { name = "Medium Shot Pouch", subtype = "ammo pouch", slots = 10, reqlevel = 10, quality = 1, sourceUrl = "https://database.turtlecraft.gg/?item=11363" },
+	[18714] = { name = "Ancient Sinew Wrapped Lamina", subtype = "quiver", slots = 18, reqlevel = 60, quality = 4, sourceUrl = "https://database.turtlecraft.gg/?item=18714" },
+	[19319] = { name = "Harpy Hide Quiver", subtype = "quiver", slots = 16, reqlevel = 55, quality = 3, sourceUrl = "https://database.turtlecraft.gg/?item=19319" },
+	[19320] = { name = "Gnoll Skin Bandolier", subtype = "ammo pouch", slots = 16, reqlevel = 55, quality = 3, sourceUrl = "https://database.turtlecraft.gg/?item=19320" },
+	[61549] = { name = "Swiftfeather Quiver", subtype = "quiver", slots = 16, reqlevel = 57, quality = 3, sourceUrl = "https://database.turtlecraft.gg/?item=61549" },
+}
 
 local function MTH_BOOK_FamiliesTrace(message)
 	return
@@ -64,6 +94,8 @@ local MTH_BOOK_STATE = {
 		families = { col = nil, asc = true },
 		abilities = { col = nil, asc = true },
 		items = { col = nil, asc = true },
+		projectiles = { col = nil, asc = true },
+		ammobags = { col = nil, asc = true },
 		npcs = { col = nil, asc = true },
 		stable = { col = nil, asc = true },
 		pethistory = { col = 5, asc = false },
@@ -157,6 +189,29 @@ local MTH_BOOK_ItemSubtypeOptions = {
 	{ value = "crossbow", label = "Crossbow" },
 }
 
+local MTH_BOOK_ItemSubtypeOptionsProjectiles = {
+	{ value = "all", label = "All Projectiles" },
+	{ value = "arrow", label = "Arrow" },
+	{ value = "bullet", label = "Bullet" },
+}
+
+local MTH_BOOK_ItemSubtypeOptionsAmmoBags = {
+	{ value = "all", label = "All Ammo Bags" },
+	{ value = "quiver", label = "Quiver" },
+	{ value = "ammopouch", label = "Ammo Pouch" },
+}
+
+local function MTH_BOOK_GetItemSubtypeOptions(mode)
+	local resolved = tostring(mode or MTH_BOOK_STATE.mode or "")
+	if resolved == "projectiles" then
+		return MTH_BOOK_ItemSubtypeOptionsProjectiles
+	end
+	if resolved == "ammobags" then
+		return MTH_BOOK_ItemSubtypeOptionsAmmoBags
+	end
+	return MTH_BOOK_ItemSubtypeOptions
+end
+
 local MTH_BOOK_PetAbilityRanks = {}
 
 local MTH_BOOK_CONTENT_LAYOUT_DEFAULT = {
@@ -247,7 +302,7 @@ local function MTH_BOOK_ApplyContentLayoutForMode()
 	local layout = MTH_BOOK_CONTENT_LAYOUT_DEFAULT
 	if MTH_BOOK_STATE.mode == "petabilities" then
 		layout = MTH_BOOK_CONTENT_LAYOUT_PETABILITIES
-	elseif MTH_BOOK_STATE.mode == "items" then
+	elseif MTH_BOOK_IsItemMode() then
 		layout = MTH_BOOK_CONTENT_LAYOUT_ITEMS
 	elseif MTH_BOOK_STATE.mode == "npcs" then
 		layout = MTH_BOOK_CONTENT_LAYOUT_NPCS
@@ -615,8 +670,8 @@ local function MTH_BOOK_OpenSelectedBeastOnMap()
 		if not MTH_Map or not MTH_Map.FocusVendor then return end
 		local okNpc = MTH_Map:FocusVendor(npcId, npc)
 		if not okNpc then return end
-		if DEFAULT_CHAT_FRAME then
-			local npcName = npc and npc.name or "Unknown"
+		if DEFAULT_CHAT_FRAME and MTH:IsMessageEnabled("mapMarkers", true) then
+			local npcName = (MTH and MTH.GetLocalizedNPCNameById and MTH:GetLocalizedNPCNameById(npcId, npc and npc.name)) or (npc and npc.name) or "Unknown"
 			MTH:Print("Focused map markers for " .. tostring(npcName) .. " (" .. tostring(npcId) .. ")")
 		end
 		return
@@ -630,8 +685,8 @@ local function MTH_BOOK_OpenSelectedBeastOnMap()
 		return
 	end
 
-	if DEFAULT_CHAT_FRAME then
-		local beastName = beast and beast.name or "Unknown"
+	if DEFAULT_CHAT_FRAME and MTH:IsMessageEnabled("mapMarkers", true) then
+		local beastName = (MTH and MTH.GetLocalizedBeastName and MTH:GetLocalizedBeastName(beastId, beast and beast.name)) or (beast and beast.name) or "Unknown"
 		MTH:Print("Focused map markers for " .. tostring(beastName) .. " (" .. tostring(beastId) .. ")")
 	end
 end
@@ -703,6 +758,7 @@ local function MTH_BOOK_ShowAllFilteredBeastsOnMap()
 		local beastId = tonumber(MTH_BOOK_STATE.results[i])
 		local beast = beastId and MTH_DS_Beasts and MTH_DS_Beasts[beastId]
 		if beast and beast.coords then
+			local beastDisplayName = (MTH and MTH.GetLocalizedBeastName and MTH:GetLocalizedBeastName(beastId, beast.name)) or beast.name or "Unknown"
 			for j = 1, table.getn(beast.coords) do
 				local c = beast.coords[j]
 				if c and c[1] and c[2] and c[3] then
@@ -718,7 +774,7 @@ local function MTH_BOOK_ShowAllFilteredBeastsOnMap()
 							zoneId = zoneId,
 							x = x,
 							y = y,
-							title = string.format("%s (%d)", beast.name or "Unknown", beastId),
+							title = string.format("%s (%d)", beastDisplayName, beastId),
 							detail = details,
 							beastId = beastId,
 							color = { 0.95, 0.82, 0.10 },
@@ -743,7 +799,7 @@ local function MTH_BOOK_ShowAllFilteredBeastsOnMap()
 	MTH_Map:UpdateWorldMap()
 	MTH_Map:UpdateMinimap()
 
-	if MTH and MTH.Print then
+	if MTH and MTH.Print and MTH:IsMessageEnabled("mapMarkers", true) then
 		MTH:Print("Focused map markers for " .. tostring(table.getn(nodes)) .. " beasts in this zone.")
 	end
 end
@@ -769,9 +825,28 @@ local function MTH_BOOK_SyncTopAreaColorWithSelectedTab()
 end
 
 function MTH_BOOK_GetItemsTable()
-	local items = _G["MTH_DS_Items"]
+	if MTH_BOOK_STATE.mode == "ammobags" then
+		local bagItems = MTH_DS_BagItems or MTH_DS_Bags
+		if (not bagItems) and type(getglobal) == "function" then
+			bagItems = getglobal("MTH_DS_BagItems") or getglobal("MTH_DS_Bags")
+		end
+		if bagItems then return bagItems end
+		return MTH_BOOK_FALLBACK_BAG_ITEMS
+	end
+	if MTH_BOOK_STATE.mode == "projectiles" then
+		local ammoItems = MTH_DS_AmmoItems
+		if (not ammoItems) and type(getglobal) == "function" then
+			ammoItems = getglobal("MTH_DS_AmmoItems")
+		end
+		if ammoItems then return ammoItems end
+		return {}
+	end
+	local items = MTH_DS_Items
+	if (not items) and type(getglobal) == "function" then
+		items = getglobal("MTH_DS_Items")
+	end
 	if items then return items end
-	return MTH_DS_AmmoItems
+	return MTH_DS_AmmoItems or {}
 end
 
 local function MTH_BOOK_CountMap(map)
@@ -779,6 +854,65 @@ local function MTH_BOOK_CountMap(map)
 	if not map then return 0 end
 	for _ in pairs(map) do count = count + 1 end
 	return count
+end
+
+local function MTH_BOOK_GetSourceBlockCount(block)
+	if type(block) ~= "table" then return 0 end
+	if tonumber(block.count) and tonumber(block.count) > 0 then
+		return tonumber(block.count)
+	end
+	if type(block.entries) == "table" then
+		return MTH_BOOK_CountMap(block.entries)
+	end
+	return MTH_BOOK_CountMap(block)
+end
+
+local function MTH_BOOK_BuildAtlasSourceTags(atlas)
+	local tags = {}
+	if type(atlas) ~= "table" then return tags end
+	if atlas.vendor then table.insert(tags, "Vendor") end
+	if atlas.quest then table.insert(tags, "Quest") end
+	if atlas.crafted then table.insert(tags, "Crafted") end
+	if atlas.boss then table.insert(tags, "Boss") end
+	if atlas.pvp then table.insert(tags, "PvP") end
+	if atlas.worlddrop then table.insert(tags, "World Drop") end
+	if atlas.world then table.insert(tags, "World") end
+	if atlas.event then table.insert(tags, "Event") end
+	return tags
+end
+
+local function MTH_BOOK_GetItemSourceInfo(item)
+	local info = {
+		vendors = MTH_BOOK_CountMap(item and item.vendors),
+		drops = MTH_BOOK_CountMap(item and item.drops),
+		objects = MTH_BOOK_CountMap(item and item.objects),
+		sourceTypes = {},
+		atlasTags = MTH_BOOK_BuildAtlasSourceTags(item and item.atlas_sources),
+		primary = "-",
+	}
+
+	if type(item) == "table" and type(item.sources) == "table" then
+		for rawKey, block in pairs(item.sources) do
+			local template = (type(block) == "table" and block.template) and tostring(block.template) or "?"
+			table.insert(info.sourceTypes, tostring(rawKey) .. " : " .. template)
+		end
+	end
+
+	if table.getn(info.sourceTypes) == 0 then
+		if info.vendors > 0 then table.insert(info.sourceTypes, "sold-by : npc") end
+		if info.drops > 0 then table.insert(info.sourceTypes, "dropped-by : npc") end
+		if info.objects > 0 then table.insert(info.sourceTypes, "contained-in : object") end
+		for i = 1, table.getn(info.atlasTags) do
+			table.insert(info.sourceTypes, "atlas : " .. tostring(info.atlasTags[i]))
+		end
+	end
+
+	table.sort(info.sourceTypes)
+	if table.getn(info.sourceTypes) > 0 then
+		info.primary = info.sourceTypes[1]
+	end
+
+	return info
 end
 
 function MTH_BOOK_HasEntries(map)
@@ -813,12 +947,83 @@ end
 
 local function MTH_BOOK_GetItemQualityColorCode(quality)
 	local q = tonumber(quality)
+	if not q and type(quality) == "string" then
+		local lowered = string.lower(quality)
+		if lowered == "poor" then q = 0 end
+		if lowered == "common" then q = 1 end
+		if lowered == "uncommon" then q = 2 end
+		if lowered == "rare" then q = 3 end
+		if lowered == "epic" then q = 4 end
+		if lowered == "legendary" then q = 5 end
+		if lowered == "artifact" then q = 6 end
+	end
+	if q ~= nil and type(GetItemQualityColor) == "function" then
+		local _, _, _, colorCode = GetItemQualityColor(q)
+		if colorCode and colorCode ~= "" then
+			local hex = string.gsub(tostring(colorCode), "|c", "")
+			hex = string.gsub(hex, "|r", "")
+			hex = string.gsub(hex, "^#", "")
+			if string.len(hex) == 8 then return string.upper(hex) end
+			if string.len(hex) == 6 then return "FF" .. string.upper(hex) end
+		end
+	end
+	if q ~= nil and ITEM_QUALITY_COLORS and ITEM_QUALITY_COLORS[q] then
+		local c = ITEM_QUALITY_COLORS[q]
+		if c and c.r and c.g and c.b then
+			local r = math.floor((tonumber(c.r) or 1) * 255 + 0.5)
+			local g = math.floor((tonumber(c.g) or 1) * 255 + 0.5)
+			local b = math.floor((tonumber(c.b) or 1) * 255 + 0.5)
+			return string.format("FF%02X%02X%02X", r, g, b)
+		end
+	end
+	return "FFFFFFFF"
+end
+
+local function MTH_BOOK_GetWeaponLegacyQualityColorCode(quality)
+	local q = tonumber(quality)
+	if not q and type(quality) == "string" then
+		local lowered = string.lower(quality)
+		if lowered == "poor" then q = 6 end
+		if lowered == "common" then q = 5 end
+		if lowered == "uncommon" then q = 4 end
+		if lowered == "rare" then q = 3 end
+		if lowered == "epic" then q = 2 end
+		if lowered == "legendary" then q = 1 end
+		if lowered == "artifact" then q = 1 end
+	end
 	if q == 2 then return "FFAA66FF" end
 	if q == 3 then return "FF0070DD" end
 	if q == 4 then return "FF1EFF00" end
 	if q == 5 then return "FFFFFFFF" end
 	if q == 6 then return "FF9D9D9D" end
 	return "FFFFFFFF"
+end
+
+local function MTH_BOOK_ParseProjectileDPSFromText(text)
+	if type(text) ~= "string" or text == "" then return nil end
+	local lowered = string.lower(text)
+	local raw = string.match(lowered, "adds%s+([%d]+[%.,]?[%d]*)%s+damage%s+per%s+seconds?")
+	if not raw then
+		raw = string.match(lowered, "([%d]+[%.,]?[%d]*)%s+damage%s+per%s+seconds?")
+	end
+	if not raw then return nil end
+	local normalized = string.gsub(raw, ",", ".")
+	return tonumber(normalized)
+end
+
+local function MTH_BOOK_GetProjectileDPSValue(item)
+	if type(item) ~= "table" then return nil end
+	local existing = tonumber(item.dps)
+	if existing then return existing end
+
+	local dps = MTH_BOOK_ParseProjectileDPSFromText(item.tooltip)
+	if not dps then dps = MTH_BOOK_ParseProjectileDPSFromText(item.description) end
+	if dps then
+		item.dps = dps
+		return dps
+	end
+
+	return nil
 end
 
 local function MTH_BOOK_GetPlayerReactDefaults()
@@ -1065,11 +1270,12 @@ local function MTH_BOOK_GetSortKey(entry, col)
 	if MTH_BOOK_STATE.mode == "pets" then
 		local beast = MTH_DS_Beasts and MTH_DS_Beasts[entry]
 		if not beast then return nil end
+		local beastName = (MTH and MTH.GetLocalizedBeastName and MTH:GetLocalizedBeastName(entry, beast.name)) or beast.name
 		local traits = MTH_BOOK_ParseBeastTraits(beast)
 		if col == 1 then return tonumber(entry) or 0 end
 		if col == 2 then return MTH_BOOK_ParseLevel(beast.lvl) or 0 end
 		if col == 3 then return MTH_BOOK_SafeLower(beast.family) end
-		if col == 4 then return MTH_BOOK_SafeLower(beast.name) end
+		if col == 4 then return MTH_BOOK_SafeLower(beastName) end
 		if col == 5 then return MTH_BOOK_SafeLower(MTH_BOOK_GetBeastAbilitiesSummary(beast)) end
 		if col == 6 then return MTH_BOOK_SafeLower(MTH_BOOK_GetBeastZoneSummary(beast)) end
 		if col == 7 then return traits.rare and 1 or 0 end
@@ -1110,7 +1316,10 @@ local function MTH_BOOK_GetSortKey(entry, col)
 		local functionSummary = MTH_BOOK_GetNPCFunctionSummary(npc)
 		local zoneName = MTH_BOOK_GetNPCZoneSummary(npc)
 		if col == 1 then return tonumber(entry) or 0 end
-		if col == 2 then return MTH_BOOK_SafeLower(npc.name) end
+		if col == 2 then
+			local npcName = (MTH and MTH.GetLocalizedNPCNameById and MTH:GetLocalizedNPCNameById(entry, npc.name)) or npc.name
+			return MTH_BOOK_SafeLower(npcName)
+		end
 		if col == 3 then return react end
 		if col == 4 then return MTH_BOOK_SafeLower(functionSummary) end
 		if col == 5 then return MTH_BOOK_SafeLower(zoneName) end
@@ -1143,13 +1352,41 @@ local function MTH_BOOK_GetSortKey(entry, col)
 	local items = MTH_BOOK_GetItemsTable()
 	local item = items and items[entry]
 	if not item then return nil end
+	local localizedItemName = (MTH and MTH.GetLocalizedItemName)
+		and MTH:GetLocalizedItemName(entry, item.name)
+		or item.name
 	if col == 1 then return tonumber(entry) or 0 end
 	if col == 2 then return tonumber(item.reqlevel) or 0 end
 	if col == 3 then return tonumber(item.level) or 0 end
-	if col == 4 then return MTH_BOOK_SafeLower(item.subtype) end
-	if col == 5 then return MTH_BOOK_SafeLower(item.name) end
-	if col == 6 then return tonumber(item.dps) or 0 end
-	if col == 7 then return tonumber(item.speed) or 0 end
+	if MTH_BOOK_STATE.mode == "ammobags" then
+		if col == 4 then return tonumber(item.slots) or 0 end
+		if col == 5 then return MTH_BOOK_SafeLower(item.subtype) end
+		if col == 6 then return MTH_BOOK_SafeLower(localizedItemName) end
+		if col == 7 then
+			local hasVendors = MTH_BOOK_CountMap(item.vendors) > 0
+			local hasDrops = MTH_BOOK_CountMap(item.drops) > 0
+			local hasObjects = MTH_BOOK_CountMap(item.objects) > 0
+			if hasVendors and (hasDrops or hasObjects) then return "mixed" end
+			if hasDrops and hasObjects then return "mixed" end
+			if hasVendors then return "vendor" end
+			if hasDrops then return "drop" end
+			if hasObjects then return "object" end
+			return ""
+		end
+	else
+		if col == 4 then return MTH_BOOK_SafeLower(item.subtype) end
+		if col == 5 then return MTH_BOOK_SafeLower(localizedItemName) end
+		if MTH_BOOK_STATE.mode == "projectiles" then
+			if col == 6 then return MTH_BOOK_GetProjectileDPSValue(item) or 0 end
+			if col == 7 then
+				local sourceInfo = MTH_BOOK_GetItemSourceInfo(item)
+				return MTH_BOOK_SafeLower(sourceInfo and sourceInfo.primary or "")
+			end
+		else
+			if col == 6 then return tonumber(item.dps) or 0 end
+			if col == 7 then return tonumber(item.speed) or 0 end
+		end
+	end
 
 	return nil
 end
@@ -1227,12 +1464,13 @@ local function MTH_BOOK_BuildResults()
 					then
 						if MTH_BOOK_STATE.search == ""
 							or string.find(abilityLower, MTH_BOOK_STATE.search, 1, true) ~= nil
-							or string.find(MTH_BOOK_SafeLower(beast.name), MTH_BOOK_STATE.search, 1, true) ~= nil
+							or string.find(MTH_BOOK_SafeLower((MTH and MTH.GetLocalizedBeastName and MTH:GetLocalizedBeastName(beastId, beast.name)) or beast.name), MTH_BOOK_STATE.search, 1, true) ~= nil
 							or string.find(MTH_BOOK_SafeLower(beast.family), MTH_BOOK_STATE.search, 1, true) ~= nil
 						then
+							local beastDisplayName = (MTH and MTH.GetLocalizedBeastName and MTH:GetLocalizedBeastName(beastId, beast.name)) or beast.name or "Unknown"
 							table.insert(results, {
 								beastId = beastId,
-								name = beast.name or "Unknown",
+								name = beastDisplayName,
 								family = beast.family or "?",
 								level = beastLevel or 0,
 								rare = beast.rare and true or false,
@@ -1442,14 +1680,10 @@ local function MTH_BOOK_BuildPetAbilityOptions()
 			local abilityLower = MTH_BOOK_SafeLower(abilityLabel)
 			if abilityLower ~= "" and abilityLower ~= "none" and abilityLower ~= "unknown" then
 				local row = abilityMap[abilityLower]
-				if not row then
-					row = { value = abilityLower, label = abilityLabel, ranks = {} }
-					abilityMap[abilityLower] = row
-				end
-				if bucket and bucket.spells then
+				if row and bucket and bucket.spells then
 					for i = 1, table.getn(bucket.spells) do
 						local spell = bucket.spells[i]
-						if spell then
+						if spell and MTH_BOOK_SafeLower(spell.learnMethod or "beast") ~= "trainer" then
 							local rank = tonumber(spell.rankNumber)
 							if rank and rank > 0 then
 								row.ranks[rank] = true
@@ -1757,12 +1991,15 @@ local function MTH_BOOK_UpdatePetLearnSourceDropdownText()
 end
 
 local function MTH_BOOK_GetItemSubtypeLabelByValue(value)
-	for i = 1, table.getn(MTH_BOOK_ItemSubtypeOptions) do
-		local option = MTH_BOOK_ItemSubtypeOptions[i]
+	local options = MTH_BOOK_GetItemSubtypeOptions()
+	for i = 1, table.getn(options) do
+		local option = options[i]
 		if option and option.value == value then
 			return option.label
 		end
 	end
+	if MTH_BOOK_STATE.mode == "projectiles" then return "All Projectiles" end
+	if MTH_BOOK_STATE.mode == "ammobags" then return "All Ammo Bags" end
 	return "All Ranged"
 end
 
@@ -1785,7 +2022,7 @@ end
 
 local function MTH_BOOK_UpdateQuickFilterControls()
 	MTH_BOOK_UpdateCheckboxLayoutByMode()
-	if MTH_BOOK_STATE.mode == "items" then
+	if MTH_BOOK_IsItemMode() then
 		MTH_BOOK_STATE.pageSize = 18
 	elseif MTH_BOOK_STATE.mode == "families" then
 		MTH_BOOK_STATE.pageSize = 16
@@ -2035,7 +2272,7 @@ local function MTH_BOOK_UpdateQuickFilterControls()
 		if requireVendor then requireVendor:Show() end
 		if requireDrop then requireDrop:Show() end
 		if requireObject then requireObject:Show() end
-	elseif MTH_BOOK_STATE.mode == "items" then
+	elseif MTH_BOOK_IsItemMode() then
 		if searchLabel then searchLabel:Show() end
 		if minLabel then minLabel:Hide() end
 		if maxLabel then maxLabel:Hide() end
@@ -2197,7 +2434,7 @@ local function MTH_BOOK_UpdateQuickFilterControls()
 		if itemSubtypeDropdown then itemSubtypeDropdown:Hide() end
 	end
 
-	if MTH_BOOK_STATE.mode ~= "petabilities" and MTH_BOOK_STATE.mode ~= "items" and petOnlyMyLevel then
+	if MTH_BOOK_STATE.mode ~= "petabilities" and not MTH_BOOK_IsItemMode() and petOnlyMyLevel then
 		petOnlyMyLevel:Hide()
 	end
 	if MTH_BOOK_STATE.mode ~= "pets" and petInZoneOnly then
@@ -2341,8 +2578,9 @@ local function MTH_BOOK_InitItemSubtypeDropdown()
 	if not itemDropdown then return end
 
 	UIDropDownMenu_Initialize(itemDropdown, function()
-		for i = 1, table.getn(MTH_BOOK_ItemSubtypeOptions) do
-			local option = MTH_BOOK_ItemSubtypeOptions[i]
+		local options = MTH_BOOK_GetItemSubtypeOptions()
+		for i = 1, table.getn(options) do
+			local option = options[i]
 			local info = MTH_BOOK_DropdownCreateInfo()
 			info.text = option.label
 			info.func = function()
@@ -2357,7 +2595,7 @@ local function MTH_BOOK_InitItemSubtypeDropdown()
 		end
 	end)
 
-	UIDropDownMenu_SetWidth(75, itemDropdown)
+	UIDropDownMenu_SetWidth(120, itemDropdown)
 	UIDropDownMenu_JustifyText("LEFT", itemDropdown)
 	MTH_BOOK_UpdateItemSubtypeDropdownText()
 end
@@ -2728,8 +2966,9 @@ function MTH_BOOK_UpdateDetail()
 
 		local functionSummary = MTH_BOOK_GetNPCFunctionSummary(npc)
 		local zoneName, subzoneName = MTH_BOOK_GetNPCZoneSummary(npc)
+		local npcName = (MTH and MTH.GetLocalizedNPCNameById and MTH:GetLocalizedNPCNameById(npcId, npc.name)) or npc.name
 		local lines = {}
-		table.insert(lines, "|cFFFFFF00" .. tostring(npc.name or "Unknown") .. "|r")
+		table.insert(lines, "|cFFFFFF00" .. tostring(npcName or "Unknown") .. "|r")
 		MTH_BOOK_AddDetailSection(lines, "Identity")
 		MTH_BOOK_AddDetailKV(lines, "ID", npcId)
 		MTH_BOOK_AddDetailKV(lines, "React", MTH_BOOK_GetNPCReactBucket(npc.fac))
@@ -2773,7 +3012,8 @@ function MTH_BOOK_UpdateDetail()
 			return
 		end
 		local lines = {}
-		table.insert(lines, "|cFFFFFF00" .. (beast.name or "Unknown") .. "|r")
+		local beastDisplayName = (MTH and MTH.GetLocalizedBeastName and MTH:GetLocalizedBeastName(beastId, beast.name)) or beast.name
+		table.insert(lines, "|cFFFFFF00" .. (beastDisplayName or "Unknown") .. "|r")
 		MTH_BOOK_AddDetailSection(lines, "Identity")
 		MTH_BOOK_AddDetailKV(lines, "ID", beastId)
 		MTH_BOOK_AddDetailKV(lines, "Family", beast.family or "?")
@@ -2828,9 +3068,10 @@ function MTH_BOOK_UpdateDetail()
 		end
 		local lines = {}
 		table.insert(lines, "|cFFFFFF00" .. tostring(entry.abilityToken) .. "|r")
+		local beastDisplayName = (MTH and MTH.GetLocalizedBeastName and MTH:GetLocalizedBeastName(entry.beastId, beast.name)) or beast.name
 
 		MTH_BOOK_AddDetailSection(lines, "Identity")
-		MTH_BOOK_AddDetailKV(lines, "Beast", tostring(beast.name or "Unknown") .. " (ID " .. tostring(entry.beastId) .. ")")
+		MTH_BOOK_AddDetailKV(lines, "Beast", tostring(beastDisplayName or "Unknown") .. " (ID " .. tostring(entry.beastId) .. ")")
 		MTH_BOOK_AddDetailKV(lines, "Family", beast.family or "?")
 
 		MTH_BOOK_AddDetailSection(lines, "Stats")
@@ -3033,7 +3274,7 @@ function MTH_BOOK_UpdateDetail()
 		end
 		local tameBeastId = hasRecordedTame and (tonumber(row.tameBeastId) or (legacyTameContext and tonumber(legacyTameContext.beastId) or nil)) or nil
 		local tameBeast = tameBeastId and MTH_DS_Beasts and MTH_DS_Beasts[tameBeastId] or nil
-		local tameBeastName = tostring((tameBeast and tameBeast.name) or (legacyTameContext and legacyTameContext.name) or "-")
+		local tameBeastName = tostring(((MTH and MTH.GetLocalizedBeastName and tameBeastId and tameBeast and MTH:GetLocalizedBeastName(tameBeastId, tameBeast.name)) or (tameBeast and tameBeast.name)) or (legacyTameContext and legacyTameContext.name) or "-")
 
 		local lines = {}
 		table.insert(lines, "|cFFFFFF00" .. tostring(row.name or "Unknown") .. "|r")
@@ -3089,12 +3330,12 @@ function MTH_BOOK_UpdateDetail()
 		return
 	end
 
-	local v = MTH_BOOK_CountMap(item.vendors)
-	local d = MTH_BOOK_CountMap(item.drops)
-	local o = MTH_BOOK_CountMap(item.objects)
-	local atlas = item.atlas_sources or {}
+	local sourceInfo = MTH_BOOK_GetItemSourceInfo(item)
 	local lines = {}
-	table.insert(lines, "|cFFFFFF00" .. (item.name or "Unknown") .. "|r")
+	local localizedItemName = (MTH and MTH.GetLocalizedItemName)
+		and MTH:GetLocalizedItemName(itemId, item.name)
+		or item.name
+	table.insert(lines, "|cFFFFFF00" .. (localizedItemName or "Unknown") .. "|r")
 
 	MTH_BOOK_AddDetailSection(lines, "Identity")
 	MTH_BOOK_AddDetailKV(lines, "ID", itemId)
@@ -3103,25 +3344,21 @@ function MTH_BOOK_UpdateDetail()
 	MTH_BOOK_AddDetailSection(lines, "Stats")
 	MTH_BOOK_AddDetailKV(lines, "Level", item.level or "?")
 	MTH_BOOK_AddDetailKV(lines, "Req Level", item.reqlevel or "-")
+	if item.slots then MTH_BOOK_AddDetailKV(lines, "Slots", item.slots) end
 	if item.quality then MTH_BOOK_AddDetailKV(lines, "Quality", item.quality) end
 	if item.dps then MTH_BOOK_AddDetailKV(lines, "DPS", item.dps) end
 	if item.speed then MTH_BOOK_AddDetailKV(lines, "Speed", item.speed) end
+	if item.sourceUrl and item.sourceUrl ~= "" then MTH_BOOK_AddDetailKV(lines, "DB URL", item.sourceUrl) end
 
 	MTH_BOOK_AddDetailSection(lines, "Sources")
-	MTH_BOOK_AddDetailKV(lines, "Vendors", v)
-	MTH_BOOK_AddDetailKV(lines, "Creature Drops", d)
-	MTH_BOOK_AddDetailKV(lines, "Object Sources", o)
-
-	if atlas.boss or atlas.world or atlas.worlddrop or atlas.quest or atlas.vendor or atlas.pvp or atlas.crafted or atlas.event then
-		MTH_BOOK_AddDetailSection(lines, "Atlas Hints")
-		MTH_BOOK_AddDetailKV(lines, "Boss Loot", atlas.boss and "Yes" or "-")
-		MTH_BOOK_AddDetailKV(lines, "World Sources", atlas.world and "Yes" or "-")
-		MTH_BOOK_AddDetailKV(lines, "World Drop", atlas.worlddrop and "Yes" or "-")
-		MTH_BOOK_AddDetailKV(lines, "Quest Reward", atlas.quest and "Yes" or "-")
-		MTH_BOOK_AddDetailKV(lines, "Vendor / Faction", atlas.vendor and "Yes" or "-")
-		MTH_BOOK_AddDetailKV(lines, "PvP Reward", atlas.pvp and "Yes" or "-")
-		MTH_BOOK_AddDetailKV(lines, "Crafted", atlas.crafted and "Yes" or "-")
-		MTH_BOOK_AddDetailKV(lines, "Event", atlas.event and "Yes" or "-")
+	if table.getn(sourceInfo.sourceTypes) == 0 then
+		MTH_BOOK_AddDetailKV(lines, "Source", "-")
+	elseif table.getn(sourceInfo.sourceTypes) == 1 then
+		MTH_BOOK_AddDetailKV(lines, "Source", sourceInfo.sourceTypes[1])
+	else
+		for i = 1, table.getn(sourceInfo.sourceTypes) do
+			MTH_BOOK_AddDetailKV(lines, "Source " .. tostring(i), sourceInfo.sourceTypes[i])
+		end
 	end
 	MTH_BOOK_SetDetailText(detail, table.concat(lines, "\n"))
 	MTH_BOOK_UpdateOpenMapButton()
@@ -3137,6 +3374,8 @@ local function MTH_BOOK_UpdateHeader()
 		if mode == "families" then modeLabel = "Families" end
 		if mode == "petabilities" then modeLabel = "Pet Abilities" end
 		if mode == "items" then modeLabel = "Ranged Weapons" end
+		if mode == "projectiles" then modeLabel = "Projectiles" end
+		if mode == "ammobags" then modeLabel = "Ammo Bags" end
 		if mode == "npcs" then modeLabel = "NPC Finder" end
 		if mode == "stable" then modeLabel = "Stable" end
 		if mode == "pethistory" then modeLabel = "Pet History" end
@@ -3177,6 +3416,8 @@ local function MTH_BOOK_GetColumnLabels()
 		return { "Ability", "Lvl", "Family", "Beast", "Rare" }
 	elseif MTH_BOOK_STATE.mode == "npcs" then
 		return { "ID", "Name", "React", "Function", "Zone" }
+	elseif MTH_BOOK_STATE.mode == "projectiles" then
+		return { "ID", "Req", "Lvl", "Type", "Name", "DPS", "Source" }
 	end
 	return { "ID", "Req", "Lvl", "Type", "Name", "DPS", "Speed", "Source" }
 end
@@ -3239,6 +3480,16 @@ local function MTH_BOOK_GetColumnLayout()
 			{ x = 242, width = 160, align = "LEFT" },
 			{ x = 404, width = 148, align = "LEFT" },
 		}
+	elseif MTH_BOOK_STATE.mode == "projectiles" then
+		return {
+			{ x = 8, width = 36, align = "LEFT" },
+			{ x = 44, width = 30, align = "LEFT" },
+			{ x = 74, width = 30, align = "LEFT" },
+			{ x = 104, width = 62, align = "LEFT" },
+			{ x = 166, width = 228, align = "LEFT" },
+			{ x = 396, width = 44, align = "LEFT" },
+			{ x = 442, width = 110, align = "LEFT" },
+		}
 	end
 
 	return {
@@ -3286,6 +3537,8 @@ local function MTH_BOOK_ApplyColumnLayout(parent)
 	for row = 1, MTH_BOOK_STATE.pageSize do
 		local btn = MTH_BOOK_STATE.buttons[row]
 		if btn and btn.cols then
+			local itemNameColumn = (MTH_BOOK_STATE.mode == "ammobags") and 6 or 5
+			local itemNameLayout = layout[itemNameColumn]
 			local parentWidth = tonumber(parent:GetWidth()) or 0
 			local rowWidth = parentWidth - 8
 			if rowWidth < 220 then rowWidth = 220 end
@@ -3310,7 +3563,7 @@ local function MTH_BOOK_ApplyColumnLayout(parent)
 
 			if btn.bookLinkButton then
 				local info = layout[1]
-				if (MTH_BOOK_STATE.mode == "pets" or MTH_BOOK_STATE.mode == "npcs" or MTH_BOOK_STATE.mode == "items") and info then
+				if (MTH_BOOK_STATE.mode == "pets" or MTH_BOOK_STATE.mode == "npcs" or MTH_BOOK_IsItemMode()) and info then
 					btn.bookLinkButton:ClearAllPoints()
 					btn.bookLinkButton:SetPoint("LEFT", btn, "LEFT", info.x - 4, 0)
 					btn.bookLinkButton:SetWidth(info.width)
@@ -3324,10 +3577,10 @@ local function MTH_BOOK_ApplyColumnLayout(parent)
 			if btn.itemLinkButton then btn.itemLinkButton:Hide() end
 
 			if btn.nameHoverButton then
-				if MTH_BOOK_STATE.mode == "items" and layout[5] then
+				if MTH_BOOK_IsItemMode() and itemNameLayout then
 					btn.nameHoverButton:ClearAllPoints()
-					btn.nameHoverButton:SetPoint("LEFT", btn, "LEFT", layout[5].x + 12, 0)
-					btn.nameHoverButton:SetWidth(layout[5].width - 16)
+					btn.nameHoverButton:SetPoint("LEFT", btn, "LEFT", itemNameLayout.x + 12, 0)
+					btn.nameHoverButton:SetWidth(itemNameLayout.width - 16)
 					btn.nameHoverButton:SetHeight(btn:GetHeight())
 					btn.nameHoverButton:Show()
 				else
@@ -3336,14 +3589,14 @@ local function MTH_BOOK_ApplyColumnLayout(parent)
 			end
 
 			if btn.itemIcon then
-				if MTH_BOOK_STATE.mode == "items" and layout[5] then
+				if MTH_BOOK_IsItemMode() and itemNameLayout then
 					btn.itemIcon:ClearAllPoints()
-					btn.itemIcon:SetPoint("LEFT", btn, "LEFT", layout[5].x - 4, 0)
+					btn.itemIcon:SetPoint("LEFT", btn, "LEFT", itemNameLayout.x - 4, 0)
 					btn.itemIcon:Show()
-					if btn.cols and btn.cols[5] then
-						btn.cols[5]:ClearAllPoints()
-						btn.cols[5]:SetPoint("LEFT", btn, "LEFT", layout[5].x + 12, 0)
-						btn.cols[5]:SetWidth(layout[5].width - 16)
+					if btn.cols and btn.cols[itemNameColumn] then
+						btn.cols[itemNameColumn]:ClearAllPoints()
+						btn.cols[itemNameColumn]:SetPoint("LEFT", btn, "LEFT", itemNameLayout.x + 12, 0)
+						btn.cols[itemNameColumn]:SetWidth(itemNameLayout.width - 16)
 					end
 				else
 					btn.itemIcon:Hide()
@@ -3357,6 +3610,7 @@ local function MTH_BOOK_GetRowValues(entry)
 	if MTH_BOOK_STATE.mode == "pets" then
 		local beast = MTH_DS_Beasts and MTH_DS_Beasts[entry]
 		if not beast then return { "", "", "", "", "", "", "", "", "" } end
+		local beastDisplayName = (MTH and MTH.GetLocalizedBeastName and MTH:GetLocalizedBeastName(entry, beast.name)) or beast.name
 		local traits = MTH_BOOK_ParseBeastTraits(beast)
 		local abilities = MTH_BOOK_GetBeastAbilitiesSummary(beast)
 		local zone = MTH_BOOK_GetBeastZoneSummary(beast)
@@ -3364,7 +3618,7 @@ local function MTH_BOOK_GetRowValues(entry)
 			"|cFF33CCFF" .. tostring(entry) .. "|r",
 			tostring(beast.lvl or "?"),
 			tostring(beast.family or "?"),
-			tostring(beast.name or "Unknown"),
+			tostring(beastDisplayName or "Unknown"),
 			abilities,
 			zone,
 			(traits.rare and "R" or ""),
@@ -3452,9 +3706,10 @@ local function MTH_BOOK_GetRowValues(entry)
 		local react = MTH_BOOK_GetNPCReactBucket(vendor.fac)
 		local functionSummary = MTH_BOOK_GetNPCFunctionSummary(vendor)
 		local zoneName = MTH_BOOK_GetNPCZoneSummary(vendor)
+		local vendorName = (MTH and MTH.GetLocalizedNPCNameById and MTH:GetLocalizedNPCNameById(entry, vendor.name)) or vendor.name
 		return {
 			"|cFF33CCFF" .. tostring(entry) .. "|r",
-			tostring(vendor.name or "Unknown"),
+			tostring(vendorName or "Unknown"),
 			react,
 			functionSummary,
 			zoneName,
@@ -3463,46 +3718,54 @@ local function MTH_BOOK_GetRowValues(entry)
 
 	local items = MTH_BOOK_GetItemsTable()
 	local item = items and items[entry]
-	if not item then return { "", "", "", "", "", "", "", "" } end
-	local itemName = tostring(item.name or "Unknown")
-	local colorCode = MTH_BOOK_GetItemQualityColorCode(item.quality)
-	local sourceText = "-"
-	local hasVendors = MTH_BOOK_CountMap(item.vendors) > 0
-	local hasDrops = MTH_BOOK_CountMap(item.drops) > 0
-	local hasObjects = MTH_BOOK_CountMap(item.objects) > 0
-	local concreteCount = 0
-	if hasVendors then concreteCount = concreteCount + 1 end
-	if hasDrops then concreteCount = concreteCount + 1 end
-	if hasObjects then concreteCount = concreteCount + 1 end
-	if concreteCount > 1 then
-		sourceText = "Mixed"
-	elseif hasVendors then
-		sourceText = "Vendor"
-	elseif hasDrops then
-		sourceText = "Drop"
-	elseif hasObjects then
-		sourceText = "Object"
-	else
-		local atlas = item.atlas_sources
-		if atlas then
-			if atlas.boss then
-				sourceText = "Boss"
-			elseif atlas.quest then
-				sourceText = "Quest"
-			elseif atlas.vendor then
-				sourceText = "Vendor"
-			elseif atlas.pvp then
-				sourceText = "PvP"
-			elseif atlas.crafted then
-				sourceText = "Crafted"
-			elseif atlas.worlddrop then
-				sourceText = "World Drop"
-			elseif atlas.world then
-				sourceText = "World"
-			elseif atlas.event then
-				sourceText = "Event"
-			end
+	if not item then
+		if MTH_BOOK_STATE.mode == "projectiles" or MTH_BOOK_STATE.mode == "ammobags" then
+			return { "", "", "", "", "", "", "" }
 		end
+		return { "", "", "", "", "", "", "", "" }
+	end
+	local itemName = tostring(((MTH and MTH.GetLocalizedItemName)
+		and MTH:GetLocalizedItemName(entry, item.name)
+		or item.name) or "Unknown")
+	local resolvedQuality = item.quality
+	if not resolvedQuality and MTH_BOOK_STATE.mode == "projectiles" and MTH_DS_ItemOrigins and MTH_DS_ItemOrigins[entry] then
+		resolvedQuality = MTH_DS_ItemOrigins[entry].quality
+	end
+	if not resolvedQuality and type(GetItemInfo) == "function" then
+		local _, _, runtimeQuality = GetItemInfo(entry)
+		if runtimeQuality ~= nil then
+			resolvedQuality = runtimeQuality
+			item.quality = runtimeQuality
+		end
+	end
+	local colorCode = MTH_BOOK_GetItemQualityColorCode(resolvedQuality)
+	if MTH_BOOK_STATE.mode == "items" then
+		colorCode = MTH_BOOK_GetWeaponLegacyQualityColorCode(resolvedQuality)
+	end
+	local sourceInfo = MTH_BOOK_GetItemSourceInfo(item)
+	local sourceText = sourceInfo.primary
+	if MTH_BOOK_STATE.mode == "ammobags" then
+		return {
+			"|cFF33CCFF" .. tostring(entry) .. "|r",
+			tostring(item.reqlevel or 0),
+			tostring(item.level or 0),
+			tostring(item.slots or "-"),
+			tostring(item.subtype or "?"),
+			"|c" .. colorCode .. itemName .. "|r",
+			sourceText,
+		}
+	end
+	if MTH_BOOK_STATE.mode == "projectiles" then
+		local projectileDps = MTH_BOOK_GetProjectileDPSValue(item)
+		return {
+			"|cFF33CCFF" .. tostring(entry) .. "|r",
+			tostring(item.reqlevel or 0),
+			tostring(item.level or 0),
+			tostring(item.subtype or "?"),
+			"|c" .. colorCode .. itemName .. "|r",
+			(projectileDps and tostring(projectileDps) or "-"),
+			sourceText,
+		}
 	end
 	return {
 		"|cFF33CCFF" .. tostring(entry) .. "|r",
@@ -3751,7 +4014,7 @@ MTH_BOOK_UpdateResults = function()
 					end
 				end
 				if btn.itemIcon then
-					if MTH_BOOK_STATE.mode == "items" then
+					if MTH_BOOK_IsItemMode() then
 						local items = MTH_BOOK_GetItemsTable()
 						local item = items and items[entry]
 						if item and item.icon and item.icon ~= "" then
@@ -3945,7 +4208,7 @@ local function MTH_BOOK_UpdateModeLabels()
 		end
 	end
 	if minLabel then
-		if MTH_BOOK_STATE.mode == "npcs" or MTH_BOOK_STATE.mode == "items" or MTH_BOOK_STATE.mode == "stable" or MTH_BOOK_STATE.mode == "families" or MTH_BOOK_STATE.mode == "pethistory" then
+		if MTH_BOOK_STATE.mode == "npcs" or MTH_BOOK_IsItemMode() or MTH_BOOK_STATE.mode == "stable" or MTH_BOOK_STATE.mode == "families" or MTH_BOOK_STATE.mode == "pethistory" then
 			minLabel:Hide()
 		else
 			minLabel:Show()
@@ -3953,7 +4216,7 @@ local function MTH_BOOK_UpdateModeLabels()
 		end
 	end
 	if maxLabel then
-		if MTH_BOOK_STATE.mode == "npcs" or MTH_BOOK_STATE.mode == "items" or MTH_BOOK_STATE.mode == "stable" or MTH_BOOK_STATE.mode == "families" or MTH_BOOK_STATE.mode == "pethistory" then
+		if MTH_BOOK_STATE.mode == "npcs" or MTH_BOOK_IsItemMode() or MTH_BOOK_STATE.mode == "stable" or MTH_BOOK_STATE.mode == "families" or MTH_BOOK_STATE.mode == "pethistory" then
 			maxLabel:Hide()
 		else
 			maxLabel:Show()
@@ -3963,7 +4226,7 @@ local function MTH_BOOK_UpdateModeLabels()
 
 	if getglobal("MTH_BOOK_HideNoAbilitiesText") then getglobal("MTH_BOOK_HideNoAbilitiesText"):SetText("Hide No Abilities") end
 	if getglobal("MTH_BOOK_PetOnlyMyLevelText") then
-		if MTH_BOOK_STATE.mode == "items" then
+		if MTH_BOOK_IsItemMode() then
 			getglobal("MTH_BOOK_PetOnlyMyLevelText"):SetText("Show only my level")
 		else
 			getglobal("MTH_BOOK_PetOnlyMyLevelText"):SetText("Only my level")
@@ -4003,7 +4266,7 @@ end
 local function MTH_BOOK_ApplyInputs()
 	local search = getglobal("MTH_BOOK_Search")
 	MTH_BOOK_STATE.search = MTH_BOOK_SafeLower(search and search:GetText() or "")
-	if MTH_BOOK_STATE.mode == "npcs" or MTH_BOOK_STATE.mode == "items" or MTH_BOOK_STATE.mode == "stable" or MTH_BOOK_STATE.mode == "families" or MTH_BOOK_STATE.mode == "pethistory" then
+	if MTH_BOOK_STATE.mode == "npcs" or MTH_BOOK_IsItemMode() or MTH_BOOK_STATE.mode == "stable" or MTH_BOOK_STATE.mode == "families" or MTH_BOOK_STATE.mode == "pethistory" then
 		MTH_BOOK_STATE.minLevel = nil
 		MTH_BOOK_STATE.maxLevel = nil
 	else
@@ -4029,7 +4292,7 @@ local function MTH_BOOK_ApplyInputs()
 		MTH_BOOK_STATE.petInZoneOnly = petInZoneOnly and petInZoneOnly:GetChecked() == 1 or false
 	elseif MTH_BOOK_STATE.mode == "petabilities" then
 		MTH_BOOK_STATE.petOnlyMyLevel = petOnlyMyLevel and petOnlyMyLevel:GetChecked() == 1 or false
-	elseif MTH_BOOK_STATE.mode == "items" then
+	elseif MTH_BOOK_IsItemMode() then
 		MTH_BOOK_STATE.itemOnlyMyLevel = petOnlyMyLevel and petOnlyMyLevel:GetChecked() == 1 or false
 	elseif MTH_BOOK_STATE.mode == "npcs" then
 		MTH_BOOK_STATE.npcHideNoZone = hideUnknown and hideUnknown:GetChecked() == 1 or false
@@ -4077,6 +4340,8 @@ local function MTH_BOOK_UpdateSectionTabs()
 	local sectionFamilies = getglobal("MTH_BOOK_SectionFamilies")
 	local sectionPetAbilities = getglobal("MTH_BOOK_SectionPetAbilities")
 	local sectionItems = getglobal("MTH_BOOK_SectionItems")
+	local sectionProjectiles = getglobal("MTH_BOOK_SectionProjectiles")
+	local sectionAmmoBags = getglobal("MTH_BOOK_SectionAmmoBags")
 	local sectionNPCs = getglobal("MTH_BOOK_SectionNPCs")
 	local sectionStable = getglobal("MTH_BOOK_SectionStable")
 	local sectionPetHistory = getglobal("MTH_BOOK_SectionPetHistory")
@@ -4094,6 +4359,8 @@ local function MTH_BOOK_UpdateSectionTabs()
 	setState(sectionFamilies, MTH_BOOK_STATE.mode == "families")
 	setState(sectionPetAbilities, MTH_BOOK_STATE.mode == "petabilities")
 	setState(sectionItems, MTH_BOOK_STATE.mode == "items")
+	setState(sectionProjectiles, MTH_BOOK_STATE.mode == "projectiles")
+	setState(sectionAmmoBags, MTH_BOOK_STATE.mode == "ammobags")
 	setState(sectionNPCs, MTH_BOOK_STATE.mode == "npcs")
 	setState(sectionStable, MTH_BOOK_STATE.mode == "stable")
 	setState(sectionPetHistory, MTH_BOOK_STATE.mode == "pethistory")
@@ -4105,10 +4372,12 @@ local function MTH_BOOK_LayoutSectionTabs()
 	local sectionFamilies = getglobal("MTH_BOOK_SectionFamilies")
 	local sectionPetAbilities = getglobal("MTH_BOOK_SectionPetAbilities")
 	local sectionItems = getglobal("MTH_BOOK_SectionItems")
+	local sectionProjectiles = getglobal("MTH_BOOK_SectionProjectiles")
+	local sectionAmmoBags = getglobal("MTH_BOOK_SectionAmmoBags")
 	local sectionNPCs = getglobal("MTH_BOOK_SectionNPCs")
 	local sectionStable = getglobal("MTH_BOOK_SectionStable")
 	local sectionPetHistory = getglobal("MTH_BOOK_SectionPetHistory")
-	if not (tabBar and sectionPets and sectionFamilies and sectionPetAbilities and sectionItems and sectionNPCs) then return end
+	if not (tabBar and sectionPets and sectionFamilies and sectionPetAbilities and sectionItems and sectionNPCs and sectionProjectiles and sectionAmmoBags) then return end
 
 	if sectionStable then
 		sectionStable:ClearAllPoints()
@@ -4134,9 +4403,15 @@ local function MTH_BOOK_LayoutSectionTabs()
 	sectionItems:ClearAllPoints()
 	sectionItems:SetPoint("LEFT", sectionNPCs, "RIGHT", 2, 0)
 
+	sectionProjectiles:ClearAllPoints()
+	sectionProjectiles:SetPoint("LEFT", sectionItems, "RIGHT", 2, 0)
+
+	sectionAmmoBags:ClearAllPoints()
+	sectionAmmoBags:SetPoint("LEFT", sectionProjectiles, "RIGHT", 2, 0)
+
 	if sectionPetHistory then
 		sectionPetHistory:ClearAllPoints()
-		sectionPetHistory:SetPoint("LEFT", sectionItems, "RIGHT", 2, 0)
+		sectionPetHistory:SetPoint("LEFT", sectionAmmoBags, "RIGHT", 2, 0)
 	end
 end
 
@@ -4194,7 +4469,7 @@ local function MTH_BOOK_ResetStateForMode(mode)
 	elseif mode == "petabilities" then
 		MTH_BOOK_STATE.petLearnSource = "beast"
 		MTH_BOOK_STATE.petOnlyMyLevel = true
-	elseif mode == "items" then
+	elseif MTH_BOOK_IsItemMode(mode) then
 		MTH_BOOK_STATE.itemSubtype = "all"
 		MTH_BOOK_STATE.itemOnlyMyLevel = false
 	elseif mode == "npcs" then
@@ -4230,7 +4505,7 @@ local function MTH_BOOK_ApplyStateToWidgets(widgets)
 	if widgets.petOnlyMyLevel then
 		if MTH_BOOK_STATE.mode == "petabilities" then
 			widgets.petOnlyMyLevel:SetChecked(MTH_BOOK_STATE.petOnlyMyLevel and 1 or nil)
-		elseif MTH_BOOK_STATE.mode == "items" then
+		elseif MTH_BOOK_IsItemMode() then
 			widgets.petOnlyMyLevel:SetChecked(MTH_BOOK_STATE.itemOnlyMyLevel and 1 or nil)
 		else
 			widgets.petOnlyMyLevel:SetChecked(nil)
@@ -4391,7 +4666,7 @@ local function MTH_BOOK_CreateResultButtons(parent)
 		end)
 		btn.nameHoverButton:SetScript("OnClick", function()
 			if not this:GetParent() or not this:GetParent().entry then return end
-			if MTH_BOOK_STATE.mode == "items" and this:GetParent().entry.itemId and type(IsShiftKeyDown) == "function" and IsShiftKeyDown() then
+			if MTH_BOOK_IsItemMode() and this:GetParent().entry.itemId and type(IsShiftKeyDown) == "function" and IsShiftKeyDown() then
 				if MTH_BOOK_InsertItemLinkToChat(this:GetParent().entry.itemId) then
 					return
 				end
@@ -4436,7 +4711,7 @@ local function MTH_BOOK_CreateResultButtons(parent)
 
 		btn:SetScript("OnClick", function()
 			if this.entry then
-				if MTH_BOOK_STATE.mode == "items" and this.entry.itemId and type(IsShiftKeyDown) == "function" and IsShiftKeyDown() then
+				if MTH_BOOK_IsItemMode() and this.entry.itemId and type(IsShiftKeyDown) == "function" and IsShiftKeyDown() then
 					if MTH_BOOK_InsertItemLinkToChat(this.entry.itemId) then
 						return
 					end
@@ -4506,6 +4781,8 @@ local function MTH_BOOK_WireUI(frame)
 	local sectionFamilies = getglobal("MTH_BOOK_SectionFamilies")
 	local sectionPetAbilities = getglobal("MTH_BOOK_SectionPetAbilities")
 	local sectionItems = getglobal("MTH_BOOK_SectionItems")
+	local sectionProjectiles = getglobal("MTH_BOOK_SectionProjectiles")
+	local sectionAmmoBags = getglobal("MTH_BOOK_SectionAmmoBags")
 	local sectionNPCs = getglobal("MTH_BOOK_SectionNPCs")
 	local sectionStable = getglobal("MTH_BOOK_SectionStable")
 	local sectionPetHistory = getglobal("MTH_BOOK_SectionPetHistory")
@@ -4551,6 +4828,8 @@ local function MTH_BOOK_WireUI(frame)
 	if sectionFamilies then sectionFamilies:SetScript("OnClick", function() MTH_BOOK_SetMode("families") end) end
 	if sectionPetAbilities then sectionPetAbilities:SetScript("OnClick", function() MTH_BOOK_SetMode("petabilities") end) end
 	if sectionItems then sectionItems:SetScript("OnClick", function() MTH_BOOK_SetMode("items") end) end
+	if sectionProjectiles then sectionProjectiles:SetScript("OnClick", function() MTH_BOOK_SetMode("projectiles") end) end
+	if sectionAmmoBags then sectionAmmoBags:SetScript("OnClick", function() MTH_BOOK_SetMode("ammobags") end) end
 	if sectionNPCs then sectionNPCs:SetScript("OnClick", function() MTH_BOOK_SetMode("npcs") end) end
 	if sectionStable then sectionStable:SetScript("OnClick", function() MTH_BOOK_SetMode("stable") end) end
 	if sectionPetHistory then sectionPetHistory:SetScript("OnClick", function() MTH_BOOK_SetMode("pethistory") end) end
@@ -4559,6 +4838,8 @@ local function MTH_BOOK_WireUI(frame)
 	MTH_BOOK_StyleSectionTab(sectionFamilies)
 	MTH_BOOK_StyleSectionTab(sectionPetAbilities)
 	MTH_BOOK_StyleSectionTab(sectionItems)
+	MTH_BOOK_StyleSectionTab(sectionProjectiles)
+	MTH_BOOK_StyleSectionTab(sectionAmmoBags)
 	MTH_BOOK_StyleSectionTab(sectionNPCs)
 	MTH_BOOK_StyleSectionTab(sectionStable)
 	MTH_BOOK_StyleSectionTab(sectionPetHistory)
@@ -4883,7 +5164,7 @@ local function MTH_BOOK_WireUI(frame)
 	if petOnlyMyLevel then
 		if MTH_BOOK_STATE.mode == "petabilities" then
 			petOnlyMyLevel:SetChecked(MTH_BOOK_STATE.petOnlyMyLevel and 1 or nil)
-		elseif MTH_BOOK_STATE.mode == "items" then
+		elseif MTH_BOOK_IsItemMode() then
 			petOnlyMyLevel:SetChecked(MTH_BOOK_STATE.itemOnlyMyLevel and 1 or nil)
 		else
 			petOnlyMyLevel:SetChecked(nil)

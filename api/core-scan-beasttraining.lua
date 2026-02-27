@@ -167,9 +167,14 @@ function MTH_PT_HasBeastTrainingRows()
 end
 
 local function MTH_PT_DebugLog(line)
-	if not MTH_PT_VERBOSE_SCAN_LOGS then return end
-	local text = "[TRAINSCAN] " .. tostring(line or "")
-	MTH:Print(text, "debug")
+	return
+end
+
+local function MTH_PT_IsScanMessageEnabled()
+	if not (MTH and MTH.IsMessageEnabled) then
+		return true
+	end
+	return MTH:IsMessageEnabled("beastTrainingScan", true)
 end
 
 local function MTH_PT_MakeTokenFromAbilityRank(abilityName, rankNumber)
@@ -382,10 +387,12 @@ local function MTH_PT_ProcessLearnSystemMessage(rawMessage)
 			label = label .. " (Rank " .. tostring(rankNumber) .. ")"
 		end
 		if MTH and MTH.Print then
-			if changed then
-				MTH:Print("Pet ability learned and recorded: " .. label .. ". It is now marked as known in MetaHunt.")
-			else
-				MTH:Print("Pet ability learned for current pet: " .. label .. ".")
+			if MTH:IsMessageEnabled("beastTrainingScan", true) then
+				if changed then
+					MTH:Print("Pet ability learned and recorded: " .. label .. ". It is now marked as known in MetaHunt.")
+				else
+					MTH:Print("Pet ability learned for current pet: " .. label .. ".")
+				end
 			end
 		end
 		if changed then
@@ -605,18 +612,24 @@ function MTH_PT_ApplyScan(triggerReason)
 	for _ in pairs(baseSet) do totalBaselines = totalBaselines + 1 end
 
 	if triggerReason == "initial" then
-		MTH:Print("Initial train scan complete: " .. tostring(totalBaselines) .. " baselines / " .. tostring(totalRanks) .. " ranks recorded for this character.")
+		if MTH_PT_IsScanMessageEnabled() then
+			MTH:Print("Initial train scan complete: " .. tostring(totalBaselines) .. " baselines / " .. tostring(totalRanks) .. " ranks recorded for this character.")
+		end
 	elseif added > 0 then
 		table.sort(addedDetails)
 		local detailsText = table.concat(addedDetails, ", ")
 		if detailsText ~= "" then
 			local msg = "New pet data recorded (" .. tostring(added) .. " new rank(s)): " .. detailsText .. ". Known totals for this character: " .. tostring(totalBaselines) .. " ability type(s), " .. tostring(totalRanks) .. " rank(s)."
-			MTH:Print(msg)
-			MTH:Print("INFO: " .. msg, "debug")
+			if MTH_PT_IsScanMessageEnabled() then
+				MTH:Print(msg)
+				MTH:Print("INFO: " .. msg, "debug")
+			end
 		else
 			local msg = "New pet data recorded (" .. tostring(added) .. " new rank(s)). Known totals for this character: " .. tostring(totalBaselines) .. " ability type(s), " .. tostring(totalRanks) .. " rank(s)."
-			MTH:Print(msg)
-			MTH:Print("INFO: " .. msg, "debug")
+			if MTH_PT_IsScanMessageEnabled() then
+				MTH:Print(msg)
+				MTH:Print("INFO: " .. msg, "debug")
+			end
 		end
 	end
 
@@ -657,7 +670,7 @@ local function MTH_PT_RunDoubleScan(triggerBase)
 		if MTH_PT_DebugLog then
 			MTH_PT_DebugLog("scan skipped: no beast-training rows, trigger=" .. tostring(triggerBase or ""))
 		end
-		if feedbackOnOpen and MTH and MTH.Print then
+		if feedbackOnOpen and MTH and MTH.Print and MTH_PT_IsScanMessageEnabled() then
 			MTH:Print("Beast Training opened, but scan did not run yet (no scannable rows detected).")
 		end
 		return false
@@ -670,7 +683,7 @@ local function MTH_PT_RunDoubleScan(triggerBase)
 	if MTH_PT_DebugLog then
 		MTH_PT_DebugLog("scan complete: trigger=" .. tostring(triggerBase or "") .. " ok=" .. tostring(ok and true or false) .. " dt=" .. tostring((t1 or 0) - (t0 or 0)) .. "s")
 	end
-	if feedbackOnOpen and MTH and MTH.Print then
+	if feedbackOnOpen and MTH and MTH.Print and MTH_PT_IsScanMessageEnabled() then
 		if ok then
 			local addedCount = tonumber(added) or 0
 			local msg = "Beast Training scan complete: " .. tostring(baselines or 0) .. " baselines / " .. tostring(ranks or 0) .. " ranks."
@@ -711,16 +724,22 @@ local function MTH_PT_OnEvent(_, evt, eventArg1)
 	end
 
 	if evt == "PLAYER_ENTERING_WORLD" then
+		local playerLevel = 0
+		if type(UnitLevel) == "function" then
+			playerLevel = tonumber(UnitLevel("player")) or 0
+		end
 		if UnitClass then
 			local _, classToken = UnitClass("player")
 			if classToken ~= "HUNTER" then return end
 		end
-		if not MTH_PT_HasAnyLearnedSpells() then
+		if playerLevel >= 12 and not MTH_PT_HasAnyLearnedSpells() then
 			local store = MTH_PT_GetStore()
 			local now = time()
 			if not store.lastPrompt or (now - store.lastPrompt) > 60 then
 				store.lastPrompt = now
-				MTH:Print("No Beast Training scan found for this character. Open Beast Training (right panel) to record pet spell ranks.")
+				if MTH_PT_IsScanMessageEnabled() then
+					MTH:Print("No Beast Training scan found for this character. Open Beast Training (right panel) to record pet spell ranks.")
+				end
 			end
 		end
 		return

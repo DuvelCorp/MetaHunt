@@ -42,6 +42,7 @@ ZHunterMod_Pet_Spells = {
 }
 
 local ZHUNTER_PET_MAX = table.getn(ZHunterMod_Pet_Spells)
+local zButtonPet_SetButtons
 
 local function zButtonPet_GetSaved()
 	local currentRoot = zButtonPet_GetRoot()
@@ -147,6 +148,7 @@ function zButtonPet_OnEvent()
 			zButtonPet:Hide()
 			return
 		end
+		zButtonPet.customSetButtons = zButtonPet_SetButtons
 		zButtonPet_CreateButtons()
 		zButtonPet.beforeclick = zButtonPetAdjustment_BeforeClick
 		zButtonPet.afterclick = zButtonPet_AfterClick
@@ -157,6 +159,7 @@ function zButtonPet_OnEvent()
 		zButtonPetAdjustment:RegisterEvent("PET_BAR_UPDATE")
 		zButtonPetAdjustment:RegisterEvent("PLAYER_ENTERING_WORLD")
 		zButtonPetAdjustment:RegisterEvent("SPELLS_CHANGED")
+		zButtonPetAdjustment:RegisterEvent("LEARNED_SPELL_IN_TAB")
 		zButtonPetAdjustment:SetScript("OnEvent", zButtonPetAdjustment_OnEvent)
 		zButtonPet_Tooltip = CreateFrame("GameTooltip", "zButtonPet_Tooltip", nil, "GameTooltipTemplate")
 		zButtonPet_SetupSizeAndPosition()
@@ -300,17 +303,110 @@ local function zButtonPet_FindSpellIdByName(spellName)
 	if not spellName or spellName == "" then
 		return nil
 	end
-	local maxSpells = tonumber((_G and _G["MAX_SPELLS"]) or nil) or 1024
-	for i = 1, maxSpells do
-		local current = GetSpellName(i, "spell")
-		if not current then
-			break
-		end
-		if current == spellName then
-			return i
+	local lookup = {}
+	local foundAny = nil
+
+	if type(GetNumSpellTabs) == "function" and type(GetSpellTabInfo) == "function" then
+		local numTabs = GetNumSpellTabs() or 0
+		for tabIndex = 1, numTabs do
+			local _, _, offset, numSpells = GetSpellTabInfo(tabIndex)
+			offset = tonumber(offset) or 0
+			numSpells = tonumber(numSpells) or 0
+			if numSpells > 0 then
+				for spellIndex = (offset + 1), (offset + numSpells) do
+					local spellNameAtIndex = GetSpellName(spellIndex, "spell")
+					if spellNameAtIndex then
+						lookup[spellNameAtIndex] = spellIndex
+						foundAny = 1
+					end
+				end
+			end
 		end
 	end
-	return nil
+
+	if not foundAny then
+		local maxSpells = tonumber((_G and _G["MAX_SPELLS"]) or nil) or 1024
+		local nilStreak = 0
+		for spellIndex = 1, maxSpells do
+			local spellNameAtIndex = GetSpellName(spellIndex, "spell")
+			if spellNameAtIndex then
+				lookup[spellNameAtIndex] = spellIndex
+				nilStreak = 0
+			else
+				nilStreak = nilStreak + 1
+				if nilStreak >= 30 then
+					break
+				end
+			end
+		end
+	end
+
+	if spellName == ZHUNTER_PET_POSITION then
+		if lookup[spellName] then
+			return lookup[spellName]
+		end
+		for currentName, currentId in lookup do
+			if string.find(currentName, "Take Position", 1, true)
+				or string.find(currentName, "Position", 1, true)
+				or string.find(currentName, "Stay", 1, true) then
+				return currentId
+			end
+		end
+		return nil
+	end
+
+	return lookup[spellName]
+end
+
+zButtonPet_SetButtons = function(parent, spells)
+	if not (parent and parent.count and parent.name and spells) then
+		return 0
+	end
+
+	local info = {}
+	for i = 1, table.getn(spells) do
+		local spellName = spells[i]
+		local spellId = zButtonPet_FindSpellIdByName(spellName)
+		if spellId then
+			table.insert(info, spellId)
+		end
+	end
+
+	for i = 1, parent.count do
+		local child = getglobal(parent.name..i)
+		if child then
+			child:Hide()
+			child.id = nil
+			child.icon = nil
+			child.isspell = nil
+		end
+	end
+
+	parent.id = nil
+	parent.isspell = nil
+
+	local foundCount = 0
+	for i = 1, table.getn(info) do
+		if i > parent.count then
+			break
+		end
+		local button = getglobal(parent.name..i)
+		if button then
+			button.id = info[i]
+			button.isspell = 1
+			ZSpellButton_UpdateButton(button)
+			button:Show()
+			if i == 1 then
+				parent.id = info[i]
+				parent.isspell = 1
+				ZSpellButton_UpdateButton(parent)
+				parent:Enable()
+			end
+			foundCount = foundCount + 1
+		end
+	end
+
+	return foundCount
 end
 
 function zButtonPetAdjustment_BeforeClick()
@@ -437,18 +533,57 @@ function zButtonPet_FeedPet()
 
 end
 
+local function zButtonPet_DebugVerify()
+	if not zButtonPet then
+		MTH_ZH_Print("zPet: button frame is not ready yet.")
+		return
+	end
+
+	zButtonPet_CreateButtons()
+	zButtonPet_RefreshParentSpell()
+
+	MTH_ZH_Print("zPet verify: expected spell availability")
+	for i = 1, table.getn(ZHunterMod_Pet_Spells) do
+		local spellName = ZHunterMod_Pet_Spells[i]
+		local spellId = zButtonPet_FindSpellIdByName(spellName)
+		if spellId then
+			MTH_ZH_Print("  + "..spellName.." (id "..spellId..")")
+		else
+			MTH_ZH_Print("  - "..spellName.." (missing)")
+		end
+	end
+
+	if zButtonPet.id then
+		local parentName = GetSpellName(zButtonPet.id, "spell") or "<unknown>"
+		MTH_ZH_Print("zPet parent: "..parentName.." (id "..zButtonPet.id..")")
+	else
+		MTH_ZH_Print("zPet parent: <none>")
+	end
+
+	for i = 1, (zButtonPet.count or 0) do
+		local button = getglobal("zButtonPet"..i)
+		if button and button.id then
+			local name = GetSpellName(button.id, "spell") or "<unknown>"
+			MTH_ZH_Print("  slot "..i..": "..name.." (id "..button.id..")")
+		end
+	end
+end
+
 SLASH_zButtonPet1 = "/ZPet"
 SlashCmdList["zButtonPet"] = function(msg)
 	if MTH_ZH_HandleDisabledSlash and MTH_ZH_HandleDisabledSlash("Pet button is disabled while module 'zhunter' is disabled.") then
 		return
 	end
+	msg = (msg and string.lower(msg)) or ""
 	if msg == "reset" then
 		zButtonPet_Reset()
 		zButtonPet:ClearAllPoints()
 		zButtonPet:SetPoint("CENTER", UIParent, "CENTER", 0, 60)
 	elseif msg == "options" then
 		MTH_OpenOptions("Pet")
+	elseif msg == "verify" then
+		zButtonPet_DebugVerify()
 	else
-		MTH_ZH_Print("Possible Commands: \"options\", \"reset\"")
+		MTH_ZH_Print("Possible Commands: \"options\", \"reset\", \"verify\"")
 	end
 end

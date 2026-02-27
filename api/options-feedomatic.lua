@@ -14,6 +14,13 @@ local MTH_FOM_STATE = {
 	ctrl = {},
 }
 
+local function MTH_FOM_L(key, default)
+	if MTH and MTH.GetLocalization then
+		return MTH:GetLocalization(key, default)
+	end
+	return default or key
+end
+
 local function MTH_EnsureFOMConfig()
 	if FOM_Config then
 		return
@@ -69,16 +76,16 @@ end
 
 local function MTH_FOM_GetBindingDisplayText()
 	if not GetBindingKey then
-		return "Unavailable"
+		return MTH_FOM_L("FOM_BIND_UNAVAILABLE", "Unavailable")
 	end
 	local key1, key2 = GetBindingKey("FEEDOMATIC")
 	if not key1 and not key2 then
-		return "Unbound"
+		return MTH_FOM_L("FOM_BIND_UNBOUND", "Unbound")
 	end
 	if key1 and key2 then
 		return key1 .. " / " .. key2
 	end
-	return key1 or key2 or "Unbound"
+	return key1 or key2 or MTH_FOM_L("FOM_BIND_UNBOUND", "Unbound")
 end
 
 local function MTH_FOM_UpdateBindingStatus()
@@ -87,9 +94,9 @@ local function MTH_FOM_UpdateBindingStatus()
 		return
 	end
 	if MTH_FOM_STATE.bindingCapture then
-		bindStatus:SetText("Feed key: press a key... (ESC to clear)")
+		bindStatus:SetText(MTH_FOM_L("FOM_BIND_STATUS_PROMPT", "Feed key: press a key... (ESC to clear)"))
 	else
-		bindStatus:SetText("Feed key: " .. MTH_FOM_GetBindingDisplayText())
+		bindStatus:SetText(string.format(MTH_FOM_L("FOM_BIND_STATUS_VALUE", "Feed key: %s"), MTH_FOM_GetBindingDisplayText()))
 	end
 end
 
@@ -100,7 +107,7 @@ local function MTH_FOM_StopBindingCapture()
 			MTH_FOM_STATE.bindButton:SetPropagateKeyboardInput(true)
 		end
 		MTH_FOM_STATE.bindButton:EnableKeyboard(false)
-		MTH_FOM_STATE.bindButton:SetText("Set Key")
+		MTH_FOM_STATE.bindButton:SetText(MTH_FOM_L("FOM_BIND_SET_KEY", "Set Key"))
 	end
 	MTH_FOM_UpdateBindingStatus()
 end
@@ -108,7 +115,7 @@ end
 local function MTH_FOM_StartBindingCapture()
 	MTH_FOM_STATE.bindingCapture = true
 	if MTH_FOM_STATE.bindButton then
-		MTH_FOM_STATE.bindButton:SetText("Press key...")
+		MTH_FOM_STATE.bindButton:SetText(MTH_FOM_L("FOM_BIND_PRESS_KEY", "Press key..."))
 		MTH_FOM_STATE.bindButton:EnableKeyboard(true)
 		if MTH_FOM_STATE.bindButton.SetPropagateKeyboardInput then
 			MTH_FOM_STATE.bindButton:SetPropagateKeyboardInput(false)
@@ -128,13 +135,13 @@ end
 local function MTH_FOM_SaveBinding(key)
 	if not SetBinding or not SaveBindings or not GetBindingKey then
 		if MTH and MTH.Print then
-			MTH:Print("Keybinding APIs unavailable.")
+			MTH:Print(MTH_FOM_L("FOM_ERROR_KEYBIND_API_UNAVAILABLE", "Keybinding APIs unavailable."))
 		end
 		return
 	end
 	if InCombatLockdown and InCombatLockdown() then
 		if MTH and MTH.Print then
-			MTH:Print("Cannot change keybindings during combat.")
+			MTH:Print(MTH_FOM_L("FOM_ERROR_KEYBIND_COMBAT_LOCKED", "Cannot change keybindings during combat."))
 		end
 		MTH_FOM_StopBindingCapture()
 		return
@@ -207,7 +214,7 @@ function MTH_SetupFeedOMaticOptions()
 
 	local title = container:CreateFontString("MetaHuntOptionsFeedOMaticTitle", "ARTWORK", "GameFontHighlight")
 	title:SetPoint("TOPLEFT", container, "TOPLEFT", 20, -10)
-	title:SetText("Feed-O-Matic")
+	title:SetText(MTH_FOM_L("FOM_TITLE", "Feed-O-Matic"))
 
 	local statusNotice = container:CreateFontString("MetaHuntOptionsFeedOMaticStatusNotice", "ARTWORK", "GameFontNormalSmall")
 	statusNotice:SetPoint("TOPLEFT", container, "TOPLEFT", 20, -34)
@@ -215,9 +222,9 @@ function MTH_SetupFeedOMaticOptions()
 	statusNotice:SetJustifyH("LEFT")
 	statusNotice:SetJustifyV("TOP")
 	statusNotice:SetTextColor(0.35, 0.65, 1)
-	statusNotice:SetText("Feed-O-Matic, created by the great Fizzwidget, is not yet entirely ready for TurtleWoW because I am missing \na reliable list of all foods, mostly impossible to fetch from the DB.\n It still works much better in this version, but all stuff related to Food buff and Cooking isnt fully functional.")
+	statusNotice:SetText(MTH_FOM_L("FOM_STATUS_NOTICE", "Feed-O-Matic, created by the great Fizzwidget, is not yet entirely ready for TurtleWoW because I am missing \na reliable list of all foods, mostly impossible to fetch from the DB.\n It still works much better in this version, but all stuff related to Food buff and Cooking isnt fully functional."))
 
-	local moduleCheck = MTH_CreateCheckbox(container, "MetaHuntOptionsFeedOMaticEnabled", "Enable FeedOMatic module", -32 + yAdjust)
+	local moduleCheck = MTH_CreateCheckbox(container, "MetaHuntOptionsFeedOMaticEnabled", MTH_FOM_L("FOM_ENABLE_MODULE", "Enable FeedOMatic module"), -32 + yAdjust)
 	if moduleCheck then
 		moduleCheck:SetScript("OnClick", function(self)
 			self = self or this
@@ -226,7 +233,7 @@ function MTH_SetupFeedOMaticOptions()
 			if MTH and MTH.SetModuleEnabled then
 				local ok, err = MTH:SetModuleEnabled("feedomatic", enabled)
 				if not ok and MTH and MTH.Print then
-					MTH:Print("Failed to change FeedOMatic state: " .. tostring(err))
+					MTH:Print(string.format(MTH_FOM_L("FOM_ERROR_TOGGLE_FAILED", "Failed to change FeedOMatic state: %s"), tostring(err)))
 				end
 			end
 			MTH_RefreshFeedOMaticOptions()
@@ -236,18 +243,18 @@ function MTH_SetupFeedOMaticOptions()
 
 	local leftHeader = container:CreateFontString("MetaHuntOptionsFeedOMaticGeneralHeader", "ARTWORK", "GameFontHighlight")
 	leftHeader:SetPoint("TOPLEFT", container, "TOPLEFT", 20, -62 + yAdjust)
-	leftHeader:SetText("General")
+	leftHeader:SetText(MTH_FOM_L("FOM_HEADER_GENERAL", "General"))
 
 	local bindStatus = container:CreateFontString("MetaHuntOptionsFOMBindStatus", "ARTWORK", "GameFontNormalSmall")
 	bindStatus:SetPoint("TOPLEFT", container, "TOPLEFT", 20, -80 + yAdjust)
-	bindStatus:SetText("Feed key: " .. MTH_FOM_GetBindingDisplayText())
+	bindStatus:SetText(string.format(MTH_FOM_L("FOM_BIND_STATUS_VALUE", "Feed key: %s"), MTH_FOM_GetBindingDisplayText()))
 	MTH_FOM_STATE.bindStatus = bindStatus
 
 	local bindButton = CreateFrame("Button", "MetaHuntOptionsFOMBindButton", container, "UIPanelButtonTemplate")
 	bindButton:SetPoint("TOPLEFT", container, "TOPLEFT", 20, -100 + yAdjust)
 	bindButton:SetWidth(90)
 	bindButton:SetHeight(22)
-	bindButton:SetText("Set Key")
+	bindButton:SetText(MTH_FOM_L("FOM_BIND_SET_KEY", "Set Key"))
 	bindButton:EnableKeyboard(false)
 	bindButton:SetScript("OnClick", function()
 		if MTH_FOM_STATE.bindingCapture then
@@ -279,7 +286,7 @@ function MTH_SetupFeedOMaticOptions()
 	bindClearButton:SetPoint("LEFT", bindButton, "RIGHT", 8, 0)
 	bindClearButton:SetWidth(70)
 	bindClearButton:SetHeight(22)
-	bindClearButton:SetText("Clear")
+	bindClearButton:SetText(MTH_FOM_L("FOM_BIND_CLEAR", "Clear"))
 	bindClearButton:SetScript("OnClick", function()
 		MTH_FOM_SaveBinding(nil)
 	end)
@@ -291,12 +298,12 @@ function MTH_SetupFeedOMaticOptions()
 	bindHint:SetJustifyH("LEFT")
 	bindHint:SetJustifyV("TOP")
 	bindHint:SetTextColor(0.35, 0.65, 1)
-	bindHint:SetText("You should assign a key bind for feed-o-matic,\nin order to feed your pet automatically.\nThe key \"P\" is an excellent candidate !")
+	bindHint:SetText(MTH_FOM_L("FOM_BIND_HINT", "You should assign a key bind for feed-o-matic,\nin order to feed your pet automatically.\nThe key \"P\" is an excellent candidate !"))
 
-	MTH_FOM_STATE.ctrl.AvoidQuestFood = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMAvoidQuest", FOM_OptionsButtonText and FOM_OptionsButtonText["AvoidQuestFood"] or "Avoid quest foods", -170 + yAdjust)
-	MTH_FOM_STATE.ctrl.AvoidBonusFood = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMAvoidBonus", FOM_OptionsButtonText and FOM_OptionsButtonText["AvoidBonusFood"] or "Avoid bonus foods", -195 + yAdjust)
-	MTH_FOM_STATE.ctrl.PreferHigherQuality = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMPreferQuality", FOM_OptionsButtonText and FOM_OptionsButtonText["PreferHigherQuality"] or "Prefer higher quality food", -220 + yAdjust)
-	MTH_FOM_STATE.ctrl.Fallback = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMFallback", FOM_OptionsButtonText and FOM_OptionsButtonText["Fallback"] or "Fallback to avoided foods", -245 + yAdjust)
+	MTH_FOM_STATE.ctrl.AvoidQuestFood = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMAvoidQuest", FOM_OptionsButtonText and FOM_OptionsButtonText["AvoidQuestFood"] or MTH_FOM_L("FOM_LABEL_AVOID_QUEST_FOODS", "Avoid quest foods"), -170 + yAdjust)
+	MTH_FOM_STATE.ctrl.AvoidBonusFood = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMAvoidBonus", FOM_OptionsButtonText and FOM_OptionsButtonText["AvoidBonusFood"] or MTH_FOM_L("FOM_LABEL_AVOID_BONUS_FOODS", "Avoid bonus foods"), -195 + yAdjust)
+	MTH_FOM_STATE.ctrl.PreferHigherQuality = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMPreferQuality", FOM_OptionsButtonText and FOM_OptionsButtonText["PreferHigherQuality"] or MTH_FOM_L("FOM_LABEL_PREFER_HIGHER_QUALITY_FOOD", "Prefer higher quality food"), -220 + yAdjust)
+	MTH_FOM_STATE.ctrl.Fallback = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMFallback", FOM_OptionsButtonText and FOM_OptionsButtonText["Fallback"] or MTH_FOM_L("FOM_LABEL_FALLBACK_TO_AVOIDED_FOODS", "Fallback to avoided foods"), -245 + yAdjust)
 
 	if MTH_FOM_STATE.ctrl.AvoidQuestFood then MTH_FOM_STATE.ctrl.AvoidQuestFood:SetScript("OnClick", function(self) self = self or this if not self then return end FOM_Config.AvoidQuestFood = self:GetChecked() == 1 end) end
 	if MTH_FOM_STATE.ctrl.AvoidBonusFood then MTH_FOM_STATE.ctrl.AvoidBonusFood:SetScript("OnClick", function(self) self = self or this if not self then return end FOM_Config.AvoidBonusFood = self:GetChecked() == 1 end) end
@@ -305,7 +312,7 @@ function MTH_SetupFeedOMaticOptions()
 
 	local keepOpenLabel = container:CreateFontString("MetaHuntOptionsFOMKeepOpenLabel", "ARTWORK", "GameFontNormalSmall")
 	keepOpenLabel:SetPoint("TOPLEFT", container, "TOPLEFT", 20, -302 + yAdjust)
-	keepOpenLabel:SetText("Keep open bag slots:")
+	keepOpenLabel:SetText(MTH_FOM_L("FOM_KEEP_OPEN_BAG_SLOTS", "Keep open bag slots:"))
 
 	local keepOpen = CreateFrame("EditBox", "MetaHuntOptionsFOMKeepOpen", container, "InputBoxTemplate")
 	keepOpen:SetPoint("LEFT", keepOpenLabel, "RIGHT", 8, 0)
@@ -325,30 +332,30 @@ function MTH_SetupFeedOMaticOptions()
 
 	local notifyHeader = container:CreateFontString("MetaHuntOptionsFOMNotifyHeader", "ARTWORK", "GameFontHighlight")
 	notifyHeader:SetPoint("TOPLEFT", container, "TOPLEFT", 20, -336 + yAdjust)
-	notifyHeader:SetText("Notify when feeding")
+	notifyHeader:SetText(MTH_FOM_L("FOM_HEADER_NOTIFY_WHEN_FEEDING", "Notify when feeding"))
 
-	MTH_FOM_STATE.ctrl.AlertEmote = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMAlertEmote", FOM_OptionsButtonText and FOM_OptionsButtonText["AlertEmote"] or "Via emote", -360 + yAdjust)
-	MTH_FOM_STATE.ctrl.AlertChat = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMAlertChat", FOM_OptionsButtonText and FOM_OptionsButtonText["AlertChat"] or "In chat", -385 + yAdjust)
-	MTH_FOM_STATE.ctrl.AlertNone = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMAlertNone", FOM_OptionsButtonText and FOM_OptionsButtonText["AlertNone"] or "Don't notify", -410 + yAdjust)
+	MTH_FOM_STATE.ctrl.AlertEmote = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMAlertEmote", FOM_OptionsButtonText and FOM_OptionsButtonText["AlertEmote"] or MTH_FOM_L("FOM_LABEL_NOTIFY_VIA_EMOTE", "Via emote"), -360 + yAdjust)
+	MTH_FOM_STATE.ctrl.AlertChat = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMAlertChat", FOM_OptionsButtonText and FOM_OptionsButtonText["AlertChat"] or MTH_FOM_L("FOM_LABEL_NOTIFY_IN_CHAT", "In chat"), -385 + yAdjust)
+	MTH_FOM_STATE.ctrl.AlertNone = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMAlertNone", FOM_OptionsButtonText and FOM_OptionsButtonText["AlertNone"] or MTH_FOM_L("FOM_LABEL_NOTIFY_NONE", "Don't notify"), -410 + yAdjust)
 	if MTH_FOM_STATE.ctrl.AlertEmote then MTH_FOM_STATE.ctrl.AlertEmote:SetScript("OnClick", function() MTH_FOM_SetAlert("emote"); MTH_RefreshFeedOMaticOptions() end) end
 	if MTH_FOM_STATE.ctrl.AlertChat then MTH_FOM_STATE.ctrl.AlertChat:SetScript("OnClick", function() MTH_FOM_SetAlert("chat"); MTH_RefreshFeedOMaticOptions() end) end
 	if MTH_FOM_STATE.ctrl.AlertNone then MTH_FOM_STATE.ctrl.AlertNone:SetScript("OnClick", function() MTH_FOM_SetAlert("none"); MTH_RefreshFeedOMaticOptions() end) end
 
 	local warnHeader = container:CreateFontString("MetaHuntOptionsFOMWarnHeader", "ARTWORK", "GameFontHighlight")
 	warnHeader:SetPoint("TOPLEFT", container, "TOPLEFT", rightColumnX, -276 + yAdjust)
-	warnHeader:SetText("Warn when pet needs feeding")
+	warnHeader:SetText(MTH_FOM_L("FOM_HEADER_WARN_WHEN_PET_NEEDS_FEEDING", "Warn when pet needs feeding"))
 
-	MTH_FOM_STATE.ctrl.LevelContent = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMLevelContent", FOM_OptionsButtonText and FOM_OptionsButtonText["LevelContent"] or "When content", -300 + yAdjust, rightColumnX)
-	MTH_FOM_STATE.ctrl.LevelUnhappy = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMLevelUnhappy", FOM_OptionsButtonText and FOM_OptionsButtonText["LevelUnhappy"] or "When unhappy", -325 + yAdjust, rightColumnX)
-	MTH_FOM_STATE.ctrl.LevelOff = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMLevelOff", FOM_OptionsButtonText and FOM_OptionsButtonText["LevelOff"] or "Don't warn", -350 + yAdjust, rightColumnX)
+	MTH_FOM_STATE.ctrl.LevelContent = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMLevelContent", FOM_OptionsButtonText and FOM_OptionsButtonText["LevelContent"] or MTH_FOM_L("FOM_LABEL_WARN_WHEN_CONTENT", "When content"), -300 + yAdjust, rightColumnX)
+	MTH_FOM_STATE.ctrl.LevelUnhappy = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMLevelUnhappy", FOM_OptionsButtonText and FOM_OptionsButtonText["LevelUnhappy"] or MTH_FOM_L("FOM_LABEL_WARN_WHEN_UNHAPPY", "When unhappy"), -325 + yAdjust, rightColumnX)
+	MTH_FOM_STATE.ctrl.LevelOff = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMLevelOff", FOM_OptionsButtonText and FOM_OptionsButtonText["LevelOff"] or MTH_FOM_L("FOM_LABEL_DONT_WARN", "Don't warn"), -350 + yAdjust, rightColumnX)
 	if MTH_FOM_STATE.ctrl.LevelContent then MTH_FOM_STATE.ctrl.LevelContent:SetScript("OnClick", function() MTH_FOM_SetLevel("content"); MTH_RefreshFeedOMaticOptions() end) end
 	if MTH_FOM_STATE.ctrl.LevelUnhappy then MTH_FOM_STATE.ctrl.LevelUnhappy:SetScript("OnClick", function() MTH_FOM_SetLevel("unhappy"); MTH_RefreshFeedOMaticOptions() end) end
 	if MTH_FOM_STATE.ctrl.LevelOff then MTH_FOM_STATE.ctrl.LevelOff:SetScript("OnClick", function() MTH_FOM_SetLevel("off"); MTH_RefreshFeedOMaticOptions() end) end
 
-	MTH_FOM_STATE.ctrl.AudioWarning = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMAudioWarning", FOM_OptionsButtonText and FOM_OptionsButtonText["AudioWarning"] or "Play sound", -378 + yAdjust, rightColumnX)
-	MTH_FOM_STATE.ctrl.AudioWarningBell = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMAudioWarningBell", FOM_OptionsButtonText and FOM_OptionsButtonText["AudioWarningBell"] or "Use bell sound", -403 + yAdjust, rightColumnX)
-	MTH_FOM_STATE.ctrl.TextWarning = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMTextWarning", FOM_OptionsButtonText and FOM_OptionsButtonText["TextWarning"] or "Show text", -428 + yAdjust, rightColumnX)
-	MTH_FOM_STATE.ctrl.IconWarning = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMIconWarning", FOM_OptionsButtonText and FOM_OptionsButtonText["IconWarning"] or "Flash icon", -453 + yAdjust, rightColumnX)
+	MTH_FOM_STATE.ctrl.AudioWarning = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMAudioWarning", FOM_OptionsButtonText and FOM_OptionsButtonText["AudioWarning"] or MTH_FOM_L("FOM_LABEL_PLAY_SOUND", "Play sound"), -378 + yAdjust, rightColumnX)
+	MTH_FOM_STATE.ctrl.AudioWarningBell = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMAudioWarningBell", FOM_OptionsButtonText and FOM_OptionsButtonText["AudioWarningBell"] or MTH_FOM_L("FOM_LABEL_USE_BELL_SOUND", "Use bell sound"), -403 + yAdjust, rightColumnX)
+	MTH_FOM_STATE.ctrl.TextWarning = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMTextWarning", FOM_OptionsButtonText and FOM_OptionsButtonText["TextWarning"] or MTH_FOM_L("FOM_LABEL_SHOW_TEXT", "Show text"), -428 + yAdjust, rightColumnX)
+	MTH_FOM_STATE.ctrl.IconWarning = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMIconWarning", FOM_OptionsButtonText and FOM_OptionsButtonText["IconWarning"] or MTH_FOM_L("FOM_LABEL_FLASH_ICON", "Flash icon"), -453 + yAdjust, rightColumnX)
 	if MTH_FOM_STATE.ctrl.AudioWarning then MTH_FOM_STATE.ctrl.AudioWarning:SetScript("OnClick", function(self) self = self or this if not self then return end if self:GetChecked() == 1 then if FOM_Config.AudioWarning ~= "bell" then FOM_Config.AudioWarning = true end else FOM_Config.AudioWarning = nil end MTH_RefreshFeedOMaticOptions() end) end
 	if MTH_FOM_STATE.ctrl.AudioWarningBell then MTH_FOM_STATE.ctrl.AudioWarningBell:SetScript("OnClick", function(self) self = self or this if not self then return end if self:GetChecked() == 1 then FOM_Config.AudioWarning = "bell" else FOM_Config.AudioWarning = true end MTH_RefreshFeedOMaticOptions() end) end
 	if MTH_FOM_STATE.ctrl.TextWarning then MTH_FOM_STATE.ctrl.TextWarning:SetScript("OnClick", function(self) self = self or this if not self then return end FOM_Config.TextWarning = self:GetChecked() == 1 end) end
@@ -356,13 +363,13 @@ function MTH_SetupFeedOMaticOptions()
 
 	local cookHeader = container:CreateFontString("MetaHuntOptionsFOMCookingHeader", "ARTWORK", "GameFontHighlight")
 	cookHeader:SetPoint("TOPLEFT", container, "TOPLEFT", rightColumnX, -62 + yAdjust)
-	cookHeader:SetText("Avoid foods used in cooking")
+	cookHeader:SetText(MTH_FOM_L("FOM_HEADER_AVOID_FOODS_USED_IN_COOKING", "Avoid foods used in cooking"))
 
-	MTH_FOM_STATE.ctrl.SaveCookOrange = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMSaveCookOrange", FOM_OptionsButtonText and FOM_OptionsButtonText["SaveForCook_Orange"] or "Only difficult recipes", -86 + yAdjust, rightColumnX)
-	MTH_FOM_STATE.ctrl.SaveCookYellow = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMSaveCookYellow", FOM_OptionsButtonText and FOM_OptionsButtonText["SaveForCook_Yellow"] or "Medium or better", -111 + yAdjust, rightColumnX)
-	MTH_FOM_STATE.ctrl.SaveCookGreen = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMSaveCookGreen", FOM_OptionsButtonText and FOM_OptionsButtonText["SaveForCook_Green"] or "Easy or better", -136 + yAdjust, rightColumnX)
-	MTH_FOM_STATE.ctrl.SaveCookAll = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMSaveCookAll", FOM_OptionsButtonText and FOM_OptionsButtonText["SaveForCook_All"] or "All foods", -161 + yAdjust, rightColumnX)
-	MTH_FOM_STATE.ctrl.SaveCookNone = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMSaveCookNone", FOM_OptionsButtonText and FOM_OptionsButtonText["SaveForCook_None"] or "Do not save cooking foods", -186 + yAdjust, rightColumnX)
+	MTH_FOM_STATE.ctrl.SaveCookOrange = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMSaveCookOrange", FOM_OptionsButtonText and FOM_OptionsButtonText["SaveForCook_Orange"] or MTH_FOM_L("FOM_LABEL_ONLY_DIFFICULT_RECIPES", "Only difficult recipes"), -86 + yAdjust, rightColumnX)
+	MTH_FOM_STATE.ctrl.SaveCookYellow = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMSaveCookYellow", FOM_OptionsButtonText and FOM_OptionsButtonText["SaveForCook_Yellow"] or MTH_FOM_L("FOM_LABEL_MEDIUM_OR_BETTER", "Medium or better"), -111 + yAdjust, rightColumnX)
+	MTH_FOM_STATE.ctrl.SaveCookGreen = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMSaveCookGreen", FOM_OptionsButtonText and FOM_OptionsButtonText["SaveForCook_Green"] or MTH_FOM_L("FOM_LABEL_EASY_OR_BETTER", "Easy or better"), -136 + yAdjust, rightColumnX)
+	MTH_FOM_STATE.ctrl.SaveCookAll = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMSaveCookAll", FOM_OptionsButtonText and FOM_OptionsButtonText["SaveForCook_All"] or MTH_FOM_L("FOM_LABEL_ALL_FOODS", "All foods"), -161 + yAdjust, rightColumnX)
+	MTH_FOM_STATE.ctrl.SaveCookNone = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMSaveCookNone", FOM_OptionsButtonText and FOM_OptionsButtonText["SaveForCook_None"] or MTH_FOM_L("FOM_LABEL_DO_NOT_SAVE_COOKING_FOODS", "Do not save cooking foods"), -186 + yAdjust, rightColumnX)
 	if MTH_FOM_STATE.ctrl.SaveCookOrange then MTH_FOM_STATE.ctrl.SaveCookOrange:SetScript("OnClick", function() MTH_FOM_SetCookingLevel(3); MTH_RefreshFeedOMaticOptions() end) end
 	if MTH_FOM_STATE.ctrl.SaveCookYellow then MTH_FOM_STATE.ctrl.SaveCookYellow:SetScript("OnClick", function() MTH_FOM_SetCookingLevel(2); MTH_RefreshFeedOMaticOptions() end) end
 	if MTH_FOM_STATE.ctrl.SaveCookGreen then MTH_FOM_STATE.ctrl.SaveCookGreen:SetScript("OnClick", function() MTH_FOM_SetCookingLevel(1); MTH_RefreshFeedOMaticOptions() end) end

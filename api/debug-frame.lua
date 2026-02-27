@@ -15,6 +15,13 @@ MTH_DebugFrame = {
 	infoCount = 0
 }
 
+local function MTH_DF_L(key, default)
+	if MTH and MTH.GetLocalization then
+		return MTH:GetLocalization(key, default)
+	end
+	return default or key
+end
+
 function MTH_DebugFrame:Initialize()
 	if self.initialized then
 		return
@@ -57,14 +64,14 @@ function MTH_DebugFrame:Initialize()
 	-- Title
 	local title = self.frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 	title:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 20, -15)
-	title:SetText("MetaHunt Debug - Errors & Messages")
+	title:SetText(MTH_DF_L("DEBUG_TITLE", "MetaHunt Debug - Errors & Messages"))
 
 	-- Close button
 	local closeButton = CreateFrame("Button", nil, self.frame, "UIPanelButtonTemplate")
 	closeButton:SetPoint("TOPRIGHT", self.frame, "TOPRIGHT", -8, -8)
 	closeButton:SetWidth(22)
 	closeButton:SetHeight(22)
-	closeButton:SetText("X")
+	closeButton:SetText(MTH_DF_L("COMMON_CLOSE_SHORT", "X"))
 	closeButton:SetScript("OnClick", function() MTH_DebugFrame:Hide() end)
 
 	-- Clear button
@@ -72,7 +79,7 @@ function MTH_DebugFrame:Initialize()
 	clearButton:SetPoint("BOTTOMLEFT", self.frame, "BOTTOMLEFT", 10, 10)
 	clearButton:SetWidth(100)
 	clearButton:SetHeight(25)
-	clearButton:SetText("Clear")
+	clearButton:SetText(MTH_DF_L("COMMON_CLEAR", "Clear"))
 	clearButton:SetScript("OnClick", function() MTH_DebugFrame:Clear() end)
 
 	-- Select-all button
@@ -80,7 +87,7 @@ function MTH_DebugFrame:Initialize()
 	copyButton:SetPoint("LEFT", clearButton, "RIGHT", 10, 0)
 	copyButton:SetWidth(100)
 	copyButton:SetHeight(25)
-	copyButton:SetText("Select All")
+	copyButton:SetText(MTH_DF_L("COMMON_SELECT_ALL", "Select All"))
 	copyButton:SetScript("OnClick", function() MTH_DebugFrame:SelectAllText() end)
 
 	-- Scroll frame + text content with proper vertical scrollbar
@@ -179,9 +186,9 @@ function MTH_DebugFrame:UpdateDisplay()
 		return
 	end
 
-	local text = "=== Errors Captured: " .. self.captureCount .. " ===\n"
-	text = text .. "=== Info Captured: " .. (self.infoCount or 0) .. " ===\n"
-	text = text .. "=== Total in queue: " .. table.getn(self.errors) .. " ===\n\n"
+	local text = string.format(MTH_DF_L("DEBUG_SUMMARY_ERRORS", "=== Errors Captured: %s ==="), tostring(self.captureCount)) .. "\n"
+	text = text .. string.format(MTH_DF_L("DEBUG_SUMMARY_INFO", "=== Info Captured: %s ==="), tostring(self.infoCount or 0)) .. "\n"
+	text = text .. string.format(MTH_DF_L("DEBUG_SUMMARY_QUEUE", "=== Total in queue: %s ==="), tostring(table.getn(self.errors))) .. "\n\n"
 	
 	for i = 1, table.getn(self.errors) do
 		local err = self.errors[i]
@@ -238,7 +245,7 @@ function MTH_DebugFrame:Clear()
 	self:UpdateDisplay()
 	if self.initialized and self.isVisible then
 		if MTH and MTH.Print then
-			MTH:Print("Debug frame cleared")
+			MTH:Print(MTH_DF_L("DEBUG_CLEARED", "Debug frame cleared"))
 		end
 	end
 end
@@ -251,7 +258,7 @@ function MTH_DebugFrame:SelectAllText()
 	self.scrollText:HighlightText(0, -1)
 	self.scrollText:SetFocus()
 	if MTH and MTH.Print then
-		MTH:Print("All text selected - press Ctrl+C to copy")
+		MTH:Print(MTH_DF_L("DEBUG_ALL_SELECTED", "All text selected - press Ctrl+C to copy"))
 	end
 end
 

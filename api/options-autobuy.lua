@@ -346,6 +346,15 @@ local function MTH_AB_GetBuyableItems(subtype)
 	if type(MTH_AutoBuy_GetProjectileItems) == "function" then
 		local result = MTH_AutoBuy_GetProjectileItems(subtype)
 		if type(result) == "table" then
+			for i = 1, table.getn(result) do
+				local row = result[i]
+				if type(row) == "table" then
+					local itemId = tonumber(row.itemId)
+					if itemId and MTH and MTH.GetLocalizedItemName then
+						row.name = MTH:GetLocalizedItemName(itemId, row.name)
+					end
+				end
+			end
 			return result
 		end
 	end
@@ -356,9 +365,13 @@ local function MTH_AB_GetBuyableItems(subtype)
 	for itemId, row in pairs(source) do
 		if type(row) == "table" and string.lower(tostring(row.subtype or "")) == wanted and type(row.vendors) == "table" then
 			for _ in pairs(row.vendors) do
+				local defaultName = tostring(row.name or ("Item " .. tostring(itemId)))
+				local localizedName = (MTH and MTH.GetLocalizedItemName)
+					and MTH:GetLocalizedItemName(itemId, defaultName)
+					or defaultName
 				table.insert(result, {
 					itemId = tonumber(itemId) or itemId,
-					name = tostring(row.name or ("Item " .. tostring(itemId))),
+					name = tostring(localizedName),
 					level = tonumber(row.level) or 0,
 					reqlevel = tonumber(row.reqlevel) or 0,
 				})

@@ -6,7 +6,7 @@
 local MTH_Tooltips = {
 	name = "tooltips",
 	enabled = true,
-	version = "1.0.3",
+	version = "1.0.4",
 	events = {
 		"UPDATE_MOUSEOVER_UNIT",
 		"UNIT_NAME_UPDATE",

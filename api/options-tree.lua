@@ -28,10 +28,12 @@ MTH_OPTIONS_CONST = MTH_OPTIONS_CONST or {
 
 MTH_OPTIONS_TABS = MTH_OPTIONS_TABS or {
 	{ key = "General", label = "General", frame = "MetaHuntOptionsGeneral" },
+	{ key = "Messages", label = "Messages", frame = "MetaHuntOptionsMessages" },
 	{ key = "Pet", label = "ZPet", frame = "MetaHuntOptionsPet" },
 	{ key = "Track", label = "ZTrack", frame = "MetaHuntOptionsTrack" },
 	{ key = "Aspect", label = "ZAspect", frame = "MetaHuntOptionsAspect" },
 	{ key = "Trap", label = "ZTrap", frame = "MetaHuntOptionsTrap" },
+	{ key = "Ranged", label = "ZRanged", frame = "MetaHuntOptionsRanged" },
 	{ key = "Ammo", label = "ZAmmo", frame = "MetaHuntOptionsAmmo" },
 	{ key = "Mounts", label = "ZMounts", frame = "MetaHuntOptionsMounts" },
 	{ key = "Companions", label = "ZCompanions", frame = "MetaHuntOptionsCompanions" },
@@ -49,6 +51,7 @@ MTH_OPTIONS_TABS = MTH_OPTIONS_TABS or {
 
 MTH_OPTIONS_TREE = MTH_OPTIONS_TREE or {
 	{ label = "General", key = "General" },
+	{ label = "Messages", key = "Messages" },
 	{ label = "Auto Buy", key = "AutoBuy" },
 	{ label = "Feed-O-Matic", key = "FeedOMatic" },
 	{
@@ -60,6 +63,7 @@ MTH_OPTIONS_TREE = MTH_OPTIONS_TREE or {
 			{ label = "zAspect", key = "Aspect" },
 			{ label = "zTrack", key = "Track" },
 			{ label = "zTrap", key = "Trap" },
+			{ label = "zRanged", key = "Ranged" },
 			{ label = "zMounts", key = "Mounts" },
 			{ label = "zCompanions", key = "Companions" },
 			{ label = "zToys", key = "Toys" },

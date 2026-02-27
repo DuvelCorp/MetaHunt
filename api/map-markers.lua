@@ -572,6 +572,7 @@ function MTH_Map:FocusBeast(beastId, beast)
 	local cr, cg, cb = MTH_Map_GetFamilyColor(row.family)
 	local nodes = {}
 	local firstZoneId = nil
+	local displayName = (MTH and MTH.GetLocalizedBeastName and MTH:GetLocalizedBeastName(id, row.name)) or row.name or "Unknown"
 
 	for i = 1, table.getn(coords) do
 		local c = coords[i]
@@ -581,7 +582,7 @@ function MTH_Map:FocusBeast(beastId, beast)
 				firstZoneId = zoneId
 			end
 			local details = string.format("Family: %s\nLevel: %s\nAbilities: %s", row.family or "?", row.lvl or "?", row.abilities or "None")
-			MTH_Map_AddNode(nodes, c[3], c[1], c[2], string.format("%s (%d)", row.name or "Unknown", id), details, cr, cg, cb, { kind = "beast", beastId = id })
+			MTH_Map_AddNode(nodes, c[3], c[1], c[2], string.format("%s (%d)", displayName, id), details, cr, cg, cb, { kind = "beast", beastId = id })
 		end
 	end
 
@@ -637,6 +638,7 @@ function MTH_Map:FocusVendor(vendorId, vendor)
 
 	local nodes = {}
 	local firstZoneId = nil
+	local displayName = (MTH and MTH.GetLocalizedVendorName and MTH:GetLocalizedVendorName(id, row.name)) or row.name or "Unknown"
 	for i = 1, table.getn(coords) do
 		local c = coords[i]
 		if c and c[1] and c[2] and c[3] then
@@ -645,7 +647,7 @@ function MTH_Map:FocusVendor(vendorId, vendor)
 				firstZoneId = zoneId
 			end
 			local details = string.format("React: %s\nLevel: %s\nFunctions: %s", react ~= "" and react or "?", row.lvl or "?", metaTags)
-			MTH_Map_AddNode(nodes, c[3], c[1], c[2], string.format("%s (%d)", row.name or "Unknown", id), details, cr, cg, cb, { kind = "vendor", vendorId = id })
+			MTH_Map_AddNode(nodes, c[3], c[1], c[2], string.format("%s (%d)", displayName, id), details, cr, cg, cb, { kind = "vendor", vendorId = id })
 		end
 	end
 
@@ -1087,12 +1089,13 @@ function MTH_Map:RegisterDefaultProviders()
 			for beastId, beast in pairs(MTH_DS_Beasts) do
 				local coords = beast and MTH_Map_GetCoordsForUnit(beastId, beast.coords)
 				if beast and coords and table.getn(coords) > 0 then
+					local displayName = (MTH and MTH.GetLocalizedBeastName and MTH:GetLocalizedBeastName(beastId, beast.name)) or beast.name or "Unknown"
 					local cr, cg, cb = MTH_Map_GetFamilyColor(beast.family)
 					for i = 1, table.getn(coords) do
 						local c = coords[i]
 						if c and c[1] and c[2] and c[3] then
 							local details = string.format("Family: %s\nLevel: %s\nAbilities: %s", beast.family or "?", beast.lvl or "?", beast.abilities or "None")
-							MTH_Map_AddNode(nodes, c[3], c[1], c[2], string.format("%s (%d)", beast.name or "Unknown", beastId), details, cr, cg, cb, { kind = "beast", beastId = beastId })
+							MTH_Map_AddNode(nodes, c[3], c[1], c[2], string.format("%s (%d)", displayName, beastId), details, cr, cg, cb, { kind = "beast", beastId = beastId })
 						end
 					end
 				end
@@ -1111,11 +1114,12 @@ function MTH_Map:RegisterDefaultProviders()
 			for vendorId, vendor in pairs(MTH_DS_Vendors) do
 				local coords = vendor and MTH_Map_GetCoordsForUnit(vendorId, vendor.coords)
 				if vendor and coords and table.getn(coords) > 0 then
+					local displayName = (MTH and MTH.GetLocalizedVendorName and MTH:GetLocalizedVendorName(vendorId, vendor.name)) or vendor.name or "Unknown"
 					for i = 1, table.getn(coords) do
 						local c = coords[i]
 						if c and c[1] and c[2] and c[3] then
 							local details = string.format("Faction: %s\nLevel: %s", vendor.fac or "?", vendor.lvl or "?")
-							MTH_Map_AddNode(nodes, c[3], c[1], c[2], string.format("%s (%d)", vendor.name or "Unknown", vendorId), details, 0.20, 0.90, 1.00, { kind = "vendor", vendorId = vendorId })
+							MTH_Map_AddNode(nodes, c[3], c[1], c[2], string.format("%s (%d)", displayName, vendorId), details, 0.20, 0.90, 1.00, { kind = "vendor", vendorId = vendorId })
 						end
 					end
 				end
@@ -1136,15 +1140,19 @@ function MTH_Map:RegisterDefaultProviders()
 
 			for itemId, item in pairs(items) do
 				if item and item.drops then
+					local itemDefaultName = item.name or "Unknown"
+					local itemDisplayName = (MTH and MTH.GetLocalizedItemName)
+						and MTH:GetLocalizedItemName(itemId, itemDefaultName)
+						or itemDefaultName
 					for creatureId, chance in pairs(item.drops) do
 						local creature = MTH_DS_Beasts and MTH_DS_Beasts[creatureId]
 						local coords = MTH_Map_GetCoordsForUnit(creatureId, creature and creature.coords)
 						local creatureName = nil
 
 						if MTH_DS_CreatureCoords and MTH_DS_CreatureCoords[creatureId] and table.getn(MTH_DS_CreatureCoords[creatureId]) > 0 then
-							creatureName = (MTH_DS_CreatureNames and MTH_DS_CreatureNames[creatureId]) or (creature and creature.name)
+								creatureName = (MTH_DS_CreatureNames and MTH_DS_CreatureNames[creatureId]) or ((MTH and MTH.GetLocalizedBeastName and creature and MTH:GetLocalizedBeastName(creatureId, creature.name)) or (creature and creature.name))
 						elseif creature and creature.coords and table.getn(creature.coords) > 0 then
-							creatureName = creature.name
+								creatureName = (MTH and MTH.GetLocalizedBeastName and MTH:GetLocalizedBeastName(creatureId, creature.name)) or creature.name
 						end
 
 						if coords and table.getn(coords) > 0 then
@@ -1155,7 +1163,7 @@ function MTH_Map:RegisterDefaultProviders()
 									local chanceText = pct and string.format("%.2f%%", pct) or tostring(chance or "?")
 									local details = string.format(
 										"Item: %s (%d)\nDrop Creature: %s (%d)\nDrop Chance: %s",
-										item.name or "Unknown",
+										itemDisplayName or "Unknown",
 										tonumber(itemId) or 0,
 										creatureName or "Unknown",
 										tonumber(creatureId) or 0,
@@ -1166,7 +1174,7 @@ function MTH_Map:RegisterDefaultProviders()
 										c[3],
 										c[1],
 										c[2],
-										string.format("%s ← %s", item.name or "Unknown Item", creatureName or "Unknown Creature"),
+										string.format("%s ← %s", itemDisplayName or "Unknown Item", creatureName or "Unknown Creature"),
 										details,
 										1.00,
 										0.35,
