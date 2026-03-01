@@ -27,6 +27,11 @@ ZHunterMod_Ranged_Weapons = ZHunterMod_Ranged_Weapons or {}
 local ZHUNTER_RANGED_MAX_COUNT = 80
 local zButtonRanged_Cache = {}
 local zButtonRanged_TooltipWarmed = false
+local zButtonRanged_LastRefreshAt = 0
+local zButtonRanged_MinBagRefreshInterval = 0.75
+local zButtonRanged_IdleBagRefreshInterval = 3.00
+local zButtonRanged_BagDirty = false
+local zButtonRanged_RefreshButtonsFromState
 
 local function zButtonRanged_GetKnownItemSpeed(itemId)
 	local idNum = tonumber(itemId)
@@ -437,6 +442,15 @@ local function zButtonRanged_OnEnter(button)
 	if not button then
 		return
 	end
+	if zButtonRanged_BagDirty then
+		local previousFound = tonumber(zButtonRanged and zButtonRanged.found) or 0
+		zButtonRanged_RefreshButtonsFromState()
+		if (tonumber(zButtonRanged and zButtonRanged.found) or 0) ~= previousFound then
+			zButtonRanged_SetupSizeAndPosition()
+		else
+			zButtonRanged_UpdateButton(zButtonRanged)
+		end
+	end
 	if not (zButtonRanged and zButtonRanged.tooltip) then
 		return
 	end
@@ -503,7 +517,7 @@ local function zButtonRanged_BeforeClick(button)
 	return true
 end
 
-local function zButtonRanged_RefreshButtonsFromState()
+zButtonRanged_RefreshButtonsFromState = function()
 	if not zButtonRanged then
 		return
 	end
@@ -525,6 +539,7 @@ local function zButtonRanged_RefreshButtonsFromState()
 	end
 
 	zButtonRanged.found = ZSpellButton_SetButtons(zButtonRanged, info)
+	zButtonRanged_BagDirty = false
 	zButtonRanged_ApplyRuntimeSettings()
 end
 
@@ -620,10 +635,16 @@ end
 function zButtonRanged_SetupSizeAndPosition()
 	local saved = zButtonRanged_GetSaved()
 	if saved["enabled"] == false or saved["enabled"] == 0 then
+		if zButtonRangedAdjustment and zButtonRangedAdjustment.SetScript then
+			zButtonRangedAdjustment:SetScript("OnEvent", nil)
+		end
 		if zButtonRanged and zButtonRanged.Hide then
 			zButtonRanged:Hide()
 		end
 		return
+	end
+	if zButtonRangedAdjustment and zButtonRangedAdjustment.SetScript then
+		zButtonRangedAdjustment:SetScript("OnEvent", zButtonRangedAdjustment_OnEvent)
 	end
 	local displayCount = zButtonRanged.found or 0
 	if displayCount < 0 then
@@ -665,8 +686,32 @@ function zButtonRangedAdjustment_OnEvent()
 	if event == "UNIT_INVENTORY_CHANGED" and arg1 and arg1 ~= "player" then
 		return
 	end
+	if event == "BAG_UPDATE" then
+		local now = GetTime and GetTime() or 0
+		local isInspecting = false
+		if zButtonRanged.children and zButtonRanged.children.IsShown and zButtonRanged.children:IsShown() then
+			isInspecting = true
+		elseif GameTooltip and GameTooltip.IsOwned and GameTooltip:IsOwned(zButtonRanged) then
+			isInspecting = true
+		end
+		if not isInspecting then
+			zButtonRanged_BagDirty = true
+			return
+		end
+		local minInterval = isInspecting and zButtonRanged_MinBagRefreshInterval or zButtonRanged_IdleBagRefreshInterval
+		if now > 0 and zButtonRanged_LastRefreshAt > 0 and (now - zButtonRanged_LastRefreshAt) < minInterval then
+			return
+		end
+	end
+
+	zButtonRanged_LastRefreshAt = GetTime and GetTime() or 0
+	local previousFound = tonumber(zButtonRanged.found) or 0
 	zButtonRanged_RefreshButtonsFromState()
-	zButtonRanged_SetupSizeAndPosition()
+	if (tonumber(zButtonRanged.found) or 0) ~= previousFound then
+		zButtonRanged_SetupSizeAndPosition()
+	else
+		zButtonRanged_UpdateButton(zButtonRanged)
+	end
 	if event == "PLAYER_ENTERING_WORLD" then
 		zButtonRanged_PrewarmTooltipOnce()
 	end

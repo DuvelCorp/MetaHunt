@@ -169,10 +169,14 @@ end
 
 local loader = CreateFrame("Frame", "MTH_MinimapButtonLoader")
 loader:RegisterEvent("ADDON_LOADED")
-loader:SetScript("OnEvent", function(_, eventName, addonName)
+loader:SetScript("OnEvent", function(self, eventName, addonName)
 	eventName = eventName or event
 	addonName = addonName or arg1
 	if eventName == "ADDON_LOADED" and addonName == "MetaHunt" then
 		MTH_MinimapButton:Initialize()
+		if self and self.UnregisterAllEvents then
+			self:UnregisterAllEvents()
+			self:SetScript("OnEvent", nil)
+		end
 	end
 end)

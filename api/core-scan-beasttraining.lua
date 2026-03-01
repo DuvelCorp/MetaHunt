@@ -20,6 +20,7 @@ end
 local MTH_PT_ApplyScan
 local MTH_PT_AbilityHasPositiveRanks
 local MTH_PT_PromoteUnrankedKnownAliases
+local MTH_PT_BootstrapFrame = nil
 
 local MTH_PT_VERBOSE_SCAN_LOGS = false
 
@@ -846,6 +847,38 @@ function MTH_PT_InitService()
 	end)
 end
 
+function MTH_PT_InitBootstrap()
+	if MTH and MTH.ApplyClassGate and MTH:ApplyClassGate("trainscan-bootstrap") then
+		return
+	end
+	if MTH_PetTrainingFrame or MTH_PT_BootstrapFrame then
+		return
+	end
+
+	local frame = CreateFrame("Frame")
+	if not frame then
+		return
+	end
+	frame:RegisterEvent("PET_TRAINING_SHOW")
+	frame:RegisterEvent("CRAFT_SHOW")
+	frame:SetScript("OnEvent", function(self, evt)
+		evt = evt or event
+		if evt ~= "PET_TRAINING_SHOW" and evt ~= "CRAFT_SHOW" then
+			return
+		end
+		MTH_PT_InitService()
+		if type(MTH_PT_OnEvent) == "function" then
+			MTH_PT_OnEvent(MTH_PetTrainingFrame, evt)
+		end
+		if self and self.UnregisterAllEvents then
+			self:UnregisterAllEvents()
+			self:SetScript("OnEvent", nil)
+		end
+		MTH_PT_BootstrapFrame = nil
+	end)
+	MTH_PT_BootstrapFrame = frame
+end
+
 function MTH_PT_ShutdownService(_reason)
 	if not MTH_PetTrainingFrame then
 		return
@@ -929,3 +962,4 @@ end
 
 MTH_TR_InitService = MTH_PT_InitService
 MTH_TR_ShutdownService = MTH_PT_ShutdownService
+MTH_TR_InitBootstrap = MTH_PT_InitBootstrap

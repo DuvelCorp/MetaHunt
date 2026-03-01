@@ -11,7 +11,8 @@ BINDING_HEADER_ZMountsHeader = "ZMounts Buttons"
 BINDING_HEADER_ZCompanionsHeader = "ZCompanions Buttons"
 BINDING_HEADER_ZToysHeader = "ZToys Buttons"
 
-ZHunterModTooltip = CreateFrame("GameTooltip", "ZHunterModTooltip", nil, "GameTooltipTemplate")
+ZHunterModTooltip = CreateFrame("GameTooltip", "ZHunterModScan", nil, "GameTooltipTemplate")
+ZHunterModTooltipTextLeft1 = getglobal("ZHunterModScanTextLeft1")
 
 function MTH_ZH_IsModuleEnabled()
 	if not (MTH and MTH.IsModuleEnabled) then

@@ -43,6 +43,11 @@ ZHunterMod_Pet_Spells = {
 
 local ZHUNTER_PET_MAX = table.getn(ZHunterMod_Pet_Spells)
 local zButtonPet_SetButtons
+local zButtonPet_LastRefreshAt = 0
+local zButtonPet_MinRefreshInterval = 0.15
+local zButtonPet_MinCombatRefreshInterval = 0.30
+local zButtonPet_RuntimeSpellMap = nil
+local zButtonPet_LastStateKey = nil
 
 local function zButtonPet_GetSaved()
 	local currentRoot = zButtonPet_GetRoot()
@@ -134,6 +139,40 @@ local function zButtonPet_ApplyRuntimeSettings()
 	zButtonPet.hideonclick = saved["children"] and saved["children"]["hideonclick"] and true or false
 end
 
+local function zButtonPet_RebuildRuntimeSpellMap()
+	if not zButtonPet or not zButtonPet.count then
+		zButtonPet_RuntimeSpellMap = {}
+		return zButtonPet_RuntimeSpellMap
+	end
+	local spells = {}
+	for i=1, zButtonPet.count do
+		local button = getglobal(zButtonPet.name..i)
+		if button and button.id then
+			local spellName = GetSpellName(button.id, "spell")
+			if spellName and spellName ~= "" then
+				spells[spellName] = button.id
+			end
+		end
+	end
+	zButtonPet_RuntimeSpellMap = spells
+	return spells
+end
+
+local function zButtonPet_GetPreferredDefaultParentId(spells)
+	if zButtonPet1 and zButtonPet1.id then
+		return zButtonPet1.id
+	end
+	if zButtonPet and zButtonPet.count then
+		for i = 1, zButtonPet.count do
+			local child = getglobal("zButtonPet" .. i)
+			if child and child.id then
+				return child.id
+			end
+		end
+	end
+	return spells[ZHUNTER_PET_EYES] or spells[ZHUNTER_PET_POSITION] or spells[ZHUNTER_PET_DISMISS]
+end
+
 function zButtonPet_OnLoad()
 	this:RegisterEvent("VARIABLES_LOADED")
 end
@@ -161,7 +200,6 @@ function zButtonPet_OnEvent()
 		zButtonPetAdjustment:RegisterEvent("SPELLS_CHANGED")
 		zButtonPetAdjustment:RegisterEvent("LEARNED_SPELL_IN_TAB")
 		zButtonPetAdjustment:SetScript("OnEvent", zButtonPetAdjustment_OnEvent)
-		zButtonPet_Tooltip = CreateFrame("GameTooltip", "zButtonPet_Tooltip", nil, "GameTooltipTemplate")
 		zButtonPet_SetupSizeAndPosition()
 		zButtonPetAdjustment_OnEvent()
 	end
@@ -188,15 +226,23 @@ function zButtonPet_CreateButtons()
 	end
 	zButtonPet.found = ZSpellButton_SetButtons(zButtonPet, info)
 	zButtonPet_ApplyRuntimeSettings()
+	zButtonPet_RebuildRuntimeSpellMap()
+	zButtonPet_LastStateKey = nil
 end
 
 function zButtonPet_SetupSizeAndPosition()
 	local saved = zButtonPet_GetSaved()
 	if saved["enabled"] == false or saved["enabled"] == 0 then
+		if zButtonPetAdjustment and zButtonPetAdjustment.SetScript then
+			zButtonPetAdjustment:SetScript("OnEvent", nil)
+		end
 		if zButtonPet and zButtonPet.Hide then
 			zButtonPet:Hide()
 		end
 		return
+	end
+	if zButtonPetAdjustment and zButtonPetAdjustment.SetScript then
+		zButtonPetAdjustment:SetScript("OnEvent", zButtonPetAdjustment_OnEvent)
 	end
 	local displayCount = zButtonPet.found or ZHUNTER_PET_MAX
 	if displayCount < 0 then
@@ -434,20 +480,12 @@ local function zButtonPet_RefreshParentSpell()
 	zButtonPet_RefreshSavedPetState(saved, corePetInfo)
 
 	local status, happiness, dead
-	local spells = {}
-	local name
-	local choice
-	for i=1, zButtonPet.count do
-		local button
-		button = getglobal(zButtonPet.name..i)
-		if button and button.id then
-			name = GetSpellName(button.id, "spell")
-			spells[name] = button
-			if not choice and (name == ZHUNTER_PET_DISMISS or name == ZHUNTER_PET_EYES or name == ZHUNTER_PET_POSITION) then
-				choice = button
-			end
-		end
+	local spells = zButtonPet_RuntimeSpellMap
+	if not spells then
+		spells = zButtonPet_RebuildRuntimeSpellMap()
 	end
+	local name
+	local choiceId = zButtonPet_GetPreferredDefaultParentId(spells)
 	status = saved["pet"]["status"]
 	happiness = saved["pet"]["happiness"]
 	dead = saved["pet"]["dead"]
@@ -464,22 +502,34 @@ local function zButtonPet_RefreshParentSpell()
 		name = ZHUNTER_PET_MEND
 	elseif happiness ~= 3 then
 		name = ZHUNTER_PET_FEED
-	elseif choice then
-		id = choice.id
+	elseif choiceId then
+		id = choiceId
 	end
 
 	if name and spells[name] then
-		id = spells[name].id
+		id = spells[name]
 	elseif name then
 		local fallbackId = zButtonPet_FindSpellIdByName(name)
 		if fallbackId then
+			spells[name] = fallbackId
 			id = fallbackId
 		end
 	end
+	local isOwned = GameTooltip and GameTooltip.IsOwned and GameTooltip:IsOwned(zButtonPet)
+	local stateKey = tostring(hasCurrentPet and 1 or 0)
+		..":"..tostring(hasLivePet and 1 or 0)
+		..":"..tostring(status or "")
+		..":"..tostring(happiness or "")
+		..":"..tostring(dead or 0)
+		..":"..tostring(id or 0)
+	if zButtonPet.id == id and zButtonPet_LastStateKey == stateKey and not isOwned then
+		return
+	end
+	zButtonPet_LastStateKey = stateKey
 	zButtonPet.id = id
 	ZSpellButton_UpdateButton(zButtonPet)
 	ZSpellButton_UpdateCooldown(zButtonPet)
-	if GameTooltip:IsOwned(zButtonPet) then
+	if isOwned then
 		ZSpellButtonParent_OnEnter(zButtonPet)
 	end
 end
@@ -502,6 +552,21 @@ function zButtonPetAdjustment_OnEvent()
 	end
 	if event == "UNIT_PET" and arg1 and arg1 ~= "player" then
 		return
+	end
+	if event == "SPELLS_CHANGED" or event == "LEARNED_SPELL_IN_TAB" then
+		zButtonPet_CreateButtons()
+		zButtonPet_SetupSizeAndPosition()
+	end
+	if event == "UNIT_HEALTH" or event == "UNIT_HAPPINESS" or event == "PET_BAR_UPDATE" then
+		local now = GetTime and GetTime() or 0
+		local minInterval = zButtonPet_MinRefreshInterval
+		if UnitAffectingCombat and UnitAffectingCombat("player") then
+			minInterval = zButtonPet_MinCombatRefreshInterval
+		end
+		if now > 0 and zButtonPet_LastRefreshAt > 0 and (now - zButtonPet_LastRefreshAt) < minInterval then
+			return
+		end
+		zButtonPet_LastRefreshAt = now
 	end
 	zButtonPet_RefreshParentSpell()
 end

@@ -22,6 +22,20 @@ if not root["zButtonCompanions"] then
 end
 
 local ZHUNTER_COMPANIONS_BUTTON_MAX = 80
+local zButtonCompanions_LastSpellSignature = nil
+local zButtonCompanions_LastRefreshAt = 0
+local zButtonCompanions_MinRefreshInterval = 0.50
+
+local function zButtonCompanions_GetSpellSignature(spellIds)
+	if type(spellIds) ~= "table" or table.getn(spellIds) == 0 then
+		return ""
+	end
+	local parts = {}
+	for i = 1, table.getn(spellIds) do
+		parts[i] = tostring(spellIds[i] or "")
+	end
+	return table.concat(parts, ",")
+end
 
 local function zButtonCompanions_GetSaved()
 	local currentRoot = zButtonCompanions_GetRoot()
@@ -233,10 +247,16 @@ end
 function zButtonCompanions_SetupSizeAndPosition()
 	local saved = zButtonCompanions_GetSaved()
 	if saved["enabled"] == false or saved["enabled"] == 0 then
+		if zButtonCompanionsAdjustment and zButtonCompanionsAdjustment.SetScript then
+			zButtonCompanionsAdjustment:SetScript("OnEvent", nil)
+		end
 		if zButtonCompanions and zButtonCompanions.Hide then
 			zButtonCompanions:Hide()
 		end
 		return
+	end
+	if zButtonCompanionsAdjustment and zButtonCompanionsAdjustment.SetScript then
+		zButtonCompanionsAdjustment:SetScript("OnEvent", zButtonCompanionsAdjustment_OnEvent)
 	end
 	local displayCount = zButtonCompanions.found or 0
 	if displayCount < 0 then
@@ -274,6 +294,18 @@ end
 function zButtonCompanionsAdjustment_OnEvent()
 	if not zButtonCompanions then
 		return
+	end
+	if event == "SPELLS_CHANGED" then
+		local now = GetTime and GetTime() or 0
+		if now > 0 and zButtonCompanions_LastRefreshAt > 0 and (now - zButtonCompanions_LastRefreshAt) < zButtonCompanions_MinRefreshInterval then
+			return
+		end
+		local signature = zButtonCompanions_GetSpellSignature(zButtonCompanions_CollectTabSpellIds())
+		if signature == zButtonCompanions_LastSpellSignature and not GameTooltip:IsOwned(zButtonCompanions) then
+			return
+		end
+		zButtonCompanions_LastSpellSignature = signature
+		zButtonCompanions_LastRefreshAt = now
 	end
 	zButtonCompanions_RefreshSpells()
 	zButtonCompanions_SetupSizeAndPosition()

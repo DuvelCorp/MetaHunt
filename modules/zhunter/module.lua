@@ -8,7 +8,7 @@ MTH_ZH_MANAGED_HOOKS = true
 local MTH_ZHunter = {
 	name = "zhunter",
 	enabled = true,
-	version = "1.0.4",
+	version = "1.0.5",
 	events = {
 		"VARIABLES_LOADED",
 		"PLAYER_ENTERING_WORLD",
@@ -288,6 +288,57 @@ MTH_ZH_SetAuxFramesVisible = function(visible)
 	return
 end
 
+local function MTH_ZH_SetAdjustmentHandlersActive(active)
+	local frameSpecs = {
+		{ frame = "zButtonAspectAdjustment", handler = "zButtonAspectAdjustment_OnEvent", getter = "zButtonAspect_GetSaved" },
+		{ frame = "zButtonTrackAdjustment", handler = "zButtonTrackAdjustment_OnEvent", getter = "zButtonTrack_GetSaved" },
+		{ frame = "zButtonTrapAdjustment", handler = "zButtonTrapAdjustment_OnEvent", getter = "zButtonTrap_GetSaved" },
+		{ frame = "zButtonRangedAdjustment", handler = "zButtonRangedAdjustment_OnEvent", getter = "zButtonRanged_GetSaved" },
+		{ frame = "zButtonAmmoAdjustment", handler = "zButtonAmmoAdjustment_OnEvent", getter = "zButtonAmmo_GetSaved" },
+		{ frame = "zButtonPetAdjustment", handler = "zButtonPetAdjustment_OnEvent", getter = "zButtonPet_GetSaved" },
+		{ frame = "zButtonMountsAdjustment", handler = "zButtonMountsAdjustment_OnEvent", getter = "zButtonMounts_GetSaved" },
+		{ frame = "zButtonCompanionsAdjustment", handler = "zButtonCompanionsAdjustment_OnEvent", getter = "zButtonCompanions_GetSaved" },
+		{ frame = "zButtonToysAdjustment", handler = "zButtonToysAdjustment_OnEvent", getter = "zButtonToys_GetSaved" },
+	}
+
+	local function isFeatureEnabled(getterName)
+		local getter = getglobal(getterName)
+		if type(getter) ~= "function" then
+			return true
+		end
+		local ok, saved = pcall(getter)
+		if not ok or type(saved) ~= "table" then
+			return true
+		end
+		if saved["enabled"] == false or saved["enabled"] == 0 then
+			return false
+		end
+		return true
+	end
+
+	for _, spec in ipairs(frameSpecs) do
+		local frameName = spec.frame
+		local handlerName = spec.handler
+		local frame = getglobal(frameName)
+		if frame and frame.SetScript then
+			if active then
+				if isFeatureEnabled(spec.getter) then
+					local handler = getglobal(handlerName)
+					if type(handler) == "function" then
+						frame:SetScript("OnEvent", handler)
+					else
+						frame:SetScript("OnEvent", nil)
+					end
+				else
+					frame:SetScript("OnEvent", nil)
+				end
+			else
+				frame:SetScript("OnEvent", nil)
+			end
+		end
+	end
+end
+
 local function MTH_ZH_ClearRuntimeFeatureFlags()
 	return
 end
@@ -310,9 +361,11 @@ function MTH_ZHunter:setEnabled(enabled)
 	MTH_ZH_SyncSavedVariables()
 	if enabled then
 		MTH_ZH_EnsureBootstrapRestoreFrame()
+		MTH_ZH_SetAdjustmentHandlersActive(true)
 		MTH_ZH_ApplyEnabledRuntimeState("setEnabled")
 	else
 		MTH_ZH_ClearRuntimeFeatureFlags()
+		MTH_ZH_SetAdjustmentHandlersActive(false)
 		MTH_ZH_SetButtonsVisible(false)
 		MTH_ZH_SetAuxFramesVisible(false)
 	end

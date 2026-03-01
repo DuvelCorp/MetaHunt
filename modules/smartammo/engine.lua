@@ -155,7 +155,8 @@ MTH_SA_List = {}
 
 MTH_SA_LastCheck = 0
 
-MTH_SA_Tooltip = CreateFrame("GameTooltip", "MTH_SA_Tooltip", nil, "GameTooltipTemplate")
+MTH_SA_Tooltip = CreateFrame("GameTooltip", "MTH_SA_Scan", nil, "GameTooltipTemplate")
+MTH_SA_TooltipTextLeft1 = getglobal("MTH_SA_ScanTextLeft1")
 MTH_SA_Tooltip:Hide()
 
 local _, class = UnitClass("player")

@@ -526,6 +526,7 @@ local function MTH_FEED_CoreDropItemOnUnitHook(unit)
 	end
 
 	if target == "pet" and CursorHasItem and CursorHasItem() then
+		MTH_FEED_EnsureTrackerFrame()
 		local itemId, itemName, itemLink, itemIcon = MTH_FEED_GetCursorItemSnapshot()
 		local pet = MTH_FEED_GetCurrentPetContext()
 		if not itemId then
@@ -608,7 +609,6 @@ function MTH_FEED_DebugStatus()
 end
 
 function MTH_FEED_ReinstallCoreTracking()
-	MTH_FEED_EnsureTrackerFrame()
 	local ok = MTH_FEED_InstallCoreHooks()
 	return ok and true or false
 end
@@ -624,8 +624,12 @@ local function MTH_FEED_EnsureBootstrapFrame()
 	frame:RegisterEvent("VARIABLES_LOADED")
 	frame:RegisterEvent("PLAYER_LOGIN")
 	frame:RegisterEvent("PLAYER_ENTERING_WORLD")
-	frame:SetScript("OnEvent", function()
+	frame:SetScript("OnEvent", function(self)
 		MTH_FEED_ReinstallCoreTracking()
+		if self and self.UnregisterAllEvents then
+			self:UnregisterAllEvents()
+			self:SetScript("OnEvent", nil)
+		end
 	end)
 	MTH_FEED_BootstrapFrame = frame
 	return frame
@@ -1542,6 +1546,5 @@ function MTH_FEED_DebugDumpCurrentPet(limit)
 	return true
 end
 
-MTH_FEED_EnsureTrackerFrame()
 MTH_FEED_InstallCoreHooks()
 MTH_FEED_EnsureBootstrapFrame()

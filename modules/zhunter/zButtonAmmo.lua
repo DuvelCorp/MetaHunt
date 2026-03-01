@@ -29,6 +29,69 @@ ZHunterMod_Ammo_Buttons = nil
 local ZHUNTER_AMMO_MAX_COUNT = math.max(table.getn(MTH_AMMO_ARROWS or {}), table.getn(MTH_AMMO_BULLETS or {}))
 local zButtonAmmo_Cache = {}
 local zButtonAmmo_LastCacheSignature = nil
+local zButtonAmmo_LastRefreshAt = 0
+local zButtonAmmo_MinRefreshInterval = 0.20
+local zButtonAmmo_MinBagRefreshInterval = 0.75
+local zButtonAmmo_KnownAmmoTypes = nil
+local zButtonAmmo_AmmoBags = {}
+local zButtonAmmo_LastFullScanAt = 0
+local zButtonAmmo_MinUnknownBagScanInterval = 5.0
+local zButtonAmmo_EmptyScanStreak = 0
+local zButtonAmmo_GetKnownAmmoTypes
+
+local function zButtonAmmo_BagHasAmmoNow(bagId)
+	local bag = tonumber(bagId)
+	if not bag or bag < 0 or bag > 4 then
+		return false
+	end
+	local knownAmmo = zButtonAmmo_GetKnownAmmoTypes and zButtonAmmo_GetKnownAmmoTypes() or nil
+	for slot = 1, (GetContainerNumSlots(bag) or 0) do
+		local link = GetContainerItemLink(bag, slot)
+		if link then
+			local _, _, linkName = string.find(link, "%[(.+)%]")
+			if linkName and knownAmmo and knownAmmo[linkName] then
+				return true
+			end
+			local _, _, id = string.find(link, "Hitem:((%d+).-)")
+			if id then
+				local itemName, _, _, _, _, itemSubtype, _, itemSlot = GetItemInfo(id)
+				if itemSlot == "INVTYPE_AMMO" then
+					return true
+				end
+				if itemName and knownAmmo and knownAmmo[itemName] then
+					return true
+				end
+				if itemSubtype == "Arrow" or itemSubtype == "Bullet" then
+					return true
+				end
+			end
+		end
+	end
+	return false
+end
+
+local function zButtonAmmo_UpdateParentCountFast()
+	if zButtonAmmo and not zButtonAmmo.isspell and zButtonAmmo.ammoname then
+		local ammoSlot = 0
+		if GetInventorySlotInfo then
+			local slotId = GetInventorySlotInfo("AmmoSlot")
+			if slotId and slotId > 0 then
+				ammoSlot = slotId
+			end
+		end
+		local slotForCount = ammoSlot and ammoSlot ~= 0 and ammoSlot or 0
+		if GetInventoryItemCount then
+			local liveCount = GetInventoryItemCount("player", slotForCount)
+			local cachedInfo = zButtonAmmo_Cache[zButtonAmmo.ammoname]
+			if liveCount == 0 and cachedInfo and (tonumber(cachedInfo.count) or 0) > 0 then
+				zButtonAmmo.ammocount = cachedInfo.count
+			elseif liveCount ~= nil then
+				zButtonAmmo.ammocount = liveCount
+			end
+		end
+		zButtonAmmo_UpdateButton(zButtonAmmo)
+	end
+end
 
 local function zButtonAmmo_GetSaved()
 	local currentRoot = zButtonAmmo_GetRoot()
@@ -36,6 +99,21 @@ local function zButtonAmmo_GetSaved()
 		currentRoot["zButtonAmmo"] = {}
 	end
 	return currentRoot["zButtonAmmo"]
+end
+
+zButtonAmmo_GetKnownAmmoTypes = function()
+	if zButtonAmmo_KnownAmmoTypes then
+		return zButtonAmmo_KnownAmmoTypes
+	end
+	local knownAmmo = {}
+	for i = 1, table.getn(MTH_AMMO_ARROWS or {}) do
+		knownAmmo[(MTH_AMMO_ARROWS or {})[i]] = "Arrow"
+	end
+	for i = 1, table.getn(MTH_AMMO_BULLETS or {}) do
+		knownAmmo[(MTH_AMMO_BULLETS or {})[i]] = "Bullet"
+	end
+	zButtonAmmo_KnownAmmoTypes = knownAmmo
+	return knownAmmo
 end
 
 local zButtonAmmo_ShortArrowLabels = {
@@ -164,13 +242,7 @@ local function zButtonAmmo_GetEquippedAmmoLink()
 end
 
 local function zButtonAmmo_RebuildCache()
-	local knownAmmo = {}
-	for i = 1, table.getn(MTH_AMMO_ARROWS or {}) do
-		knownAmmo[(MTH_AMMO_ARROWS or {})[i]] = "Arrow"
-	end
-	for i = 1, table.getn(MTH_AMMO_BULLETS or {}) do
-		knownAmmo[(MTH_AMMO_BULLETS or {})[i]] = "Bullet"
-	end
+	local knownAmmo = zButtonAmmo_GetKnownAmmoTypes()
 
 	local equippedAmmo = nil
 	local equippedLink = zButtonAmmo_GetEquippedAmmoLink()
@@ -185,11 +257,14 @@ local function zButtonAmmo_RebuildCache()
 		end
 	end
 
-	zButtonAmmo_Cache = {}
+	local newCache = {}
+	local newAmmoBags = {}
+	local scannedLinkCount = 0
 	for bag = 0, 4 do
 		for slot = 1, GetContainerNumSlots(bag) do
 			local link = GetContainerItemLink(bag, slot)
 			if link then
+				scannedLinkCount = scannedLinkCount + 1
 				local _, _, id = string.find(link, "Hitem:((%d+).-)")
 				if id then
 					local _, _, linkName = string.find(link, "%[(.+)%]")
@@ -208,7 +283,8 @@ local function zButtonAmmo_RebuildCache()
 					end
 
 					if isAmmo and ammoName then
-						local ammoInfo = zButtonAmmo_Cache[ammoName]
+						newAmmoBags[bag] = true
+						local ammoInfo = newCache[ammoName]
 						if not ammoInfo then
 							ammoInfo = {
 								ammo = ammoName,
@@ -224,7 +300,7 @@ local function zButtonAmmo_RebuildCache()
 								count = 0,
 								equip = nil,
 							}
-							zButtonAmmo_Cache[ammoName] = ammoInfo
+							newCache[ammoName] = ammoInfo
 						end
 						ammoInfo.count = (ammoInfo.count or 0) + (itemCount or 0)
 						if equippedAmmo and equippedAmmo == ammoName then
@@ -235,6 +311,26 @@ local function zButtonAmmo_RebuildCache()
 			end
 		end
 	end
+
+	local hasAmmo = next(newCache) ~= nil
+	local previousHadAmmo = next(zButtonAmmo_Cache) ~= nil
+	if hasAmmo then
+		zButtonAmmo_EmptyScanStreak = 0
+		zButtonAmmo_Cache = newCache
+		zButtonAmmo_AmmoBags = newAmmoBags
+	else
+		local reliableEmptyScan = scannedLinkCount > 0 and not equippedAmmo
+		if reliableEmptyScan then
+			zButtonAmmo_EmptyScanStreak = (zButtonAmmo_EmptyScanStreak or 0) + 1
+		else
+			zButtonAmmo_EmptyScanStreak = 0
+		end
+		if not previousHadAmmo or zButtonAmmo_EmptyScanStreak >= 3 then
+			zButtonAmmo_Cache = newCache
+			zButtonAmmo_AmmoBags = newAmmoBags
+		end
+	end
+	zButtonAmmo_LastFullScanAt = GetTime and GetTime() or zButtonAmmo_LastFullScanAt
 end
 
 local function zButtonAmmo_AssignButtonFromAmmoInfo(button, ammoInfo)
@@ -257,15 +353,41 @@ local function zButtonAmmo_AssignButtonFromAmmoInfo(button, ammoInfo)
 	return true
 end
 
-local function zButtonAmmo_GetCacheSignature()
-	local names = {}
-	for ammoName, ammoInfo in pairs(zButtonAmmo_Cache or {}) do
-		if ammoName and ammoInfo and (tonumber(ammoInfo.count) or 0) > 0 then
-			table.insert(names, tostring(ammoName))
+local function zButtonAmmo_GetCacheSignature(ammoList)
+	local hash = 17
+	local list = ammoList or {}
+	local mod = math.fmod or math.mod
+	for i = 1, table.getn(list) do
+		local ammoName = list[i]
+		local ammoInfo = ammoName and zButtonAmmo_Cache[ammoName] or nil
+		local ammoCount = (ammoInfo and tonumber(ammoInfo.count)) or 0
+		local value = (hash * 131) + ammoCount + (string.len(tostring(ammoName or "")) * 17)
+		if mod then
+			hash = mod(value, 2147483647)
+		else
+			hash = value - (math.floor(value / 2147483647) * 2147483647)
 		end
 	end
-	table.sort(names)
-	return table.concat(names, "|")
+	return hash
+end
+
+local function zButtonAmmo_AssignParentFromChild(child)
+	if not (zButtonAmmo and child) then
+		return
+	end
+	zButtonAmmo.id = child.ammoid or child.id
+	zButtonAmmo.icon = child.icon
+	zButtonAmmo.isspell = nil
+	zButtonAmmo.ammoname = child.ammoname
+	zButtonAmmo.ammobrol = child.ammobrol
+	zButtonAmmo.ammoqual = child.ammoqual
+	zButtonAmmo.ammolvl = child.ammolvl
+	zButtonAmmo.ammotype = child.ammotype
+	zButtonAmmo.ammobag = child.ammobag
+	zButtonAmmo.ammoslot = child.ammoslot
+	zButtonAmmo.ammoid = child.ammoid or child.id
+	zButtonAmmo.ammolink = child.ammolink
+	zButtonAmmo.ammocount = child.ammocount
 end
 
 local function zButtonAmmo_GetEquippedAmmoInfo()
@@ -461,7 +583,7 @@ function zButtonAmmo_SetButtons(parent, ammoList)
 	else
 		parent:Show()
 	end
-	zButtonAmmo_LastCacheSignature = zButtonAmmo_GetCacheSignature()
+	zButtonAmmo_LastCacheSignature = zButtonAmmo_GetCacheSignature(ammoList)
 	return count - 1
 end
 
@@ -685,6 +807,8 @@ function zButtonAmmo_OnEvent()
 			zButtonAmmoAdjustment = CreateFrame("Frame", "zButtonAmmoAdjustment")
 		zButtonAmmoAdjustment:RegisterEvent("UNIT_INVENTORY_CHANGED")
 		zButtonAmmoAdjustment:RegisterEvent("BAG_UPDATE")
+			zButtonAmmoAdjustment:RegisterEvent("PLAYER_ALIVE")
+			zButtonAmmoAdjustment:RegisterEvent("PLAYER_UNGHOST")
 		zButtonAmmoAdjustment:SetScript("OnEvent", zButtonAmmoAdjustment_OnEvent)
 		zButtonAmmo_SetupSizeAndPosition()
 		zButtonAmmo_DeferredStartupSync()
@@ -750,10 +874,16 @@ function zButtonAmmo_SetupSizeAndPosition()
 	zButtonAmmo_EnsureSpellOrder(ZHunterMod_Ammo_Buttons or zButtonAmmo_GetAmmoList())
 	local saved = zButtonAmmo_GetSaved()
 	if saved["enabled"] == false or saved["enabled"] == 0 then
+		if zButtonAmmoAdjustment and zButtonAmmoAdjustment.SetScript then
+			zButtonAmmoAdjustment:SetScript("OnEvent", nil)
+		end
 		if zButtonAmmo and zButtonAmmo.Hide then
 			zButtonAmmo:Hide()
 		end
 		return
+	end
+	if zButtonAmmoAdjustment and zButtonAmmoAdjustment.SetScript then
+		zButtonAmmoAdjustment:SetScript("OnEvent", zButtonAmmoAdjustment_OnEvent)
 	end
 	local ammoList = ZHunterMod_Ammo_Buttons or zButtonAmmo_GetAmmoList()
 	local arrangeCount = zButtonAmmo.found or table.getn(ammoList)
@@ -801,14 +931,71 @@ function zButtonAmmoAdjustment_OnEvent()
 	if not zButtonAmmo or not zButtonAmmo.count then
 		return
 	end
+	if event == "UNIT_INVENTORY_CHANGED" and arg1 and arg1 ~= "player" then
+		return
+	end
 	local saved = zButtonAmmo_GetSaved()
+	if saved["enabled"] == false or saved["enabled"] == 0 then
+		if zButtonAmmoAdjustment and zButtonAmmoAdjustment.SetScript then
+			zButtonAmmoAdjustment:SetScript("OnEvent", nil)
+		end
+		if zButtonAmmo and zButtonAmmo.Hide then
+			zButtonAmmo:Hide()
+		end
+		return
+	end
 	
-	if event == "UNIT_INVENTORY_CHANGED" or event == "BAG_UPDATE" then
+	if event == "UNIT_INVENTORY_CHANGED" or event == "BAG_UPDATE" or event == "PLAYER_ALIVE" or event == "PLAYER_UNGHOST" then
+		local now = GetTime and GetTime() or 0
+		local bagIsAmmoRelated = false
+		if event == "BAG_UPDATE" and arg1 ~= nil then
+			local bagId = tonumber(arg1)
+			local bagHasAmmoNow = nil
+			if type(zButtonAmmo_BagHasAmmoNow) == "function" then
+				bagHasAmmoNow = zButtonAmmo_BagHasAmmoNow
+			elseif type(_G) == "table" and type(_G["zButtonAmmo_BagHasAmmoNow"]) == "function" then
+				bagHasAmmoNow = _G["zButtonAmmo_BagHasAmmoNow"]
+			end
+			local unknownBagHasAmmo = false
+			if bagId and bagHasAmmoNow then
+				unknownBagHasAmmo = bagHasAmmoNow(bagId) and true or false
+			end
+			if bagId and (zButtonAmmo_AmmoBags[bagId] or unknownBagHasAmmo) then
+				bagIsAmmoRelated = true
+			end
+			if bagId and not zButtonAmmo_AmmoBags[bagId] then
+				if (not unknownBagHasAmmo) and now > 0 and zButtonAmmo_LastFullScanAt > 0 and (now - zButtonAmmo_LastFullScanAt) < zButtonAmmo_MinUnknownBagScanInterval then
+					zButtonAmmo_UpdateParentCountFast()
+					return
+				end
+			end
+		end
+		local minInterval = zButtonAmmo_MinRefreshInterval
+		if event == "BAG_UPDATE" then
+			if bagIsAmmoRelated then
+				minInterval = 0
+			else
+				minInterval = zButtonAmmo_MinBagRefreshInterval
+			end
+			if UnitAffectingCombat and UnitAffectingCombat("player") then
+				minInterval = 1.50
+				if bagIsAmmoRelated then
+					minInterval = 0
+				end
+			end
+		end
+		if now > 0 and zButtonAmmo_LastRefreshAt > 0 and (now - zButtonAmmo_LastRefreshAt) < minInterval then
+			zButtonAmmo_UpdateParentCountFast()
+			return
+		end
+		zButtonAmmo_LastRefreshAt = now
+
 		local ammoList = zButtonAmmo_GetAmmoList()
 		local listChanged = (ZHunterMod_Ammo_Buttons ~= ammoList)
 		ZHunterMod_Ammo_Buttons = ammoList
 		zButtonAmmo_RebuildCache()
-		local cacheSignature = zButtonAmmo_GetCacheSignature()
+		local cacheSignature = zButtonAmmo_GetCacheSignature(ammoList)
+		local rebuiltButtons = false
 		if listChanged or cacheSignature ~= zButtonAmmo_LastCacheSignature then
 			zButtonAmmo_EnsureSpellOrder(ammoList)
 			local info = {}
@@ -822,15 +1009,10 @@ function zButtonAmmoAdjustment_OnEvent()
 			end
 			zButtonAmmo.found = ZSpellButton_SetButtons(zButtonAmmo, info)
 			zButtonAmmo_SetupSizeAndPosition()
-			zButtonAmmo_LastCacheSignature = zButtonAmmo_GetCacheSignature()
+			zButtonAmmo_LastCacheSignature = cacheSignature
+			rebuiltButtons = true
 		end
-		-- Update ammo counts for child buttons
-		for i=1, zButtonAmmo.count do
-			local button = getglobal("zButtonAmmo"..i)
-			if button and button.ammoname and not button.isspell then
-				zButtonAmmo_UpdateButton(button)
-			end
-		end
+
 		local equippedAmmoName = zButtonAmmo_GetEquippedAmmoName()
 		local equippedInfo = nil
 		if equippedAmmoName then
@@ -839,29 +1021,42 @@ function zButtonAmmoAdjustment_OnEvent()
 				for i=1, zButtonAmmo.count do
 					local child = getglobal("zButtonAmmo"..i)
 					if child and child.ammoname == equippedAmmoName and not child.isspell then
-						equippedInfo = {
-							ammo = child.ammoname,
-							brol = child.ammobrol,
-							quality = child.ammoqual,
-							lvl = child.ammolvl,
-							type = child.ammotype,
-							bag = child.ammobag,
-							slot = child.ammoslot,
-							id = child.ammoid or child.id,
-							link = child.ammolink,
-							icon = child.icon,
-							count = child.ammocount,
-						}
+						zButtonAmmo_AssignParentFromChild(child)
 						break
 					end
 				end
 			end
 		end
 
-		if not equippedInfo then
+		if not equippedInfo and event ~= "BAG_UPDATE" then
 			equippedInfo = zButtonAmmo_GetEquippedAmmoInfo()
 			if equippedInfo and equippedInfo.ammo and not equippedAmmoName then
 				equippedAmmoName = equippedInfo.ammo
+			end
+		end
+
+		if not rebuiltButtons then
+			for i=1, zButtonAmmo.count do
+				local child = getglobal("zButtonAmmo"..i)
+				if child and child.ammoname and not child.isspell then
+					local cacheInfo = zButtonAmmo_Cache[child.ammoname]
+					local newCount = cacheInfo and cacheInfo.count or 0
+					if (child.ammocount or 0) ~= (newCount or 0) then
+						if cacheInfo then
+							child.ammobag = cacheInfo.bag
+							child.ammoslot = cacheInfo.slot
+							child.ammoqual = cacheInfo.quality
+							child.ammobrol = cacheInfo.brol
+							child.ammolvl = cacheInfo.lvl
+							child.ammotype = cacheInfo.type
+							child.ammoid = cacheInfo.id
+							child.ammolink = cacheInfo.link
+							child.icon = cacheInfo.icon
+						end
+						child.ammocount = newCount
+						zButtonAmmo_UpdateButton(child)
+					end
+				end
 			end
 		end
 
@@ -870,9 +1065,7 @@ function zButtonAmmoAdjustment_OnEvent()
 		end
 
 		-- Also update parent if it's showing ammo (not a spell)
-		if zButtonAmmo and not zButtonAmmo.isspell and zButtonAmmo.ammoname then
-			zButtonAmmo_UpdateButton(zButtonAmmo)
-		end
+		zButtonAmmo_UpdateParentCountFast()
 
 		-- Save the currently equipped ammo for restoration on next reload
 		if equippedAmmoName then

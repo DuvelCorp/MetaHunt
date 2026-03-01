@@ -44,6 +44,8 @@ local MTH_AB_STATE = {
 	},
 }
 
+local MTH_AB_TRANSIENT_STORE = {}
+
 local function MTH_AB_SetCheckedNoClick(check, checked)
 	if not check then return end
 	MTH_AB_STATE.syncing = true
@@ -60,8 +62,7 @@ local function MTH_AB_GetStore()
 	if engine and engine.EnsureDefaults then
 		return engine:EnsureDefaults()
 	end
-	MTH_AutoBuy_Saved = MTH_AutoBuy_Saved or {}
-	return MTH_AutoBuy_Saved
+	return MTH_AB_TRANSIENT_STORE
 end
 
 local function MTH_AB_NormalizeRule(rule)

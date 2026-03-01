@@ -6,7 +6,7 @@
 local MTH_FeedOMatic = {
 	name = "feedomatic",
 	enabled = false,
-	version = "1.0.4",
+	version = "1.0.5",
 	events = {
 		"VARIABLES_LOADED",
 			"MERCHANT_SHOW",
@@ -137,47 +137,31 @@ local function MTH_FeedOMatic_SyncSavedVariables()
 		moduleStore.legacy = {}
 	end
 
-	if type(FOM_Config) == "table" then
-		moduleStore.legacy.FOM_Config = FOM_Config
-	elseif type(moduleStore.legacy.FOM_Config) == "table" then
-		FOM_Config = moduleStore.legacy.FOM_Config
+	local function bindLegacyTable(globalName)
+		local legacyValue = moduleStore.legacy[globalName]
+		local globalValue = _G and _G[globalName] or nil
+
+		if type(legacyValue) ~= "table" then
+			if type(globalValue) == "table" then
+				legacyValue = globalValue
+			else
+				legacyValue = {}
+			end
+			moduleStore.legacy[globalName] = legacyValue
+		end
+
+		if _G then
+			_G[globalName] = legacyValue
+		end
 	end
 
-	if type(FOM_FoodQuality) == "table" then
-		moduleStore.legacy.FOM_FoodQuality = FOM_FoodQuality
-	elseif type(moduleStore.legacy.FOM_FoodQuality) == "table" then
-		FOM_FoodQuality = moduleStore.legacy.FOM_FoodQuality
-	end
-
-	if type(FOM_AddedFoods) == "table" then
-		moduleStore.legacy.FOM_AddedFoods = FOM_AddedFoods
-	elseif type(moduleStore.legacy.FOM_AddedFoods) == "table" then
-		FOM_AddedFoods = moduleStore.legacy.FOM_AddedFoods
-	end
-
-	if type(FOM_RemovedFoods) == "table" then
-		moduleStore.legacy.FOM_RemovedFoods = FOM_RemovedFoods
-	elseif type(moduleStore.legacy.FOM_RemovedFoods) == "table" then
-		FOM_RemovedFoods = moduleStore.legacy.FOM_RemovedFoods
-	end
-
-	if type(FOM_Cooking) == "table" then
-		moduleStore.legacy.FOM_Cooking = FOM_Cooking
-	elseif type(moduleStore.legacy.FOM_Cooking) == "table" then
-		FOM_Cooking = moduleStore.legacy.FOM_Cooking
-	end
-
-	if type(FOM_QuestFood) == "table" then
-		moduleStore.legacy.FOM_QuestFood = FOM_QuestFood
-	elseif type(moduleStore.legacy.FOM_QuestFood) == "table" then
-		FOM_QuestFood = moduleStore.legacy.FOM_QuestFood
-	end
-
-	if type(FOM_LocaleInfo) == "table" then
-		moduleStore.legacy.FOM_LocaleInfo = FOM_LocaleInfo
-	elseif type(moduleStore.legacy.FOM_LocaleInfo) == "table" then
-		FOM_LocaleInfo = moduleStore.legacy.FOM_LocaleInfo
-	end
+	bindLegacyTable("FOM_Config")
+	bindLegacyTable("FOM_FoodQuality")
+	bindLegacyTable("FOM_AddedFoods")
+	bindLegacyTable("FOM_RemovedFoods")
+	bindLegacyTable("FOM_Cooking")
+	bindLegacyTable("FOM_QuestFood")
+	bindLegacyTable("FOM_LocaleInfo")
 end
 
 local function MTH_FeedOMatic_Log(message, severity)
@@ -231,6 +215,14 @@ local function MTH_FeedOMatic_DebugMerchantScan(sourceEvent)
 end
 
 local function MTH_FeedOMatic_SetMerchantProbeEnabled(enabled)
+	if not enabled then
+		if MTH_FeedOMatic_MerchantProbeFrame then
+			MTH_FeedOMatic_MerchantProbeFrame:UnregisterEvent("MERCHANT_SHOW")
+			MTH_FeedOMatic_MerchantProbeFrame:UnregisterEvent("MERCHANT_UPDATE")
+		end
+		return
+	end
+
 	if not MTH_FeedOMatic_MerchantProbeFrame then
 		MTH_FeedOMatic_MerchantProbeFrame = CreateFrame("Frame", "MTH_FeedOMatic_MerchantProbeFrame")
 		MTH_FeedOMatic_MerchantProbeFrame:SetScript("OnEvent", function()
@@ -242,14 +234,9 @@ local function MTH_FeedOMatic_SetMerchantProbeEnabled(enabled)
 		end)
 	end
 
-	if enabled then
-		MTH_FeedOMatic_MerchantProbeFrame:RegisterEvent("MERCHANT_SHOW")
-		MTH_FeedOMatic_MerchantProbeFrame:RegisterEvent("MERCHANT_UPDATE")
-		MTH_FeedOMatic_Log("merchant probe enabled", "debug")
-	else
-		MTH_FeedOMatic_MerchantProbeFrame:UnregisterEvent("MERCHANT_SHOW")
-		MTH_FeedOMatic_MerchantProbeFrame:UnregisterEvent("MERCHANT_UPDATE")
-	end
+	MTH_FeedOMatic_MerchantProbeFrame:RegisterEvent("MERCHANT_SHOW")
+	MTH_FeedOMatic_MerchantProbeFrame:RegisterEvent("MERCHANT_UPDATE")
+	MTH_FeedOMatic_Log("merchant probe enabled", "debug")
 end
 
 function MTH_FeedOMatic:init()
