@@ -8,6 +8,7 @@ local MTH_PETS_TRACE_RUNAWAY = false
 MTH_PETS_TRACE_CONSISTENCY = false
 
 local MTH_StableFrame = nil
+local MTH_ST_BootstrapFrame = nil
 local MTH_ST_LastAutoScanAt = 0
 local MTH_ST_LastUnitPetHadPet = false
 local MTH_PETS_LastTameAttempt = nil
@@ -15,6 +16,8 @@ local MTH_PETS_LiveState = nil
 local MTH_PETS_LiveStateSeq = 0
 local MTH_PETS_LiveStateSubscribers = {}
 local MTH_PETS_LiveStateEventName = "MTH_PET_LIVE_STATE_CHANGED"
+local MTH_PETS_EventThrottle = {}
+local MTH_PETS_TRACE_TAME = false
 
 MTH_PETS_CoreOriginal_PetRename = MTH_PETS_CoreOriginal_PetRename or nil
 
@@ -59,6 +62,17 @@ local function MTH_PETS_RequestPetSpellScan(reason)
 	if type(MTH_PSP_RequestScan) == "function" then
 		MTH_PSP_RequestScan(tostring(reason or "stablemaster-current-change"), 1)
 	end
+end
+
+local function MTH_PETS_ShouldHandleThrottledEvent(key, minIntervalSeconds)
+	local now = (type(GetTime) == "function" and GetTime()) or (type(time) == "function" and time()) or 0
+	local threshold = tonumber(minIntervalSeconds) or 0
+	local last = tonumber(MTH_PETS_EventThrottle[key] or 0) or 0
+	if threshold > 0 and (now - last) < threshold then
+		return false
+	end
+	MTH_PETS_EventThrottle[key] = now
+	return true
 end
 
 local function MTH_PETS_CopyLiveState(state)
@@ -146,7 +160,10 @@ local function MTH_PETS_NotifyLiveSubscribers(state, source)
 end
 
 function MTH_PETS_EmitLiveState(source, force)
-	local emittedSource = tostring(source or "stablemaster")
+	local emittedSource = source or "stablemaster"
+	if type(emittedSource) ~= "string" then
+		emittedSource = tostring(emittedSource)
+	end
 	local nextState = MTH_PETS_BuildLiveState(emittedSource)
 	local changed = force and true or (not MTH_PETS_AreLiveStatesEqual(MTH_PETS_LiveState, nextState))
 	if not changed then
@@ -2784,35 +2801,45 @@ local function MTH_ST_OnEvent(_, evt, eventArg1)
 		local pets = MTH_PETS_GetRootStore()
 		MTH_PETS_MaybePromptStableVisit(pets)
 		MTH_PETS_RefreshCurrentPet()
-		MTH_PETS_EmitLiveState("event:PLAYER_ENTERING_WORLD", true)
+		MTH_PETS_EmitLiveState("PLAYER_ENTERING_WORLD", true)
 		return
 	end
 
 	if evt == "SPELLCAST_CHANNEL_START" then
-		MTH_PETS_RecordTameAttempt("event:" .. tostring(evt), eventArg1)
+		MTH_PETS_RecordTameAttempt(evt, eventArg1)
 		return
 	end
 
 	if evt == "SPELLCAST_STOP" or evt == "SPELLCAST_CHANNEL_STOP" or evt == "SPELLCAST_FAILED" or evt == "SPELLCAST_INTERRUPTED" then
-		MTH_PETS_LogTame("Spell terminal evt=" .. tostring(evt) .. " spell='" .. tostring(eventArg1 or "") .. "' pending=" .. tostring(type(MTH_PETS_LastTameAttempt) == "table"))
+		if MTH_PETS_TRACE_TAME then
+			MTH_PETS_LogTame("Spell terminal evt=" .. tostring(evt) .. " spell='" .. tostring(eventArg1 or "") .. "' pending=" .. tostring(type(MTH_PETS_LastTameAttempt) == "table"))
+		end
 		local terminalIsTame = MTH_PETS_IsTameBeastSpellName(eventArg1)
 		if not terminalIsTame and type(MTH_PETS_LastTameAttempt) == "table" then
 			terminalIsTame = true
-			MTH_PETS_LogTame("Treating terminal event as tame because pending attempt exists")
+			if MTH_PETS_TRACE_TAME then
+				MTH_PETS_LogTame("Treating terminal event as tame because pending attempt exists")
+			end
 		end
 		if not terminalIsTame then
 			local fallbackName, fallbackSource = MTH_PETS_GetCurrentPlayerCastOrChannelName()
 			if fallbackName and MTH_PETS_IsTameBeastSpellName(fallbackName) then
 				terminalIsTame = true
-				MTH_PETS_LogTame("Resolved terminal spell via " .. tostring(fallbackSource) .. " => '" .. tostring(fallbackName) .. "'")
+				if MTH_PETS_TRACE_TAME then
+					MTH_PETS_LogTame("Resolved terminal spell via " .. tostring(fallbackSource) .. " => '" .. tostring(fallbackName) .. "'")
+				end
 			end
 		end
 		if terminalIsTame then
 			if evt == "SPELLCAST_FAILED" or evt == "SPELLCAST_INTERRUPTED" then
-				MTH_PETS_LogTame("Tame ended with failure/interruption; clearing pending attempt")
+				if MTH_PETS_TRACE_TAME then
+					MTH_PETS_LogTame("Tame ended with failure/interruption; clearing pending attempt")
+				end
 				MTH_PETS_LastTameAttempt = nil
 			elseif evt == "SPELLCAST_CHANNEL_STOP" or evt == "SPELLCAST_STOP" then
-				MTH_PETS_LogTame("Tame channel ended; awaiting UNIT_PET to confirm acquire")
+				if MTH_PETS_TRACE_TAME then
+					MTH_PETS_LogTame("Tame channel ended; awaiting UNIT_PET to confirm acquire")
+				end
 			end
 		end
 		return
@@ -2822,14 +2849,17 @@ local function MTH_ST_OnEvent(_, evt, eventArg1)
 		if eventArg1 ~= "player" then
 			return
 		end
-		MTH_PETS_HandleUnitPetTransition("event:UNIT_PET")
-		MTH_PETS_EmitLiveState("event:UNIT_PET")
+		MTH_PETS_HandleUnitPetTransition("UNIT_PET")
+		MTH_PETS_EmitLiveState("UNIT_PET")
 		return
 	end
 
 	if evt == "PET_BAR_UPDATE" then
+		if not MTH_PETS_ShouldHandleThrottledEvent("PET_BAR_UPDATE", 0.5) then
+			return
+		end
 		MTH_PETS_RefreshCurrentPet()
-		MTH_PETS_EmitLiveState("event:PET_BAR_UPDATE")
+		MTH_PETS_EmitLiveState("PET_BAR_UPDATE")
 		return
 	end
 
@@ -2837,14 +2867,20 @@ local function MTH_ST_OnEvent(_, evt, eventArg1)
 		if eventArg1 and eventArg1 ~= "pet" then
 			return
 		end
+		if not MTH_PETS_ShouldHandleThrottledEvent("UNIT_HAPPINESS", 0.75) then
+			return
+		end
 		MTH_PETS_RefreshCurrentPet()
-		MTH_PETS_EmitLiveState("event:UNIT_HAPPINESS")
+		MTH_PETS_EmitLiveState("UNIT_HAPPINESS")
 		return
 	end
 
 	if evt == "CHAT_MSG_COMBAT_XP_GAIN" or evt == "PLAYER_XP_UPDATE" then
+		if not MTH_PETS_ShouldHandleThrottledEvent("XP_UPDATE", 1.5) then
+			return
+		end
 		MTH_PETS_RefreshCurrentPet()
-		MTH_PETS_EmitLiveState("event:" .. tostring(evt))
+		MTH_PETS_EmitLiveState(evt)
 		return
 	end
 
@@ -2852,28 +2888,28 @@ local function MTH_ST_OnEvent(_, evt, eventArg1)
 		local matchedRunaway = MTH_PETS_IsRunawaySystemMessage(eventArg1)
 		MTH_PETS_TraceRunawayEvent(evt, eventArg1, matchedRunaway)
 		if matchedRunaway then
-			MTH_PETS_RecordPetRunaway("event:" .. tostring(evt), eventArg1)
+			MTH_PETS_RecordPetRunaway(evt, eventArg1)
 			MTH_PETS_RefreshCurrentPet()
-			MTH_PETS_EmitLiveState("event:" .. tostring(evt))
+			MTH_PETS_EmitLiveState(evt)
 		end
 		return
 	end
 
 	if evt == "PET_STABLE_SHOW" then
-		MTH_ST_RunScanThrottled("event:" .. tostring(evt), 1)
+		MTH_ST_RunScanThrottled(evt, 1)
 		return
 	end
 
 	if evt == "PET_STABLE_UPDATE" then
-		MTH_ST_Scan("event:PET_STABLE_UPDATE")
+		MTH_ST_Scan(evt)
 		MTH_PETS_RefreshCurrentPet()
-		MTH_PETS_EmitLiveState("event:PET_STABLE_UPDATE")
+		MTH_PETS_EmitLiveState(evt)
 		return
 	end
 
 	if evt == "PET_STABLE_CLOSED" then
 		MTH_PETS_RefreshCurrentPet()
-		MTH_PETS_EmitLiveState("event:PET_STABLE_CLOSED")
+		MTH_PETS_EmitLiveState(evt)
 		return
 	end
 end
@@ -2910,6 +2946,37 @@ function MTH_ST_InitService()
 	if MTH_PETS_TRACE_CONSISTENCY and MTH and MTH.Print then
 		MTH:Print("[PETCONSIST] trace enabled", "debug")
 	end
+end
+
+function MTH_ST_InitBootstrap()
+	if MTH and MTH.ApplyClassGate and MTH:ApplyClassGate("stablescan-bootstrap") then
+		return
+	end
+	if MTH_StableFrame or MTH_ST_BootstrapFrame then
+		return
+	end
+
+	local frame = CreateFrame("Frame")
+	if not frame then
+		return
+	end
+	frame:RegisterEvent("PET_STABLE_SHOW")
+	frame:SetScript("OnEvent", function(self, evt)
+		evt = evt or event
+		if evt ~= "PET_STABLE_SHOW" then
+			return
+		end
+		MTH_ST_InitService()
+		if type(MTH_ST_Scan) == "function" then
+			MTH_ST_Scan("bootstrap:PET_STABLE_SHOW")
+		end
+		if self and self.UnregisterAllEvents then
+			self:UnregisterAllEvents()
+			self:SetScript("OnEvent", nil)
+		end
+		MTH_ST_BootstrapFrame = nil
+	end)
+	MTH_ST_BootstrapFrame = frame
 end
 
 function MTH_ST_ShutdownService(_reason)

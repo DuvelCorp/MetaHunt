@@ -143,12 +143,32 @@ local function shallowCopy(source)
 	return dest
 end
 
+local function deepCopyValue(value)
+	if type(value) ~= "table" then
+		return value
+	end
+	local copy = {}
+	for key, entry in pairs(value) do
+		copy[key] = deepCopyValue(entry)
+	end
+	return copy
+end
+
 local function ensureProfile()
-	if not MTH or not MTH.GetModuleSavedVariables then
+	if not MTH or not MTH.GetModuleCharSavedVariables then
 		return shallowCopy(DEFAULTS)
 	end
 
-	local store = MTH:GetModuleSavedVariables("chronometer")
+	local store = MTH:GetModuleCharSavedVariables("chronometer")
+	if type(store) ~= "table" then
+		return shallowCopy(DEFAULTS)
+	end
+	if type(store.profile) ~= "table" and MTH.GetModuleSavedVariables then
+		local accountStore = MTH:GetModuleSavedVariables("chronometer")
+		if type(accountStore) == "table" and type(accountStore.profile) == "table" then
+			store.profile = deepCopyValue(accountStore.profile)
+		end
+	end
 	if type(store.profile) ~= "table" then
 		store.profile = {}
 	end

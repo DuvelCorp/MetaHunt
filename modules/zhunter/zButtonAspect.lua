@@ -32,6 +32,12 @@ ZHunterMod_Aspect_Spells = {
 }
 
 local ZHUNTER_ASPECT_MAX = table.getn(ZHunterMod_Aspect_Spells)
+local zButtonAspect_LastAuraUpdateAt = 0
+local zButtonAspect_MinAuraInterval = 0.15
+local zButtonAspect_MinAuraIntervalCombat = 0.60
+local zButtonAspect_LastAuraTexture = nil
+local zButtonAspect_LastParentId = nil
+local zButtonAspect_AuraProbeTextLeft1 = nil
 
 local function zButtonAspect_GetSaved()
 	local currentRoot = zButtonAspect_GetRoot()
@@ -158,7 +164,13 @@ function zButtonAspect_OnEvent()
 		zButtonAspectAdjustment:RegisterEvent("CHARACTER_POINTS_CHANGED")
 		zButtonAspectAdjustment:RegisterEvent("LEARNED_SPELL_IN_TAB")
 		zButtonAspectAdjustment:SetScript("OnEvent", zButtonAspectAdjustment_OnEvent)
-		zButtonAspect_Tooltip = CreateFrame("GameTooltip", "zButtonAspect_Tooltip", nil, "GameTooltipTemplate")
+		zButtonAspect_Tooltip = CreateFrame("GameTooltip", "zButtonAspect_AuraProbeScan", nil, "GameTooltipTemplate")
+		if zButtonAspect_Tooltip and zButtonAspect_Tooltip.GetName then
+			local tooltipName = zButtonAspect_Tooltip:GetName()
+			if tooltipName then
+				zButtonAspect_AuraProbeTextLeft1 = getglobal(tooltipName .. "TextLeft1")
+			end
+		end
 		zButtonAspect_SetupSizeAndPosition()
 	end
 end
@@ -191,10 +203,16 @@ function zButtonAspect_SetupSizeAndPosition()
 	zButtonAspect_EnsureConfig()
 	local saved = zButtonAspect_GetSaved()
 	if saved["enabled"] == false or saved["enabled"] == 0 then
+		if zButtonAspectAdjustment and zButtonAspectAdjustment.SetScript then
+			zButtonAspectAdjustment:SetScript("OnEvent", nil)
+		end
 		if zButtonAspect and zButtonAspect.Hide then
 			zButtonAspect:Hide()
 		end
 		return
+	end
+	if zButtonAspectAdjustment and zButtonAspectAdjustment.SetScript then
+		zButtonAspectAdjustment:SetScript("OnEvent", zButtonAspectAdjustment_OnEvent)
 	end
 	local displayCount = zButtonAspect.found or ZHUNTER_ASPECT_MAX
 	if displayCount < 0 then
@@ -234,6 +252,17 @@ function zButtonAspectAdjustment_OnEvent()
 	if not zButtonAspect or not zButtonAspect.count then
 		return
 	end
+	if event == "PLAYER_AURAS_CHANGED" then
+		local now = GetTime and GetTime() or 0
+		local minInterval = zButtonAspect_MinAuraInterval
+		if UnitAffectingCombat and UnitAffectingCombat("player") then
+			minInterval = zButtonAspect_MinAuraIntervalCombat
+		end
+		if now > 0 and zButtonAspect_LastAuraUpdateAt > 0 and (now - zButtonAspect_LastAuraUpdateAt) < minInterval then
+			return
+		end
+		zButtonAspect_LastAuraUpdateAt = now
+	end
 	if event == "SPELLS_CHANGED" or event == "CHARACTER_POINTS_CHANGED" or event == "LEARNED_SPELL_IN_TAB" then
 		zButtonAspect_CreateButtons()
 		zButtonAspect_SetupSizeAndPosition()
@@ -245,45 +274,78 @@ function zButtonAspectAdjustment_OnEvent()
 		if not zButtonAspect1.id then
 			return
 		end
-		local buttontextures = {}
 		local button
-		for i=1, zButtonAspect.count do
-			button = getglobal(zButtonAspect.name..i)
-			button.icon = nil
-			if button.id then
-				buttontextures[GetSpellTexture(button.id, "spell")] = button
+		local isParentTooltipOwned = GameTooltip and GameTooltip.IsOwned and GameTooltip:IsOwned(zButtonAspect)
+		local childrenShown = zButtonAspect.children and zButtonAspect.children.IsShown and zButtonAspect.children:IsShown()
+		local needChildIconScan = (event ~= "PLAYER_AURAS_CHANGED") or childrenShown or isParentTooltipOwned
+		local buttontextures = nil
+		local hasDuplicateChildTexture = nil
+		if needChildIconScan then
+			buttontextures = {}
+			local textureSeen = {}
+			for i=1, zButtonAspect.count do
+				button = getglobal(zButtonAspect.name..i)
+				button.icon = nil
+				if button.id then
+					local btnTexture = GetSpellTexture(button.id, "spell")
+					if btnTexture then
+						if textureSeen[btnTexture] then
+							hasDuplicateChildTexture = true
+						elseif hasDuplicateChildTexture == nil then
+							hasDuplicateChildTexture = false
+						end
+						textureSeen[btnTexture] = 1
+						buttontextures[btnTexture] = button
+					end
+				end
 			end
 		end
 		local i = 1
 		local texture = GetSpellTexture(zButtonAspect1.id, "spell")
 		local buff = UnitBuff("player", i)
 		local spellname, buffname
-		zButtonAspect.id = zButtonAspect1.id
+		local newParentId = zButtonAspect1.id
 		while buff do
 			if texture == buff and zButtonAspect2.id then
-				zButtonAspect.id = zButtonAspect2.id
+				newParentId = zButtonAspect2.id
 			end
-			if buttontextures[buff] then
-				zButtonAspect_Tooltip:SetOwner(this, "ANCHOR_NONE")
-				zButtonAspect_Tooltip:SetUnitBuff("player", i)
-				buffname = zButtonAspect_TooltipTextLeft1:GetText()
-				spellname = GetSpellName(buttontextures[buff].id, "spell")
-				if buffname == spellname then
+			if needChildIconScan and buttontextures[buff] then
+				if hasDuplicateChildTexture then
+					zButtonAspect_Tooltip:SetOwner(this, "ANCHOR_NONE")
+					zButtonAspect_Tooltip:SetUnitBuff("player", i)
+					if zButtonAspect_AuraProbeTextLeft1 and zButtonAspect_AuraProbeTextLeft1.GetText then
+						buffname = zButtonAspect_AuraProbeTextLeft1:GetText()
+					else
+						buffname = nil
+					end
+					spellname = GetSpellName(buttontextures[buff].id, "spell")
+					if buffname == spellname then
+						buttontextures[buff].icon = "Interface\\Icons\\Spell_Nature_WispSplode"
+					end
+				else
 					buttontextures[buff].icon = "Interface\\Icons\\Spell_Nature_WispSplode"
 				end
 			end
 			i = i + 1
 			buff = UnitBuff("player", i)
 		end
+		if event == "PLAYER_AURAS_CHANGED" and zButtonAspect_LastAuraTexture == texture and zButtonAspect.id == newParentId and zButtonAspect_LastParentId == newParentId and not isParentTooltipOwned then
+			return
+		end
+		zButtonAspect_LastAuraTexture = texture
+		zButtonAspect_LastParentId = newParentId
+		zButtonAspect.id = newParentId
 		ZSpellButton_UpdateButton(zButtonAspect)
 		ZSpellButton_UpdateCooldown(zButtonAspect)
-		for i=1, zButtonAspect.count do
-			button = getglobal(zButtonAspect.name..i)
-			if button.id then
-				ZSpellButton_UpdateButton(button)
+		if needChildIconScan then
+			for i=1, zButtonAspect.count do
+				button = getglobal(zButtonAspect.name..i)
+				if button.id then
+					ZSpellButton_UpdateButton(button)
+				end
 			end
 		end
-		if GameTooltip:IsOwned(zButtonAspect) then
+		if isParentTooltipOwned then
 			ZSpellButtonParent_OnEnter(zButtonAspect)
 		end
 	end

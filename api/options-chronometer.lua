@@ -98,11 +98,20 @@ local function MTH_CHRON_CopyTable(source)
 end
 
 local function MTH_CHRON_GetProfile()
-	if not (MTH and MTH.GetModuleSavedVariables) then
+	if not (MTH and MTH.GetModuleCharSavedVariables) then
 		return MTH_CHRON_CopyTable(MTH_CHRON_DEFAULTS)
 	end
 
-	local store = MTH:GetModuleSavedVariables("chronometer")
+	local store = MTH:GetModuleCharSavedVariables("chronometer")
+	if type(store) ~= "table" then
+		return MTH_CHRON_CopyTable(MTH_CHRON_DEFAULTS)
+	end
+	if type(store.profile) ~= "table" and MTH.GetModuleSavedVariables then
+		local accountStore = MTH:GetModuleSavedVariables("chronometer")
+		if type(accountStore) == "table" and type(accountStore.profile) == "table" then
+			store.profile = MTH_CHRON_CopyTable(accountStore.profile)
+		end
+	end
 	if type(store.profile) ~= "table" then
 		store.profile = {}
 	end

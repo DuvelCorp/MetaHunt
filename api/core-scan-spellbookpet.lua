@@ -7,6 +7,7 @@ local MTH_PS_LastScanAt = 0
 local MTH_PS_VERBOSE_LOGS = false
 local MTH_PS_ForceScanUntil = 0
 local MTH_PS_ForceScanBudget = 0
+local MTH_PS_EventThrottle = {}
 
 local function MTH_PS_ClearForceWindow()
 	MTH_PS_ForceScanUntil = 0
@@ -26,9 +27,25 @@ end
 local function MTH_PS_IsFollowupEventTrigger(trigger)
 	local t = tostring(trigger or "")
 	return t == "event:UNIT_PET"
+		or t == "UNIT_PET"
 		or t == "event:PET_BAR_UPDATE"
+		or t == "PET_BAR_UPDATE"
 		or t == "event:SPELLS_CHANGED"
+		or t == "SPELLS_CHANGED"
 		or t == "event:LEARNED_SPELL_IN_TAB"
+		or t == "LEARNED_SPELL_IN_TAB"
+end
+
+local function MTH_PS_ShouldHandleEvent(evt, minIntervalSeconds)
+	local now = tonumber(GetTime and GetTime() or time()) or 0
+	local key = tostring(evt or "")
+	local minInterval = tonumber(minIntervalSeconds) or 0
+	local last = tonumber(MTH_PS_EventThrottle[key] or 0) or 0
+	if minInterval > 0 and (now - last) < minInterval then
+		return false
+	end
+	MTH_PS_EventThrottle[key] = now
+	return true
 end
 
 local function MTH_PS_IsPriorityTrigger(trigger)
@@ -237,7 +254,19 @@ local function MTH_PS_OnEvent(_, evt, eventArg1)
 	end
 
 	if evt == "PLAYER_ENTERING_WORLD" or evt == "UNIT_PET" or evt == "PET_BAR_UPDATE" or evt == "SPELLS_CHANGED" or evt == "LEARNED_SPELL_IN_TAB" then
-		MTH_PSP_RequestScan("event:" .. tostring(evt), 1)
+		local minInterval = 1
+		if evt == "PET_BAR_UPDATE" then
+			minInterval = 2
+		elseif evt == "SPELLS_CHANGED" then
+			minInterval = 2.5
+		elseif evt == "LEARNED_SPELL_IN_TAB" then
+			minInterval = 0.75
+		elseif evt == "UNIT_PET" then
+			minInterval = 0.5
+		end
+		if MTH_PS_ShouldHandleEvent(evt, minInterval) then
+			MTH_PSP_RequestScan(evt, 1)
+		end
 	end
 end
 

@@ -1,5 +1,5 @@
 MTH = MTH or {
-	version = "1.0.4",
+	version = "1.0.5",
 	name = "MetaHunt",
 	modules = {},
 	config = {},
@@ -424,9 +424,37 @@ local function MTH_GetPersistedModuleEnabled(name, defaultEnabled)
 	local resolvedName = MTH_NormalizeModuleName(name)
 	local candidates = MTH_ModuleNameCandidates(name)
 
+	if type(MTH_CharSavedVariables) ~= "table" then
+		MTH_CharSavedVariables = {}
+	end
+	if type(MTH_CharSavedVariables.moduleStates) ~= "table" then
+		MTH_CharSavedVariables.moduleStates = {}
+	end
+	if type(MTH_CharSavedVariables.modules) ~= "table" then
+		MTH_CharSavedVariables.modules = {}
+	end
+
 	if type(MTH_SavedVariables) ~= "table" then
-		MTH_ModuleStateDebug("read " .. tostring(name) .. " no-savedvars fallback-default=" .. tostring(defaultEnabled and true or false))
-		return defaultEnabled and true or false
+		MTH_SavedVariables = {}
+	end
+	if type(MTH_SavedVariables.moduleStates) ~= "table" then
+		MTH_SavedVariables.moduleStates = {}
+	end
+	if type(MTH_SavedVariables.modules) ~= "table" then
+		MTH_SavedVariables.modules = {}
+	end
+
+	if type(MTH_CharSavedVariables.moduleStates) == "table"
+		then
+		for i = 1, table.getn(candidates) do
+			local key = candidates[i]
+			if MTH_CharSavedVariables.moduleStates[key] ~= nil then
+				local resolved = MTH_CharSavedVariables.moduleStates[key] and true or false
+				MTH_ModuleStateDebug("read " .. tostring(name) .. " from char.moduleStates." .. tostring(key) .. "=" .. tostring(resolved))
+				MTH_CharSavedVariables.moduleStates[resolvedName] = resolved
+				return resolved
+			end
+		end
 	end
 
 	if type(MTH_SavedVariables.moduleStates) == "table" then
@@ -435,25 +463,11 @@ local function MTH_GetPersistedModuleEnabled(name, defaultEnabled)
 			if MTH_SavedVariables.moduleStates[key] ~= nil then
 				local resolved = MTH_SavedVariables.moduleStates[key] and true or false
 				MTH_ModuleStateDebug("read " .. tostring(name) .. " from moduleStates." .. tostring(key) .. "=" .. tostring(resolved))
-				MTH_SavedVariables.moduleStates[resolvedName] = resolved
-				return resolved
-			end
-		end
-	end
-
-	if type(MTH_CharSavedVariables) == "table"
-		and type(MTH_CharSavedVariables.moduleStates) == "table"
-		then
-		for i = 1, table.getn(candidates) do
-			local key = candidates[i]
-			if MTH_CharSavedVariables.moduleStates[key] ~= nil then
-				local resolved = MTH_CharSavedVariables.moduleStates[key] and true or false
-				MTH_ModuleStateDebug("read " .. tostring(name) .. " from char.moduleStates." .. tostring(key) .. "=" .. tostring(resolved))
-				if type(MTH_SavedVariables.moduleStates) ~= "table" then
-					MTH_SavedVariables.moduleStates = {}
-				end
-				MTH_SavedVariables.moduleStates[resolvedName] = resolved
 				MTH_CharSavedVariables.moduleStates[resolvedName] = resolved
+				if type(MTH_CharSavedVariables.modules[resolvedName]) ~= "table" then
+					MTH_CharSavedVariables.modules[resolvedName] = {}
+				end
+				MTH_CharSavedVariables.modules[resolvedName].enabled = resolved
 				return resolved
 			end
 		end
@@ -465,9 +479,11 @@ local function MTH_GetPersistedModuleEnabled(name, defaultEnabled)
 			if type(MTH_SavedVariables.modules[key]) == "table" and MTH_SavedVariables.modules[key].enabled ~= nil then
 				local resolved = MTH_SavedVariables.modules[key].enabled and true or false
 				MTH_ModuleStateDebug("read " .. tostring(name) .. " from modules." .. tostring(key) .. ".enabled=" .. tostring(resolved))
-				if type(MTH_SavedVariables.modules[resolvedName]) ~= "table" then
-					MTH_SavedVariables.modules[resolvedName] = MTH_SavedVariables.modules[key]
+				MTH_CharSavedVariables.moduleStates[resolvedName] = resolved
+				if type(MTH_CharSavedVariables.modules[resolvedName]) ~= "table" then
+					MTH_CharSavedVariables.modules[resolvedName] = {}
 				end
+				MTH_CharSavedVariables.modules[resolvedName].enabled = resolved
 				return resolved
 			end
 		end
@@ -478,16 +494,11 @@ local function MTH_GetPersistedModuleEnabled(name, defaultEnabled)
 		if type(MTH_SavedVariables[key]) == "table" and MTH_SavedVariables[key].enabled ~= nil then
 			local resolved = MTH_SavedVariables[key].enabled and true or false
 			MTH_ModuleStateDebug("read " .. tostring(name) .. " from legacy-top-level." .. tostring(key) .. ".enabled=" .. tostring(resolved))
-			if type(MTH_SavedVariables.modules) ~= "table" then
-				MTH_SavedVariables.modules = {}
+			MTH_CharSavedVariables.moduleStates[resolvedName] = resolved
+			if type(MTH_CharSavedVariables.modules[resolvedName]) ~= "table" then
+				MTH_CharSavedVariables.modules[resolvedName] = {}
 			end
-			if type(MTH_SavedVariables.modules[resolvedName]) ~= "table" then
-				MTH_SavedVariables.modules[resolvedName] = MTH_SavedVariables[key]
-			end
-			if type(MTH_SavedVariables.moduleStates) ~= "table" then
-				MTH_SavedVariables.moduleStates = {}
-			end
-			MTH_SavedVariables.moduleStates[resolvedName] = resolved
+			MTH_CharSavedVariables.modules[resolvedName].enabled = resolved
 			return resolved
 		end
 	end
@@ -506,27 +517,22 @@ local function MTH_SetPersistedModuleEnabled(name, enabled)
 	if type(MTH_SavedVariables) ~= "table" then
 		MTH_SavedVariables = {}
 	end
-	if type(MTH_SavedVariables.moduleStates) ~= "table" then
-		MTH_SavedVariables.moduleStates = {}
-	end
-	if type(MTH_SavedVariables.modules) ~= "table" then
-		MTH_SavedVariables.modules = {}
-	end
-	if type(MTH_SavedVariables.modules[name]) ~= "table" then
-		MTH_SavedVariables.modules[name] = {}
-	end
 	if type(MTH_CharSavedVariables) ~= "table" then
 		MTH_CharSavedVariables = {}
 	end
 	if type(MTH_CharSavedVariables.moduleStates) ~= "table" then
 		MTH_CharSavedVariables.moduleStates = {}
 	end
+	if type(MTH_CharSavedVariables.modules) ~= "table" then
+		MTH_CharSavedVariables.modules = {}
+	end
+	if type(MTH_CharSavedVariables.modules[name]) ~= "table" then
+		MTH_CharSavedVariables.modules[name] = {}
+	end
 
 	enabled = enabled and true or false
-	MTH_SavedVariables.moduleStates[name] = enabled
-	MTH_SavedVariables.modules[name].enabled = enabled
-	MTH_SavedVariables[name] = MTH_SavedVariables.modules[name]
 	MTH_CharSavedVariables.moduleStates[name] = enabled
+	MTH_CharSavedVariables.modules[name].enabled = enabled
 	MTH_ModuleStateDebug("write " .. tostring(name) .. " enabled=" .. tostring(enabled))
 end
 

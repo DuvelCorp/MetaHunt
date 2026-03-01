@@ -29,6 +29,8 @@ ZHunterMod_Trap_Spells = {
 }
 
 local ZHUNTER_TRAP_MAX = table.getn(ZHunterMod_Trap_Spells)
+local zButtonTrap_LastParentId = nil
+local zButtonTrap_LastCombatState = nil
 
 local function zButtonTrap_GetSaved()
 	local currentRoot = zButtonTrap_GetRoot()
@@ -150,10 +152,16 @@ function zButtonTrap_SetupSizeAndPosition()
 	zButtonTrap_EnsureConfig()
 	local saved = zButtonTrap_GetSaved()
 	if saved["enabled"] == false or saved["enabled"] == 0 then
+		if zButtonTrapAdjustment and zButtonTrapAdjustment.SetScript then
+			zButtonTrapAdjustment:SetScript("OnEvent", nil)
+		end
 		if zButtonTrap and zButtonTrap.Hide then
 			zButtonTrap:Hide()
 		end
 		return
+	end
+	if zButtonTrapAdjustment and zButtonTrapAdjustment.SetScript then
+		zButtonTrapAdjustment:SetScript("OnEvent", zButtonTrapAdjustment_OnEvent)
 	end
 	local displayCount = zButtonTrap.found or ZHUNTER_TRAP_MAX
 	if displayCount < 0 then
@@ -193,9 +201,11 @@ function zButtonTrapAdjustment_OnEvent()
 	if not zButtonTrap or not zButtonTrap.count then
 		return
 	end
+	local rebuild = false
 	if event == "SPELLS_CHANGED" or event == "CHARACTER_POINTS_CHANGED" then
 		zButtonTrap_CreateButtons()
 		zButtonTrap_SetupSizeAndPosition()
+		rebuild = true
 	end
 	local nextbutton
 	local button
@@ -215,7 +225,13 @@ function zButtonTrapAdjustment_OnEvent()
 			end
 		end
 	end
-	zButtonTrap.id = nextbutton and nextbutton.id or zButtonTrap1.id
+	local newParentId = nextbutton and nextbutton.id or zButtonTrap1.id
+	if (not rebuild) and zButtonTrap_LastParentId == newParentId and zButtonTrap_LastCombatState == combat and not GameTooltip:IsOwned(zButtonTrap) then
+		return
+	end
+	zButtonTrap_LastParentId = newParentId
+	zButtonTrap_LastCombatState = combat
+	zButtonTrap.id = newParentId
 	ZSpellButton_UpdateButton(zButtonTrap)
 	ZSpellButton_UpdateCooldown(zButtonTrap)
 	if GameTooltip:IsOwned(zButtonTrap) then

@@ -1114,9 +1114,25 @@ function MTH_SetupGeneralOptions()
 
 	local tooltipsSection = ensureSection("MetaHuntGeneralTooltipsBox", "Tooltips", topY, 356, "right")
 	if tooltipsSection then
-		local tooltipsStore = MTH and MTH.GetModuleSavedVariables and MTH:GetModuleSavedVariables("tooltips")
+		local tooltipsStore = MTH and MTH.GetModuleCharSavedVariables and MTH:GetModuleCharSavedVariables("tooltips")
 		if type(tooltipsStore) ~= "table" then
 			tooltipsStore = {}
+		end
+		if MTH and MTH.GetModuleSavedVariables and next(tooltipsStore) == nil then
+			local accountStore = MTH:GetModuleSavedVariables("tooltips")
+			if type(accountStore) == "table" and next(accountStore) ~= nil then
+				for key, value in pairs(accountStore) do
+					if type(value) == "table" then
+						local copied = {}
+						for subKey, subValue in pairs(value) do
+							copied[subKey] = subValue
+						end
+						tooltipsStore[key] = copied
+					else
+						tooltipsStore[key] = value
+					end
+				end
+			end
 		end
 		if tooltipsStore.beastTooltips == nil then
 			tooltipsStore.beastTooltips = true

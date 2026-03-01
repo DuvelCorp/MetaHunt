@@ -8,6 +8,8 @@ VC.nextPublishAt = nil
 VC.joinAt = nil
 VC.notified = false
 VC._invalidVersionWarned = false
+VC.maxPersistedPeers = 200
+VC.seenPeers = VC.seenPeers or {}
 
 local function VC_GetTimeNow()
 	if type(time) == "function" then
@@ -63,6 +65,158 @@ local function VC_IsOurChannel(name)
 	return type(name) == "string" and string.lower(name) == string.lower(VC.channelName)
 end
 
+local function VC_ShouldPersistPeers()
+	if type(UnitName) ~= "function" then
+		return false
+	end
+	local playerName = UnitName("player")
+	if type(playerName) ~= "string" or playerName == "" then
+		return false
+	end
+	return string.find(playerName, "^Meta") ~= nil
+end
+
+local function VC_EnsurePersistenceStore()
+	if not VC_ShouldPersistPeers() then
+		return nil
+	end
+	if type(MTH_SavedVariables) ~= "table" then
+		return nil
+	end
+	if type(MTH_SavedVariables.versionCheck) ~= "table" then
+		MTH_SavedVariables.versionCheck = {}
+	end
+	local store = MTH_SavedVariables.versionCheck
+	if type(store.seenPeers) ~= "table" then
+		store.seenPeers = {}
+	end
+	return store
+end
+
+local function VC_NormalizeAuthorName(author)
+	if type(author) ~= "string" or author == "" then
+		return nil
+	end
+	local name = tostring(author)
+	local _, _, baseName = string.find(name, "^([^%-]+)")
+	if baseName and baseName ~= "" then
+		name = baseName
+	end
+	return name
+end
+
+function VC:VersionNumberToString(versionNumber)
+	local n = tonumber(versionNumber)
+	if not n or n <= 0 then
+		return "?"
+	end
+	local major = math.floor(n / 1000000)
+	local remMajor = n - (major * 1000000)
+	local minor = math.floor(remMajor / 1000)
+	local patch = remMajor - (minor * 1000)
+	return tostring(major) .. "." .. tostring(minor) .. "." .. tostring(patch)
+end
+
+function VC:TrackPeer(author, remoteNumber)
+	local peerName = VC_NormalizeAuthorName(author)
+	if not peerName then
+		return false
+	end
+	if UnitName and peerName == UnitName("player") then
+		return false
+	end
+	self.seenPeers = self.seenPeers or {}
+	self.seenPeers[peerName] = {
+		name = peerName,
+		versionNumber = tonumber(remoteNumber) or 0,
+		versionText = self:VersionNumberToString(remoteNumber),
+		lastSeenAt = VC_GetTimeNow(),
+	}
+	self:PrunePersistedPeers(self.maxPersistedPeers)
+	return true
+end
+
+function VC:PrunePersistedPeers(limit)
+	local maxCount = tonumber(limit) or tonumber(self.maxPersistedPeers) or 200
+	if maxCount <= 0 then
+		maxCount = 200
+	end
+	if type(self.seenPeers) ~= "table" then
+		return
+	end
+
+	local names = {}
+	for name, peer in pairs(self.seenPeers) do
+		if type(name) == "string" and type(peer) == "table" then
+			table.insert(names, name)
+		end
+	end
+	if table.getn(names) <= maxCount then
+		return
+	end
+
+	table.sort(names, function(a, b)
+		local pa = self.seenPeers[a] or {}
+		local pb = self.seenPeers[b] or {}
+		local ta = tonumber(pa.lastSeenAt) or 0
+		local tb = tonumber(pb.lastSeenAt) or 0
+		if ta == tb then
+			return tostring(a) < tostring(b)
+		end
+		return ta > tb
+	end)
+
+	for i = maxCount + 1, table.getn(names) do
+		self.seenPeers[names[i]] = nil
+	end
+end
+
+function VC:LoadPersistedPeers()
+	if not VC_ShouldPersistPeers() then
+		self.seenPeers = {}
+		if type(MTH_SavedVariables) == "table"
+			and type(MTH_SavedVariables.versionCheck) == "table"
+			and type(MTH_SavedVariables.versionCheck.seenPeers) == "table" then
+			MTH_SavedVariables.versionCheck.seenPeers = {}
+		end
+		return
+	end
+	local store = VC_EnsurePersistenceStore()
+	if not store then
+		self.seenPeers = self.seenPeers or {}
+		return
+	end
+	if type(store.seenPeers) ~= "table" then
+		store.seenPeers = {}
+	end
+	self.seenPeers = store.seenPeers
+	self:PrunePersistedPeers(self.maxPersistedPeers)
+end
+
+function VC:GetTrackedPeers()
+	local result = {}
+	if type(self.seenPeers) ~= "table" then
+		return result
+	end
+	for _, peer in pairs(self.seenPeers) do
+		if type(peer) == "table" and peer.name then
+			table.insert(result, {
+				name = tostring(peer.name),
+				versionNumber = tonumber(peer.versionNumber) or 0,
+				versionText = tostring(peer.versionText or self:VersionNumberToString(peer.versionNumber)),
+				lastSeenAt = tonumber(peer.lastSeenAt) or 0,
+			})
+		end
+	end
+	table.sort(result, function(a, b)
+		if (a.lastSeenAt or 0) == (b.lastSeenAt or 0) then
+			return tostring(a.name or "") < tostring(b.name or "")
+		end
+		return (a.lastSeenAt or 0) > (b.lastSeenAt or 0)
+	end)
+	return result
+end
+
 function VC:ResetPublishDelay()
 	self.nextPublishAt = VC_GetTimeNow() + math.random(10, 20)
 end
@@ -96,13 +250,11 @@ function VC:TryPublish()
 end
 
 function VC:HandleRemoteMessage(message, author, channelLabel)
-	if self.notified then
-		return
-	end
 	if not message or message == "" then
 		return
 	end
-	if author and UnitName and author == UnitName("player") then
+	local normalizedAuthor = VC_NormalizeAuthorName(author)
+	if normalizedAuthor and UnitName and normalizedAuthor == UnitName("player") then
 		return
 	end
 	local channelName = string.gsub(tostring(channelLabel or ""), "^%d+%.%s*", "")
@@ -121,6 +273,12 @@ function VC:HandleRemoteMessage(message, author, channelLabel)
 	if not remoteNumber or remoteNumber <= 0 then
 		return
 	end
+
+	self:TrackPeer(normalizedAuthor or author, remoteNumber)
+
+	if self.notified then
+		return
+	end
 	local localVersionNumber = self:GetLocalVersionNumber()
 	if not localVersionNumber or localVersionNumber <= 0 then
 		return
@@ -136,7 +294,6 @@ function VC:HandleRemoteMessage(message, author, channelLabel)
 	end
 
 	if VC.frame then
-		VC.frame:UnregisterEvent("CHAT_MSG_CHANNEL")
 		VC.frame:SetScript("OnUpdate", nil)
 	end
 end
@@ -149,6 +306,7 @@ if not VC.frame then
 		frame:RegisterEvent("CHAT_MSG_CHANNEL")
 		frame:SetScript("OnEvent", function()
 			if event == "PLAYER_ENTERING_WORLD" then
+				VC:LoadPersistedPeers()
 				VC.joinAt = GetTime() + 6
 				VC:ResetPublishDelay()
 			elseif event == "CHAT_MSG_CHANNEL" then

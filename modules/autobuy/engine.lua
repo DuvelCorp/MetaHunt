@@ -9,6 +9,10 @@ local Engine = MTH_AutoBuyEngine
 local AB_AMMO_BY_NAME = nil
 local AB_FOOD_DIET_BY_ITEM_ID = nil
 
+local function AB_Trace(message)
+	return
+end
+
 local function AB_ParseItemIdFromLink(link)
 	if type(link) ~= "string" then
 		return nil
@@ -589,15 +593,40 @@ local function AB_EnsureRuleList(bucket)
 	return bucket
 end
 
+local function AB_DeepCopy(value)
+	if type(value) ~= "table" then
+		return value
+	end
+	local copy = {}
+	for key, entry in pairs(value) do
+		copy[key] = AB_DeepCopy(entry)
+	end
+	return copy
+end
+
 function Engine:GetConfigStore()
-	if MTH and MTH.GetModuleSavedVariables then
-		local store = MTH:GetModuleSavedVariables("autobuy")
-		if type(store) == "table" then
-			return store
+	if MTH and MTH.GetModuleCharSavedVariables then
+		local charStore = MTH:GetModuleCharSavedVariables("autobuy")
+		if type(charStore) == "table" then
+			if MTH.GetModuleSavedVariables then
+				local accountStore = MTH:GetModuleSavedVariables("autobuy")
+				if type(accountStore) == "table" and next(charStore) == nil and next(accountStore) ~= nil then
+					for key, value in pairs(accountStore) do
+						charStore[key] = AB_DeepCopy(value)
+					end
+				end
+			end
+			return charStore
 		end
 	end
-	MTH_AutoBuy_Saved = MTH_AutoBuy_Saved or {}
-	return MTH_AutoBuy_Saved
+	if MTH and MTH.GetModuleSavedVariables then
+		local accountStore = MTH:GetModuleSavedVariables("autobuy")
+		if type(accountStore) == "table" then
+			return accountStore
+		end
+	end
+	self._transientStore = self._transientStore or {}
+	return self._transientStore
 end
 
 function Engine:EnsureDefaults()
@@ -1151,6 +1180,7 @@ end
 
 function Engine:ExecutePlan(plan)
 	if type(plan) ~= "table" or type(plan.actions) ~= "table" then
+		AB_Trace("ExecutePlan skipped: invalid plan table")
 		return 0, 0
 	end
 	local executedActions = 0
@@ -1159,6 +1189,10 @@ function Engine:ExecutePlan(plan)
 		if type(action) == "table" and action.index then
 			local stacksToBuy = math.floor(tonumber(action.quantityStacks) or 0)
 			if stacksToBuy > 0 then
+				AB_Trace("ExecutePlan action index=" .. tostring(action.index)
+					.. " itemId=" .. tostring(action.itemId)
+					.. " stacks=" .. tostring(stacksToBuy)
+					.. " reason=" .. tostring(plan.reason or ""))
 				for i = 1, stacksToBuy do
 					BuyMerchantItem(action.index)
 				end
@@ -1167,6 +1201,7 @@ function Engine:ExecutePlan(plan)
 			end
 		end
 	end
+	AB_Trace("ExecutePlan done actions=" .. tostring(executedActions) .. " stacks=" .. tostring(requestedStacks) .. " reason=" .. tostring(plan.reason or ""))
 	return executedActions, requestedStacks
 end
 
@@ -1229,24 +1264,42 @@ local function AB_AnnouncePurchases(actions)
 end
 
 function Engine:OnMerchantEvent(eventName)
+	AB_Trace("OnMerchantEvent start event=" .. tostring(eventName)
+		.. " sessionExecuted=" .. tostring(self._merchantSessionExecuted and true or false)
+		.. " engineEnabled=" .. tostring(self:IsEnabled() and true or false))
+
 	if eventName == "MERCHANT_SHOW" then
 		self._merchantSessionExecuted = false
+		AB_Trace("MERCHANT_SHOW resets session execution flag")
 	elseif eventName == "MERCHANT_UPDATE" and self._merchantSessionExecuted then
+		AB_Trace("MERCHANT_UPDATE ignored: already executed this merchant session")
 		return
 	end
 
 	if not self:IsEnabled() then
+		AB_Trace("event ignored: autobuy module disabled")
 		return
 	end
 
 	local snapshot = self:ScanMerchant()
+	AB_Trace("snapshot rows=" .. tostring(snapshot and snapshot.count or 0))
 	local foodPlan = self:BuildFoodPlan(snapshot)
 	local ammoPlan = self:BuildAmmoPlan(snapshot)
+
+	AB_Trace("foodPlan reason=" .. tostring(foodPlan.reason) .. " actions=" .. tostring(table.getn(foodPlan.actions or {})))
+	for i = 1, table.getn(foodPlan.debugLines or {}) do
+		AB_Trace("food#" .. tostring(i) .. " " .. tostring(foodPlan.debugLines[i]))
+	end
+	AB_Trace("ammoPlan reason=" .. tostring(ammoPlan.reason) .. " actions=" .. tostring(table.getn(ammoPlan.actions or {})))
+	for i = 1, table.getn(ammoPlan.debugLines or {}) do
+		AB_Trace("ammo#" .. tostring(i) .. " " .. tostring(ammoPlan.debugLines[i]))
+	end
 
 	local totalRequestedStacks = 0
 	if table.getn(foodPlan.actions or {}) > 0 then
 		local _, requestedStacks = self:ExecutePlan(foodPlan)
 		totalRequestedStacks = totalRequestedStacks + requestedStacks
+		AB_Trace("food plan executed requestedStacks=" .. tostring(requestedStacks))
 		if requestedStacks > 0 then
 			AB_AnnouncePurchases(foodPlan.actions)
 		end
@@ -1255,14 +1308,19 @@ function Engine:OnMerchantEvent(eventName)
 	if table.getn(ammoPlan.actions or {}) > 0 then
 		local _, requestedStacks = self:ExecutePlan(ammoPlan)
 		totalRequestedStacks = totalRequestedStacks + requestedStacks
+		AB_Trace("ammo plan executed requestedStacks=" .. tostring(requestedStacks))
 		if requestedStacks > 0 then
-			AB_MoveAmmoStacksToSpecialBags(300)
+			local moved = AB_MoveAmmoStacksToSpecialBags(300)
+			AB_Trace("ammo restack moved=" .. tostring(moved))
 			AB_AnnouncePurchases(ammoPlan.actions)
 		end
 	end
 
 	if totalRequestedStacks > 0 then
 		self._merchantSessionExecuted = true
+		AB_Trace("session marked executed requestedStacks=" .. tostring(totalRequestedStacks))
+	else
+		AB_Trace("no purchases requested in this event")
 	end
 end
 

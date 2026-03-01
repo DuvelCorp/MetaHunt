@@ -6,7 +6,7 @@
 local MTH_Tooltips = {
 	name = "tooltips",
 	enabled = true,
-	version = "1.0.4",
+	version = "1.0.5",
 	events = {
 		"UPDATE_MOUSEOVER_UNIT",
 		"UNIT_NAME_UPDATE",
@@ -34,14 +34,33 @@ local MTH_Tooltips = {
 	injectFrame = nil,
 	pollFrame = nil,
 	pollElapsed = 0,
+	hintElapsed = 0,
 	lastMouseoverKey = "",
 }
 
+local function MTH_TT_CopyValue(value)
+	if type(value) ~= "table" then
+		return value
+	end
+	local copy = {}
+	for key, entry in pairs(value) do
+		copy[key] = MTH_TT_CopyValue(entry)
+	end
+	return copy
+end
 
 local function MTH_TT_GetOptionsStore()
-	if MTH and MTH.GetModuleSavedVariables then
-		local store = MTH:GetModuleSavedVariables("tooltips")
+	if MTH and MTH.GetModuleCharSavedVariables then
+		local store = MTH:GetModuleCharSavedVariables("tooltips")
 		if type(store) == "table" then
+			if MTH.GetModuleSavedVariables and next(store) == nil then
+				local accountStore = MTH:GetModuleSavedVariables("tooltips")
+				if type(accountStore) == "table" and next(accountStore) ~= nil then
+					for key, value in pairs(accountStore) do
+						store[key] = MTH_TT_CopyValue(value)
+					end
+				end
+			end
 			if store.beastTooltips == nil then
 				store.beastTooltips = true
 			end
@@ -1165,16 +1184,21 @@ local function MTH_TT_EnsureInjectFrame()
 	end
 	local frame = CreateFrame("Frame", "MTH_TooltipsInjectFrame")
 	frame.pending = false
-	frame:SetScript("OnUpdate", function(self)
+	frame.onUpdate = function(self)
 		self = self or this
-		if not self or not self.pending then
+		if not self then
+			return
+		end
+		if not self.pending then
+			self:SetScript("OnUpdate", nil)
 			return
 		end
 		self.pending = false
+		self:SetScript("OnUpdate", nil)
 		if MTH_Tooltips and MTH_Tooltips.enabled then
 			MTH_TT_AddTooltip("mouseover")
 		end
-	end)
+	end
 	MTH_Tooltips.injectFrame = frame
 	return frame
 end
@@ -1183,6 +1207,9 @@ local function MTH_TT_RequestInject()
 	local frame = MTH_TT_EnsureInjectFrame()
 	if frame then
 		frame.pending = true
+		if not frame:GetScript("OnUpdate") then
+			frame:SetScript("OnUpdate", frame.onUpdate)
+		end
 	end
 end
 
@@ -1197,14 +1224,18 @@ local function MTH_TT_EnsurePollFrame()
 			return
 		end
 
-		if GameTooltip and GameTooltip.IsShown and GameTooltip:IsShown() then
-			MTH_TT_AddOwnPetTooltipHint()
-			if not MTH_TT_HasExistingNotLearnedLine() then
-				MTH_TT_AddPetActionNotLearnedHint()
+		elapsed = elapsed or arg1
+		MTH_Tooltips.hintElapsed = (MTH_Tooltips.hintElapsed or 0) + (elapsed or 0)
+		if MTH_Tooltips.hintElapsed >= 0.25 then
+			MTH_Tooltips.hintElapsed = 0
+			if GameTooltip and GameTooltip.IsShown and GameTooltip:IsShown() then
+				MTH_TT_AddOwnPetTooltipHint()
+				if not MTH_TT_HasExistingNotLearnedLine() then
+					MTH_TT_AddPetActionNotLearnedHint()
+				end
 			end
 		end
 
-		elapsed = elapsed or arg1
 		MTH_Tooltips.pollElapsed = (MTH_Tooltips.pollElapsed or 0) + (elapsed or 0)
 		if MTH_Tooltips.pollElapsed < 0.15 then
 			return
@@ -1242,6 +1273,75 @@ local function MTH_TT_EnsurePollFrame()
 	return frame
 end
 
+local function MTH_TT_SetRuntimeActive(active)
+	local injectFrame = MTH_Tooltips.injectFrame
+	if injectFrame then
+		if not active then
+			injectFrame.pending = false
+			injectFrame:SetScript("OnUpdate", nil)
+		end
+	end
+
+	local pollFrame = MTH_Tooltips.pollFrame
+	if pollFrame then
+		if active then
+			pollFrame:SetScript("OnUpdate", pollFrame:GetScript("OnUpdate") or function(_, elapsed)
+				if not (MTH_Tooltips and MTH_Tooltips.enabled) then
+					return
+				end
+
+				elapsed = elapsed or arg1
+				MTH_Tooltips.hintElapsed = (MTH_Tooltips.hintElapsed or 0) + (elapsed or 0)
+				if MTH_Tooltips.hintElapsed >= 0.25 then
+					MTH_Tooltips.hintElapsed = 0
+					if GameTooltip and GameTooltip.IsShown and GameTooltip:IsShown() then
+						MTH_TT_AddOwnPetTooltipHint()
+						if not MTH_TT_HasExistingNotLearnedLine() then
+							MTH_TT_AddPetActionNotLearnedHint()
+						end
+					end
+				end
+
+				MTH_Tooltips.pollElapsed = (MTH_Tooltips.pollElapsed or 0) + (elapsed or 0)
+				if MTH_Tooltips.pollElapsed < 0.15 then
+					return
+				end
+				MTH_Tooltips.pollElapsed = 0
+
+				local state = MTH_Tooltips.debugState
+				state.pollTicks = (state.pollTicks or 0) + 1
+
+				if not UnitExists("mouseover") then
+					MTH_Tooltips.lastMouseoverKey = ""
+					return
+				end
+
+				local name = UnitName("mouseover")
+				if not name or name == "" then
+					return
+				end
+				local lvl = UnitLevel and UnitLevel("mouseover") or 0
+				local key = tostring(name) .. "#" .. tostring(lvl)
+
+				if key ~= MTH_Tooltips.lastMouseoverKey then
+					MTH_Tooltips.lastMouseoverKey = key
+					state.pollTriggers = (state.pollTriggers or 0) + 1
+					MTH_TT_RequestInject()
+					return
+				end
+
+				if not MTH_TT_HasExistingTooltipLine() then
+					MTH_TT_RequestInject()
+				end
+			end)
+		else
+			MTH_Tooltips.pollElapsed = 0
+			MTH_Tooltips.hintElapsed = 0
+			pollFrame:SetScript("OnUpdate", nil)
+		end
+	end
+end
+
 local function MTH_TT_InstallTooltipHook()
 	if MTH_Tooltips.hookInstalled then
 		return
@@ -1260,9 +1360,15 @@ local function MTH_TT_InstallTooltipHook()
 				MTH_TT_RequestInject()
 			end)
 			GameTooltip:HookScript("OnTooltipSetItem", function()
+				if not (MTH_Tooltips and MTH_Tooltips.enabled) then
+					return
+				end
 				MTH_TT_AddFoodTooltipHint()
 			end)
 			GameTooltip:HookScript("OnTooltipSetSpell", function()
+				if not (MTH_Tooltips and MTH_Tooltips.enabled) then
+					return
+				end
 				MTH_TT_AddPetActionNotLearnedHint()
 			end)
 		end)
@@ -1284,6 +1390,7 @@ function MTH_Tooltips:init()
 	MTH_TT_InstallTooltipHook()
 	MTH_TT_EnsureInjectFrame()
 	MTH_TT_EnsurePollFrame()
+	MTH_TT_SetRuntimeActive(self.enabled)
 	MTH_TT_Log("module init complete")
 end
 
@@ -1307,6 +1414,9 @@ function MTH_Tooltips:setEnabled(enabled)
 	elseif self.enabled then
 		MTH_TT_EnsurePollFrame()
 		MTH_TT_EnsureInjectFrame()
+		MTH_TT_SetRuntimeActive(true)
+	else
+		MTH_TT_SetRuntimeActive(false)
 	end
 end
 
@@ -1357,6 +1467,7 @@ end
 
 function MTH_Tooltips:cleanup()
 	self.enabled = false
+	MTH_TT_SetRuntimeActive(false)
 end
 
 function MTH_Tooltips:GetDebugSnapshot()

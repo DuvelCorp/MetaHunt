@@ -2,7 +2,7 @@ MTH_Map = {
 	enabled = true,
 	showWorld = true,
 	showMinimap = true,
-	activeSource = "beasts",
+	activeSource = "focus",
 	providers = {},
 	nodesByZone = {},
 	worldPins = {},
@@ -21,6 +21,10 @@ MTH_Map = {
 	lastWorldReason = "n/a",
 	lastMiniReason = "n/a",
 	nodeRevision = 0,
+	minimapForceRefreshInterval = 1.0,
+	verboseMiniReasons = false,
+	minimapTickActive = 0.20,
+	minimapTickIdle = 0.75,
 }
 
 local MTH_MAP_MINIMAP_ZOOM = {
@@ -468,7 +472,18 @@ local function MTH_Map_ClearPendingZoneOpen()
 	MTH_Map.pendingZoneOpenNextAttemptAt = 0
 end
 
+function MTH_Map:EnsureInitialized()
+	if self.controller then
+		return true
+	end
+	self:Init()
+	return self.controller ~= nil
+end
+
 function MTH_Map:SetSource(key)
+	if not self:EnsureInitialized() then
+		return false
+	end
 	if not self.providers[key] then
 		return false
 	end
@@ -672,6 +687,9 @@ function MTH_Map:SetEnabled(enabled)
 	if not self.enabled then
 		self:HideAllPins()
 	else
+		if not self:EnsureInitialized() then
+			return
+		end
 		self:UpdateWorldMap()
 		self:UpdateMinimap()
 	end
@@ -682,6 +700,9 @@ function MTH_Map:SetWorldEnabled(enabled)
 	if not self.showWorld then
 		self:HideWorldPins()
 	else
+		if not self:EnsureInitialized() then
+			return
+		end
 		self:UpdateWorldMap()
 	end
 end
@@ -691,6 +712,9 @@ function MTH_Map:SetMinimapEnabled(enabled)
 	if not self.showMinimap then
 		self:HideMinimapPins()
 	else
+		if not self:EnsureInitialized() then
+			return
+		end
 		self:UpdateMinimap()
 	end
 end
@@ -952,22 +976,21 @@ function MTH_Map:UpdateMinimap()
 	end
 
 	local mapId = self:GetCurrentMapID()
-	if not mapId or not self.nodesByZone[mapId] then
+	local nodes = mapId and self.nodesByZone[mapId] or nil
+	if not mapId or not nodes then
 		self.lastMiniReason = "no-mapid-or-nodes"
 		self._lastMiniState = nil
 		self:HideMinimapPins()
 		return
 	end
-
-	local minimapSizes = MTH_DS_MinimapSizes or (pfDB and pfDB["minimap"])
-	local mapSize = minimapSizes and minimapSizes[mapId]
-	if not mapSize then
-		self.lastMiniReason = "missing-minimap-size"
+	if table.getn(nodes) <= 0 then
+		self.lastMiniReason = "no-nodes-in-zone"
 		self._lastMiniState = nil
 		self:HideMinimapPins()
 		return
 	end
 
+	local now = GetTime() or 0
 	local xPlayer, yPlayer = GetPlayerMapPosition("player")
 	if not xPlayer or not yPlayer or (xPlayer == 0 and yPlayer == 0) then
 		self.lastMiniReason = "player-position-unavailable"
@@ -980,10 +1003,33 @@ function MTH_Map:UpdateMinimap()
 	yPlayer = yPlayer * 100
 
 	local zoom = Minimap:GetZoom()
+	local miniState = self._lastMiniState
+	if miniState
+		and miniState.mapId == mapId
+		and miniState.zoom == zoom
+		and miniState.nodeRevision == (self.nodeRevision or 0)
+	then
+		local dx = math.abs((xPlayer or 0) - (miniState.xPlayer or 0))
+		local dy = math.abs((yPlayer or 0) - (miniState.yPlayer or 0))
+		if dx < 0.05 and dy < 0.05 and now < (miniState.nextForceAt or 0) then
+			self.lastMiniReason = self.verboseMiniReasons and "throttled-small-move" or "throttle"
+			return
+		end
+	end
+
+	local minimapSizes = MTH_DS_MinimapSizes or (pfDB and pfDB["minimap"])
+	local mapSize = minimapSizes and minimapSizes[mapId]
+	if not mapSize then
+		self.lastMiniReason = self.verboseMiniReasons and "missing-minimap-size" or "missing-size"
+		self._lastMiniState = nil
+		self:HideMinimapPins()
+		return
+	end
+
 	local indoor = MTH_Map_MinimapIndoorState()
 	local zoomSet = MTH_MAP_MINIMAP_ZOOM[indoor]
 	if not zoomSet then
-		self.lastMiniReason = "missing-zoomset"
+		self.lastMiniReason = self.verboseMiniReasons and "missing-zoomset" or "missing-zoomset"
 		self._lastMiniState = nil
 		self:HideMinimapPins()
 		return
@@ -991,7 +1037,7 @@ function MTH_Map:UpdateMinimap()
 
 	local mapZoom = zoomSet[zoom]
 	if not mapZoom then
-		self.lastMiniReason = "missing-mapzoom"
+		self.lastMiniReason = self.verboseMiniReasons and "missing-mapzoom" or "missing-zoom"
 		self._lastMiniState = nil
 		self:HideMinimapPins()
 		return
@@ -1000,33 +1046,16 @@ function MTH_Map:UpdateMinimap()
 	local mapWidth = mapSize[1]
 	local mapHeight = mapSize[2]
 	if not mapWidth or not mapHeight or mapWidth == 0 or mapHeight == 0 then
-		self.lastMiniReason = "invalid-map-size"
+		self.lastMiniReason = self.verboseMiniReasons and "invalid-map-size" or "invalid-size"
 		self._lastMiniState = nil
 		self:HideMinimapPins()
 		return
-	end
-
-	local miniState = self._lastMiniState
-	if miniState
-		and miniState.mapId == mapId
-		and miniState.zoom == zoom
-		and miniState.indoor == indoor
-		and miniState.nodeRevision == (self.nodeRevision or 0)
-	then
-		local dx = math.abs((xPlayer or 0) - (miniState.xPlayer or 0))
-		local dy = math.abs((yPlayer or 0) - (miniState.yPlayer or 0))
-		if dx < 0.05 and dy < 0.05 then
-			self.lastMiniReason = "throttled-small-move"
-			return
-		end
 	end
 
 	local xScale = mapZoom / mapWidth
 	local yScale = mapZoom / mapHeight
 	local xDraw = Minimap:GetWidth() / xScale / 100
 	local yDraw = Minimap:GetHeight() / yScale / 100
-
-	local nodes = self.nodesByZone[mapId]
 	local shown = 0
 
 	for i = 1, table.getn(nodes) do
@@ -1057,16 +1086,21 @@ function MTH_Map:UpdateMinimap()
 		if self.minimapPins[i] then self.minimapPins[i]:Hide() end
 	end
 
-	self._lastMiniState = {
-		mapId = mapId,
-		zoom = zoom,
-		indoor = indoor,
-		xPlayer = xPlayer,
-		yPlayer = yPlayer,
-		nodeRevision = self.nodeRevision or 0,
-	}
+	local lastState = self._lastMiniState or {}
+	lastState.mapId = mapId
+	lastState.zoom = zoom
+	lastState.indoor = indoor
+	lastState.xPlayer = xPlayer
+	lastState.yPlayer = yPlayer
+	lastState.nodeRevision = self.nodeRevision or 0
+	lastState.nextForceAt = now + (tonumber(self.minimapForceRefreshInterval) or 1.0)
+	self._lastMiniState = lastState
 
-	self.lastMiniReason = "ok(map=" .. tostring(mapId) .. ",shown=" .. tostring(shown) .. ")"
+	if self.verboseMiniReasons then
+		self.lastMiniReason = "ok(map=" .. tostring(mapId) .. ",shown=" .. tostring(shown) .. ")"
+	else
+		self.lastMiniReason = "ok"
+	end
 end
 
 function MTH_Map:RegisterDefaultProviders()
@@ -1202,9 +1236,12 @@ function MTH_Map:RegisterDefaultProviders()
 end
 
 function MTH_Map:Init()
+	if self.controller then
+		return
+	end
 	self:BuildZoneLookup()
 	self:RegisterDefaultProviders()
-	self:RebuildNodes()
+	self.nodesByZone = self.nodesByZone or {}
 
 	if not self.controller then
 		self.controller = CreateFrame("Frame", "MTHMapController", UIParent)
@@ -1230,7 +1267,6 @@ function MTH_Map:Init()
 			if not frame then return end
 			local now = GetTime() or 0
 			if (frame._mthTick or 0) > now then return end
-			frame._mthTick = now + 0.12
 
 			if MTH_Map.pendingZoneOpenId and MTH_Map.pendingZoneOpenAttempts and MTH_Map.pendingZoneOpenAttempts > 0 then
 				if (MTH_Map.pendingZoneOpenNextAttemptAt or 0) <= now then
@@ -1259,12 +1295,28 @@ function MTH_Map:Init()
 			end
 
 			if MTH_Map.enabled and MTH_Map.showMinimap then
-				MTH_Map:UpdateMinimap()
+				local mapId = MTH_Map:GetCurrentMapID()
+				if not mapId and (frame._mthMapRecoverAt or 0) <= now then
+					frame._mthMapRecoverAt = now + 2.0
+					if SetMapToCurrentZone and (not WorldMapFrame or not WorldMapFrame:IsShown()) then
+						SetMapToCurrentZone()
+						mapId = MTH_Map:GetCurrentMapID()
+					end
+				end
+				local nodes = mapId and MTH_Map.nodesByZone and MTH_Map.nodesByZone[mapId] or nil
+				local hasNodes = nodes and table.getn(nodes) > 0
+				frame._mthTick = now + (hasNodes and (tonumber(MTH_Map.minimapTickActive) or 0.20) or (tonumber(MTH_Map.minimapTickIdle) or 0.75))
+				if hasNodes then
+					MTH_Map:UpdateMinimap()
+				elseif (frame._mthNoNodeTick or 0) <= now then
+					frame._mthNoNodeTick = now + 1.0
+					MTH_Map:UpdateMinimap()
+				end
+			else
+				frame._mthTick = now + (tonumber(MTH_Map.minimapTickIdle) or 0.75)
 			end
 		end)
 	end
 
 	MTH_Map_Log("Map system initialized")
 end
-
-MTH_Map:Init()

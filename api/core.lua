@@ -129,6 +129,49 @@ local function MTH_CommandOptions()
 	end
 end
 
+local function MTH_FormatAgeSeconds(seconds)
+	local value = tonumber(seconds) or 0
+	if value < 0 then value = 0 end
+	if value < 60 then
+		return tostring(math.floor(value)) .. "s"
+	end
+	if value < 3600 then
+		return tostring(math.floor(value / 60)) .. "m"
+	end
+	if value < 86400 then
+		return tostring(math.floor(value / 3600)) .. "h"
+	end
+	return tostring(math.floor(value / 86400)) .. "d"
+end
+
+local function MTH_CommandPeers()
+	if not (MTH and MTH.VersionCheck and type(MTH.VersionCheck.GetTrackedPeers) == "function") then
+		MTH:Print("Peer tracker is not available yet")
+		return
+	end
+
+	local peers = MTH.VersionCheck:GetTrackedPeers()
+	local count = table.getn(peers)
+	if count <= 0 then
+		MTH:Print("No MetaHunt broadcasters seen yet on LFT")
+		return
+	end
+
+	MTH:Print("MetaHunt broadcasters seen on LFT: " .. tostring(count))
+	local now = (type(time) == "function" and time()) or (type(GetTime) == "function" and math.floor(GetTime())) or 0
+	local maxRows = math.min(count, 20)
+	for i = 1, maxRows do
+		local peer = peers[i]
+		if type(peer) == "table" then
+			local age = MTH_FormatAgeSeconds((now or 0) - (tonumber(peer.lastSeenAt) or 0))
+			MTH:Print("- " .. tostring(peer.name or "?") .. " v" .. tostring(peer.versionText or "?") .. " (seen " .. tostring(age) .. " ago)")
+		end
+	end
+	if count > maxRows then
+		MTH:Print("... and " .. tostring(count - maxRows) .. " more")
+	end
+end
+
 local function MTH_CommandPetSpellScanFallback()
 	local getSpellName = (type(getglobal) == "function" and getglobal("GetSpellName")) or (_G and _G["GetSpellName"])
 	local getSpellTexture = (type(getglobal) == "function" and getglobal("GetSpellTexture")) or (_G and _G["GetSpellTexture"])
@@ -245,6 +288,8 @@ function SlashCmdList.MTH(msg, editbox)
 		MTH_CommandOptions()
 	elseif lowerMsg == "book" or lowerMsg == "hunterbook" then
 		MTH_CommandBook()
+	elseif lowerMsg == "peers" or lowerMsg == "who" then
+		MTH_CommandPeers()
 	elseif lowerMsg == "err" then
 		if MTH_DebugFrame and type(MTH_DebugFrame.Toggle) == "function" then
 			MTH_DebugFrame:Toggle()
@@ -259,13 +304,13 @@ end
 
 -- Initialize on load
 MTH:InitSavedVariables()
-if type(MTH_ST_InitService) == "function" then
-	MTH_ST_InitService()
+if type(MTH_ST_InitBootstrap) == "function" then
+	MTH_ST_InitBootstrap()
 end
-if type(MTH_TR_InitService) == "function" then
-	MTH_TR_InitService()
-elseif type(MTH_PT_InitService) == "function" then
-	MTH_PT_InitService()
+if type(MTH_TR_InitBootstrap) == "function" then
+	MTH_TR_InitBootstrap()
+elseif type(MTH_PT_InitBootstrap) == "function" then
+	MTH_PT_InitBootstrap()
 end
 if type(MTH_PS_InitService) == "function" then
 	MTH_PS_InitService()

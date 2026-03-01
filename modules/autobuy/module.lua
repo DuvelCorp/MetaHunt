@@ -6,7 +6,7 @@
 local MTH_AutoBuy = {
 	name = "autobuy",
 	enabled = false,
-	version = "1.0.4",
+	version = "1.0.5",
 	events = {
 		"VARIABLES_LOADED",
 		"MERCHANT_SHOW",
@@ -39,7 +39,6 @@ local function AB_EnsureBridgeFrame(moduleRef)
 		return nil
 	end
 
-	frame:RegisterEvent("VARIABLES_LOADED")
 	frame:RegisterEvent("MERCHANT_SHOW")
 	frame:RegisterEvent("MERCHANT_UPDATE")
 	frame:RegisterEvent("MERCHANT_CLOSED")
@@ -48,14 +47,6 @@ local function AB_EnsureBridgeFrame(moduleRef)
 		local engine = AB_Engine()
 		if not engine then
 			AB_Trace("bridge event=" .. tostring(eventName) .. " engine missing")
-			return
-		end
-
-		if eventName == "VARIABLES_LOADED" then
-			engine:Init()
-			local store = engine:EnsureDefaults()
-			AB_Trace("bridge VARIABLES_LOADED store.enabled=" .. tostring(store and store.enabled)
-				.. " projectiles.enabled=" .. tostring(store and store.projectiles and store.projectiles.enabled))
 			return
 		end
 
@@ -75,6 +66,34 @@ local function AB_EnsureBridgeFrame(moduleRef)
 	return frame
 end
 
+local function AB_SetBridgeActive(active)
+	local frame = MTH_AutoBuy._bridgeFrame
+	if active then
+		if not frame then
+			frame = AB_EnsureBridgeFrame(MTH_AutoBuy)
+		end
+		if frame then
+			frame:RegisterEvent("MERCHANT_SHOW")
+			frame:RegisterEvent("MERCHANT_UPDATE")
+			frame:RegisterEvent("MERCHANT_CLOSED")
+			MTH_AutoBuy._bridgeActive = true
+			AB_Trace("bridge active=true")
+		else
+			MTH_AutoBuy._bridgeActive = false
+			AB_Trace("bridge active=false (frame missing)")
+		end
+		return
+	end
+
+	if frame then
+		frame:UnregisterEvent("MERCHANT_SHOW")
+		frame:UnregisterEvent("MERCHANT_UPDATE")
+		frame:UnregisterEvent("MERCHANT_CLOSED")
+	end
+	MTH_AutoBuy._bridgeActive = false
+	AB_Trace("bridge active=false")
+end
+
 AB_Engine = function()
 	return MTH_AutoBuyEngine
 end
@@ -87,8 +106,8 @@ function MTH_AutoBuy:init()
 		return
 	end
 	engine:Init()
-	AB_EnsureBridgeFrame(self)
 	self.initialized = true
+	AB_SetBridgeActive(self.enabled and true or false)
 	AB_Trace("init done")
 	if self.enabled then
 		AB_Log("module initialized", "debug")
@@ -106,7 +125,7 @@ function MTH_AutoBuy:setEnabled(enabled)
 	end
 	local store = engine:EnsureDefaults()
 	store.enabled = enabled and true or false
-	AB_EnsureBridgeFrame(self)
+	AB_SetBridgeActive(store.enabled and true or false)
 	AB_Trace("setEnabled store.enabled=" .. tostring(store.enabled))
 end
 
@@ -125,7 +144,7 @@ function MTH_AutoBuy:onEvent(event)
 
 	if event == "VARIABLES_LOADED" then
 		engine:Init()
-		AB_EnsureBridgeFrame(self)
+		AB_SetBridgeActive(self.enabled and true or false)
 		AB_Log("onEvent VARIABLES_LOADED -> engine init", "debug")
 		local store = engine:EnsureDefaults()
 		AB_Trace("VARIABLES_LOADED module.enabled=" .. tostring(self.enabled)

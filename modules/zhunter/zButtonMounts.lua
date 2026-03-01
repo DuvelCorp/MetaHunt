@@ -22,6 +22,20 @@ if not root["zButtonMounts"] then
 end
 
 local ZHUNTER_MOUNTS_BUTTON_MAX = 80
+local zButtonMounts_LastSpellSignature = nil
+local zButtonMounts_LastRefreshAt = 0
+local zButtonMounts_MinRefreshInterval = 0.50
+
+local function zButtonMounts_GetSpellSignature(spellIds)
+	if type(spellIds) ~= "table" or table.getn(spellIds) == 0 then
+		return ""
+	end
+	local parts = {}
+	for i = 1, table.getn(spellIds) do
+		parts[i] = tostring(spellIds[i] or "")
+	end
+	return table.concat(parts, ",")
+end
 
 local function zButtonMounts_GetSaved()
 	local currentRoot = zButtonMounts_GetRoot()
@@ -233,10 +247,16 @@ end
 function zButtonMounts_SetupSizeAndPosition()
 	local saved = zButtonMounts_GetSaved()
 	if saved["enabled"] == false or saved["enabled"] == 0 then
+		if zButtonMountsAdjustment and zButtonMountsAdjustment.SetScript then
+			zButtonMountsAdjustment:SetScript("OnEvent", nil)
+		end
 		if zButtonMounts and zButtonMounts.Hide then
 			zButtonMounts:Hide()
 		end
 		return
+	end
+	if zButtonMountsAdjustment and zButtonMountsAdjustment.SetScript then
+		zButtonMountsAdjustment:SetScript("OnEvent", zButtonMountsAdjustment_OnEvent)
 	end
 	local displayCount = zButtonMounts.found or 0
 	if displayCount < 0 then
@@ -274,6 +294,18 @@ end
 function zButtonMountsAdjustment_OnEvent()
 	if not zButtonMounts then
 		return
+	end
+	if event == "SPELLS_CHANGED" then
+		local now = GetTime and GetTime() or 0
+		if now > 0 and zButtonMounts_LastRefreshAt > 0 and (now - zButtonMounts_LastRefreshAt) < zButtonMounts_MinRefreshInterval then
+			return
+		end
+		local signature = zButtonMounts_GetSpellSignature(zButtonMounts_CollectTabSpellIds())
+		if signature == zButtonMounts_LastSpellSignature and not GameTooltip:IsOwned(zButtonMounts) then
+			return
+		end
+		zButtonMounts_LastSpellSignature = signature
+		zButtonMounts_LastRefreshAt = now
 	end
 	zButtonMounts_RefreshSpells()
 	zButtonMounts_SetupSizeAndPosition()
