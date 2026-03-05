@@ -13,8 +13,10 @@ MTH_DS_Families = {
       "fungus",
     },
     ["abilities"] = {
+      "Bite",
       "Cower",
       "Dive",
+      "Growl",
       "Screech",
     },
   },
@@ -23,14 +25,17 @@ MTH_DS_Families = {
     ["coords"] = 45,
     ["food"] = {
       "meat",
-      "fruit",
       "fish",
-      "fungus",
-      "cheese",
       "bread",
+      "cheese",
+      "fruit",
+      "fungus",
     },
     ["abilities"] = {
+      "Bite",
       "Claw",
+      "Cower",
+      "Growl",
       "Roar of Fortitude",
     },
   },
@@ -39,15 +44,18 @@ MTH_DS_Families = {
     ["coords"] = 87,
     ["food"] = {
       "meat",
-      "fruit",
       "fish",
-      "fungus",
-      "cheese",
       "bread",
+      "cheese",
+      "fruit",
+      "fungus",
     },
     ["abilities"] = {
+      "Bite",
       "Charge",
+      "Cower",
       "Dash",
+      "Growl",
     },
   },
   ["Carrion Birds"] = {
@@ -57,7 +65,11 @@ MTH_DS_Families = {
       "meat",
     },
     ["abilities"] = {
+      "Bite",
+      "Claw",
+      "Cower",
       "Dive",
+      "Growl",
       "Screech",
     },
   },
@@ -69,9 +81,11 @@ MTH_DS_Families = {
       "fish",
     },
     ["abilities"] = {
+      "Bite",
       "Claw",
       "Cower",
       "Dash",
+      "Growl",
       "Prowl",
     },
   },
@@ -87,6 +101,8 @@ MTH_DS_Families = {
     ["abilities"] = {
       "Bubble Barrier",
       "Claw",
+      "Cower",
+      "Growl",
     },
   },
   ["Crocolisks"] = {
@@ -97,10 +113,10 @@ MTH_DS_Families = {
       "fish",
     },
     ["abilities"] = {
-      "BIte",
       "Bite",
-      "Claw",
+      "Cower",
       "Death Roll",
+      "Growl",
     },
   },
   ["Foxes"] = {
@@ -112,7 +128,10 @@ MTH_DS_Families = {
     },
     ["abilities"] = {
       "Bite",
+      "Cower",
+      "Dash",
       "Grace",
+      "Growl",
     },
   },
   ["Gorillas"] = {
@@ -123,6 +142,9 @@ MTH_DS_Families = {
       "fungus",
     },
     ["abilities"] = {
+      "Bite",
+      "Cower",
+      "Growl",
       "Thunderstomp",
     },
   },
@@ -135,7 +157,9 @@ MTH_DS_Families = {
     },
     ["abilities"] = {
       "Bite",
+      "Cower",
       "Dash",
+      "Growl",
       "Packleader",
     },
   },
@@ -147,7 +171,9 @@ MTH_DS_Families = {
     },
     ["abilities"] = {
       "Claw",
+      "Cower",
       "Dive",
+      "Growl",
       "Screech",
     },
   },
@@ -158,6 +184,11 @@ MTH_DS_Families = {
       "meat",
     },
     ["abilities"] = {
+      "Bite",
+      "Claw",
+      "Cower",
+      "Dash",
+      "Growl",
       "Savage Rend",
     },
   },
@@ -169,6 +200,8 @@ MTH_DS_Families = {
     },
     ["abilities"] = {
       "Claw",
+      "Cower",
+      "Growl",
       "Scorpid Poison",
     },
   },
@@ -181,6 +214,8 @@ MTH_DS_Families = {
     },
     ["abilities"] = {
       "Bite",
+      "Cower",
+      "Growl",
       "Poison Spit",
     },
   },
@@ -192,6 +227,8 @@ MTH_DS_Families = {
     },
     ["abilities"] = {
       "Bite",
+      "Cower",
+      "Growl",
       "Web",
     },
   },
@@ -206,6 +243,8 @@ MTH_DS_Families = {
     ["abilities"] = {
       "Bite",
       "Cower",
+      "Dash",
+      "Growl",
       "Strider Presence",
     },
   },
@@ -219,6 +258,8 @@ MTH_DS_Families = {
     },
     ["abilities"] = {
       "Bite",
+      "Cower",
+      "Growl",
       "Shell Shield",
     },
   },
@@ -231,7 +272,10 @@ MTH_DS_Families = {
       "bread",
     },
     ["abilities"] = {
+      "Bite",
+      "Cower",
       "Dive",
+      "Growl",
       "Lightning Breath",
     },
   },
@@ -243,8 +287,10 @@ MTH_DS_Families = {
     },
     ["abilities"] = {
       "Bite",
+      "Cower",
       "Dash",
       "Furious Howl",
+      "Growl",
     },
   },
 }

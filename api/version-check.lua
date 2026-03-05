@@ -4,6 +4,7 @@ MTH.VersionCheck = MTH.VersionCheck or {}
 local VC = MTH.VersionCheck
 VC.abbrev = "MTH"
 VC.channelName = "LFT"
+VC.updateUrl = "https://github.com/DuvelCorp/MetaHunt"
 VC.nextPublishAt = nil
 VC.joinAt = nil
 VC.notified = false
@@ -290,7 +291,12 @@ function VC:HandleRemoteMessage(message, author, channelLabel)
 	self.notified = true
 	self.nextPublishAt = nil
 	if MTH and type(MTH.Print) == "function" then
-		MTH:Print("A new version is available !")
+		local localVersionText = tostring(self:GetLocalVersionString() or "?")
+		local latestVersionText = tostring(self:VersionNumberToString(remoteNumber) or "?")
+		MTH:Print("A new version is available!")
+		MTH:Print("YOU SHOULD UPGRADE ! Your version : " .. localVersionText
+			.. " - Latest version " .. latestVersionText
+			.. " --> " .. tostring(self.updateUrl or ""))
 	end
 
 	if VC.frame then

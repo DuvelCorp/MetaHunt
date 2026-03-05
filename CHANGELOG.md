@@ -2,6 +2,21 @@
 
 All notable changes to MetaHunt will be documented in this file.
 
+## [1.0.6] - 2026-03-05
+
+### Fixed
+- Added missing abilities to all pet families.
+- Rescraped from Twow DB the previously in correct `Roar of Fortitude` pet-ability.
+- Fixed an issue with Tooltip on pet action bar abilities, that were falsely displayed as not learned yet for rankless abilities.
+- Restored visible Stable Master auto-scan feedback (`Stable scan complete: X slot(s).`) when opening the stable window.
+- Fixed stable scan icon persistence for active pets that were never stabled by capturing current-pet icon data during stable scans.
+- Hardened stable-scan bootstrap to initialize on both `PET_STABLE_SHOW` and `PET_STABLE_UPDATE` event paths.
+- Fixed issues with taming pet metadata that were not properly recorded since the last update.
+- Fixed issues with pet runaway interception that was broken since the last update.
+- Updated version-update notification text to include clearer upgrade guidance and plain GitHub URL text for updates.
+- Fixed an issue with `zTrack` buttons spells being incorrect after having respec the talents using brainwashing device.
+
+
 ## [1.0.5] - 2026-03-01
 
 ### Fixed
