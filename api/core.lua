@@ -284,12 +284,37 @@ function SlashCmdList.MTH(msg, editbox)
 	local lowerMsg = string.lower(msg)
 	if msg == "" then
 		MTH:Print("Available: /mth options, /mth book")
+		MTH:Print("Debug: /mth petsstate, /mth petsdump, /mth petssnap, /mth petsdiff")
 	elseif lowerMsg == "options" then
 		MTH_CommandOptions()
 	elseif lowerMsg == "book" or lowerMsg == "hunterbook" then
 		MTH_CommandBook()
 	elseif lowerMsg == "peers" or lowerMsg == "who" then
 		MTH_CommandPeers()
+	elseif lowerMsg == "petsstate" then
+		if type(MTH_CommandPetsState) == "function" then
+			MTH_CommandPetsState()
+		else
+			MTH:Print("Pets state command is not available yet")
+		end
+	elseif lowerMsg == "petsdump" then
+		if type(MTH_CommandPetsDump) == "function" then
+			MTH_CommandPetsDump()
+		else
+			MTH:Print("Pets dump command is not available yet")
+		end
+	elseif lowerMsg == "petssnap" then
+		if type(MTH_CommandPetsSnap) == "function" then
+			MTH_CommandPetsSnap()
+		else
+			MTH:Print("Pets snapshot command is not available yet")
+		end
+	elseif lowerMsg == "petsdiff" then
+		if type(MTH_CommandPetsDiff) == "function" then
+			MTH_CommandPetsDiff()
+		else
+			MTH:Print("Pets diff command is not available yet")
+		end
 	elseif lowerMsg == "err" then
 		if MTH_DebugFrame and type(MTH_DebugFrame.Toggle) == "function" then
 			MTH_DebugFrame:Toggle()
@@ -299,6 +324,7 @@ function SlashCmdList.MTH(msg, editbox)
 	else
 		MTH:Print("Unknown command: " .. tostring(msg))
 		MTH:Print("Available: /mth options, /mth book")
+		MTH:Print("Debug: /mth petsstate, /mth petsdump, /mth petssnap, /mth petsdiff")
 	end
 end
 

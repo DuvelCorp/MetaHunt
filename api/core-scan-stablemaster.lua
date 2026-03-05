@@ -4,7 +4,6 @@ end
 
 local MTH_PETS_SCHEMA_VERSION = 2
 local MTH_PETS_CORE_HOOK_BOUNDARY_KEY = "core-pet-rename-hook"
-local MTH_PETS_TRACE_RUNAWAY = false
 MTH_PETS_TRACE_CONSISTENCY = false
 
 local MTH_StableFrame = nil
@@ -17,7 +16,6 @@ local MTH_PETS_LiveStateSeq = 0
 local MTH_PETS_LiveStateSubscribers = {}
 local MTH_PETS_LiveStateEventName = "MTH_PET_LIVE_STATE_CHANGED"
 local MTH_PETS_EventThrottle = {}
-local MTH_PETS_TRACE_TAME = false
 
 MTH_PETS_CoreOriginal_PetRename = MTH_PETS_CoreOriginal_PetRename or nil
 
@@ -390,6 +388,17 @@ local function MTH_PETS_NormalizeSystemMessage(rawMessage)
 	return message
 end
 
+local function MTH_PETS_NormalizeSystemMessageKey(rawMessage)
+	local message = MTH_PETS_NormalizeSystemMessage(rawMessage)
+	message = string.lower(tostring(message or ""))
+	message = string.gsub(message, "%%s", " ")
+	message = string.gsub(message, "[^%w%s]", " ")
+	message = string.gsub(message, "%s+", " ")
+	message = string.gsub(message, "^%s+", "")
+	message = string.gsub(message, "%s+$", "")
+	return message
+end
+
 local function MTH_PETS_IsRunawaySystemMessage(rawMessage)
 	local message = MTH_PETS_NormalizeSystemMessage(rawMessage)
 	if message == "" then
@@ -397,8 +406,20 @@ local function MTH_PETS_IsRunawaySystemMessage(rawMessage)
 	end
 
 	local lostPetMessage = _G and _G["PETTAME_LOSTPET"]
-	if type(lostPetMessage) == "string" and lostPetMessage ~= "" and message == lostPetMessage then
-		return true
+	if type(lostPetMessage) == "string" and lostPetMessage ~= "" then
+		if message == lostPetMessage then
+			return true
+		end
+		local messageKey = MTH_PETS_NormalizeSystemMessageKey(message)
+		local lostKey = MTH_PETS_NormalizeSystemMessageKey(lostPetMessage)
+		if messageKey ~= "" and lostKey ~= "" then
+			if messageKey == lostKey then
+				return true
+			end
+			if string.find(messageKey, lostKey, 1, true) then
+				return true
+			end
+		end
 	end
 
 	local lower = string.lower(message)
@@ -406,12 +427,10 @@ local function MTH_PETS_IsRunawaySystemMessage(rawMessage)
 	if string.find(lower, "pet ran away", 1, true) then return true end
 	if string.find(lower, "pet has fled", 1, true) then return true end
 	if string.find(lower, "pet fled", 1, true) then return true end
+	if string.find(lower, "pet has left", 1, true) then return true end
+	if string.find(lower, "pet left", 1, true) then return true end
 
 	return false
-end
-
-local function MTH_PETS_TraceRunawayEvent(evt, rawMessage, matched)
-	return
 end
 
 local function MTH_PETS_ParseCreatureIdFromGuid(guid)
@@ -717,11 +736,151 @@ local function MTH_PETS_GetPendingTameBeastId(snapshot)
 	return nil
 end
 
+local function MTH_PETS_ResolveTameBeastIdForRow(row, snapshot)
+	if type(row) ~= "table" then
+		return nil
+	end
+
+	local pendingResolved = MTH_PETS_GetPendingTameBeastId(snapshot)
+	if pendingResolved and pendingResolved > 0 then
+		return pendingResolved
+	end
+
+	local fromSnapshot = snapshot and tonumber(snapshot.beastId) or nil
+	if fromSnapshot and fromSnapshot > 0 then
+		return fromSnapshot
+	end
+
+	local fromRow = tonumber(row.beastId)
+	if fromRow and fromRow > 0 then
+		return fromRow
+	end
+
+	local lookup = MTH_PETS_FindBeastIdByDataset(
+		tostring((snapshot and snapshot.name) or row.name or ""),
+		tostring((snapshot and snapshot.family) or row.family or ""),
+		tonumber((snapshot and snapshot.level) or row.level)
+	)
+	if lookup and lookup > 0 then
+		return lookup
+	end
+
+	return nil
+end
+
 local function MTH_PETS_MakeSignature(name, family, level)
 	local cleanName = MTH_PETS_SafeLower(MTH_PETS_NormalizeText(name))
 	local cleanFamily = MTH_PETS_SafeLower(MTH_PETS_NormalizeText(family))
 	local numericLevel = tonumber(level) or 0
 	return cleanName .. "|" .. cleanFamily .. "|" .. tostring(numericLevel)
+end
+
+local function MTH_PETS_RowHasTameRecord(row)
+	if type(row) ~= "table" then
+		return false
+	end
+	if row.tameRecorded == true then
+		return true
+	end
+	if tonumber(row.tamedAt) and tonumber(row.tamedAt) > 0 then
+		return true
+	end
+	if tonumber(row.tameBeastId) and tonumber(row.tameBeastId) > 0 then
+		return true
+	end
+	if type(row.tameZone) == "string" and row.tameZone ~= "" then
+		return true
+	end
+	return false
+end
+
+local function MTH_PETS_BackfillTameMetadataFromEvents(row)
+	if type(row) ~= "table" then
+		return false
+	end
+	if MTH_PETS_RowHasTameRecord(row) then
+		return false
+	end
+	if type(row.events) ~= "table" then
+		return false
+	end
+
+	local bestEvent = nil
+	local stableFirstSeenAt = tonumber(row.stableFirstSeenAt) or tonumber(row.stabledAt) or 0
+	for i = 1, table.getn(row.events) do
+		local ev = row.events[i]
+		if type(ev) == "table" and tostring(ev.type or "") == "pet-acquired" then
+			local evAt = tonumber(ev.at) or 0
+			local timelineOk = true
+			if stableFirstSeenAt > 0 and evAt > 0 and evAt > stableFirstSeenAt then
+				-- If we only saw this pet as stabled before the acquire event, it was likely a call-out, not a tame.
+				timelineOk = false
+			end
+			if timelineOk then
+				if not bestEvent then
+					bestEvent = ev
+				else
+					local bestAt = tonumber(bestEvent.at) or 0
+					if bestAt <= 0 or (evAt > 0 and evAt < bestAt) then
+						bestEvent = ev
+					end
+				end
+			end
+		end
+	end
+
+	if type(bestEvent) ~= "table" then
+		return false
+	end
+
+	local context = type(bestEvent.context) == "table" and bestEvent.context or nil
+	local changed = false
+
+	if row.tamedAt == nil or tonumber(row.tamedAt) == nil or tonumber(row.tamedAt) <= 0 then
+		local candidateAt = tonumber(bestEvent.at) or (context and tonumber(context.timestamp) or nil) or tonumber(row.createdAt)
+		if candidateAt and candidateAt > 0 then
+			row.tamedAt = candidateAt
+			changed = true
+		end
+	end
+
+	if context then
+		if row.tameHunterLevel == nil and context.hunterLevel ~= nil then
+			row.tameHunterLevel = context.hunterLevel
+			changed = true
+		end
+		if (row.tameZone == nil or row.tameZone == "") and context.zone ~= nil and tostring(context.zone) ~= "" then
+			row.tameZone = context.zone
+			changed = true
+		end
+		if (row.tameSubZone == nil or row.tameSubZone == "") and context.subZone ~= nil and tostring(context.subZone) ~= "" then
+			row.tameSubZone = context.subZone
+			changed = true
+		end
+		if row.tameX == nil and context.x ~= nil then
+			row.tameX = context.x
+			changed = true
+		end
+		if row.tameY == nil and context.y ~= nil then
+			row.tameY = context.y
+			changed = true
+		end
+	end
+
+	if (row.tameBeastId == nil or tonumber(row.tameBeastId) == nil) and row.beastId ~= nil then
+		local beastId = tonumber(row.beastId)
+		if beastId and beastId > 0 then
+			row.tameBeastId = beastId
+			changed = true
+		end
+	end
+
+	if changed then
+		row.tameRecorded = true
+		row.lastUpdated = time()
+	end
+
+	return changed
 end
 
 local function MTH_PETS_EnsurePetStoreSchema(pets)
@@ -767,6 +926,7 @@ local function MTH_PETS_EnsurePetStoreSchema(pets)
 				end
 				row.stableInfo.loyalty = nil
 			end
+			MTH_PETS_BackfillTameMetadataFromEvents(row)
 		end
 	end
 end
@@ -918,6 +1078,9 @@ local function MTH_PETS_EnsureSchema(pets)
 	end
 	if pets.updatedAt == nil then
 		pets.updatedAt = 0
+	end
+	if pets.createdAt == nil or tonumber(pets.createdAt) == nil or tonumber(pets.createdAt) <= 0 then
+		pets.createdAt = now
 	end
 	if pets.currentPetId == nil then
 		local cpId = (type(pets.currentPet) == "table") and pets.currentPet.id or nil
@@ -1244,8 +1407,11 @@ local function MTH_PETS_ApplySnapshotToRow(row, snapshot, source, context)
 	row.guid = snapshot.guid or row.guid
 	row.beastId = snapshot.beastId or row.beastId
 	local hasPendingTame = type(MTH_PETS_LastTameAttempt) == "table"
-	if hasPendingTame and snapshot.beastId and (row.tameBeastId == nil or tonumber(row.tameBeastId) == nil) then
-		row.tameBeastId = snapshot.beastId
+	if hasPendingTame and (row.tameBeastId == nil or tonumber(row.tameBeastId) == nil) then
+		local resolvedTameBeastId = MTH_PETS_ResolveTameBeastIdForRow(row, snapshot)
+		if resolvedTameBeastId and resolvedTameBeastId > 0 then
+			row.tameBeastId = resolvedTameBeastId
+		end
 	end
 	if hasPendingTame and (source == "unit-pet-acquire" or source == "refresh-current-pet") and type(context) == "table" then
 		row.tameRecorded = true
@@ -1294,8 +1460,11 @@ local function MTH_PETS_ApplySnapshotToRow(row, snapshot, source, context)
 				row.tameSubZone = row.tameSubZone or context.subZone
 				row.tameX = row.tameX or context.x
 				row.tameY = row.tameY or context.y
-				if snapshot.beastId and tonumber(row.tameBeastId) == nil then
-					row.tameBeastId = snapshot.beastId
+				if tonumber(row.tameBeastId) == nil then
+					local resolvedTameBeastId = MTH_PETS_ResolveTameBeastIdForRow(row, snapshot)
+					if resolvedTameBeastId and resolvedTameBeastId > 0 then
+						row.tameBeastId = resolvedTameBeastId
+					end
 				end
 			end
 		end
@@ -1950,6 +2119,7 @@ function MTH_PETS_RefreshCurrentPet()
 
 	local cp = pets.currentPet
 	local previousCurrentId = cp and cp.id or nil
+	local hadPetBeforeRefresh = MTH_ST_LastUnitPetHadPet and true or false
 	local now = time()
 	local snapshot = MTH_PETS_MakeSnapshotFromLivePet()
 	if pets.currentPetSuppressed == true and pets.currentPetSuppressedAwaitNoLive == true then
@@ -1993,6 +2163,7 @@ function MTH_PETS_RefreshCurrentPet()
 		MTH_PETS_SetCurrentPetId(pets, keepCurrentId)
 		MTH_PETS_LogConsistency("RefreshCurrentPet no-live result current=" .. MTH_PETS_FormatCurrentConsistency(cp)
 			.. " activeCurrentId=" .. tostring(petStore and petStore.activeCurrentId or nil))
+		MTH_ST_LastUnitPetHadPet = false
 		pets.updatedAt = now
 		return
 	end
@@ -2029,11 +2200,54 @@ function MTH_PETS_RefreshCurrentPet()
 	if cp.id and cp.id ~= previousCurrentId then
 		MTH_PETS_RequestPetSpellScan("refresh-current-change")
 	end
+
+	local row = MTH_PETS_GetPetById(pets, petId)
+	if type(row) == "table" then
+		if type(row.events) ~= "table" then
+			row.events = {}
+		end
+
+		local eventType = "pet-updated"
+		if created and (not hadPetBeforeRefresh) then
+			eventType = "pet-acquired"
+		end
+
+		local eventContext = MTH_PETS_CaptureContext()
+		table.insert(row.events, {
+			type = eventType,
+			source = "refresh-current-pet",
+			at = now,
+			context = eventContext,
+		})
+
+		if eventType == "pet-acquired" then
+			local hasTameRecord = (row.tameRecorded == true)
+				or (tonumber(row.tamedAt) and tonumber(row.tamedAt) > 0)
+				or (type(row.tameZone) == "string" and row.tameZone ~= "")
+			if not hasTameRecord and type(eventContext) == "table" then
+				row.tameRecorded = true
+				row.tamedAt = row.tamedAt or eventContext.timestamp or now
+				row.tameHunterLevel = row.tameHunterLevel or eventContext.hunterLevel
+				row.tameZone = row.tameZone or eventContext.zone
+				row.tameSubZone = row.tameSubZone or eventContext.subZone
+				row.tameX = row.tameX or eventContext.x
+				row.tameY = row.tameY or eventContext.y
+				if tonumber(row.tameBeastId) == nil then
+					local resolvedTameBeastId = MTH_PETS_ResolveTameBeastIdForRow(row, snapshot)
+					if resolvedTameBeastId and resolvedTameBeastId > 0 then
+						row.tameBeastId = resolvedTameBeastId
+					end
+				end
+			end
+		end
+	end
+
 	if hadPendingTame and cp.id and cp.id ~= previousCurrentId then
 		MTH_PETS_LogTame("RefreshCurrentPet acquire/change completed; clearing pending tame attempt")
 		MTH_PETS_LastTameAttempt = nil
 	end
 	MTH_PETS_LogConsistency("RefreshCurrentPet live result current=" .. MTH_PETS_FormatCurrentConsistency(cp))
+	MTH_ST_LastUnitPetHadPet = true
 	pets.updatedAt = now
 end
 
@@ -2300,6 +2514,7 @@ function MTH_ST_Scan(reason)
 	local slotCount = tonumber(GetNumStableSlots()) or 0
 	local store = MTH_ST_GetStore()
 	local petsRoot = MTH_PETS_GetRootStore()
+	MTH_PETS_RefreshCurrentPet()
 	local scanContext = MTH_PETS_CaptureContext()
 	local scanStableMasterName = MTH_PETS_GetStableMasterName()
 	store.lastScan = time()
@@ -2330,6 +2545,28 @@ function MTH_ST_Scan(reason)
 			r1, r2, r3, r4, r5, r6, r7, r8,
 		}
 	end
+
+	local c1, c2, c3, c4, c5, c6, c7, c8 = GetStablePetInfo(0)
+	local currentPetId = (type(petsRoot) == "table" and type(petsRoot.currentPet) == "table") and petsRoot.currentPet.id or nil
+	if currentPetId and type(petsRoot.petStore) == "table" and type(petsRoot.petStore.activeById) == "table" then
+		local currentRow = petsRoot.petStore.activeById[currentPetId]
+		if type(currentRow) == "table" then
+			local currentIcon = tostring(c1 or "")
+			if currentIcon ~= "" then
+				currentRow.icon = currentIcon
+				currentRow.lastUpdated = time()
+			end
+		end
+	end
+	store.current = {
+		petId = currentPetId,
+		icon = c1,
+		name = c2,
+		level = c3,
+		family = c4,
+		loyalty = c5,
+		raw = { c1, c2, c3, c4, c5, c6, c7, c8 },
+	}
 
 	MTH_PETS_MarkStableVisited(petsRoot, tostring(reason or "stable-scan"))
 
@@ -2539,6 +2776,54 @@ local function MTH_ST_DebugDumpLine(line)
 	if MTH and MTH.Print then
 		MTH:Print(tostring(line or ""), "debug")
 	end
+end
+
+local MTH_PETS_DebugBaselineSnapshot = nil
+
+local function MTH_ST_DebugCloneValue(value, seen)
+	if type(value) ~= "table" then
+		return value
+	end
+	seen = seen or {}
+	if seen[value] then
+		return seen[value]
+	end
+	local clone = {}
+	seen[value] = clone
+	for key, child in pairs(value) do
+		clone[MTH_ST_DebugCloneValue(key, seen)] = MTH_ST_DebugCloneValue(child, seen)
+	end
+	return clone
+end
+
+local function MTH_PETS_CaptureDebugSnapshot(targetPetId)
+	local pets = MTH_PETS_GetRootStore()
+	if type(pets) ~= "table" then
+		return nil, "pets datastore unavailable"
+	end
+
+	MTH_PETS_RefreshCurrentPet()
+
+	local cp = (type(pets.currentPet) == "table") and pets.currentPet or nil
+	local petId = targetPetId or (cp and cp.id) or pets.currentPetId
+	if petId == nil or tostring(petId) == "" then
+		return nil, "no current pet id"
+	end
+
+	local row = MTH_PETS_GetPetById(pets, petId)
+	if type(row) ~= "table" then
+		return nil, "active row missing for pet id=" .. tostring(petId)
+	end
+
+	local snapshot = {
+		capturedAt = time(),
+		petId = tostring(petId),
+		currentPetId = pets.currentPetId,
+		currentPet = MTH_ST_DebugCloneValue(cp or {}),
+		row = MTH_ST_DebugCloneValue(row),
+		stableScan = MTH_ST_DebugCloneValue(pets.stableScan or {}),
+	}
+	return snapshot, nil
 end
 
 local function MTH_ST_DebugSortKeys(tbl)
@@ -2770,6 +3055,64 @@ function MTH_CommandPetsDump()
 	end
 end
 
+function MTH_CommandPetsSnap()
+	local snapshot, err = MTH_PETS_CaptureDebugSnapshot(nil)
+	if not snapshot then
+		MTH:Print("Pet snapshot failed: " .. tostring(err or "unknown"))
+		return false
+	end
+	MTH_PETS_DebugBaselineSnapshot = snapshot
+	MTH:Print("Pet snapshot saved for id=" .. tostring(snapshot.petId) .. ". Run /mth petsdiff after reproducing the issue.")
+	MTH_ST_DebugDumpLine("[PETSNAP] BASELINE BEGIN")
+	MTH_ST_DebugDumpValue("[PETSNAP].baseline", snapshot, 0, 5, {})
+	MTH_ST_DebugDumpLine("[PETSNAP] BASELINE END")
+	return true
+end
+
+function MTH_CommandPetsDiff()
+	if type(MTH_PETS_DebugBaselineSnapshot) ~= "table" then
+		MTH:Print("No pet snapshot baseline found. Run /mth petssnap first.")
+		return false
+	end
+
+	local baseline = MTH_PETS_DebugBaselineSnapshot
+	local current, err = MTH_PETS_CaptureDebugSnapshot(baseline.petId)
+	if not current then
+		MTH:Print("Pet snapshot compare failed: " .. tostring(err or "unknown"))
+		return false
+	end
+
+	MTH:Print("Pet snapshot compare for id=" .. tostring(current.petId) .. ".")
+	MTH_ST_DebugDumpLine("[PETSNAP] BEFORE BEGIN")
+	MTH_ST_DebugDumpValue("[PETSNAP].before", baseline, 0, 5, {})
+	MTH_ST_DebugDumpLine("[PETSNAP] BEFORE END")
+	MTH_ST_DebugDumpLine("[PETSNAP] AFTER BEGIN")
+	MTH_ST_DebugDumpValue("[PETSNAP].after", current, 0, 5, {})
+	MTH_ST_DebugDumpLine("[PETSNAP] AFTER END")
+
+	local diffKeys = {
+		"name", "family", "level", "beastId", "icon",
+		"tameRecorded", "tamedAt", "tameZone", "tameSubZone", "tameX", "tameY", "tameBeastId",
+		"stableSlot", "stabledAt", "stableFirstSeenAt", "lastUnstabledAt", "lastSource", "lastUpdated",
+	}
+	local diffCount = 0
+	for i = 1, table.getn(diffKeys) do
+		local key = diffKeys[i]
+		local beforeValue = baseline.row and baseline.row[key] or nil
+		local afterValue = current.row and current.row[key] or nil
+		if tostring(beforeValue) ~= tostring(afterValue) then
+			diffCount = diffCount + 1
+			MTH_ST_DebugDumpLine("[PETSNAP] DIFF row." .. tostring(key) .. ": " .. tostring(beforeValue) .. " -> " .. tostring(afterValue))
+		end
+	end
+	if diffCount <= 0 then
+		MTH_ST_DebugDumpLine("[PETSNAP] DIFF none")
+	end
+
+	MTH_PETS_DebugBaselineSnapshot = current
+	return true
+end
+
 function MTH_CommandStableScan()
 	if UnitClass then
 		local _, classToken = UnitClass("player")
@@ -2790,9 +3133,10 @@ function MTH_CommandStableScan()
 	MTH:Print("Stable scan captured " .. tostring(slotCount) .. " slot(s).")
 end
 
-local function MTH_ST_OnEvent(_, evt, eventArg1)
+local function MTH_ST_OnEvent(_, evt, eventArg1, eventArg2)
 	evt = evt or event
 	eventArg1 = eventArg1 or arg1
+	eventArg2 = eventArg2 or arg2
 	if not evt then
 		return
 	end
@@ -2805,41 +3149,39 @@ local function MTH_ST_OnEvent(_, evt, eventArg1)
 		return
 	end
 
-	if evt == "SPELLCAST_CHANNEL_START" then
-		MTH_PETS_RecordTameAttempt(evt, eventArg1)
+	local isUnitSpellcast = (evt == "UNIT_SPELLCAST_START" or evt == "UNIT_SPELLCAST_STOP"
+		or evt == "UNIT_SPELLCAST_FAILED" or evt == "UNIT_SPELLCAST_INTERRUPTED"
+		or evt == "UNIT_SPELLCAST_CHANNEL_START" or evt == "UNIT_SPELLCAST_CHANNEL_STOP")
+	local castSpellName = eventArg1
+	if isUnitSpellcast then
+		if eventArg1 ~= "player" then
+			return
+		end
+		castSpellName = eventArg2
+	end
+
+	if evt == "SPELLCAST_START" or evt == "SPELLCAST_CHANNEL_START"
+		or evt == "UNIT_SPELLCAST_START" or evt == "UNIT_SPELLCAST_CHANNEL_START" then
+		MTH_PETS_RecordTameAttempt(evt, castSpellName)
 		return
 	end
 
-	if evt == "SPELLCAST_STOP" or evt == "SPELLCAST_CHANNEL_STOP" or evt == "SPELLCAST_FAILED" or evt == "SPELLCAST_INTERRUPTED" then
-		if MTH_PETS_TRACE_TAME then
-			MTH_PETS_LogTame("Spell terminal evt=" .. tostring(evt) .. " spell='" .. tostring(eventArg1 or "") .. "' pending=" .. tostring(type(MTH_PETS_LastTameAttempt) == "table"))
-		end
-		local terminalIsTame = MTH_PETS_IsTameBeastSpellName(eventArg1)
+	if evt == "SPELLCAST_STOP" or evt == "SPELLCAST_CHANNEL_STOP" or evt == "SPELLCAST_FAILED" or evt == "SPELLCAST_INTERRUPTED"
+		or evt == "UNIT_SPELLCAST_STOP" or evt == "UNIT_SPELLCAST_CHANNEL_STOP"
+		or evt == "UNIT_SPELLCAST_FAILED" or evt == "UNIT_SPELLCAST_INTERRUPTED" then
+		local terminalIsTame = MTH_PETS_IsTameBeastSpellName(castSpellName)
 		if not terminalIsTame and type(MTH_PETS_LastTameAttempt) == "table" then
 			terminalIsTame = true
-			if MTH_PETS_TRACE_TAME then
-				MTH_PETS_LogTame("Treating terminal event as tame because pending attempt exists")
-			end
 		end
 		if not terminalIsTame then
 			local fallbackName, fallbackSource = MTH_PETS_GetCurrentPlayerCastOrChannelName()
 			if fallbackName and MTH_PETS_IsTameBeastSpellName(fallbackName) then
 				terminalIsTame = true
-				if MTH_PETS_TRACE_TAME then
-					MTH_PETS_LogTame("Resolved terminal spell via " .. tostring(fallbackSource) .. " => '" .. tostring(fallbackName) .. "'")
-				end
 			end
 		end
 		if terminalIsTame then
 			if evt == "SPELLCAST_FAILED" or evt == "SPELLCAST_INTERRUPTED" then
-				if MTH_PETS_TRACE_TAME then
-					MTH_PETS_LogTame("Tame ended with failure/interruption; clearing pending attempt")
-				end
 				MTH_PETS_LastTameAttempt = nil
-			elseif evt == "SPELLCAST_CHANNEL_STOP" or evt == "SPELLCAST_STOP" then
-				if MTH_PETS_TRACE_TAME then
-					MTH_PETS_LogTame("Tame channel ended; awaiting UNIT_PET to confirm acquire")
-				end
 			end
 		end
 		return
@@ -2884,9 +3226,10 @@ local function MTH_ST_OnEvent(_, evt, eventArg1)
 		return
 	end
 
-	if evt == "CHAT_MSG_SYSTEM" or evt == "UI_ERROR_MESSAGE" then
+	if evt == "CHAT_MSG_SYSTEM" or evt == "UI_ERROR_MESSAGE"
+		or evt == "CHAT_MSG_SPELL_PET_INFO" or evt == "CHAT_MSG_SPELL_PET_DAMAGE"
+		or evt == "CHAT_MSG_COMBAT_PET_HITS" or evt == "CHAT_MSG_COMBAT_PET_MISSES" then
 		local matchedRunaway = MTH_PETS_IsRunawaySystemMessage(eventArg1)
-		MTH_PETS_TraceRunawayEvent(evt, eventArg1, matchedRunaway)
 		if matchedRunaway then
 			MTH_PETS_RecordPetRunaway(evt, eventArg1)
 			MTH_PETS_RefreshCurrentPet()
@@ -2896,7 +3239,18 @@ local function MTH_ST_OnEvent(_, evt, eventArg1)
 	end
 
 	if evt == "PET_STABLE_SHOW" then
-		MTH_ST_RunScanThrottled(evt, 1)
+		local scanned = MTH_ST_RunScanThrottled(evt, 1)
+		if scanned and MTH and MTH.Print then
+			local shouldPrint = true
+			if MTH.IsMessageEnabled then
+				shouldPrint = MTH:IsMessageEnabled("stableScan", true)
+			end
+			if shouldPrint then
+				local store = MTH_ST_GetStore()
+				local slotCount = tonumber(store and store.slotCount) or 0
+				MTH:Print("Stable scan complete: " .. tostring(slotCount) .. " slot(s).")
+			end
+		end
 		return
 	end
 
@@ -2925,16 +3279,28 @@ function MTH_ST_InitService()
 
 	MTH_StableFrame = CreateFrame("Frame", "MTHStableScanFrame")
 	MTH_StableFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+	MTH_StableFrame:RegisterEvent("SPELLCAST_START")
+	MTH_StableFrame:RegisterEvent("SPELLCAST_STOP")
 	MTH_StableFrame:RegisterEvent("SPELLCAST_CHANNEL_START")
 	MTH_StableFrame:RegisterEvent("SPELLCAST_CHANNEL_STOP")
 	MTH_StableFrame:RegisterEvent("SPELLCAST_FAILED")
 	MTH_StableFrame:RegisterEvent("SPELLCAST_INTERRUPTED")
+	MTH_StableFrame:RegisterEvent("UNIT_SPELLCAST_START")
+	MTH_StableFrame:RegisterEvent("UNIT_SPELLCAST_STOP")
+	MTH_StableFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
+	MTH_StableFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
+	MTH_StableFrame:RegisterEvent("UNIT_SPELLCAST_FAILED")
+	MTH_StableFrame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
 	MTH_StableFrame:RegisterEvent("UNIT_PET")
 	MTH_StableFrame:RegisterEvent("PET_BAR_UPDATE")
 	MTH_StableFrame:RegisterEvent("UNIT_HAPPINESS")
 	MTH_StableFrame:RegisterEvent("CHAT_MSG_COMBAT_XP_GAIN")
 	MTH_StableFrame:RegisterEvent("PLAYER_XP_UPDATE")
 	MTH_StableFrame:RegisterEvent("CHAT_MSG_SYSTEM")
+	MTH_StableFrame:RegisterEvent("CHAT_MSG_SPELL_PET_INFO")
+	MTH_StableFrame:RegisterEvent("CHAT_MSG_SPELL_PET_DAMAGE")
+	MTH_StableFrame:RegisterEvent("CHAT_MSG_COMBAT_PET_HITS")
+	MTH_StableFrame:RegisterEvent("CHAT_MSG_COMBAT_PET_MISSES")
 	MTH_StableFrame:RegisterEvent("UI_ERROR_MESSAGE")
 	MTH_StableFrame:RegisterEvent("PET_STABLE_SHOW")
 	MTH_StableFrame:RegisterEvent("PET_STABLE_UPDATE")
@@ -2960,15 +3326,17 @@ function MTH_ST_InitBootstrap()
 	if not frame then
 		return
 	end
+	frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 	frame:RegisterEvent("PET_STABLE_SHOW")
+	frame:RegisterEvent("PET_STABLE_UPDATE")
 	frame:SetScript("OnEvent", function(self, evt)
 		evt = evt or event
-		if evt ~= "PET_STABLE_SHOW" then
+		if evt ~= "PLAYER_ENTERING_WORLD" and evt ~= "PET_STABLE_SHOW" and evt ~= "PET_STABLE_UPDATE" then
 			return
 		end
 		MTH_ST_InitService()
-		if type(MTH_ST_Scan) == "function" then
-			MTH_ST_Scan("bootstrap:PET_STABLE_SHOW")
+		if (evt == "PET_STABLE_SHOW" or evt == "PET_STABLE_UPDATE") and type(MTH_ST_Scan) == "function" then
+			MTH_ST_Scan("bootstrap:" .. tostring(evt))
 		end
 		if self and self.UnregisterAllEvents then
 			self:UnregisterAllEvents()

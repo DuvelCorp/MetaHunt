@@ -7,8 +7,8 @@ MTH_HUNTERBOOK_TABS.families = {
 		{ x = 10, width = 106, align = "LEFT" },
 		{ x = 122, width = 52, align = "LEFT" },
 		{ x = 176, width = 52, align = "LEFT" },
-		{ x = 232, width = 292, align = "LEFT" },
-		{ x = 460, width = 184, align = "LEFT" },
+		{ x = 232, width = 364, align = "LEFT" },
+		{ x = 532, width = 112, align = "LEFT" },
 	},
 }
 
@@ -25,6 +25,11 @@ local function MTH_BOOKTAB_FamiliesTrim(value)
 	text = string.gsub(text, "^%s+", "")
 	text = string.gsub(text, "%s+$", "")
 	return text
+end
+
+local function MTH_BOOKTAB_ShouldDisplayAllDiet(familyName)
+	local token = MTH_BOOKTAB_FamiliesSafeLower(MTH_BOOKTAB_FamiliesTrim(familyName))
+	return token == "bears" or token == "boars"
 end
 
 local function MTH_BOOKTAB_FindAbilityBundle(abilityName)
@@ -95,23 +100,47 @@ function MTH_BOOKTAB_BuildFamiliesRows()
 						if token ~= "" and not seen[token] then
 							seen[token] = true
 							local spellRows = (type(bundle) == "table" and type(bundle.spells) == "table") and bundle.spells or {}
+							local firstAnySpell = nil
 							local firstBeastSpell = nil
-							local rankMin = nil
-							local rankMax = nil
-							local rankMap = {}
+							local beastRankMin = nil
+							local beastRankMax = nil
+							local beastRankMap = {}
+							local anyRankMin = nil
+							local anyRankMax = nil
+							local anyRankMap = {}
 							for s = 1, table.getn(spellRows) do
 								local spell = spellRows[s]
-								if type(spell) == "table" and MTH_BOOKTAB_FamiliesSafeLower(spell.learnMethod or "beast") ~= "trainer" then
-									if not firstBeastSpell then
-										firstBeastSpell = spell
+								if type(spell) == "table" then
+									if not firstAnySpell then
+										firstAnySpell = spell
 									end
 									local rank = tonumber(spell.rankNumber)
 									if rank and rank > 0 then
-										rankMap[rank] = true
-										if not rankMin or rank < rankMin then rankMin = rank end
-										if not rankMax or rank > rankMax then rankMax = rank end
+										anyRankMap[rank] = true
+										if not anyRankMin or rank < anyRankMin then anyRankMin = rank end
+										if not anyRankMax or rank > anyRankMax then anyRankMax = rank end
+									end
+									if MTH_BOOKTAB_FamiliesSafeLower(spell.learnMethod or "beast") ~= "trainer" then
+										if not firstBeastSpell then
+											firstBeastSpell = spell
+										end
+										if rank and rank > 0 then
+											beastRankMap[rank] = true
+											if not beastRankMin or rank < beastRankMin then beastRankMin = rank end
+											if not beastRankMax or rank > beastRankMax then beastRankMax = rank end
+										end
 									end
 								end
+							end
+
+							local displaySpell = firstBeastSpell or firstAnySpell
+							local rankMap = beastRankMap
+							local rankMin = beastRankMin
+							local rankMax = beastRankMax
+							if not firstBeastSpell then
+								rankMap = anyRankMap
+								rankMin = anyRankMin
+								rankMax = anyRankMax
 							end
 
 							local rankCount = 0
@@ -123,8 +152,8 @@ function MTH_BOOKTAB_BuildFamiliesRows()
 								name = canonicalMap[token] or canonical,
 								token = token,
 								isUnique = (abilityCounts[token] or 0) == 1,
-								icon = firstBeastSpell and firstBeastSpell.icon or nil,
-								description = firstBeastSpell and firstBeastSpell.description or "",
+								icon = displaySpell and displaySpell.icon or nil,
+								description = displaySpell and displaySpell.description or "",
 								rankMin = rankMin,
 								rankMax = rankMax,
 								rankCount = rankCount,
@@ -141,17 +170,23 @@ function MTH_BOOKTAB_BuildFamiliesRows()
 				return MTH_BOOKTAB_FamiliesSafeLower(a.name) < MTH_BOOKTAB_FamiliesSafeLower(b.name)
 			end)
 
-			local dietItems = {}
-			if type(familyRow.food) == "table" then
-				for i = 1, table.getn(familyRow.food) do
-					local food = MTH_BOOKTAB_FamiliesTrim(familyRow.food[i])
-					if food ~= "" then
-						table.insert(dietItems, string.upper(string.sub(food, 1, 1)) .. string.sub(food, 2))
+			local dietText = ""
+			if MTH_BOOKTAB_ShouldDisplayAllDiet(familyName) then
+				dietText = "ALL"
+			else
+				local dietItems = {}
+				if type(familyRow.food) == "table" then
+					for i = 1, table.getn(familyRow.food) do
+						local food = MTH_BOOKTAB_FamiliesTrim(familyRow.food[i])
+						if food ~= "" then
+							table.insert(dietItems, string.upper(string.sub(food, 1, 1)) .. string.sub(food, 2))
+						end
 					end
+					table.sort(dietItems, function(a, b)
+						return MTH_BOOKTAB_FamiliesSafeLower(a) < MTH_BOOKTAB_FamiliesSafeLower(b)
+					end)
 				end
-				table.sort(dietItems, function(a, b)
-					return MTH_BOOKTAB_FamiliesSafeLower(a) < MTH_BOOKTAB_FamiliesSafeLower(b)
-				end)
+				dietText = table.concat(dietItems, ", ")
 			end
 
 			table.insert(results, {
@@ -159,7 +194,7 @@ function MTH_BOOKTAB_BuildFamiliesRows()
 				named = tonumber(familyRow.named) or 0,
 				coords = tonumber(familyRow.coords) or 0,
 				abilities = abilities,
-				dietText = table.concat(dietItems, ", "),
+				dietText = dietText,
 			})
 		end
 	end
@@ -238,7 +273,7 @@ function MTH_BOOKTAB_EnsureFamiliesUI()
 	ui.headerAbilities:SetText("Abilities")
 
 	ui.headerDiet = ui.frame:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-	ui.headerDiet:SetPoint("TOPLEFT", ui.frame, "TOPLEFT", 460, -2)
+	ui.headerDiet:SetPoint("TOPLEFT", ui.frame, "TOPLEFT", 532, -2)
 	ui.headerDiet:SetTextColor(1.00, 0.82, 0.00)
 	ui.headerDiet:SetText("Diet")
 
@@ -270,8 +305,8 @@ function MTH_BOOKTAB_EnsureFamiliesUI()
 		row.coords:SetJustifyH("LEFT")
 
 		row.diet = row:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-		row.diet:SetPoint("LEFT", row, "LEFT", 460, 0)
-		row.diet:SetWidth(184)
+		row.diet:SetPoint("LEFT", row, "LEFT", 532, 0)
+		row.diet:SetWidth(112)
 		row.diet:SetJustifyH("LEFT")
 
 		row.abilityButtons = {}
@@ -363,6 +398,7 @@ function MTH_BOOKTAB_RenderFamiliesList()
 			rowFrame.diet:SetText(tostring(row.dietText or "-"))
 
 			local offsetX = 232
+			local abilityMaxRight = 526
 			for b = 1, table.getn(rowFrame.abilityButtons) do
 				local button = rowFrame.abilityButtons[b]
 				local ability = row.abilities and row.abilities[b] or nil
@@ -375,17 +411,23 @@ function MTH_BOOKTAB_RenderFamiliesList()
 					button.text:SetText(nameText)
 					local textW = button.text:GetStringWidth() or 40
 					if textW < 24 then textW = 24 end
-					button:SetWidth(14 + textW)
-					button:ClearAllPoints()
-					button:SetPoint("LEFT", rowFrame, "LEFT", offsetX, 0)
-					local iconPath = ability.icon and MTH_BOOK_ResolveIconPath and MTH_BOOK_ResolveIconPath(ability.icon) or nil
-					if iconPath then
-						button.icon:SetTexture(iconPath)
+					local buttonWidth = 14 + textW
+					if (offsetX + buttonWidth) > abilityMaxRight then
+						button.entry = nil
+						button:Hide()
 					else
-						button.icon:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
+						button:SetWidth(buttonWidth)
+						button:ClearAllPoints()
+						button:SetPoint("LEFT", rowFrame, "LEFT", offsetX, 0)
+						local iconPath = ability.icon and MTH_BOOK_ResolveIconPath and MTH_BOOK_ResolveIconPath(ability.icon) or nil
+						if iconPath then
+							button.icon:SetTexture(iconPath)
+						else
+							button.icon:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
+						end
+						button:Show()
+						offsetX = offsetX + button:GetWidth() + 6
 					end
-					button:Show()
-					offsetX = offsetX + button:GetWidth() + 6
 				else
 					button.entry = nil
 					button:Hide()

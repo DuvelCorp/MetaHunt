@@ -8,7 +8,7 @@ MTH_ZH_MANAGED_HOOKS = true
 local MTH_ZHunter = {
 	name = "zhunter",
 	enabled = true,
-	version = "1.0.5",
+	version = "1.0.6",
 	events = {
 		"VARIABLES_LOADED",
 		"PLAYER_ENTERING_WORLD",

@@ -384,9 +384,36 @@ function ZSpellButton_OnEnter()
 		if this.isspell then 
 			GameTooltip:SetSpell(this.id, "spell") 
 		else
-			GameTooltip:SetText(this.ammocount .. " x "..this.ammolink, 1, 1, 1)
-			--GameTooltip:AddLine("Q="..this.ammocount)
+			local showedItemTooltip = nil
+			if this.ammobag and this.ammoslot and type(GameTooltip.SetBagItem) == "function" then
+				GameTooltip:ClearLines()
+				GameTooltip:SetBagItem(this.ammobag, this.ammoslot)
+				if type(GameTooltip.NumLines) == "function" and GameTooltip:NumLines() > 0 then
+					local left1 = getglobal("GameTooltipTextLeft1")
+					if left1 and left1.GetText and tostring(left1:GetText() or "") ~= "" then
+						showedItemTooltip = true
+					end
+				end
+			end
+			if (not showedItemTooltip) and this.ammolink and type(GameTooltip.SetHyperlink) == "function" then
+				GameTooltip:ClearLines()
+				GameTooltip:SetHyperlink(this.ammolink)
+				if type(GameTooltip.NumLines) == "function" and GameTooltip:NumLines() > 0 then
+					local left1 = getglobal("GameTooltipTextLeft1")
+					if left1 and left1.GetText and tostring(left1:GetText() or "") ~= "" then
+						showedItemTooltip = true
+					end
+				end
+			end
+			if not showedItemTooltip then
+				local label = this.ammoname or this.ammolink or "Ammo"
+				if this.ammocount then
+					label = tostring(this.ammocount) .. " x " .. tostring(label)
+				end
+				GameTooltip:SetText(label, 1, 1, 1)
+			end
 		end 
+		GameTooltip:Show()
 	end
 end
 
@@ -488,11 +515,38 @@ function ZSpellButtonParent_OnEnter(frame)
 			if string.len(rank) > 0 then
 				msg = msg.." ("..rank..")"
 			end
+			GameTooltip:SetText(msg, 1, 1, 1)
 		else
-			msg = frame.ammoname 
+			local showedItemTooltip = nil
+			if frame.ammobag and frame.ammoslot and type(GameTooltip.SetBagItem) == "function" then
+				GameTooltip:ClearLines()
+				GameTooltip:SetBagItem(frame.ammobag, frame.ammoslot)
+				if type(GameTooltip.NumLines) == "function" and GameTooltip:NumLines() > 0 then
+					local left1 = getglobal("GameTooltipTextLeft1")
+					if left1 and left1.GetText and tostring(left1:GetText() or "") ~= "" then
+						showedItemTooltip = true
+					end
+				end
+			end
+			if (not showedItemTooltip) and frame.ammolink and type(GameTooltip.SetHyperlink) == "function" then
+				GameTooltip:ClearLines()
+				GameTooltip:SetHyperlink(frame.ammolink)
+				if type(GameTooltip.NumLines) == "function" and GameTooltip:NumLines() > 0 then
+					local left1 = getglobal("GameTooltipTextLeft1")
+					if left1 and left1.GetText and tostring(left1:GetText() or "") ~= "" then
+						showedItemTooltip = true
+					end
+				end
+			end
+			if not showedItemTooltip then
+				msg = frame.ammoname or frame.ammolink or "Ammo"
+				if frame.ammocount then
+					msg = tostring(frame.ammocount) .. " x " .. tostring(msg)
+				end
+				GameTooltip:SetText(msg, 1, 1, 1)
+			end
 		end 
 
-		GameTooltip:SetText(msg, 1, 1, 1)
 		GameTooltip:AddLine("Alt+Drag To Move This Button")
 		GameTooltip:Show()
 	end

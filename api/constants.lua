@@ -1,5 +1,5 @@
 MTH_CONST = MTH_CONST or {}
-MTH_CONST.version = MTH_CONST.version or "1.0.5"
+MTH_CONST.version = MTH_CONST.version or "1.0.6"
 
 MTH_CONST.WEAPON_TYPES = {
 	BOWS = "Bows",

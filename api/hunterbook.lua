@@ -1002,9 +1002,9 @@ end
 local function MTH_BOOK_ParseProjectileDPSFromText(text)
 	if type(text) ~= "string" or text == "" then return nil end
 	local lowered = string.lower(text)
-	local raw = string.match(lowered, "adds%s+([%d]+[%.,]?[%d]*)%s+damage%s+per%s+seconds?")
+	local _, _, raw = string.find(lowered, "adds%s+([%d]+[%.,]?[%d]*)%s+damage%s+per%s+seconds?")
 	if not raw then
-		raw = string.match(lowered, "([%d]+[%.,]?[%d]*)%s+damage%s+per%s+seconds?")
+		_, _, raw = string.find(lowered, "([%d]+[%.,]?[%d]*)%s+damage%s+per%s+seconds?")
 	end
 	if not raw then return nil end
 	local normalized = string.gsub(raw, ",", ".")

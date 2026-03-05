@@ -6,7 +6,7 @@
 local MTH_Tooltips = {
 	name = "tooltips",
 	enabled = true,
-	version = "1.0.5",
+	version = "1.0.6",
 	events = {
 		"UPDATE_MOUSEOVER_UNIT",
 		"UNIT_NAME_UPDATE",
@@ -864,7 +864,37 @@ local function MTH_TT_FindAbilityCanonicalName(abilityName)
 	return nil
 end
 
-local function MTH_TT_ParseRankFromText(value)
+local function MTH_TT_AbilityHasPositiveRanks(canonicalAbilityName)
+	if canonicalAbilityName == nil or canonicalAbilityName == "" then
+		return false
+	end
+	if not (MTH_DS_PetSpells and type(MTH_DS_PetSpells.byAbility) == "table") then
+		return false
+	end
+
+	local bucket = MTH_DS_PetSpells.byAbility[canonicalAbilityName]
+	if not (bucket and type(bucket.spells) == "table") then
+		return false
+	end
+
+	for i = 1, table.getn(bucket.spells) do
+		local spell = bucket.spells[i]
+		if spell then
+			local rank = tonumber(spell.rankNumber)
+			if not rank and spell.rank then
+				local _, _, parsed = string.find(tostring(spell.rank), "(%d+)")
+				rank = tonumber(parsed)
+			end
+			if rank and rank > 0 then
+				return true
+			end
+		end
+	end
+
+	return false
+end
+
+local function MTH_TT_ParseRankFromText(value, allowTrailingNumber)
 	local text = MTH_TT_Trim(value)
 	if text == "" then
 		return nil
@@ -873,9 +903,11 @@ local function MTH_TT_ParseRankFromText(value)
 	if rankText then
 		return tonumber(rankText)
 	end
-	local _, _, trailing = string.find(text, "(%d+)$")
-	if trailing then
-		return tonumber(trailing)
+	if allowTrailingNumber == true then
+		local _, _, trailing = string.find(text, "(%d+)$")
+		if trailing then
+			return tonumber(trailing)
+		end
 	end
 	return nil
 end
@@ -903,10 +935,10 @@ local function MTH_TT_GetTooltipSpellNameAndRank()
 		if ok then
 			if type(a) == "string" then
 				spellName = a
-				rankNumber = MTH_TT_ParseRankFromText(b)
+				rankNumber = MTH_TT_ParseRankFromText(b, true)
 			elseif type(b) == "string" then
 				spellName = b
-				rankNumber = MTH_TT_ParseRankFromText(a)
+				rankNumber = MTH_TT_ParseRankFromText(a, true)
 			end
 		end
 	end
@@ -919,23 +951,27 @@ local function MTH_TT_GetTooltipSpellNameAndRank()
 	end
 
 	if not rankNumber then
+		rankNumber = MTH_TT_ParseRankFromText(spellName, true)
+	end
+
+	if not rankNumber then
 		local right1 = getglobal("GameTooltipTextRight1")
 		if right1 and right1.GetText then
-			rankNumber = MTH_TT_ParseRankFromText(right1:GetText())
+			rankNumber = MTH_TT_ParseRankFromText(right1:GetText(), false)
 		end
 	end
 
 	if not rankNumber then
 		local left2 = getglobal("GameTooltipTextLeft2")
 		if left2 and left2.GetText then
-			rankNumber = MTH_TT_ParseRankFromText(left2:GetText())
+			rankNumber = MTH_TT_ParseRankFromText(left2:GetText(), false)
 		end
 	end
 
 	if not rankNumber then
 		local right2 = getglobal("GameTooltipTextRight2")
 		if right2 and right2.GetText then
-			rankNumber = MTH_TT_ParseRankFromText(right2:GetText())
+			rankNumber = MTH_TT_ParseRankFromText(right2:GetText(), false)
 		end
 	end
 
@@ -944,7 +980,7 @@ local function MTH_TT_GetTooltipSpellNameAndRank()
 			local left = getglobal("GameTooltipTextLeft" .. i)
 			if left and left.GetText then
 				local text = MTH_TT_Trim(left:GetText())
-				local parsed = MTH_TT_ParseRankFromText(text)
+				local parsed = MTH_TT_ParseRankFromText(text, false)
 				if parsed and parsed > 0 then
 					rankNumber = parsed
 					break
@@ -952,7 +988,7 @@ local function MTH_TT_GetTooltipSpellNameAndRank()
 			end
 			local right = getglobal("GameTooltipTextRight" .. i)
 			if right and right.GetText then
-				local parsedRight = MTH_TT_ParseRankFromText(right:GetText())
+				local parsedRight = MTH_TT_ParseRankFromText(right:GetText(), false)
 				if parsedRight and parsedRight > 0 then
 					rankNumber = parsedRight
 					break
@@ -962,6 +998,87 @@ local function MTH_TT_GetTooltipSpellNameAndRank()
 	end
 
 	return MTH_TT_CleanSpellName(spellName), rankNumber
+end
+
+local function MTH_TT_GetCurrentPetRowForTooltip()
+	local pets = nil
+	if type(MTH_PETS_GetRootStore) == "function" then
+		pets = MTH_PETS_GetRootStore()
+	elseif type(MTH_CharSavedVariables) == "table" then
+		pets = MTH_CharSavedVariables.MTH_Pets
+	end
+	if type(pets) ~= "table" then
+		return nil
+	end
+
+	local currentId = pets.currentPetId
+	if (currentId == nil or tostring(currentId) == "") and type(pets.currentPet) == "table" and pets.currentPet.exists == true then
+		currentId = pets.currentPet.id
+	end
+	if currentId == nil or tostring(currentId) == "" then
+		return nil
+	end
+
+	local activeById = type(pets.petStore) == "table" and pets.petStore.activeById or nil
+	if type(activeById) ~= "table" then
+		return nil
+	end
+	return activeById[currentId] or activeById[tostring(currentId)]
+end
+
+local function MTH_TT_CurrentPetKnowsAbility(abilityLower, rankNumber)
+	if abilityLower == "" then
+		return false
+	end
+	local row = MTH_TT_GetCurrentPetRowForTooltip()
+	if type(row) ~= "table" then
+		return false
+	end
+
+	local wantedRank = tonumber(rankNumber)
+
+	local spellbook = row.petSpellbook
+	if type(spellbook) == "table" and type(spellbook.spells) == "table" then
+		for i = 1, table.getn(spellbook.spells) do
+			local spell = spellbook.spells[i]
+			if type(spell) == "table" then
+				local spellLower = MTH_TT_Lower(MTH_TT_CleanSpellName(spell.name))
+				if spellLower == abilityLower then
+					if wantedRank then
+						local spellRank = tonumber(spell.rank)
+						if not spellRank then
+							spellRank = MTH_TT_ParseRankFromText(spell.name, true)
+						end
+						if spellRank and tonumber(spellRank) == wantedRank then
+							return true
+						end
+					else
+						return true
+					end
+				end
+			end
+		end
+	end
+
+	if type(row.abilities) == "table" then
+		for _, ability in pairs(row.abilities) do
+			if type(ability) == "table" then
+				local abilityLowerName = MTH_TT_Lower(MTH_TT_CleanSpellName(ability.name))
+				if abilityLowerName == abilityLower then
+					if wantedRank then
+						local abilityRank = tonumber(ability.rank)
+						if abilityRank and abilityRank == wantedRank then
+							return true
+						end
+					else
+						return true
+					end
+				end
+			end
+		end
+	end
+
+	return false
 end
 
 local function MTH_TT_IsPetActionTooltipOwner()
@@ -1050,7 +1167,15 @@ local function MTH_TT_AddPetActionNotLearnedHint()
 		return
 	end
 
-	local known = MTH_TT_HunterKnowsAbility(MTH_TT_Lower(canonical), rankNumber)
+	if rankNumber and rankNumber > 0 and not MTH_TT_AbilityHasPositiveRanks(canonical) then
+		rankNumber = nil
+	end
+
+	local canonicalLower = MTH_TT_Lower(canonical)
+	local known = MTH_TT_HunterKnowsAbility(canonicalLower, rankNumber)
+	if not known then
+		known = MTH_TT_CurrentPetKnowsAbility(canonicalLower, rankNumber)
+	end
 	if known then
 		return
 	end

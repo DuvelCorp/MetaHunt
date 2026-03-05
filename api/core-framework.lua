@@ -1,5 +1,5 @@
 MTH = MTH or {
-	version = "1.0.5",
+	version = "1.0.6",
 	name = "MetaHunt",
 	modules = {},
 	config = {},
@@ -16,6 +16,7 @@ local MTH_MESSAGE_DEFAULTS = {
 	spellbookScan = false,
 	petRanAway = true,
 	mapMarkers = true,
+	stableScan = true,
 }
 
 local function MTH_ClassGateTrace(_step, _detail)

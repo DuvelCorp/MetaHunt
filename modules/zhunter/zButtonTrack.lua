@@ -38,6 +38,7 @@ ZHunterMod_Track_Spells = {
 local ZHUNTER_TRACK_MAX = table.getn(ZHunterMod_Track_Spells)
 local zButtonTrack_LastTrackingTexture = nil
 local zButtonTrack_SyncActiveChild
+local zButtonTrack_GetSaved
 
 local function zButtonTrack_NormalizeTexture(texture)
 	if not texture then
@@ -187,7 +188,7 @@ local function zButtonTrack_RefreshTrackingState()
 	end
 end
 
-local function zButtonTrack_GetSaved()
+zButtonTrack_GetSaved = function()
 	local currentRoot = zButtonTrack_GetRoot()
 	if not currentRoot["zButtonTrack"] then
 		currentRoot["zButtonTrack"] = {}
@@ -273,6 +274,9 @@ function zButtonTrack_OnEvent()
 		zButtonTrackAdjustment = CreateFrame("Frame", "zButtonTrackAdjustment")
 		zButtonTrackAdjustment:RegisterEvent("MINIMAP_UPDATE_TRACKING")
 		zButtonTrackAdjustment:RegisterEvent("PLAYER_ENTERING_WORLD")
+		zButtonTrackAdjustment:RegisterEvent("SPELLS_CHANGED")
+		zButtonTrackAdjustment:RegisterEvent("CHARACTER_POINTS_CHANGED")
+		zButtonTrackAdjustment:RegisterEvent("LEARNED_SPELL_IN_TAB")
 		zButtonTrackAdjustment:SetScript("OnEvent", zButtonTrackAdjustment_OnEvent)
 		zButtonTrack_SetupSizeAndPosition()
 	end
@@ -355,8 +359,12 @@ function zButtonTrackAdjustment_OnEvent()
 	if not zButtonTrack or not zButtonTrack.count then
 		return
 	end
+	if event == "SPELLS_CHANGED" or event == "CHARACTER_POINTS_CHANGED" or event == "LEARNED_SPELL_IN_TAB" then
+		zButtonTrack_CreateButtons()
+		zButtonTrack_SetupSizeAndPosition()
+	end
 	if event == "MINIMAP_UPDATE_TRACKING" or event == "PLAYER_ENTERING_WORLD"
-		then
+		or event == "SPELLS_CHANGED" or event == "CHARACTER_POINTS_CHANGED" or event == "LEARNED_SPELL_IN_TAB" then
 		zButtonTrack_RefreshTrackingState()
 	end
 end
@@ -389,6 +397,7 @@ SlashCmdList["zButtonTrack"] = function(msg)
 	if MTH_ZH_HandleDisabledSlash and MTH_ZH_HandleDisabledSlash("Track button is disabled while module 'zhunter' is disabled.") then
 		return
 	end
+	msg = tostring(msg or "")
 	if msg == "reset" then
 		zButtonTrack_Reset()
 		zButtonTrack:ClearAllPoints()
