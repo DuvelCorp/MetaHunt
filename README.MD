@@ -2,11 +2,11 @@
 
 MetaHunt is a Turtle WoW Hunter toolkit.
 It is a modern modular addon that combines never-seen features, and improves/fixes a few old hunter add-ons.
-It provides a bunch usefull tools for all huntards, wheter they are still leveling, lone-wolf, or HL raider.
+It provides a bunch useful tools for all huntards, wheter they are still levelling, lone-wolf, or HL raider.
 
  ## Twow Data
 
-Metahunt ships with larges up-to-date datastores for all Turtle WOW data a hunter needs :
+MetaHunt ships with large up-to-date datastores for all Turtle WOW data a hunter needs :
 
 - All beasts, their location, and the abilities they can learn you
 - All Pet families, their abilities and their diet
@@ -37,7 +37,7 @@ Old zHunterMod addon on steroids. Fully compatible with Twow, and enhanced with 
 - zPet : Intelligent collapsible pet Bar regrouping all pet spells and providing an intelligent button that always show you the right spell to use depending on the situation
 - zTrack: All your trackings in one collapsible bar
 - zAspect: All your trackings in one collapsible bar
-- zRanged : All the rnaged weampons currently in your bags to swap them fast
+- zRanged : All the ranged weampons currently in your bags to swap them fast
 - But also zMounts, zToys and zCompanions.
 
  ## Feed-O-Matic
@@ -59,15 +59,20 @@ Define your own simple rules for auto buy ammo and pet food when you open a vend
 
  ## Auto-Quest
 
-Just spam SHIFT-click on the NPC to validate quests Scorpok and Thorium arrows. Addionally you can have an enhanced tooltip that display your actual Scorpok-related items when you mouseover the mobs involved.
+Just spam SHIFT-click on the NPC to validate quests Scorpok and Thorium arrows. Additionally you can have an enhanced tooltip that display your actual Scorpok-related items when you mouseover the mobs involved.
 
 
- ## The book of Hunters
+ ## The Great Book of Huntards
 
- The book of Hunters is the main GUI of Metahunt, it allows to display the data constantly collected about you and your pet, and browse the addon's data to find anything a Hunter needs.
+ The Book is the main GUI of MetaHunt, it allows to display the data constantly collected about you and your pet, and browse the addon's data to find anything a Hunter needs.
 
-- Browse the Metahunt datastores of NPCs (Beast, vendors, masters) and open the map to locate them like in pfQuest 
+- Browse the MetaHunt datastores of NPCs (Beast, vendors, masters) and open the map to locate them like in pfQuest 
 - Track all info about the pet abilities that you know and don't know yet
 - Track all info about your stabled pets
 - Keep an history of all your pets after you abandon them or if they run away.
 
+
+ ## What it will never do.
+
+The goal of MetaHunt is to offer hunter's features that are not covered by existing Twow addons, and in others https://github.com/SabineWren/Quiver .
+There's no point to reinvent the wheel, except is the wheel is broken. Nothing will work better than Quiver for auto-shot, castbar and tranqshot mgt. MetaHunt is build to work alongside of Quiver and is complementary to it, and it will remain like this unless Quiver turns to be not upgraded anymore.
