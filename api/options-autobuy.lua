@@ -53,6 +53,14 @@ local function MTH_AB_SetCheckedNoClick(check, checked)
 	MTH_AB_STATE.syncing = false
 end
 
+local function MTH_AB_IsChecked(control)
+	if not control or type(control.GetChecked) ~= "function" then
+		return false
+	end
+	local checked = control:GetChecked()
+	return checked == 1 or checked == true
+end
+
 local function MTH_AB_GetEngine()
 	return MTH_AutoBuyEngine
 end
@@ -92,10 +100,10 @@ end
 
 local function MTH_AB_EnsureConfig()
 	local store = MTH_AB_GetStore()
-	if store.enabled == nil then store.enabled = true end
+	if store.enabled == nil then store.enabled = false end
 	if type(store.projectiles) ~= "table" then store.projectiles = {} end
 	if type(store.petFood) ~= "table" then store.petFood = {} end
-	if store.projectiles.enabled == nil then store.projectiles.enabled = true end
+	if store.projectiles.enabled == nil then store.projectiles.enabled = false end
 	if store.petFood.enabled == nil then store.petFood.enabled = false end
 	if store.petFood.stacks == nil then store.petFood.stacks = 1 end
 	if store.petFood.scope == nil then store.petFood.scope = "current" end
@@ -510,7 +518,7 @@ local function MTH_AB_RefreshOptionsUI()
 	local store = MTH_AB_EnsureConfig()
 	local moduleEnabled = true
 	if MTH and MTH.IsModuleEnabled then
-		moduleEnabled = MTH:IsModuleEnabled("autobuy", true) and true or false
+		moduleEnabled = MTH:IsModuleEnabled("autobuy", false) and true or false
 	end
 
 	MTH_AB_SetCheckedNoClick(MTH_AB_STATE.controls.moduleEnabled, moduleEnabled)
@@ -653,7 +661,7 @@ local function MTH_AB_CreateRow(container, subtype, index, xBase, yOffset)
 			self = self or this
 			if not self or MTH_AB_STATE.syncing then return end
 			local store = MTH_AB_EnsureConfig()
-			MTH_AB_SetRuleEnabled(store, subtype, index, self:GetChecked() and true or false)
+			MTH_AB_SetRuleEnabled(store, subtype, index, MTH_AB_IsChecked(self))
 			MTH_AB_RefreshOptionsUI()
 		end)
 	end
@@ -711,7 +719,7 @@ local function MTH_AB_BuildUI(container)
 			self = self or this
 			if not self or MTH_AB_STATE.syncing then return end
 			if MTH and MTH.SetModuleEnabled then
-				local ok, err = MTH:SetModuleEnabled("autobuy", self:GetChecked() and true or false)
+				local ok, err = MTH:SetModuleEnabled("autobuy", MTH_AB_IsChecked(self))
 				if not ok and MTH and MTH.Print then
 					MTH:Print("Failed to change Auto Buy state: " .. tostring(err), "error")
 				end
@@ -726,7 +734,7 @@ local function MTH_AB_BuildUI(container)
 			self = self or this
 			if not self or MTH_AB_STATE.syncing then return end
 			local store = MTH_AB_EnsureConfig()
-			store.projectiles.enabled = self:GetChecked() and true or false
+			store.projectiles.enabled = MTH_AB_IsChecked(self)
 			MTH_AB_RefreshOptionsUI()
 		end)
 	end
@@ -765,7 +773,7 @@ local function MTH_AB_BuildUI(container)
 			self = self or this
 			if not self or MTH_AB_STATE.syncing then return end
 			local store = MTH_AB_EnsureConfig()
-			store.petFood.enabled = self:GetChecked() and true or false
+			store.petFood.enabled = MTH_AB_IsChecked(self)
 			MTH_AB_RefreshOptionsUI()
 		end)
 	end
@@ -843,6 +851,7 @@ local function MTH_AB_BuildUI(container)
 		text:SetText("")
 		controls.petFoodPetLines[i] = { icon = icon, text = text }
 	end
+
 end
 
 function MTH_SetupAutoBuyOptions()

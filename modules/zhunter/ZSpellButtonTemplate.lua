@@ -377,6 +377,94 @@ function ZSpellButton_ApplyChildrenExpanded(parent)
 	ZSpellButton_SetChildrenExpanded(parent, ZSpellButton_GetChildrenExpanded(parent))
 end
 
+local function ZSpellButton_SaveParentPosition(parent)
+	if not (parent and parent.GetPoint) then
+		return
+	end
+	if type(MTH_ZH_GetSavedTable) ~= "function" then
+		return
+	end
+	local key = parent.name
+	if (type(key) ~= "string" or key == "") and parent.GetName then
+		key = parent:GetName()
+	end
+	if type(key) ~= "string" or key == "" then
+		return
+	end
+
+	local saved = MTH_ZH_GetSavedTable(key)
+	if type(saved) ~= "table" then
+		return
+	end
+	if type(saved["parent"]) ~= "table" then
+		saved["parent"] = {}
+	end
+
+	local point, _, relPoint, x, y = parent:GetPoint()
+	x = tonumber(x)
+	y = tonumber(y)
+	if not (point and relPoint and x and y) then
+		return
+	end
+
+	saved["parent"]["point"] = tostring(point)
+	saved["parent"]["relativePoint"] = tostring(relPoint)
+	saved["parent"]["x"] = math.floor(x + 0.5)
+	saved["parent"]["y"] = math.floor(y + 0.5)
+	if type(MTH_ZH_Trace) == "function" then
+		MTH_ZH_Trace("persist-parent-position key=" .. tostring(key)
+			.. " point=" .. tostring(saved["parent"]["point"])
+			.. " rel=" .. tostring(saved["parent"]["relativePoint"])
+			.. " x=" .. tostring(saved["parent"]["x"])
+			.. " y=" .. tostring(saved["parent"]["y"]))
+	end
+end
+
+local function ZSpellButton_RestoreParentPosition(parent)
+	if not (parent and parent.ClearAllPoints and parent.SetPoint) then
+		return false
+	end
+	if type(MTH_ZH_GetSavedTable) ~= "function" then
+		return false
+	end
+	local key = parent.name
+	if (type(key) ~= "string" or key == "") and parent.GetName then
+		key = parent:GetName()
+	end
+	if type(key) ~= "string" or key == "" then
+		return false
+	end
+
+	local saved = MTH_ZH_GetSavedTable(key)
+	if type(saved) ~= "table" or type(saved["parent"]) ~= "table" then
+		return false
+	end
+
+	local parentSaved = saved["parent"]
+	local px = tonumber(parentSaved["x"])
+	local py = tonumber(parentSaved["y"])
+	local point = parentSaved["point"]
+	local relPoint = parentSaved["relativePoint"]
+	if not (px and py and type(point) == "string" and point ~= "") then
+		return false
+	end
+
+	if type(relPoint) ~= "string" or relPoint == "" then
+		relPoint = point
+	end
+
+	parent:ClearAllPoints()
+	parent:SetPoint(point, UIParent, relPoint, px, py)
+	if type(MTH_ZH_Trace) == "function" then
+		MTH_ZH_Trace("restore-parent-position key=" .. tostring(key)
+			.. " point=" .. tostring(point)
+			.. " rel=" .. tostring(relPoint)
+			.. " x=" .. tostring(px)
+			.. " y=" .. tostring(py))
+	end
+	return true
+end
+
 function ZSpellButton_OnEnter()
 	ZSpellButton_EnsureParentFlags(this.parent)
 	if this.parent.tooltip then
@@ -479,6 +567,46 @@ function ZSpellButtonParent_OnLoad()
 	this.circle = getglobal(name.."Circle")
 	-- Keep enabled so empty buttons can be moved on low-level characters.
 	this:Enable()
+	ZSpellButton_RestoreParentPosition(this)
+	if this.SetScript then
+		this:SetScript("OnDragStart", function(self)
+			self = self or this
+			if IsAltKeyDown() then
+				if type(MTH_ZH_TraceButtonPoint) == "function" then
+					MTH_ZH_TraceButtonPoint(self, "drag-start")
+				end
+				self:StartMoving()
+				self.isMoving = true
+			end
+		end)
+		this:SetScript("OnDragStop", function(self)
+			self = self or this
+			if not self then
+				return
+			end
+			if self.StopMovingOrSizing then
+				self:StopMovingOrSizing()
+			end
+			ZSpellButton_SaveParentPosition(self)
+			self.isMoving = false
+			if type(MTH_ZH_TraceButtonPoint) == "function" then
+				MTH_ZH_TraceButtonPoint(self, "drag-stop")
+			end
+		end)
+		this:SetScript("OnMouseUp", function(self)
+			self = self or this
+			if self and self.isMoving then
+				if self.StopMovingOrSizing then
+					self:StopMovingOrSizing()
+				end
+				ZSpellButton_SaveParentPosition(self)
+				self.isMoving = false
+				if type(MTH_ZH_TraceButtonPoint) == "function" then
+					MTH_ZH_TraceButtonPoint(self, "mouse-up-stop")
+				end
+			end
+		end)
+	end
 end
 
 function ZSpellButtonParent_OnEvent()

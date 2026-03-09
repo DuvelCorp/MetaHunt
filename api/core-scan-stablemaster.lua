@@ -6,10 +6,40 @@ local MTH_PETS_SCHEMA_VERSION = 2
 local MTH_PETS_CORE_HOOK_BOUNDARY_KEY = "core-pet-rename-hook"
 MTH_PETS_TRACE_CONSISTENCY = false
 
-local MTH_StableFrame = nil
-local MTH_ST_BootstrapFrame = nil
+local MTH_PetLifecycleEventFrame = nil
+local MTH_PetLifecycleBootstrapFrame = nil
 local MTH_ST_LastAutoScanAt = 0
 local MTH_ST_LastUnitPetHadPet = false
+local MTH_ST_DeferredStableScanFrame = nil
+local MTH_ST_Profile = {
+	enabled = false,
+	windowStart = 0,
+	windowSeconds = 5,
+	eventCount = 0,
+	totalMs = 0,
+	maxMs = 0,
+	byEvent = {},
+	runawayChecks = 0,
+	runawayMs = 0,
+	runawayMaxMs = 0,
+}
+local MTH_ST_Trace = {
+	enabled = false,
+	verbose = false,
+	windowStart = 0,
+	windowSeconds = 5,
+	eventCount = 0,
+	byEvent = {},
+	byRoute = {},
+	byNote = {},
+}
+local MTH_ST_Diag = {
+	lines = {},
+	maxLines = 200,
+	chatEcho = false,
+}
+local MTH_ST_DiagCopyFrame = nil
+local MTH_ST_PrintStableDiag
 local MTH_PETS_LastTameAttempt = nil
 local MTH_PETS_LiveState = nil
 local MTH_PETS_LiveStateSeq = 0
@@ -21,6 +51,378 @@ MTH_PETS_CoreOriginal_PetRename = MTH_PETS_CoreOriginal_PetRename or nil
 
 local function MTH_ST_Log(line)
 	return
+end
+
+local function MTH_ST_TraceNow()
+	return (type(GetTime) == "function" and GetTime()) or (type(time) == "function" and time()) or nil
+end
+
+local function MTH_ST_TraceResetCounters()
+	MTH_ST_Trace.eventCount = 0
+	MTH_ST_Trace.byEvent = {}
+	MTH_ST_Trace.byRoute = {}
+	MTH_ST_Trace.byNote = {}
+	MTH_ST_Trace.windowStart = MTH_ST_TraceNow() or 0
+end
+
+local function MTH_ST_TraceCount(bucket, key)
+	if type(bucket) ~= "table" then
+		return
+	end
+	local k = tostring(key or "?")
+	bucket[k] = (tonumber(bucket[k]) or 0) + 1
+end
+
+local function MTH_ST_TraceBuildTopList(bucket, maxRows)
+	local rows = {}
+	for key, value in pairs(bucket or {}) do
+		table.insert(rows, { key = tostring(key), count = tonumber(value) or 0 })
+	end
+	table.sort(rows, function(a, b)
+		if a.count == b.count then
+			return a.key < b.key
+		end
+		return a.count > b.count
+	end)
+	local limit = math.min(tonumber(maxRows) or 4, table.getn(rows))
+	if limit <= 0 then
+		return "none"
+	end
+	local parts = {}
+	for i = 1, limit do
+		table.insert(parts, tostring(rows[i].key) .. ":" .. tostring(rows[i].count))
+	end
+	return table.concat(parts, ",")
+end
+
+local function MTH_ST_TraceRecord(evt, route, note)
+	if not (MTH_ST_Trace and MTH_ST_Trace.enabled) then
+		return
+	end
+	MTH_ST_Trace.eventCount = (tonumber(MTH_ST_Trace.eventCount) or 0) + 1
+	MTH_ST_TraceCount(MTH_ST_Trace.byEvent, evt)
+	MTH_ST_TraceCount(MTH_ST_Trace.byRoute, route)
+	if note and note ~= "" then
+		MTH_ST_TraceCount(MTH_ST_Trace.byNote, note)
+	end
+
+	local evtText = tostring(evt or "")
+	local routeText = tostring(route or "")
+	local noteText = tostring(note or "")
+	if string.find(evtText, "PET_STABLE_", 1, true)
+		or routeText == "scan"
+		or string.find(noteText, "stable", 1, true)
+		or string.find(noteText, "deferred", 1, true)
+		or string.find(noteText, "throttled", 1, true) then
+		MTH_ST_PrintStableDiag("trace evt=" .. evtText .. " route=" .. routeText .. " note=" .. noteText)
+	end
+
+	if MTH_ST_Trace.verbose and MTH and MTH.Print then
+		local hasPet = (type(UnitExists) == "function" and UnitExists("pet")) and true or false
+		local dead = (type(UnitIsDeadOrGhost) == "function" and UnitIsDeadOrGhost("player")) or false
+		MTH:Print("[STTRACE] evt=" .. tostring(evt)
+			.. " route=" .. tostring(route)
+			.. " note=" .. tostring(note or "-")
+			.. " pet=" .. tostring(hasPet)
+			.. " dead=" .. tostring(dead and true or false), "debug")
+	end
+end
+
+local function MTH_ST_TraceFlushIfDue(force)
+	if not (MTH_ST_Trace and MTH_ST_Trace.enabled) then
+		return
+	end
+	local now = MTH_ST_TraceNow()
+	if not now then
+		return
+	end
+	local started = tonumber(MTH_ST_Trace.windowStart) or 0
+	if started <= 0 then
+		MTH_ST_Trace.windowStart = now
+		return
+	end
+	local elapsed = now - started
+	local windowSeconds = tonumber(MTH_ST_Trace.windowSeconds) or 5
+	if not force and elapsed < windowSeconds then
+		return
+	end
+	if MTH and MTH.Print then
+		MTH:Print("[STTRACE] " .. tostring(string.format("%.1fs", elapsed))
+			.. " events=" .. tostring(tonumber(MTH_ST_Trace.eventCount) or 0)
+			.. " byEvent=" .. tostring(MTH_ST_TraceBuildTopList(MTH_ST_Trace.byEvent, 6))
+			.. " byRoute=" .. tostring(MTH_ST_TraceBuildTopList(MTH_ST_Trace.byRoute, 6))
+			.. " notes=" .. tostring(MTH_ST_TraceBuildTopList(MTH_ST_Trace.byNote, 6)),
+		"debug")
+	end
+	MTH_ST_TraceResetCounters()
+end
+
+local function MTH_ST_IsStableUiEvent(evt)
+	return evt == "PET_STABLE_SHOW"
+		or evt == "PET_STABLE_UPDATE"
+		or evt == "PET_STABLE_CLOSED"
+end
+
+MTH_ST_PrintStableDiag = function(line)
+	return
+end
+
+local function MTH_ST_BuildDiagDumpText()
+	local lines = MTH_ST_Diag.lines or {}
+	if table.getn(lines) <= 0 then
+		return "(no stable diagnostics captured yet)"
+	end
+	return table.concat(lines, "\n")
+end
+
+local function MTH_ST_EnsureDiagCopyFrame()
+	if MTH_ST_DiagCopyFrame then
+		return MTH_ST_DiagCopyFrame
+	end
+	local frame = CreateFrame("Frame", "MTHStableDiagCopyFrame", UIParent)
+	if not frame then
+		return nil
+	end
+	frame:SetWidth(820)
+	frame:SetHeight(440)
+	frame:SetPoint("CENTER", UIParent, "CENTER")
+	frame:SetFrameStrata("DIALOG")
+	frame:SetBackdrop({
+		bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+		edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+		tile = true,
+		tileSize = 32,
+		edgeSize = 32,
+		insets = { left = 11, right = 12, top = 12, bottom = 11 },
+	})
+	frame:SetBackdropColor(0, 0, 0, 0.9)
+	frame:SetMovable(true)
+	frame:EnableMouse(true)
+	frame:RegisterForDrag("LeftButton")
+	frame:SetScript("OnDragStart", function() frame:StartMoving() end)
+	frame:SetScript("OnDragStop", function() frame:StopMovingOrSizing() end)
+
+	local title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+	title:SetPoint("TOPLEFT", frame, "TOPLEFT", 20, -15)
+	title:SetText("MetaHunt Stable Diagnostics")
+
+	local closeButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+	closeButton:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -12, -12)
+	closeButton:SetWidth(24)
+	closeButton:SetHeight(24)
+	closeButton:SetText("X")
+	closeButton:SetScript("OnClick", function() frame:Hide() end)
+
+	local copyButton = CreateFrame("Button", nil, frame, "GameMenuButtonTemplate")
+	copyButton:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 12, 12)
+	copyButton:SetWidth(110)
+	copyButton:SetHeight(24)
+	copyButton:SetText("Select All")
+
+	local scrollFrame = CreateFrame("ScrollFrame", "MTHStableDiagCopyScroll", frame, "UIPanelScrollFrameTemplate")
+	scrollFrame:SetPoint("TOPLEFT", frame, "TOPLEFT", 16, -48)
+	scrollFrame:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -36, 44)
+
+	local editBox = CreateFrame("EditBox", "MTHStableDiagCopyText", scrollFrame)
+	editBox:SetMultiLine(true)
+	editBox:SetMaxLetters(999999)
+	editBox:SetFont("Fonts\\FRIZQT__.TTF", 11, "")
+	editBox:SetTextColor(0.85, 0.85, 0.85, 1)
+	editBox:SetWidth(760)
+	editBox:SetHeight(1)
+	editBox:SetAutoFocus(false)
+	editBox:EnableMouse(true)
+	editBox:EnableMouseWheel(true)
+	editBox:SetScript("OnEscapePressed", function() editBox:ClearFocus() end)
+	editBox:SetScript("OnMouseWheel", function()
+		local curr = scrollFrame:GetVerticalScroll()
+		if arg1 and arg1 > 0 then
+			scrollFrame:SetVerticalScroll(curr - 24)
+		else
+			scrollFrame:SetVerticalScroll(curr + 24)
+		end
+	end)
+	scrollFrame:SetScrollChild(editBox)
+
+	copyButton:SetScript("OnClick", function()
+		editBox:HighlightText(0, -1)
+		editBox:SetFocus()
+	end)
+
+	frame._scroll = scrollFrame
+	frame._edit = editBox
+	MTH_ST_DiagCopyFrame = frame
+	if UISpecialFrames then
+		local exists = false
+		for i = 1, table.getn(UISpecialFrames) do
+			if UISpecialFrames[i] == "MTHStableDiagCopyFrame" then
+				exists = true
+				break
+			end
+		end
+		if not exists then
+			table.insert(UISpecialFrames, "MTHStableDiagCopyFrame")
+		end
+	end
+	return frame
+end
+
+function MTH_CommandStableDiag(mode)
+	MTH_ST_Diag.lines = {}
+	MTH_ST_Diag.chatEcho = false
+	if MTH and MTH.Print then
+		MTH:Print("Stable diagnostics are disabled.")
+	end
+	return false
+end
+
+function MTH_CommandStableTrace(mode)
+	MTH_ST_Trace.enabled = false
+	MTH_ST_Trace.verbose = false
+	if MTH and MTH.Print then
+		MTH:Print("Stable trace is disabled.")
+	end
+	return false
+end
+
+local function MTH_ST_ProfileNow()
+	return (type(GetTime) == "function" and GetTime()) or (type(time) == "function" and time()) or nil
+end
+
+local function MTH_ST_ProfileResetCounters()
+	MTH_ST_Profile.eventCount = 0
+	MTH_ST_Profile.totalMs = 0
+	MTH_ST_Profile.maxMs = 0
+	MTH_ST_Profile.byEvent = {}
+	MTH_ST_Profile.runawayChecks = 0
+	MTH_ST_Profile.runawayMs = 0
+	MTH_ST_Profile.runawayMaxMs = 0
+	MTH_ST_Profile.windowStart = MTH_ST_ProfileNow() or 0
+end
+
+local function MTH_ST_ProfileRecordEvent(evt, elapsedMs)
+	if not (MTH_ST_Profile and MTH_ST_Profile.enabled) then
+		return
+	end
+	local eventName = tostring(evt or "?")
+	local elapsed = tonumber(elapsedMs) or 0
+	MTH_ST_Profile.eventCount = (tonumber(MTH_ST_Profile.eventCount) or 0) + 1
+	MTH_ST_Profile.totalMs = (tonumber(MTH_ST_Profile.totalMs) or 0) + elapsed
+	if elapsed > (tonumber(MTH_ST_Profile.maxMs) or 0) then
+		MTH_ST_Profile.maxMs = elapsed
+	end
+	if type(MTH_ST_Profile.byEvent[eventName]) ~= "table" then
+		MTH_ST_Profile.byEvent[eventName] = { count = 0, totalMs = 0, maxMs = 0 }
+	end
+	local row = MTH_ST_Profile.byEvent[eventName]
+	row.count = (tonumber(row.count) or 0) + 1
+	row.totalMs = (tonumber(row.totalMs) or 0) + elapsed
+	if elapsed > (tonumber(row.maxMs) or 0) then
+		row.maxMs = elapsed
+	end
+end
+
+local function MTH_ST_ProfileRecordRunaway(elapsedMs)
+	if not (MTH_ST_Profile and MTH_ST_Profile.enabled) then
+		return
+	end
+	local elapsed = tonumber(elapsedMs) or 0
+	MTH_ST_Profile.runawayChecks = (tonumber(MTH_ST_Profile.runawayChecks) or 0) + 1
+	MTH_ST_Profile.runawayMs = (tonumber(MTH_ST_Profile.runawayMs) or 0) + elapsed
+	if elapsed > (tonumber(MTH_ST_Profile.runawayMaxMs) or 0) then
+		MTH_ST_Profile.runawayMaxMs = elapsed
+	end
+end
+
+local function MTH_ST_ProfileBuildTopList(metricKey, maxRows)
+	local rows = {}
+	for eventName, row in pairs(MTH_ST_Profile.byEvent or {}) do
+		if type(row) == "table" then
+			table.insert(rows, {
+				event = tostring(eventName),
+				count = tonumber(row.count) or 0,
+				totalMs = tonumber(row.totalMs) or 0,
+				maxMs = tonumber(row.maxMs) or 0,
+			})
+		end
+	end
+	table.sort(rows, function(a, b)
+		local av = tonumber(a[metricKey]) or 0
+		local bv = tonumber(b[metricKey]) or 0
+		if av == bv then
+			return tostring(a.event or "") < tostring(b.event or "")
+		end
+		return av > bv
+	end)
+
+	local limit = math.min(tonumber(maxRows) or 3, table.getn(rows))
+	if limit <= 0 then
+		return "none"
+	end
+
+	local parts = {}
+	for i = 1, limit do
+		local row = rows[i]
+		if metricKey == "count" then
+			table.insert(parts, tostring(row.event) .. ":" .. tostring(row.count))
+		else
+			table.insert(parts, tostring(row.event) .. ":" .. string.format("%.2f", tonumber(row.totalMs) or 0) .. "ms")
+		end
+	end
+	return table.concat(parts, ",")
+end
+
+local function MTH_ST_ProfileFlushIfDue(force)
+	if not (MTH_ST_Profile and MTH_ST_Profile.enabled) then
+		return
+	end
+	local now = MTH_ST_ProfileNow()
+	if not now then
+		return
+	end
+	local windowStart = tonumber(MTH_ST_Profile.windowStart) or 0
+	if windowStart <= 0 then
+		MTH_ST_Profile.windowStart = now
+		return
+	end
+	local elapsed = now - windowStart
+	local windowSeconds = tonumber(MTH_ST_Profile.windowSeconds) or 5
+	if not force and elapsed < windowSeconds then
+		return
+	end
+	if MTH and MTH.Print then
+		local eventCount = tonumber(MTH_ST_Profile.eventCount) or 0
+		local totalMs = tonumber(MTH_ST_Profile.totalMs) or 0
+		local avgMs = (eventCount > 0) and (totalMs / eventCount) or 0
+		local maxMs = tonumber(MTH_ST_Profile.maxMs) or 0
+		local runawayChecks = tonumber(MTH_ST_Profile.runawayChecks) or 0
+		local runawayMs = tonumber(MTH_ST_Profile.runawayMs) or 0
+		local runawayAvg = (runawayChecks > 0) and (runawayMs / runawayChecks) or 0
+		local runawayMax = tonumber(MTH_ST_Profile.runawayMaxMs) or 0
+		local topCount = MTH_ST_ProfileBuildTopList("count", 4)
+		local topMs = MTH_ST_ProfileBuildTopList("totalMs", 4)
+		MTH:Print("[STPROF] " .. tostring(string.format("%.1fs", elapsed))
+			.. " events=" .. tostring(eventCount)
+			.. " total=" .. tostring(string.format("%.2f", totalMs)) .. "ms"
+			.. " avg=" .. tostring(string.format("%.3f", avgMs)) .. "ms"
+			.. " max=" .. tostring(string.format("%.3f", maxMs)) .. "ms"
+			.. " topCount=" .. tostring(topCount)
+			.. " topMs=" .. tostring(topMs)
+			.. " runaway=" .. tostring(runawayChecks)
+			.. "/" .. tostring(string.format("%.2f", runawayMs)) .. "ms"
+			.. " avg=" .. tostring(string.format("%.3f", runawayAvg)) .. "ms"
+			.. " max=" .. tostring(string.format("%.3f", runawayMax)) .. "ms",
+		"debug")
+	end
+	MTH_ST_ProfileResetCounters()
+end
+
+function MTH_CommandStableProfile(mode)
+	MTH_ST_Profile.enabled = false
+	if MTH and MTH.Print then
+		MTH:Print("Stable profiler is disabled.")
+	end
+	return false
 end
 
 local function MTH_PETS_LogConsistency(line)
@@ -57,9 +459,20 @@ local function MTH_PETS_FormatCurrentConsistency(cp)
 end
 
 local function MTH_PETS_RequestPetSpellScan(reason)
+	local stableFrame = (type(getglobal) == "function" and getglobal("PetStableFrame")) or (_G and _G["PetStableFrame"])
+	if stableFrame and type(stableFrame.IsShown) == "function" and stableFrame:IsShown() then
+		MTH_ST_PrintStableDiag("swap spellscan-skip reason=stable-open src=" .. tostring(reason or "stablemaster-current-change"))
+		return
+	end
+	MTH_ST_PrintStableDiag("swap spellscan-request reason=" .. tostring(reason or "stablemaster-current-change"))
 	if type(MTH_PSP_RequestScan) == "function" then
 		MTH_PSP_RequestScan(tostring(reason or "stablemaster-current-change"), 1)
 	end
+end
+
+local function MTH_ST_IsStableFrameOpen()
+	local stableFrame = (type(getglobal) == "function" and getglobal("PetStableFrame")) or (_G and _G["PetStableFrame"])
+	return stableFrame and type(stableFrame.IsShown) == "function" and stableFrame:IsShown() and true or false
 end
 
 local function MTH_PETS_ShouldHandleThrottledEvent(key, minIntervalSeconds)
@@ -84,8 +497,8 @@ local function MTH_PETS_CopyLiveState(state)
 	return copy
 end
 
-local function MTH_PETS_BuildLiveState(source)
-	local info = (type(MTH_GetCurrentPetInfo) == "function") and MTH_GetCurrentPetInfo() or nil
+local function MTH_PETS_BuildLiveState(source, skipRefresh)
+	local info = (type(MTH_GetCurrentPetInfo) == "function") and MTH_GetCurrentPetInfo(skipRefresh and true or false) or nil
 	if type(info) ~= "table" then
 		info = {}
 	end
@@ -157,12 +570,16 @@ local function MTH_PETS_NotifyLiveSubscribers(state, source)
 	end
 end
 
-function MTH_PETS_EmitLiveState(source, force)
+function MTH_PETS_EmitLiveState(source, force, options)
 	local emittedSource = source or "stablemaster"
 	if type(emittedSource) ~= "string" then
 		emittedSource = tostring(emittedSource)
 	end
-	local nextState = MTH_PETS_BuildLiveState(emittedSource)
+	local skipRefresh = false
+	if type(options) == "table" and options.skipRefresh == true then
+		skipRefresh = true
+	end
+	local nextState = MTH_PETS_BuildLiveState(emittedSource, skipRefresh)
 	local changed = force and true or (not MTH_PETS_AreLiveStatesEqual(MTH_PETS_LiveState, nextState))
 	if not changed then
 		return false
@@ -2212,13 +2629,18 @@ function MTH_PETS_RefreshCurrentPet()
 			eventType = "pet-acquired"
 		end
 
-		local eventContext = MTH_PETS_CaptureContext()
-		table.insert(row.events, {
-			type = eventType,
-			source = "refresh-current-pet",
-			at = now,
-			context = eventContext,
-		})
+		local shouldRecordLifecycleEvent = (eventType == "pet-acquired")
+			or (cp.id ~= nil and previousCurrentId ~= nil and cp.id ~= previousCurrentId)
+		local eventContext = nil
+		if shouldRecordLifecycleEvent then
+			eventContext = MTH_PETS_CaptureContext()
+			table.insert(row.events, {
+				type = eventType,
+				source = "refresh-current-pet",
+				at = now,
+				context = eventContext,
+			})
+		end
 
 		if eventType == "pet-acquired" then
 			local hasTameRecord = (row.tameRecorded == true)
@@ -2261,9 +2683,101 @@ function MTH_GetCurrentPetSnapshot()
 	return pets and pets.currentPet or nil
 end
 
-function MTH_GetCurrentPetInfo()
+local function MTH_PETS_ApplyLivePetVitalsFast(source)
+	local pets = type(MTH_PETS_GetRootStore) == "function" and MTH_PETS_GetRootStore() or nil
+	if type(pets) ~= "table" then
+		return false
+	end
+	MTH_PETS_EnsureCurrentPetSchema(pets)
+
+	local cp = pets.currentPet
+	if type(cp) ~= "table" or cp.id == nil then
+		return false
+	end
+	if type(UnitExists) ~= "function" or not UnitExists("pet") then
+		return false
+	end
+
+	local changed = false
+	local function assignIfChanged(target, key, value)
+		if type(target) ~= "table" then
+			return
+		end
+		if not MTH_PETS_IsSameLiveStateField(target[key], value) then
+			target[key] = value
+			changed = true
+		end
+	end
+
+	local happiness = nil
+	local loyalty = nil
+	if type(GetPetHappiness) == "function" then
+		local h, _, l = GetPetHappiness()
+		happiness = h
+		loyalty = l
+	end
+
+	local loyaltyLevel = nil
+	local getPetLoyalty = (type(getglobal) == "function" and getglobal("GetPetLoyalty")) or (_G and _G["GetPetLoyalty"])
+	if type(getPetLoyalty) == "function" then
+		local level = getPetLoyalty()
+		loyaltyLevel = tonumber(level) or nil
+	end
+
+	local xp = nil
+	local xpMax = nil
+	local xpPercent = nil
+	local getPetExperience = (type(getglobal) == "function" and getglobal("GetPetExperience")) or (_G and _G["GetPetExperience"])
+	if type(getPetExperience) == "function" then
+		local x, xMax = getPetExperience()
+		xp = tonumber(x)
+		xpMax = tonumber(xMax)
+		if xp and xpMax and xpMax > 0 then
+			xpPercent = math.floor((xp / xpMax) * 1000 + 0.5) / 10
+		end
+	end
+
+	assignIfChanged(cp, "happiness", happiness)
+	assignIfChanged(cp, "loyalty", loyalty)
+	if loyaltyLevel ~= nil then
+		assignIfChanged(cp, "loyaltyLevel", loyaltyLevel)
+	end
+	assignIfChanged(cp, "xp", xp)
+	assignIfChanged(cp, "xpMax", xpMax)
+	assignIfChanged(cp, "xpPercent", xpPercent)
+
+	local activeRow = nil
+	if type(pets.petStore) == "table" and type(pets.petStore.activeById) == "table" then
+		activeRow = pets.petStore.activeById[cp.id] or pets.petStore.activeById[tostring(cp.id)]
+	end
+	if type(activeRow) == "table" then
+		assignIfChanged(activeRow, "happiness", happiness)
+		assignIfChanged(activeRow, "loyalty", loyalty)
+		if loyaltyLevel ~= nil then
+			assignIfChanged(activeRow, "loyaltyLevel", loyaltyLevel)
+		end
+		assignIfChanged(activeRow, "xp", xp)
+		assignIfChanged(activeRow, "xpMax", xpMax)
+		assignIfChanged(activeRow, "xpPercent", xpPercent)
+		if changed then
+			activeRow.lastUpdated = time()
+		end
+	end
+
+	if changed then
+		cp.lastUpdated = time()
+		cp.lastSource = source or "live-vitals"
+		pets.updatedAt = cp.lastUpdated
+	end
+
+	return changed
+end
+
+function MTH_GetCurrentPetInfo(skipRefresh)
 	local pets = MTH_PETS_GetRootStore()
-	MTH_PETS_RefreshCurrentPet()
+	if not skipRefresh then
+		MTH_PETS_RefreshCurrentPet()
+	end
 	local cp = pets and pets.currentPet or nil
 
 	local info = {
@@ -2499,19 +3013,28 @@ local function MTH_ST_GetStore()
 end
 
 function MTH_ST_Scan(reason)
+	local startedAt = MTH_ST_ProfileNow()
+	MTH_ST_PrintStableDiag("scan begin reason=" .. tostring(reason or ""))
+	local slotDiagParts = {}
 	if UnitClass then
 		local _, classToken = UnitClass("player")
 		if classToken ~= "HUNTER" then
+			MTH_ST_TraceRecord("MTH_ST_Scan", "scan", "class-gate:" .. tostring(classToken or "unknown"))
+			MTH_ST_PrintStableDiag("scan skip reason=class-gate class=" .. tostring(classToken or "unknown"))
 			return false
 		end
 	end
 
 	if type(GetNumStableSlots) ~= "function" or type(GetStablePetInfo) ~= "function" then
 		MTH_ST_Log("scan skipped: stable APIs unavailable")
+		MTH_ST_TraceRecord("MTH_ST_Scan", "scan", "api-unavailable")
+		MTH_ST_PrintStableDiag("scan skip reason=api-unavailable")
 		return false
 	end
 
 	local slotCount = tonumber(GetNumStableSlots()) or 0
+	MTH_ST_PrintStableDiag("scan api-ok slots=" .. tostring(slotCount))
+	MTH_ST_TraceRecord("MTH_ST_Scan", "scan", "begin reason=" .. tostring(reason or "") .. " slots=" .. tostring(slotCount))
 	local store = MTH_ST_GetStore()
 	local petsRoot = MTH_PETS_GetRootStore()
 	MTH_PETS_RefreshCurrentPet()
@@ -2529,6 +3052,10 @@ function MTH_ST_Scan(reason)
 
 	for slot = 1, slotCount do
 		local r1, r2, r3, r4, r5, r6, r7, r8 = GetStablePetInfo(slot)
+		local slotName = tostring(r2 or "-")
+		local slotLevel = tostring(tonumber(r3) or "-")
+		local slotFamily = tostring(r4 or "-")
+		table.insert(slotDiagParts, "s" .. tostring(slot) .. "=" .. slotName .. "(lvl=" .. slotLevel .. ",fam=" .. slotFamily .. ")")
 		MTH_PETS_RecordStableSlot(petsRoot, slot, r1, r2, r3, r4, r5, r6, r7, r8, scanContext, scanStableMasterName or store.stableMasterName)
 		local petId = nil
 		if type(petsRoot) == "table" and type(petsRoot.petStore) == "table" and type(petsRoot.petStore.stableSlotIndex) == "table" then
@@ -2567,10 +3094,35 @@ function MTH_ST_Scan(reason)
 		loyalty = c5,
 		raw = { c1, c2, c3, c4, c5, c6, c7, c8 },
 	}
+	MTH_ST_PrintStableDiag("scan current name=" .. tostring(c2 or "-")
+		.. " lvl=" .. tostring(tonumber(c3) or "-")
+		.. " fam=" .. tostring(c4 or "-")
+		.. " petId=" .. tostring(currentPetId or "-"))
+	if table.getn(slotDiagParts) > 0 then
+		MTH_ST_PrintStableDiag("scan slots " .. table.concat(slotDiagParts, " | "))
+	end
 
 	MTH_PETS_MarkStableVisited(petsRoot, tostring(reason or "stable-scan"))
 
 	MTH_PETS_RefreshCurrentPet()
+
+	local elapsedMs = nil
+	local finishedAt = MTH_ST_ProfileNow()
+	if startedAt and finishedAt then
+		elapsedMs = (finishedAt - startedAt) * 1000
+	end
+	if elapsedMs then
+		MTH_ST_TraceRecord("MTH_ST_Scan", "scan", "done reason=" .. tostring(reason or "")
+			.. " slots=" .. tostring(slotCount)
+			.. " elapsedMs=" .. string.format("%.2f", elapsedMs))
+		MTH_ST_PrintStableDiag("scan done ok=true slots=" .. tostring(slotCount) .. " elapsedMs=" .. string.format("%.2f", elapsedMs))
+	else
+		MTH_ST_TraceRecord("MTH_ST_Scan", "scan", "done reason=" .. tostring(reason or "")
+			.. " slots=" .. tostring(slotCount))
+		MTH_ST_PrintStableDiag("scan done ok=true slots=" .. tostring(slotCount))
+	end
+
+	MTH_PETS_EmitLiveState("STABLE_SCAN:" .. tostring(reason or "stable"), false)
 
 	return true
 end
@@ -2598,10 +3150,48 @@ local function MTH_ST_RunScanThrottled(reason, minIntervalSeconds)
 	local now = tonumber(time()) or 0
 	local minInterval = tonumber(minIntervalSeconds) or 0
 	if minInterval > 0 and (now - (MTH_ST_LastAutoScanAt or 0)) < minInterval then
+		MTH_ST_PrintStableDiag("scan throttled reason=" .. tostring(reason or "")
+			.. " min=" .. tostring(minInterval)
+			.. " age=" .. tostring(now - (MTH_ST_LastAutoScanAt or 0)))
+		MTH_ST_TraceRecord("MTH_ST_RunScanThrottled", "scan", "throttled reason=" .. tostring(reason or "")
+			.. " min=" .. tostring(minInterval)
+			.. " age=" .. tostring(now - (MTH_ST_LastAutoScanAt or 0)))
 		return false
 	end
 	MTH_ST_LastAutoScanAt = now
+	MTH_ST_PrintStableDiag("scan trigger reason=" .. tostring(reason or "") .. " min=" .. tostring(minInterval))
+	MTH_ST_TraceRecord("MTH_ST_RunScanThrottled", "scan", "trigger reason=" .. tostring(reason or "")
+		.. " min=" .. tostring(minInterval))
 	return MTH_ST_Scan(reason)
+end
+
+local function MTH_ST_QueueDeferredStableScan(reason, delaySeconds)
+	if not MTH_ST_DeferredStableScanFrame then
+		MTH_ST_DeferredStableScanFrame = CreateFrame("Frame", "MTHDeferredStableScanFrame")
+		if not MTH_ST_DeferredStableScanFrame then
+			MTH_ST_TraceRecord("MTH_ST_QueueDeferredStableScan", "scan", "frame-create-failed")
+			return false
+		end
+	end
+
+	local frame = MTH_ST_DeferredStableScanFrame
+	frame._reason = tostring(reason or "deferred")
+	frame._elapsed = 0
+	frame._delay = tonumber(delaySeconds) or 0.30
+	MTH_ST_PrintStableDiag("deferred queue reason=" .. tostring(frame._reason) .. " delay=" .. tostring(frame._delay))
+	frame:SetScript("OnUpdate", function()
+		this._elapsed = (this._elapsed or 0) + (arg1 or 0)
+		if this._elapsed < (this._delay or 0.30) then
+			return
+		end
+		this:SetScript("OnUpdate", nil)
+		MTH_ST_PrintStableDiag("deferred execute reason=" .. tostring(this._reason or "deferred"))
+		MTH_ST_TraceRecord("MTH_ST_QueueDeferredStableScan", "scan", "execute reason=" .. tostring(this._reason or "deferred"))
+		MTH_ST_RunScanThrottled("deferred:" .. tostring(this._reason or "stable"), 1)
+	end)
+	MTH_ST_TraceRecord("MTH_ST_QueueDeferredStableScan", "scan", "queued reason=" .. tostring(frame._reason)
+		.. " delay=" .. tostring(frame._delay))
+	return true
 end
 
 local function MTH_PETS_HandleUnitPetTransition(source)
@@ -2679,12 +3269,17 @@ local function MTH_PETS_HandleUnitPetTransition(source)
 			if type(row.events) ~= "table" then
 				row.events = {}
 			end
-			table.insert(row.events, {
-				type = (not hadPet) and "pet-acquired" or "pet-updated",
-				source = source or transitionSource,
-				at = time(),
-				context = MTH_PETS_CaptureContext(),
-			})
+			local eventType = (not hadPet) and "pet-acquired" or "pet-updated"
+			if eventType == "pet-updated" and source == "UNIT_PET" and MTH_ST_IsStableFrameOpen() then
+				MTH_ST_PrintStableDiag("swap history-skip reason=stable-open")
+			else
+				table.insert(row.events, {
+					type = eventType,
+					source = source or transitionSource,
+					at = time(),
+					context = MTH_PETS_CaptureContext(),
+				})
+			end
 		end
 		if not hadPet and hasPendingTame then
 			MTH_PETS_LogTame("Acquire completed; clearing pending tame attempt")
@@ -3133,7 +3728,281 @@ function MTH_CommandStableScan()
 	MTH:Print("Stable scan captured " .. tostring(slotCount) .. " slot(s).")
 end
 
-local function MTH_ST_OnEvent(_, evt, eventArg1, eventArg2)
+function MTH_ST_HandlePlayerEnteringWorld(evt)
+	if evt ~= "PLAYER_ENTERING_WORLD" then
+		return false
+	end
+	local pets = MTH_PETS_GetRootStore()
+	MTH_PETS_MaybePromptStableVisit(pets)
+	MTH_PETS_EmitLiveState("PLAYER_ENTERING_WORLD", true)
+	return true
+end
+
+function MTH_ST_HandleSpellcastEvent(evt, eventArg1, eventArg2)
+	local isUnitSpellcast = (evt == "UNIT_SPELLCAST_START" or evt == "UNIT_SPELLCAST_STOP"
+		or evt == "UNIT_SPELLCAST_FAILED" or evt == "UNIT_SPELLCAST_INTERRUPTED"
+		or evt == "UNIT_SPELLCAST_CHANNEL_START" or evt == "UNIT_SPELLCAST_CHANNEL_STOP")
+	local castSpellName = eventArg1
+	local hasPendingTame = type(MTH_PETS_LastTameAttempt) == "table"
+	if isUnitSpellcast then
+		if eventArg1 ~= "player" then
+			return true
+		end
+		castSpellName = eventArg2
+	end
+
+	if evt == "SPELLCAST_START" or evt == "SPELLCAST_CHANNEL_START"
+		or evt == "UNIT_SPELLCAST_START" or evt == "UNIT_SPELLCAST_CHANNEL_START" then
+		if not MTH_PETS_IsTameBeastSpellName(castSpellName) then
+			return true
+		end
+		MTH_PETS_RecordTameAttempt(evt, castSpellName)
+		return true
+	end
+
+	if evt == "SPELLCAST_STOP" or evt == "SPELLCAST_CHANNEL_STOP" or evt == "SPELLCAST_FAILED" or evt == "SPELLCAST_INTERRUPTED"
+		or evt == "UNIT_SPELLCAST_STOP" or evt == "UNIT_SPELLCAST_CHANNEL_STOP"
+		or evt == "UNIT_SPELLCAST_FAILED" or evt == "UNIT_SPELLCAST_INTERRUPTED" then
+		local terminalIsTame = MTH_PETS_IsTameBeastSpellName(castSpellName)
+		if not terminalIsTame and hasPendingTame then
+			terminalIsTame = true
+		end
+		if not terminalIsTame then
+			return true
+		end
+		if terminalIsTame then
+			if evt == "SPELLCAST_FAILED" or evt == "SPELLCAST_INTERRUPTED" then
+				MTH_PETS_LastTameAttempt = nil
+			end
+		end
+		return true
+	end
+
+	return false
+end
+
+function MTH_ST_HandleUnitPetEvent(evt, eventArg1)
+	if evt ~= "UNIT_PET" then
+		return false
+	end
+	if eventArg1 ~= "player" then
+		return true
+	end
+
+	local startedAt = MTH_ST_ProfileNow()
+	local beforeId = nil
+	local beforeName = nil
+	local beforeFamily = nil
+	local beforeLevel = nil
+	local beforeExists = nil
+	local petsBefore = type(MTH_PETS_GetRootStore) == "function" and MTH_PETS_GetRootStore() or nil
+	if type(petsBefore) == "table" and type(petsBefore.currentPet) == "table" then
+		beforeId = petsBefore.currentPet.id
+		beforeName = petsBefore.currentPet.name
+		beforeFamily = petsBefore.currentPet.family
+		beforeLevel = petsBefore.currentPet.level
+		beforeExists = petsBefore.currentPet.exists and true or false
+	end
+	MTH_ST_PrintStableDiag("swap UNIT_PET begin beforeId=" .. tostring(beforeId or "-") .. " beforeName=" .. tostring(beforeName or "-"))
+
+	MTH_PETS_HandleUnitPetTransition("UNIT_PET")
+
+	local afterId = nil
+	local afterName = nil
+	local afterFamily = nil
+	local afterLevel = nil
+	local afterExists = nil
+	local petsAfter = type(MTH_PETS_GetRootStore) == "function" and MTH_PETS_GetRootStore() or nil
+	if type(petsAfter) == "table" and type(petsAfter.currentPet) == "table" then
+		afterId = petsAfter.currentPet.id
+		afterName = petsAfter.currentPet.name
+		afterFamily = petsAfter.currentPet.family
+		afterLevel = petsAfter.currentPet.level
+		afterExists = petsAfter.currentPet.exists and true or false
+	end
+
+	local sameCore = (tostring(beforeId or "") == tostring(afterId or ""))
+		and (tostring(beforeName or "") == tostring(afterName or ""))
+		and (tostring(beforeFamily or "") == tostring(afterFamily or ""))
+		and (tonumber(beforeLevel) or -1) == (tonumber(afterLevel) or -1)
+		and (beforeExists and true or false) == (afterExists and true or false)
+
+	local emitSkipped = false
+	local liveChanged = false
+	if MTH_ST_IsStableFrameOpen() then
+		emitSkipped = true
+		MTH_ST_PrintStableDiag("swap UNIT_PET emit-skip reason=stable-open")
+	elseif sameCore then
+		emitSkipped = true
+		MTH_ST_PrintStableDiag("swap UNIT_PET emit-skip reason=unchanged-core")
+	else
+		liveChanged = MTH_PETS_EmitLiveState("UNIT_PET", false, { skipRefresh = true }) and true or false
+	end
+
+	local elapsedMs = 0
+	local finishedAt = MTH_ST_ProfileNow()
+	if startedAt and finishedAt then
+		elapsedMs = math.floor(math.max(0, (finishedAt - startedAt) * 1000) + 0.5)
+	end
+	MTH_ST_PrintStableDiag("swap UNIT_PET end afterId=" .. tostring(afterId or "-")
+		.. " afterName=" .. tostring(afterName or "-")
+		.. " sameCore=" .. tostring(sameCore)
+		.. " emitSkipped=" .. tostring(emitSkipped)
+		.. " liveChanged=" .. tostring(liveChanged)
+		.. " elapsedMs=" .. tostring(elapsedMs))
+	return true
+end
+
+local function MTH_ST_IsPlayerDeadOrGhost()
+	if type(UnitIsDeadOrGhost) == "function" then
+		return UnitIsDeadOrGhost("player") and true or false
+	end
+	if type(UnitIsDead) == "function" then
+		return UnitIsDead("player") and true or false
+	end
+	return false
+end
+
+function MTH_ST_HandleVitalsEvent(evt, eventArg1)
+	local playerDead = MTH_ST_IsPlayerDeadOrGhost()
+	local hasLivePet = (type(UnitExists) == "function" and UnitExists("pet")) and true or false
+
+	if evt == "PET_BAR_UPDATE" then
+		if not hasLivePet then
+			MTH_ST_TraceRecord(evt, "vitals", "pet_bar:no-pet")
+			return true
+		end
+		local interval = playerDead and 1.75 or 0.5
+		if not MTH_PETS_ShouldHandleThrottledEvent("PET_BAR_UPDATE", interval) then
+			MTH_ST_TraceRecord(evt, "vitals", "pet_bar:throttled")
+			return true
+		end
+		local changed = MTH_PETS_ApplyLivePetVitalsFast("PET_BAR_UPDATE")
+		if changed then
+			MTH_ST_TraceRecord(evt, "vitals", "pet_bar:changed")
+			MTH_PETS_EmitLiveState("PET_BAR_UPDATE", false, { skipRefresh = true })
+		else
+			MTH_ST_TraceRecord(evt, "vitals", "pet_bar:no-change")
+		end
+		return true
+	end
+
+	if evt == "UNIT_HAPPINESS" then
+		if not hasLivePet then
+			MTH_ST_TraceRecord(evt, "vitals", "happiness:no-pet")
+			return true
+		end
+		if eventArg1 and eventArg1 ~= "pet" then
+			MTH_ST_TraceRecord(evt, "vitals", "happiness:not-pet-arg")
+			return true
+		end
+		local interval = playerDead and 2.25 or 0.75
+		if not MTH_PETS_ShouldHandleThrottledEvent("UNIT_HAPPINESS", interval) then
+			MTH_ST_TraceRecord(evt, "vitals", "happiness:throttled")
+			return true
+		end
+		local changed = MTH_PETS_ApplyLivePetVitalsFast("UNIT_HAPPINESS")
+		if changed then
+			MTH_ST_TraceRecord(evt, "vitals", "happiness:changed")
+			MTH_PETS_EmitLiveState("UNIT_HAPPINESS", false, { skipRefresh = true })
+		else
+			MTH_ST_TraceRecord(evt, "vitals", "happiness:no-change")
+		end
+		return true
+	end
+
+	if evt == "CHAT_MSG_COMBAT_XP_GAIN" or evt == "PLAYER_XP_UPDATE" then
+		if not hasLivePet then
+			MTH_ST_TraceRecord(evt, "vitals", "xp:no-pet")
+			return true
+		end
+		if playerDead then
+			MTH_ST_TraceRecord(evt, "vitals", "xp:dead")
+			return true
+		end
+		if not MTH_PETS_ShouldHandleThrottledEvent("XP_UPDATE", 1.5) then
+			MTH_ST_TraceRecord(evt, "vitals", "xp:throttled")
+			return true
+		end
+		local changed = MTH_PETS_ApplyLivePetVitalsFast(evt)
+		if changed then
+			MTH_ST_TraceRecord(evt, "vitals", "xp:changed")
+			MTH_PETS_EmitLiveState(evt, false, { skipRefresh = true })
+		else
+			MTH_ST_TraceRecord(evt, "vitals", "xp:no-change")
+		end
+		return true
+	end
+
+	return false
+end
+
+function MTH_ST_HandleRunawayEvent(evt, eventArg1)
+	if evt ~= "CHAT_MSG_SYSTEM" and evt ~= "UI_ERROR_MESSAGE"
+		and evt ~= "CHAT_MSG_SPELL_PET_INFO" and evt ~= "CHAT_MSG_SPELL_PET_DAMAGE"
+		and evt ~= "CHAT_MSG_COMBAT_PET_HITS" and evt ~= "CHAT_MSG_COMBAT_PET_MISSES" then
+		return false
+	end
+
+	if type(UnitExists) == "function" and not UnitExists("pet") then
+		if not MTH_PETS_ShouldHandleThrottledEvent("RUNAWAY_MSG_NO_PET", 2.0) then
+			MTH_ST_TraceRecord(evt, "runaway", "no-pet:throttled")
+			return true
+		end
+		MTH_ST_TraceRecord(evt, "runaway", "no-pet:parse")
+	end
+
+	if MTH_ST_IsPlayerDeadOrGhost() then
+		if not MTH_PETS_ShouldHandleThrottledEvent("RUNAWAY_MSG_DEAD", 0.30) then
+			MTH_ST_TraceRecord(evt, "runaway", "dead:throttled")
+			return true
+		end
+	end
+
+	local runawayStarted = MTH_ST_ProfileNow()
+	local matchedRunaway = MTH_PETS_IsRunawaySystemMessage(eventArg1)
+	if runawayStarted then
+		local runawayNow = MTH_ST_ProfileNow()
+		if runawayNow then
+			MTH_ST_ProfileRecordRunaway((runawayNow - runawayStarted) * 1000)
+		end
+	end
+	if matchedRunaway then
+		MTH_ST_TraceRecord(evt, "runaway", "matched")
+		MTH_PETS_RecordPetRunaway(evt, eventArg1)
+		MTH_PETS_EmitLiveState(evt)
+	else
+		MTH_ST_TraceRecord(evt, "runaway", "not-matched")
+	end
+	return true
+end
+
+function MTH_ST_HandleStableUiEvent(evt)
+	if evt == "PET_STABLE_SHOW" then
+		MTH_ST_TraceRecord(evt, "stable-ui", "show")
+		MTH_ST_TraceRecord(evt, "stable-ui", "show:no-scan")
+		return true
+	end
+
+	if evt == "PET_STABLE_UPDATE" then
+		MTH_ST_TraceRecord(evt, "stable-ui", "update")
+		MTH_ST_TraceRecord(evt, "stable-ui", "update:no-scan")
+		MTH_PETS_EmitLiveState(evt)
+		return true
+	end
+
+	if evt == "PET_STABLE_CLOSED" then
+		MTH_ST_TraceRecord(evt, "stable-ui", "closed")
+		MTH_ST_QueueDeferredStableScan("PET_STABLE_CLOSED", 0.20)
+		MTH_ST_TraceRecord(evt, "stable-ui", "closed:deferred-scan")
+		MTH_PETS_EmitLiveState(evt)
+		return true
+	end
+
+	return false
+end
+
+local function MTH_ST_DispatchEvent(_, evt, eventArg1, eventArg2)
 	evt = evt or event
 	eventArg1 = eventArg1 or arg1
 	eventArg2 = eventArg2 or arg2
@@ -3141,131 +4010,105 @@ local function MTH_ST_OnEvent(_, evt, eventArg1, eventArg2)
 		return
 	end
 
-	if evt == "PLAYER_ENTERING_WORLD" then
-		local pets = MTH_PETS_GetRootStore()
-		MTH_PETS_MaybePromptStableVisit(pets)
-		MTH_PETS_RefreshCurrentPet()
-		MTH_PETS_EmitLiveState("PLAYER_ENTERING_WORLD", true)
-		return
-	end
-
-	local isUnitSpellcast = (evt == "UNIT_SPELLCAST_START" or evt == "UNIT_SPELLCAST_STOP"
-		or evt == "UNIT_SPELLCAST_FAILED" or evt == "UNIT_SPELLCAST_INTERRUPTED"
-		or evt == "UNIT_SPELLCAST_CHANNEL_START" or evt == "UNIT_SPELLCAST_CHANNEL_STOP")
-	local castSpellName = eventArg1
-	if isUnitSpellcast then
-		if eventArg1 ~= "player" then
+	if type(MTH_ST_LifecycleService) == "table" and type(MTH_ST_LifecycleService.HandleEvent) == "function" then
+		local lifecycleHandled, lifecycleNote = MTH_ST_LifecycleService:HandleEvent(evt, eventArg1, eventArg2)
+		if lifecycleHandled then
+			MTH_ST_TraceRecord(evt, "dispatch", lifecycleNote or "lifecycle-service")
 			return
 		end
-		castSpellName = eventArg2
-	end
-
-	if evt == "SPELLCAST_START" or evt == "SPELLCAST_CHANNEL_START"
-		or evt == "UNIT_SPELLCAST_START" or evt == "UNIT_SPELLCAST_CHANNEL_START" then
-		MTH_PETS_RecordTameAttempt(evt, castSpellName)
-		return
-	end
-
-	if evt == "SPELLCAST_STOP" or evt == "SPELLCAST_CHANNEL_STOP" or evt == "SPELLCAST_FAILED" or evt == "SPELLCAST_INTERRUPTED"
-		or evt == "UNIT_SPELLCAST_STOP" or evt == "UNIT_SPELLCAST_CHANNEL_STOP"
-		or evt == "UNIT_SPELLCAST_FAILED" or evt == "UNIT_SPELLCAST_INTERRUPTED" then
-		local terminalIsTame = MTH_PETS_IsTameBeastSpellName(castSpellName)
-		if not terminalIsTame and type(MTH_PETS_LastTameAttempt) == "table" then
-			terminalIsTame = true
-		end
-		if not terminalIsTame then
-			local fallbackName, fallbackSource = MTH_PETS_GetCurrentPlayerCastOrChannelName()
-			if fallbackName and MTH_PETS_IsTameBeastSpellName(fallbackName) then
-				terminalIsTame = true
-			end
-		end
-		if terminalIsTame then
-			if evt == "SPELLCAST_FAILED" or evt == "SPELLCAST_INTERRUPTED" then
-				MTH_PETS_LastTameAttempt = nil
-			end
-		end
-		return
-	end
-
-	if evt == "UNIT_PET" then
-		if eventArg1 ~= "player" then
+	else
+		if MTH_ST_HandlePlayerEnteringWorld(evt) then
+			MTH_ST_TraceRecord(evt, "dispatch", "lifecycle-enter-world")
 			return
 		end
-		MTH_PETS_HandleUnitPetTransition("UNIT_PET")
-		MTH_PETS_EmitLiveState("UNIT_PET")
-		return
-	end
-
-	if evt == "PET_BAR_UPDATE" then
-		if not MTH_PETS_ShouldHandleThrottledEvent("PET_BAR_UPDATE", 0.5) then
+		if MTH_ST_HandleSpellcastEvent(evt, eventArg1, eventArg2) then
+			MTH_ST_TraceRecord(evt, "dispatch", "lifecycle-spellcast")
 			return
 		end
-		MTH_PETS_RefreshCurrentPet()
-		MTH_PETS_EmitLiveState("PET_BAR_UPDATE")
-		return
-	end
-
-	if evt == "UNIT_HAPPINESS" then
-		if eventArg1 and eventArg1 ~= "pet" then
+		if MTH_ST_HandleUnitPetEvent(evt, eventArg1) then
+			MTH_ST_TraceRecord(evt, "dispatch", "lifecycle-unit-pet")
 			return
 		end
-		if not MTH_PETS_ShouldHandleThrottledEvent("UNIT_HAPPINESS", 0.75) then
+	end
+
+	if type(MTH_ST_VitalsService) == "table" and type(MTH_ST_VitalsService.HandleEvent) == "function" then
+		if MTH_ST_VitalsService:HandleEvent(evt, eventArg1, eventArg2) then
+			MTH_ST_TraceRecord(evt, "dispatch", "vitals-service")
 			return
 		end
-		MTH_PETS_RefreshCurrentPet()
-		MTH_PETS_EmitLiveState("UNIT_HAPPINESS")
-		return
-	end
-
-	if evt == "CHAT_MSG_COMBAT_XP_GAIN" or evt == "PLAYER_XP_UPDATE" then
-		if not MTH_PETS_ShouldHandleThrottledEvent("XP_UPDATE", 1.5) then
+	else
+		if MTH_ST_HandleVitalsEvent(evt, eventArg1) then
+			MTH_ST_TraceRecord(evt, "dispatch", "vitals")
 			return
 		end
-		MTH_PETS_RefreshCurrentPet()
-		MTH_PETS_EmitLiveState(evt)
-		return
 	end
 
-	if evt == "CHAT_MSG_SYSTEM" or evt == "UI_ERROR_MESSAGE"
-		or evt == "CHAT_MSG_SPELL_PET_INFO" or evt == "CHAT_MSG_SPELL_PET_DAMAGE"
-		or evt == "CHAT_MSG_COMBAT_PET_HITS" or evt == "CHAT_MSG_COMBAT_PET_MISSES" then
-		local matchedRunaway = MTH_PETS_IsRunawaySystemMessage(eventArg1)
-		if matchedRunaway then
-			MTH_PETS_RecordPetRunaway(evt, eventArg1)
-			MTH_PETS_RefreshCurrentPet()
-			MTH_PETS_EmitLiveState(evt)
+	if type(MTH_ST_RunawayService) == "table" and type(MTH_ST_RunawayService.HandleEvent) == "function" then
+		if MTH_ST_RunawayService:HandleEvent(evt, eventArg1, eventArg2) then
+			MTH_ST_TraceRecord(evt, "dispatch", "runaway-service")
+			return
 		end
-		return
-	end
-
-	if evt == "PET_STABLE_SHOW" then
-		local scanned = MTH_ST_RunScanThrottled(evt, 1)
-		if scanned and MTH and MTH.Print then
-			local shouldPrint = true
-			if MTH.IsMessageEnabled then
-				shouldPrint = MTH:IsMessageEnabled("stableScan", true)
-			end
-			if shouldPrint then
-				local store = MTH_ST_GetStore()
-				local slotCount = tonumber(store and store.slotCount) or 0
-				MTH:Print("Stable scan complete: " .. tostring(slotCount) .. " slot(s).")
-			end
+	else
+		if MTH_ST_HandleRunawayEvent(evt, eventArg1) then
+			MTH_ST_TraceRecord(evt, "dispatch", "runaway")
+			return
 		end
-		return
 	end
 
-	if evt == "PET_STABLE_UPDATE" then
-		MTH_ST_Scan(evt)
-		MTH_PETS_RefreshCurrentPet()
-		MTH_PETS_EmitLiveState(evt)
-		return
+	if type(MTH_ST_StableScanService) == "table" and type(MTH_ST_StableScanService.HandleEvent) == "function" then
+		if MTH_ST_StableScanService:HandleEvent(evt, eventArg1, eventArg2) then
+			MTH_ST_TraceRecord(evt, "dispatch", "stable-service")
+			return
+		end
+	else
+		if MTH_ST_HandleStableUiEvent(evt) then
+			MTH_ST_TraceRecord(evt, "dispatch", "stable-ui")
+			return
+		end
 	end
 
-	if evt == "PET_STABLE_CLOSED" then
-		MTH_PETS_RefreshCurrentPet()
-		MTH_PETS_EmitLiveState(evt)
-		return
+	MTH_ST_TraceRecord(evt, "dispatch", "unhandled")
+end
+
+local function MTH_ST_OnEvent(frame, evt, eventArg1, eventArg2)
+	local started = nil
+	if MTH_ST_Profile and MTH_ST_Profile.enabled then
+		started = MTH_ST_ProfileNow()
 	end
+
+	local stableDiagStart = nil
+	local isStableUiEvt = MTH_ST_IsStableUiEvent(evt)
+	if isStableUiEvt then
+		stableDiagStart = MTH_ST_ProfileNow()
+		MTH_ST_PrintStableDiag("evt=" .. tostring(evt) .. " phase=begin")
+		if MTH_ST_Trace and not MTH_ST_Trace.enabled then
+			MTH_ST_Trace.enabled = true
+			MTH_ST_Trace.verbose = false
+			MTH_ST_TraceResetCounters()
+			MTH_ST_PrintStableDiag("trace=auto-enabled")
+		end
+	end
+
+	MTH_ST_DispatchEvent(frame, evt, eventArg1, eventArg2)
+
+	if isStableUiEvt then
+		local stableDiagEnd = MTH_ST_ProfileNow()
+		local elapsedMs = 0
+		if stableDiagStart and stableDiagEnd then
+			elapsedMs = math.floor(math.max(0, (stableDiagEnd - stableDiagStart) * 1000) + 0.5)
+		end
+		MTH_ST_PrintStableDiag("evt=" .. tostring(evt) .. " phase=end elapsedMs=" .. tostring(elapsedMs))
+		MTH_ST_TraceFlushIfDue(true)
+	end
+
+	if started then
+		local finished = MTH_ST_ProfileNow()
+		if finished then
+			MTH_ST_ProfileRecordEvent(evt or event, (finished - started) * 1000)
+			MTH_ST_ProfileFlushIfDue(false)
+		end
+	end
+	MTH_ST_TraceFlushIfDue(false)
 end
 
 function MTH_ST_InitService()
@@ -3273,39 +4116,27 @@ function MTH_ST_InitService()
 		return
 	end
 
-	if MTH_StableFrame then
+	if MTH_PetLifecycleEventFrame then
 		return
 	end
 
-	MTH_StableFrame = CreateFrame("Frame", "MTHStableScanFrame")
-	MTH_StableFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-	MTH_StableFrame:RegisterEvent("SPELLCAST_START")
-	MTH_StableFrame:RegisterEvent("SPELLCAST_STOP")
-	MTH_StableFrame:RegisterEvent("SPELLCAST_CHANNEL_START")
-	MTH_StableFrame:RegisterEvent("SPELLCAST_CHANNEL_STOP")
-	MTH_StableFrame:RegisterEvent("SPELLCAST_FAILED")
-	MTH_StableFrame:RegisterEvent("SPELLCAST_INTERRUPTED")
-	MTH_StableFrame:RegisterEvent("UNIT_SPELLCAST_START")
-	MTH_StableFrame:RegisterEvent("UNIT_SPELLCAST_STOP")
-	MTH_StableFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
-	MTH_StableFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
-	MTH_StableFrame:RegisterEvent("UNIT_SPELLCAST_FAILED")
-	MTH_StableFrame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
-	MTH_StableFrame:RegisterEvent("UNIT_PET")
-	MTH_StableFrame:RegisterEvent("PET_BAR_UPDATE")
-	MTH_StableFrame:RegisterEvent("UNIT_HAPPINESS")
-	MTH_StableFrame:RegisterEvent("CHAT_MSG_COMBAT_XP_GAIN")
-	MTH_StableFrame:RegisterEvent("PLAYER_XP_UPDATE")
-	MTH_StableFrame:RegisterEvent("CHAT_MSG_SYSTEM")
-	MTH_StableFrame:RegisterEvent("CHAT_MSG_SPELL_PET_INFO")
-	MTH_StableFrame:RegisterEvent("CHAT_MSG_SPELL_PET_DAMAGE")
-	MTH_StableFrame:RegisterEvent("CHAT_MSG_COMBAT_PET_HITS")
-	MTH_StableFrame:RegisterEvent("CHAT_MSG_COMBAT_PET_MISSES")
-	MTH_StableFrame:RegisterEvent("UI_ERROR_MESSAGE")
-	MTH_StableFrame:RegisterEvent("PET_STABLE_SHOW")
-	MTH_StableFrame:RegisterEvent("PET_STABLE_UPDATE")
-	MTH_StableFrame:RegisterEvent("PET_STABLE_CLOSED")
-	MTH_StableFrame:SetScript("OnEvent", MTH_ST_OnEvent)
+	MTH_PetLifecycleEventFrame = CreateFrame("Frame", "MTHPetLifecycleEventFrame")
+	MTH_PetLifecycleEventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+	MTH_PetLifecycleEventFrame:RegisterEvent("UNIT_PET")
+	MTH_PetLifecycleEventFrame:RegisterEvent("PET_BAR_UPDATE")
+	MTH_PetLifecycleEventFrame:RegisterEvent("UNIT_HAPPINESS")
+	MTH_PetLifecycleEventFrame:RegisterEvent("CHAT_MSG_COMBAT_XP_GAIN")
+	MTH_PetLifecycleEventFrame:RegisterEvent("PLAYER_XP_UPDATE")
+	MTH_PetLifecycleEventFrame:RegisterEvent("CHAT_MSG_SYSTEM")
+	MTH_PetLifecycleEventFrame:RegisterEvent("CHAT_MSG_SPELL_PET_INFO")
+	MTH_PetLifecycleEventFrame:RegisterEvent("CHAT_MSG_SPELL_PET_DAMAGE")
+	MTH_PetLifecycleEventFrame:RegisterEvent("CHAT_MSG_COMBAT_PET_HITS")
+	MTH_PetLifecycleEventFrame:RegisterEvent("CHAT_MSG_COMBAT_PET_MISSES")
+	MTH_PetLifecycleEventFrame:RegisterEvent("UI_ERROR_MESSAGE")
+	MTH_PetLifecycleEventFrame:RegisterEvent("PET_STABLE_SHOW")
+	MTH_PetLifecycleEventFrame:RegisterEvent("PET_STABLE_UPDATE")
+	MTH_PetLifecycleEventFrame:RegisterEvent("PET_STABLE_CLOSED")
+	MTH_PetLifecycleEventFrame:SetScript("OnEvent", MTH_ST_OnEvent)
 	MTH_ST_LastUnitPetHadPet = ((type(UnitExists) == "function") and UnitExists("pet")) and true or false
 	MTH_PETS_InstallCoreRenameHook()
 	MTH_PETS_EmitLiveState("service:init", true)
@@ -3318,11 +4149,11 @@ function MTH_ST_InitBootstrap()
 	if MTH and MTH.ApplyClassGate and MTH:ApplyClassGate("stablescan-bootstrap") then
 		return
 	end
-	if MTH_StableFrame or MTH_ST_BootstrapFrame then
+	if MTH_PetLifecycleEventFrame or MTH_PetLifecycleBootstrapFrame then
 		return
 	end
 
-	local frame = CreateFrame("Frame")
+	local frame = CreateFrame("Frame", "MTHPetLifecycleBootstrapFrame")
 	if not frame then
 		return
 	end
@@ -3334,27 +4165,30 @@ function MTH_ST_InitBootstrap()
 		if evt ~= "PLAYER_ENTERING_WORLD" and evt ~= "PET_STABLE_SHOW" and evt ~= "PET_STABLE_UPDATE" then
 			return
 		end
+		if evt == "PET_STABLE_SHOW" or evt == "PET_STABLE_UPDATE" then
+			MTH_ST_PrintStableDiag("bootstrap evt=" .. tostring(evt) .. " phase=begin")
+		end
 		MTH_ST_InitService()
-		if (evt == "PET_STABLE_SHOW" or evt == "PET_STABLE_UPDATE") and type(MTH_ST_Scan) == "function" then
-			MTH_ST_Scan("bootstrap:" .. tostring(evt))
+		if evt == "PET_STABLE_SHOW" or evt == "PET_STABLE_UPDATE" then
+			MTH_ST_PrintStableDiag("bootstrap evt=" .. tostring(evt) .. " phase=end action=no-scan")
 		end
 		if self and self.UnregisterAllEvents then
 			self:UnregisterAllEvents()
 			self:SetScript("OnEvent", nil)
 		end
-		MTH_ST_BootstrapFrame = nil
+		MTH_PetLifecycleBootstrapFrame = nil
 	end)
-	MTH_ST_BootstrapFrame = frame
+	MTH_PetLifecycleBootstrapFrame = frame
 end
 
 function MTH_ST_ShutdownService(_reason)
-	if not MTH_StableFrame then
+	if not MTH_PetLifecycleEventFrame then
 		return
 	end
 
-	MTH_StableFrame:UnregisterAllEvents()
-	MTH_StableFrame:SetScript("OnEvent", nil)
-	MTH_StableFrame = nil
+	MTH_PetLifecycleEventFrame:UnregisterAllEvents()
+	MTH_PetLifecycleEventFrame:SetScript("OnEvent", nil)
+	MTH_PetLifecycleEventFrame = nil
 	MTH_ST_LastAutoScanAt = 0
 	MTH_ST_LastUnitPetHadPet = false
 	MTH_PETS_LiveState = nil

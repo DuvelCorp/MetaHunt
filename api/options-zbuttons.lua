@@ -21,6 +21,14 @@ local function MTH_ZB_RefreshTab(tabName)
 	end
 end
 
+local function MTH_ZB_IsChecked(control)
+	if not control or type(control.GetChecked) ~= "function" then
+		return false
+	end
+	local checked = control:GetChecked()
+	return checked == 1 or checked == true
+end
+
 local function MTH_RebuildSpellOrder(buttonName, buttonObj, itemList, maxButtons)
 	if not (buttonName and buttonObj and itemList and maxButtons) then return end
 	local info = {}
@@ -328,7 +336,7 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 		enableButton:SetScript("OnClick", function(self)
 			self = self or this
 			if not self then return end
-			local checked = self:GetChecked() and true or false
+			local checked = MTH_ZB_IsChecked(self)
 			MTH_SetButtonEnabledState(self.buttonName, self.buttonObj, checked)
 		end)
 	end
@@ -387,7 +395,7 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 		expandLeft:SetScript("OnClick", function(self)
 			self = self or this
 			if not self then return end
-			local checked = self:GetChecked() and true or false
+			local checked = MTH_ZB_IsChecked(self)
 			local btnName = self.buttonName
 			if not btnName or not (ZHunterMod_Saved and ZHunterMod_Saved[btnName]) then return end
 			ZHunterMod_Saved[btnName]["firstbutton"] = checked and "LEFT" or "RIGHT"
@@ -409,7 +417,7 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 		hideClick:SetScript("OnClick", function(self)
 			self = self or this
 			if not self then return end
-			local checked = self:GetChecked() and true or false
+			local checked = MTH_ZB_IsChecked(self)
 			ZHunterMod_Saved[self.buttonName]["children"]["hideonclick"] = checked
 			local btnObj = self.buttonObj or getglobal(self.buttonName)
 			if btnObj then btnObj.hideonclick = checked end
@@ -428,7 +436,7 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 		showTooltip:SetScript("OnClick", function(self)
 			self = self or this
 			if not self then return end
-			local checked = self:GetChecked() and true or false
+			local checked = MTH_ZB_IsChecked(self)
 			ZHunterMod_Saved[self.buttonName]["tooltip"] = checked
 			local btnObj = self.buttonObj or getglobal(self.buttonName)
 			if btnObj then btnObj.tooltip = checked end
@@ -446,7 +454,7 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 			showAmmoName:SetScript("OnClick", function(self)
 				self = self or this
 				if not self then return end
-				local checked = self:GetChecked() and true or false
+				local checked = MTH_ZB_IsChecked(self)
 				local btnName = self.buttonName
 				ZHunterMod_Saved[btnName]["showammoname"] = checked
 				local btnObj = self.buttonObj or getglobal(btnName)
@@ -745,7 +753,7 @@ function MTH_SetupSmartAmmoOptions()
 			self = self or this
 			if not self then return end
 			if MTH and MTH.SetModuleEnabled then
-				MTH:SetModuleEnabled("smartammo", self:GetChecked() and true or false)
+				MTH:SetModuleEnabled("smartammo", MTH_ZB_IsChecked(self))
 			end
 			MTH_SetupSmartAmmoOptions()
 		end)
@@ -762,7 +770,7 @@ function MTH_SetupSmartAmmoOptions()
 			self = self or this
 			if not self then return end
 			if type(MTHSmartAmmo_SetSmartEnabled) == "function" then
-				MTHSmartAmmo_SetSmartEnabled(self:GetChecked() and 1 or nil)
+				MTHSmartAmmo_SetSmartEnabled(MTH_ZB_IsChecked(self) and 1 or nil)
 			end
 		end)
 	end
@@ -781,7 +789,7 @@ function MTH_SetupSmartAmmoOptions()
 			self = self or this
 			if not self then return end
 			if type(MTHSmartAmmo_SetReloadEnabled) == "function" then
-				MTHSmartAmmo_SetReloadEnabled(self:GetChecked() and 1 or nil)
+				MTHSmartAmmo_SetReloadEnabled(MTH_ZB_IsChecked(self) and 1 or nil)
 			end
 		end)
 	end
@@ -821,7 +829,7 @@ function MTH_SetupMessagesOptions()
 			self = self or this
 			if not self then return end
 			if MTH and MTH.SetMessageEnabled then
-				MTH:SetMessageEnabled("initModulesLoaded", self:GetChecked() and true or false)
+				MTH:SetMessageEnabled("initModulesLoaded", MTH_ZB_IsChecked(self))
 			end
 		end)
 	end
@@ -833,7 +841,7 @@ function MTH_SetupMessagesOptions()
 			self = self or this
 			if not self then return end
 			if MTH and MTH.SetMessageEnabled then
-				MTH:SetMessageEnabled("initSarcasticWelcome", self:GetChecked() and true or false)
+				MTH:SetMessageEnabled("initSarcasticWelcome", MTH_ZB_IsChecked(self))
 			end
 		end)
 	end
@@ -845,7 +853,7 @@ function MTH_SetupMessagesOptions()
 			self = self or this
 			if not self then return end
 			if MTH and MTH.SetMessageEnabled then
-				MTH:SetMessageEnabled("petHungry", self:GetChecked() and true or false)
+				MTH:SetMessageEnabled("petHungry", MTH_ZB_IsChecked(self))
 			end
 		end)
 	end
@@ -857,7 +865,7 @@ function MTH_SetupMessagesOptions()
 			self = self or this
 			if not self then return end
 			if MTH and MTH.SetMessageEnabled then
-				MTH:SetMessageEnabled("beastTrainingScan", self:GetChecked() and true or false)
+				MTH:SetMessageEnabled("beastTrainingScan", MTH_ZB_IsChecked(self))
 			end
 		end)
 	end
@@ -869,7 +877,7 @@ function MTH_SetupMessagesOptions()
 			self = self or this
 			if not self then return end
 			if MTH and MTH.SetMessageEnabled then
-				MTH:SetMessageEnabled("spellbookScan", self:GetChecked() and true or false)
+				MTH:SetMessageEnabled("spellbookScan", MTH_ZB_IsChecked(self))
 			end
 		end)
 	end
@@ -881,7 +889,7 @@ function MTH_SetupMessagesOptions()
 			self = self or this
 			if not self then return end
 			if MTH and MTH.SetMessageEnabled then
-				MTH:SetMessageEnabled("petRanAway", self:GetChecked() and true or false)
+				MTH:SetMessageEnabled("petRanAway", MTH_ZB_IsChecked(self))
 			end
 		end)
 	end
@@ -893,7 +901,7 @@ function MTH_SetupMessagesOptions()
 			self = self or this
 			if not self then return end
 			if MTH and MTH.SetMessageEnabled then
-				MTH:SetMessageEnabled("mapMarkers", self:GetChecked() and true or false)
+				MTH:SetMessageEnabled("mapMarkers", MTH_ZB_IsChecked(self))
 			end
 		end)
 	end
@@ -1002,7 +1010,7 @@ function MTH_SetupGeneralOptions()
 		local smartModuleToggle = ensureCheckbox(smartAmmoSection, "MetaHuntGeneralSmartAmmoModuleToggle", "Enable module", -10, smartModuleEnabled)
 		if smartModuleToggle then
 			smartModuleToggle:SetScript("OnClick", function()
-				local enabled = this:GetChecked() and true or false
+				local enabled = MTH_ZB_IsChecked(this)
 				if MTH and MTH.SetModuleEnabled then
 					local ok = MTH:SetModuleEnabled("smartammo", enabled)
 					if not ok then
@@ -1031,7 +1039,7 @@ function MTH_SetupGeneralOptions()
 			end
 			smartToggle:SetScript("OnClick", function()
 				if type(MTHSmartAmmo_SetSmartEnabled) == "function" then
-					MTHSmartAmmo_SetSmartEnabled(this:GetChecked() and 1 or nil)
+					MTHSmartAmmo_SetSmartEnabled(MTH_ZB_IsChecked(this) and 1 or nil)
 				end
 			end)
 		end
@@ -1045,7 +1053,7 @@ function MTH_SetupGeneralOptions()
 			end
 			reloadToggle:SetScript("OnClick", function()
 				if type(MTHSmartAmmo_SetReloadEnabled) == "function" then
-					MTHSmartAmmo_SetReloadEnabled(this:GetChecked() and 1 or nil)
+					MTHSmartAmmo_SetReloadEnabled(MTH_ZB_IsChecked(this) and 1 or nil)
 				end
 			end)
 		end
@@ -1059,7 +1067,7 @@ function MTH_SetupGeneralOptions()
 			end
 			weaponSwapToggle:SetScript("OnClick", function()
 				if type(MTHSmartAmmo_SetWeaponSwapEnabled) == "function" then
-					MTHSmartAmmo_SetWeaponSwapEnabled(this:GetChecked() and 1 or nil)
+					MTHSmartAmmo_SetWeaponSwapEnabled(MTH_ZB_IsChecked(this) and 1 or nil)
 				end
 			end)
 		end
@@ -1072,7 +1080,7 @@ function MTH_SetupGeneralOptions()
 		if autoStripToggle then
 			autoStripToggle:SetScript("OnClick", function()
 				if type(AutoStrip_SetAutoStripToggle) == "function" then
-					AutoStrip_SetAutoStripToggle(this:GetChecked())
+					AutoStrip_SetAutoStripToggle(MTH_ZB_IsChecked(this))
 				end
 			end)
 		end
@@ -1081,7 +1089,7 @@ function MTH_SetupGeneralOptions()
 		if displayToggle then
 			displayToggle:SetScript("OnClick", function()
 				if type(AutoStrip_SetDisplayToggle) == "function" then
-					AutoStrip_SetDisplayToggle(this:GetChecked())
+					AutoStrip_SetDisplayToggle(MTH_ZB_IsChecked(this))
 				end
 			end)
 		end
@@ -1095,7 +1103,7 @@ function MTH_SetupGeneralOptions()
 		local antiToggle = ensureCheckbox(antiSection, "MetaHuntGeneralAntiDazeToggle", "Enable Anti-Daze", -10, antiDazeEnabled)
 		if antiToggle then
 			antiToggle:SetScript("OnClick", function()
-				local enabled = this:GetChecked() and true or false
+				local enabled = MTH_ZB_IsChecked(this)
 				if type(AntiDaze_SetEnabled) == "function" then
 					AntiDaze_SetEnabled(enabled, 1)
 				end
@@ -1158,7 +1166,7 @@ function MTH_SetupGeneralOptions()
 		local moduleToggle = ensureCheckbox(tooltipsSection, "MetaHuntGeneralTooltipsModuleToggle", "Enable module", -10, moduleEnabled)
 		if moduleToggle then
 			moduleToggle:SetScript("OnClick", function()
-				local enabled = this:GetChecked() and true or false
+				local enabled = MTH_ZB_IsChecked(this)
 				if MTH and MTH.SetModuleEnabled then
 					local ok = MTH:SetModuleEnabled("tooltips", enabled)
 					if not ok then
@@ -1175,7 +1183,7 @@ function MTH_SetupGeneralOptions()
 		local beastToggle = ensureCheckbox(tooltipsSection, "MetaHuntGeneralTooltipsBeastToggle", "Activate on Beasts", -86, tooltipsStore.beastTooltips and true or false)
 		if beastToggle then
 			beastToggle:SetScript("OnClick", function()
-				local enabled = this:GetChecked() and true or false
+				local enabled = MTH_ZB_IsChecked(this)
 				tooltipsStore.beastTooltips = enabled
 				local tooltipsModule = MTH and MTH.GetModule and MTH:GetModule("tooltips")
 				if tooltipsModule and tooltipsModule.SetBeastTooltipsEnabled then
@@ -1191,7 +1199,7 @@ function MTH_SetupGeneralOptions()
 		local ownPetToggle = ensureCheckbox(tooltipsSection, "MetaHuntGeneralTooltipsOwnPetToggle", ownPetLabel, -158, tooltipsStore.ownPetTooltips and true or false)
 		if ownPetToggle then
 			ownPetToggle:SetScript("OnClick", function()
-				local enabled = this:GetChecked() and true or false
+				local enabled = MTH_ZB_IsChecked(this)
 				tooltipsStore.ownPetTooltips = enabled
 				local tooltipsModule = MTH and MTH.GetModule and MTH:GetModule("tooltips")
 				if tooltipsModule and tooltipsModule.SetOwnPetTooltipsEnabled then
@@ -1205,7 +1213,7 @@ function MTH_SetupGeneralOptions()
 		local ammoToggle = ensureCheckbox(tooltipsSection, "MetaHuntGeneralTooltipsAmmoVendorToggle", "Activate on Vendors", -222, tooltipsStore.ammoVendorTooltips and true or false)
 		if ammoToggle then
 			ammoToggle:SetScript("OnClick", function()
-				local enabled = this:GetChecked() and true or false
+				local enabled = MTH_ZB_IsChecked(this)
 				tooltipsStore.ammoVendorTooltips = enabled
 				local tooltipsModule = MTH and MTH.GetModule and MTH:GetModule("tooltips")
 				if tooltipsModule and tooltipsModule.SetAmmoVendorTooltipsEnabled then
@@ -1219,7 +1227,7 @@ function MTH_SetupGeneralOptions()
 		local foodToggle = ensureCheckbox(tooltipsSection, "MetaHuntGeneralTooltipsFoodToggle", foodLabel, -274, tooltipsStore.foodItemTooltips and true or false)
 		if foodToggle then
 			foodToggle:SetScript("OnClick", function()
-				local enabled = this:GetChecked() and true or false
+				local enabled = MTH_ZB_IsChecked(this)
 				tooltipsStore.foodItemTooltips = enabled
 				local tooltipsModule = MTH and MTH.GetModule and MTH:GetModule("tooltips")
 				if tooltipsModule and tooltipsModule.SetFoodItemTooltipsEnabled then

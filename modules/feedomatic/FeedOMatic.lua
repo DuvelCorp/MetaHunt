@@ -56,6 +56,37 @@ FOM_LastChoiceReason = nil;
 FOM_RealmPlayer = nil;
 FOM_LastPetName = nil;
 FOM_LastFeedAttempt = nil;
+FOM_TRACE_ENABLED = false;
+local FOM_CORE_ATTEMPT_TRACKING_ENABLED = false;
+local FOM_PERF_TRACE_ENABLED = false;
+local FOM_PERF_TRACE_HISTORY_LIMIT = 80;
+local FOM_PERF_TRACE_SPIKE_MS = 12;
+local FOM_PERF_TRACE_HISTORY = {};
+local FOM_LAST_SETUP_AT = 0;
+local FOM_LAST_SETUP_PET = nil;
+local FOM_LAST_QUEST_SCAN_AT = 0;
+local FOM_TEMP_FOOD_CACHE = {};
+local FOM_FEED_SCAN_CACHE = nil;
+local FOM_FEED_SCAN_CACHE_TTL = 5.0;
+local FOM_LAST_AUTO_CHOICE = nil;
+local FOM_LAST_AUTO_CHOICE_TTL = 2.0;
+
+local FOM_REQUIRE_KNOWN_LEVEL_PET_LEVEL = 60;
+local FOM_MAX_RETRIES_PER_REQUEST = 2;
+local FOM_UNKNOWN_QUALITY_FOR_DESC = -1;
+local FOM_UNKNOWN_QUALITY_FOR_ASC = MAX_QUALITY + 1;
+local FOM_SERVER_PROFILE = "turtle";
+local FOM_ServerProfiles = {
+	turtle = {
+		itemMaxPetLevel = {
+			[12037] = 44,
+		},
+		itemFoodLevel = {
+			[8952] = 45,
+			[12208] = 35,
+		},
+	},
+};
 
 -- Anti-freeze code borrowed from ReagentInfo (in turn, from Quest-I-On):
 -- keeps WoW from locking up if we try to scan the tradeskill window too fast.
@@ -98,7 +129,251 @@ local function FOM_Trace(message)
 	return;
 end
 
+local function FOM_PerfNowMs()
+	if (type(debugprofilestop) == "function") then
+		local raw = tonumber(debugprofilestop()) or 0;
+		return raw / 1000;
+	end
+	if (type(GetTime) == "function") then
+		return (tonumber(GetTime()) or 0) * 1000;
+	end
+	return 0;
+end
+
+local function FOM_PerfOut(message, forceShow)
+	local text = tostring(message or "");
+	if (text == "") then
+		return;
+	end
+	if (type(MTH_DebugFrame) == "table" and type(MTH_DebugFrame.AddInfo) == "function") then
+		if (forceShow and type(MTH_DebugFrame.Show) == "function") then
+			MTH_DebugFrame:Show();
+		end
+		MTH_DebugFrame:AddInfo(text);
+		return;
+	end
+	if (MTH and type(MTH.Print) == "function") then
+		MTH:Print(text, "debug");
+		return;
+	end
+	if (type(GFWUtils) == "table" and type(GFWUtils.Print) == "function") then
+		GFWUtils.Print(text);
+	end
+end
+
+local function FOM_PerfRecord(label, elapsedMs, detail, forcePrint)
+	if (not FOM_PERF_TRACE_ENABLED) then
+		return;
+	end
+	local numericElapsed = tonumber(elapsedMs) or 0;
+	if (numericElapsed > 10000) then
+		numericElapsed = numericElapsed / 1000;
+	end
+	local row = {
+		ts = time and time() or 0,
+		label = tostring(label or "unknown"),
+		ms = numericElapsed,
+		detail = tostring(detail or ""),
+	};
+	table.insert(FOM_PERF_TRACE_HISTORY, row);
+	if (table.getn(FOM_PERF_TRACE_HISTORY) > FOM_PERF_TRACE_HISTORY_LIMIT) then
+		table.remove(FOM_PERF_TRACE_HISTORY, 1);
+	end
+	return;
+end
+
+local function FOM_PerfDump()
+	if (table.getn(FOM_PERF_TRACE_HISTORY) <= 0) then
+		FOM_PerfOut("[FOM PERF] no samples.", true);
+		return;
+	end
+	FOM_PerfOut("[FOM PERF] recent samples: " .. tostring(table.getn(FOM_PERF_TRACE_HISTORY)), true);
+	for i = 1, table.getn(FOM_PERF_TRACE_HISTORY) do
+		local row = FOM_PERF_TRACE_HISTORY[i];
+		if (type(row) == "table") then
+			FOM_PerfOut("[FOM PERF] #" .. tostring(i)
+				.. " " .. tostring(row.label)
+				.. " " .. string.format("%.2f", tonumber(row.ms) or 0) .. "ms"
+				.. (tostring(row.detail or "") ~= "" and (" | " .. tostring(row.detail)) or ""), false);
+		end
+	end
+end
+
+local function FOM_GetServerProfile()
+	return FOM_ServerProfiles[FOM_SERVER_PROFILE] or {};
+end
+
+local function FOM_EnsureQuarantineStore()
+	if (type(MTH_CharSavedVariables) == "table") then
+		if (type(MTH_CharSavedVariables.feedTracking) ~= "table") then
+			MTH_CharSavedVariables.feedTracking = {};
+		end
+		local feedStore = MTH_CharSavedVariables.feedTracking;
+		if (type(feedStore.fomQuarantine) ~= "table") then
+			feedStore.fomQuarantine = {};
+		end
+		if (type(feedStore.fomQuarantine.byFamily) ~= "table") then
+			feedStore.fomQuarantine.byFamily = {};
+		end
+
+		if (type(FOM_Quarantine) == "table" and type(FOM_Quarantine.byFamily) == "table") then
+			for family, byItem in FOM_Quarantine.byFamily do
+				if (type(byItem) == "table") then
+					if (type(feedStore.fomQuarantine.byFamily[family]) ~= "table") then
+						feedStore.fomQuarantine.byFamily[family] = {};
+					end
+					for itemId, row in byItem do
+						if (type(row) == "table") then
+							feedStore.fomQuarantine.byFamily[family][itemId] = row;
+						end
+					end
+				end
+			end
+			FOM_Quarantine = nil;
+		end
+
+		return feedStore.fomQuarantine;
+	end
+
+	if (type(FOM_Quarantine) ~= "table") then
+		FOM_Quarantine = {};
+	end
+	if (type(FOM_Quarantine.byFamily) ~= "table") then
+		FOM_Quarantine.byFamily = {};
+	end
+	return FOM_Quarantine;
+end
+
+local function FOM_GetFamilyKeyFromInfo(petInfo)
+	local family = nil;
+	if (type(petInfo) == "table") then
+		family = petInfo.family;
+	end
+	if (family == nil or family == "") then
+		family = UnitCreatureFamily("pet");
+	end
+	family = FOM_GetCanonicalPetFamily(family);
+	if (family == nil or family == "") then
+		return "unknown";
+	end
+	return tostring(family);
+end
+
+local function FOM_RegisterNoBuffQuarantine(itemID, petInfo)
+	local numericItem = tonumber(itemID);
+	if (numericItem == nil) then
+		return;
+	end
+	local petLevel = tonumber(petInfo and petInfo.level) or tonumber(UnitLevel("pet")) or 0;
+	if (petLevel <= 0) then
+		return;
+	end
+	local familyKey = FOM_GetFamilyKeyFromInfo(petInfo);
+	local store = FOM_EnsureQuarantineStore();
+	if (type(store.byFamily[familyKey]) ~= "table") then
+		store.byFamily[familyKey] = {};
+	end
+	local byItem = store.byFamily[familyKey];
+	if (type(byItem[numericItem]) ~= "table") then
+		byItem[numericItem] = {
+			minRejectPetLevel = petLevel,
+			lastObservedAt = 0,
+			reason = "no-buff",
+		};
+	end
+	local row = byItem[numericItem];
+	local currentMin = tonumber(row.minRejectPetLevel);
+	if (currentMin == nil or petLevel < currentMin) then
+		row.minRejectPetLevel = petLevel;
+	end
+	row.lastObservedAt = time and time() or 0;
+	row.reason = "no-buff";
+	FOM_Trace("quarantine add family='" .. tostring(familyKey)
+		.. "' itemId=" .. tostring(numericItem)
+		.. " minRejectPetLevel=" .. tostring(row.minRejectPetLevel));
+end
+
+local function FOM_IsQuarantined(itemID, petLevel, familyKey)
+	local numericItem = tonumber(itemID);
+	local numericPet = tonumber(petLevel);
+	if (numericItem == nil or numericPet == nil or numericPet <= 0) then
+		return false;
+	end
+	local store = FOM_EnsureQuarantineStore();
+	local key = tostring(familyKey or "unknown");
+	local familyTable = store.byFamily[key];
+	if (type(familyTable) ~= "table") then
+		return false;
+	end
+	local row = familyTable[numericItem];
+	if (type(row) ~= "table") then
+		return false;
+	end
+	local minReject = tonumber(row.minRejectPetLevel);
+	if (minReject == nil) then
+		return false;
+	end
+	return numericPet >= minReject;
+end
+
+local function FOM_GetFoodLevelOverride(itemID)
+	local numericItem = tonumber(itemID);
+	if (numericItem == nil) then
+		return nil;
+	end
+	local profile = FOM_GetServerProfile();
+	if (type(profile.itemFoodLevel) ~= "table") then
+		return nil;
+	end
+	local override = tonumber(profile.itemFoodLevel[numericItem]);
+	return override;
+end
+
+local function FOM_IsItemPetLevelCompatible(itemID, petLevel)
+	local numericItem = tonumber(itemID);
+	local numericPet = tonumber(petLevel);
+	if (numericItem == nil or numericPet == nil) then
+		return true;
+	end
+	local profile = FOM_GetServerProfile();
+	local maxPetLevel = nil;
+	if (type(profile.itemMaxPetLevel) == "table") then
+		maxPetLevel = tonumber(profile.itemMaxPetLevel[numericItem]);
+	end
+	if (maxPetLevel ~= nil and numericPet > maxPetLevel) then
+		return false;
+	end
+	return true;
+end
+
+function FOM_CommandTrace(mode)
+	local arg = string.lower(tostring(mode or ""));
+	if (arg == "perf on") then
+		FOM_PERF_TRACE_ENABLED = true;
+		FOM_PerfOut("[FOM PERF] enabled.", true);
+		return;
+	end
+	if (arg == "perf off") then
+		FOM_PERF_TRACE_ENABLED = false;
+		FOM_PerfOut("[FOM PERF] disabled.", true);
+		return;
+	end
+	if (arg == "perf clear") then
+		FOM_PERF_TRACE_HISTORY = {};
+		FOM_PerfOut("[FOM PERF] cleared.", true);
+		return;
+	end
+	if (arg == "perf dump") then
+		FOM_PerfDump();
+		return;
+	end
+	FOM_PerfOut("Usage: /fomtrace perf on|off|dump|clear", true);
+end
+
 local function FOM_CoreFeedReady()
+	if (not FOM_CORE_ATTEMPT_TRACKING_ENABLED) then
+		return false;
+	end
 	return type(MTH_FEED_BeginAttempt) == "function" and type(MTH_FEED_FinalizeAttempt) == "function";
 end
 
@@ -303,6 +578,124 @@ local function FOM_GetItemIDFromLink(itemLink)
 	return nil;
 end
 
+local FOM_UnknownNoisePrunedThisSession = false;
+
+local function FOM_IsConsumableItem(itemID)
+	local numericItemID = tonumber(itemID);
+	if (numericItemID == nil or type(GetItemInfo) ~= "function") then
+		return nil;
+	end
+	local _, _, _, _, _, itemType = GetItemInfo(numericItemID);
+	if (itemType == nil or itemType == "") then
+		return nil;
+	end
+	local itemTypeLower = string.lower(tostring(itemType));
+	local consumableLabel = (type(_G) == "table" and _G["ITEM_CLASS_CONSUMABLE"]) or "Consumable";
+	local consumableLower = string.lower(tostring(consumableLabel));
+	return itemTypeLower == consumableLower;
+end
+
+local function FOM_PruneUnknownFoodNoise(force)
+	if (FOM_UnknownNoisePrunedThisSession and not force) then
+		return 0;
+	end
+	FOM_UnknownNoisePrunedThisSession = true;
+
+	if (type(MTH_FEED_GetStore) ~= "function") then
+		return 0;
+	end
+	local store = MTH_FEED_GetStore();
+	local byItemId = store and store.unknownFoods and store.unknownFoods.byItemId or nil;
+	if (type(byItemId) ~= "table") then
+		return 0;
+	end
+
+	local dietByItemID = FOM_BuildDietByItemIDMap();
+	local removed = 0;
+	for itemKey, row in byItemId do
+		local numericItemID = tonumber(itemKey);
+		local knownDietItem = (numericItemID ~= nil and dietByItemID[numericItemID] ~= nil) and true or false;
+		local resolvedFood = (type(row) == "table" and type(row.resolved) == "table" and tonumber(row.resolved.foodLevel) ~= nil) and true or false;
+		local confirmedFood = (type(row) == "table" and tostring(row.state or "") == "confirmed-food") and true or false;
+		local consumableState = FOM_IsConsumableItem(numericItemID);
+		local likelyNonConsumable = (consumableState == false);
+		local hasNonVendorSource = false;
+		if (type(row) == "table" and type(row.sources) == "table") then
+			for _, source in row.sources do
+				if (tostring(source or "") ~= "vendor-scan") then
+					hasNonVendorSource = true;
+					break;
+				end
+			end
+		end
+
+		if (not knownDietItem and not resolvedFood and not confirmedFood and (not hasNonVendorSource or likelyNonConsumable)) then
+			byItemId[itemKey] = nil;
+			removed = removed + 1;
+		end
+	end
+
+	if (removed > 0 and store ~= nil) then
+		if (type(time) == "function") then
+			store.updatedAt = time();
+		end
+		FOM_Trace("pruned unknown vendor-only non-food rows=" .. tostring(removed));
+	end
+
+	return removed;
+end
+
+local function FOM_IsExceptionRowActive(row)
+	if (type(row) ~= "table") then
+		return false;
+	end
+	if (tonumber(row.blockAtOrAbovePetLevel) ~= nil) then
+		return true;
+	end
+	if (tonumber(row.maxPetLevel) ~= nil) then
+		return true;
+	end
+	local reasons = row.reasons;
+	if (type(reasons) == "table") then
+		if ((tonumber(reasons.noBuff) or 0) > 0) then return true; end
+		if ((tonumber(reasons.lowLevel) or 0) > 0) then return true; end
+		if ((tonumber(reasons.wrongFood) or 0) > 0) then return true; end
+		if ((tonumber(reasons.unknown) or 0) > 0) then return true; end
+	end
+	return false;
+end
+
+local function FOM_PruneExceptionNoise()
+	if (type(MTH_FEED_GetStore) ~= "function") then
+		return 0;
+	end
+	local store = MTH_FEED_GetStore();
+	local byItemId = store and store.exceptions and store.exceptions.byItemId or nil;
+	if (type(byItemId) ~= "table") then
+		return 0;
+	end
+
+	local removed = 0;
+	for itemKey, row in byItemId do
+		if (not FOM_IsExceptionRowActive(row)) then
+			byItemId[itemKey] = nil;
+			removed = removed + 1;
+		end
+	end
+
+	if (removed > 0 and store ~= nil and type(time) == "function") then
+		store.updatedAt = time();
+		FOM_Trace("pruned inert exception rows=" .. tostring(removed));
+	end
+	return removed;
+end
+
+function FOM_PruneCollectedFoodData()
+	local removedUnknown = tonumber(FOM_PruneUnknownFoodNoise(true)) or 0;
+	local removedExceptions = tonumber(FOM_PruneExceptionNoise()) or 0;
+	return removedUnknown + removedExceptions;
+end
+
 function MTH_GetMerchantFoodsByDiet()
 	local result = {
 		byDiet = {},
@@ -345,17 +738,6 @@ function MTH_GetMerchantFoodsByDiet()
 				table.insert(result.items, foodRow);
 			else
 				table.insert(result.unknown, foodRow);
-				if (type(MTH_FEED_RecordUnknownFoodCandidate) == "function") then
-					pcall(MTH_FEED_RecordUnknownFoodCandidate, {
-						itemId = itemID,
-						itemName = itemName,
-						itemLink = itemLink,
-						source = "vendor-scan",
-						observedFoodLevel = (type(MTH_FEED_GetFoodLevel) == "function") and MTH_FEED_GetFoodLevel(itemID) or nil,
-						observedDietHint = nil,
-						evidenceType = "vendor-scan",
-					});
-				end
 			end
 		end
 	end
@@ -442,8 +824,12 @@ function FOM_OnLoad()
 	SLASH_FEEDOMATIC3 = "/feed";
 	SLASH_FEEDOMATIC4 = "/petfeed"; -- Rauen's PetFeed compatibility
 	SLASH_FEEDOMATIC5 = "/pf";
+	SLASH_FOMTRACE1 = "/fomtrace";
+	SlashCmdList["FOMTRACE"] = function(msg)
+		FOM_CommandTrace(msg);
+	end
 	SlashCmdList["FEEDOMATIC"] = function(msg)
-		if MTH_IsModuleEnabled and not MTH_IsModuleEnabled("feedomatic") then
+		if MTH_IsModuleEnabled and not MTH_IsModuleEnabled("feedomatic", false) then
 			if DEFAULT_CHAT_FRAME and DEFAULT_CHAT_FRAME.AddMessage then
 				MTH:Print("Feed-O-Matic is disabled while module 'feedomatic' is disabled.")
 			end
@@ -536,6 +922,10 @@ function FOM_CheckSetup()
 
 	_, realClass = UnitClass("player");
 	if (realClass ~= "HUNTER") then return; end
+	local now = (type(GetTime) == "function") and (GetTime() or 0) or 0;
+	if (FOM_RealmPlayer ~= nil and (now - (tonumber(FOM_LAST_SETUP_AT) or 0)) < 5.0) then
+		return;
+	end
 
 	if (FOM_RealmPlayer == nil) then
 		FOM_RealmPlayer = GetCVar("realmName") .. "." .. UnitName("player");
@@ -556,6 +946,9 @@ function FOM_CheckSetup()
 			FOM_FoodQuality[FOM_RealmPlayer][FOM_LastPetName] = { };
 		end
 	end
+	FOM_EnsureQuarantineStore();
+	FOM_LAST_SETUP_AT = now;
+	FOM_LAST_SETUP_PET = FOM_LastPetName;
 			
 end
 
@@ -690,8 +1083,13 @@ function FOM_OnEvent(event, arg1)
 			or string.find(lowerError, "wrong pet food")
 			or string.find(lowerError, "doesn't like")
 			or string.find(lowerError, "does not like")
+		FOM_Trace("ui error classify lowLevel=" .. tostring(isLowLevelError and true or false)
+			.. " wrongFood=" .. tostring(isWrongFoodError and true or false)
+			.. " hasAttempt=" .. tostring(type(FOM_LastFeedAttempt) == "table" and true or false)
+			.. " lastFood='" .. tostring(FOM_LastFood or "") .. "'")
 
 		if (isLowLevelError) then
+			FOM_Trace("reject reason=low-level")
 			if (type(FOM_LastFeedAttempt) == "table") then
 				FOM_CoreRecordReject(FOM_LastFeedAttempt.coreAttemptId, "low-level", arg1);
 				FOM_CoreFinalizeAttempt(FOM_LastFeedAttempt.coreAttemptId, "rejected", "low-level");
@@ -709,6 +1107,7 @@ function FOM_OnEvent(event, arg1)
 			end
 		
 		elseif (isWrongFoodError) then
+			FOM_Trace("reject reason=wrong-food")
 			if (type(FOM_LastFeedAttempt) == "table") then
 				FOM_CoreRecordReject(FOM_LastFeedAttempt.coreAttemptId, "wrong-food", arg1);
 				FOM_CoreFinalizeAttempt(FOM_LastFeedAttempt.coreAttemptId, "rejected", "wrong-food");
@@ -784,28 +1183,7 @@ function FOM_OnEvent(event, arg1)
 		return;
 		
 	elseif (event == "PET_STABLE_SHOW" or event == "PET_STABLE_UPDATE") then
-	
-		-- clean up the FOM_FoodQuality sub-tables in case we missed you abandoning a pet
-		FOM_CheckSetup();
-		local stabledPetNames = nil;
-		if (type(MTH_GetStablePetNames) == "function") then
-			stabledPetNames = MTH_GetStablePetNames();
-		end
-		if (stabledPetNames == nil) then
-			stabledPetNames = {};
-		end
-		local orphanedPetNames = {};
-		for savedPetName in FOM_FoodQuality[FOM_RealmPlayer] do
-			if (stabledPetNames == nil) then
-				GFWUtils.DebugLog("stabledPetNames == nil");
-			end
-			if (stabledPetNames ~= nil and GFWTable.IndexOf(stabledPetNames, savedPetName) == 0) then
-				table.insert(orphanedPetNames, savedPetName);
-			end
-		end
-		for _, orphanedPet in orphanedPetNames do
-			FOM_FoodQuality[FOM_RealmPlayer][orphanedPet] = nil;
-		end
+
 		return;
 
 	elseif (FOM_Config.Level) then
@@ -899,23 +1277,72 @@ function FOM_OnUpdate(elapsed)
 			if (FOM_LastFeedAttempt.coreAttemptId and type(MTH_FEED_RecordBuffOutcome) == "function") then
 				pcall(MTH_FEED_RecordBuffOutcome, FOM_LastFeedAttempt.coreAttemptId, { hasFeedBuff = true, elapsed = elapsedSinceFeed });
 			end
+			local confirmedPetName = tostring(FOM_LastFeedAttempt.petName or "Your pet")
+			local confirmedFoodLink = tostring(FOM_LastFeedAttempt.itemLink or FOM_LastFood or "")
+			local alertMode = tostring(FOM_LastFeedAttempt.alertMode or FOM_Config.Alert or "")
+			if (alertMode == "chat") then
+				GFWUtils.Print(string.format(FOM_FEEDING_EAT, confirmedPetName, GFWUtils.Hilite(confirmedFoodLink)));
+			elseif (alertMode == "emote") then
+				SendChatMessage(string.format(FOM_FEEDING_FEED, confirmedPetName, confirmedFoodLink).. FOM_RandomEmote(), "EMOTE");
+			end
 			FOM_CoreFinalizeAttempt(FOM_LastFeedAttempt.coreAttemptId, "accepted", "accepted");
 			FOM_Trace("feed outcome accepted-with-buff itemId=" .. tostring(FOM_LastFeedAttempt.itemId)
 				.. " pet='" .. tostring(FOM_LastFeedAttempt.petName or "")
 				.. "' elapsed=" .. string.format("%.2f", elapsedSinceFeed));
 			FOM_LastFeedAttempt = nil;
 		elseif (elapsedSinceFeed >= 2.50) then
+			local failedAttempt = FOM_LastFeedAttempt;
 			if (FOM_LastFeedAttempt.coreAttemptId and type(MTH_FEED_RecordBuffOutcome) == "function") then
 				pcall(MTH_FEED_RecordBuffOutcome, FOM_LastFeedAttempt.coreAttemptId, { hasFeedBuff = false, elapsed = elapsedSinceFeed });
 			end
 			FOM_CoreRecordReject(FOM_LastFeedAttempt.coreAttemptId, "no-buff", nil);
 			FOM_CoreFinalizeAttempt(FOM_LastFeedAttempt.coreAttemptId, "rejected", "no-buff");
+			local currentPetInfo = MTH_FOM_GetCorePetInfo();
+			FOM_RegisterNoBuffQuarantine(FOM_LastFeedAttempt.itemId, currentPetInfo);
+			if (type(MTH_FEED_BlockItemForPetLevel) == "function") then
+				pcall(MTH_FEED_BlockItemForPetLevel,
+					FOM_LastFeedAttempt.itemId,
+					tonumber(currentPetInfo and currentPetInfo.level) or nil,
+					"no-buff");
+			end
 			FOM_Trace("feed outcome no-eating-buff itemId=" .. tostring(FOM_LastFeedAttempt.itemId)
 				.. " pet='" .. tostring(FOM_LastFeedAttempt.petName or "")
 				.. "' elapsed=" .. string.format("%.2f", elapsedSinceFeed)
 				.. " (likely not accepted by pet)");
 			FOM_LastFood = nil;
 			FOM_LastFeedAttempt = nil;
+
+			local retryCount = tonumber(failedAttempt and failedAttempt.retryCount) or 0;
+			local canRetry = (type(failedAttempt) == "table")
+				and not failedAttempt.manualFood
+				and retryCount < FOM_MAX_RETRIES_PER_REQUEST;
+			if (canRetry) then
+				local excludedItemIds = {};
+				if (type(failedAttempt.excludedItemIds) == "table") then
+					for blockedId, blocked in failedAttempt.excludedItemIds do
+						if (blocked) then
+							excludedItemIds[blockedId] = true;
+						end
+					end
+				end
+				local failedItemId = tonumber(failedAttempt.itemId);
+				if (failedItemId ~= nil) then
+					excludedItemIds[failedItemId] = true;
+				end
+				local excludedCount = 0;
+				for _, isBlocked in excludedItemIds do
+					if (isBlocked) then
+						excludedCount = excludedCount + 1;
+					end
+				end
+				FOM_Trace("feed retry scheduled after no-buff retry=" .. tostring(retryCount + 1)
+					.. " excludedCount=" .. tostring(excludedCount));
+				FOM_Feed(nil, {
+					retryCount = retryCount + 1,
+					excludedItemIds = excludedItemIds,
+					autoRetry = true,
+				});
+			end
 		end
 	end
 end
@@ -1008,6 +1435,129 @@ function FOM_CanFeed()
 	return true;
 end
 
+function FOM_PrintCollectedFoodData(limitArg)
+	local removedNoise = FOM_PruneUnknownFoodNoise(true);
+	if (removedNoise > 0) then
+		GFWUtils.Print("- pruned unknown non-food rows: " .. tostring(removedNoise));
+	end
+	local removedExceptions = FOM_PruneExceptionNoise();
+	if (removedExceptions > 0) then
+		GFWUtils.Print("- pruned inert exception rows: " .. tostring(removedExceptions));
+	end
+
+	local limit = tonumber(limitArg) or 20;
+	if (limit < 1) then
+		limit = 1;
+	elseif (limit > 100) then
+		limit = 100;
+	end
+
+	GFWUtils.Print("Feed-O-Matic collected food data (limit " .. tostring(limit) .. "):");
+	GFWUtils.Print("- server profile: " .. tostring(FOM_SERVER_PROFILE));
+
+	local unknownRows = {};
+	if (type(MTH_FEED_GetUnknownFoodQueue) == "function") then
+		local fetched = MTH_FEED_GetUnknownFoodQueue();
+		if (type(fetched) == "table") then
+			unknownRows = fetched;
+		end
+	end
+	GFWUtils.Print("- unknown/candidate foods: " .. tostring(table.getn(unknownRows)));
+	for index = 1, math.min(limit, table.getn(unknownRows)) do
+		local row = unknownRows[index];
+		if (type(row) == "table") then
+			local itemId = tonumber(row.itemId);
+			local itemName = row.itemName or (itemId and GetItemInfo(itemId)) or ("item:" .. tostring(itemId or "?"));
+			local resolvedLevel = row.resolved and row.resolved.foodLevel or nil;
+			GFWUtils.Print("  unknown#" .. tostring(index)
+				.. " id=" .. tostring(itemId)
+				.. " name='" .. tostring(itemName) .. "'"
+				.. " state=" .. tostring(row.state)
+				.. " confidence=" .. tostring(row.confidence)
+				.. " observedLevel=" .. tostring(row.observedFoodLevel)
+				.. " resolvedLevel=" .. tostring(resolvedLevel));
+		end
+	end
+
+	local exceptionRows = {};
+	if (type(MTH_FEED_GetStore) == "function") then
+		local store = MTH_FEED_GetStore();
+		local byItem = store and store.exceptions and store.exceptions.byItemId or nil;
+		if (type(byItem) == "table") then
+			for itemKey, row in byItem do
+				if (type(row) == "table" and FOM_IsExceptionRowActive(row)) then
+					table.insert(exceptionRows, {
+						itemId = tonumber(itemKey) or itemKey,
+						row = row,
+					});
+				end
+			end
+		end
+	end
+	table.sort(exceptionRows, function(a, b)
+		return tostring(a.itemId) < tostring(b.itemId);
+	end);
+	GFWUtils.Print("- core exception rows: " .. tostring(table.getn(exceptionRows)));
+	for index = 1, math.min(limit, table.getn(exceptionRows)) do
+		local entry = exceptionRows[index];
+		local itemId = tonumber(entry.itemId);
+		local itemName = (itemId and GetItemInfo(itemId)) or ("item:" .. tostring(entry.itemId));
+		local reasons = entry.row.reasons or {};
+		GFWUtils.Print("  exception#" .. tostring(index)
+			.. " id=" .. tostring(entry.itemId)
+			.. " name='" .. tostring(itemName) .. "'"
+			.. " blockAtOrAbove=" .. tostring(entry.row.blockAtOrAbovePetLevel)
+			.. " maxPetLevel=" .. tostring(entry.row.maxPetLevel)
+			.. " noBuff=" .. tostring(reasons.noBuff or 0)
+			.. " lowLevel=" .. tostring(reasons.lowLevel or 0)
+			.. " wrongFood=" .. tostring(reasons.wrongFood or 0));
+	end
+
+	local quarantineStore = FOM_EnsureQuarantineStore();
+	local quarantineCount = 0;
+	local printedQuarantine = 0;
+	if (type(quarantineStore) == "table" and type(quarantineStore.byFamily) == "table") then
+		for _, byItem in quarantineStore.byFamily do
+			if (type(byItem) == "table") then
+				for _, row in byItem do
+					if (type(row) == "table") then
+						quarantineCount = quarantineCount + 1;
+					end
+				end
+			end
+		end
+	end
+	GFWUtils.Print("- FOM quarantine rows: " .. tostring(quarantineCount));
+	if (type(quarantineStore) == "table" and type(quarantineStore.byFamily) == "table") then
+		for family, byItem in quarantineStore.byFamily do
+			if (type(byItem) == "table") then
+				for itemId, row in byItem do
+					if (printedQuarantine >= limit) then
+						break;
+					end
+					if (type(row) == "table") then
+						local numericItemId = tonumber(itemId);
+						local itemName = (numericItemId and GetItemInfo(numericItemId)) or ("item:" .. tostring(itemId));
+						printedQuarantine = printedQuarantine + 1;
+						GFWUtils.Print("  quarantine#" .. tostring(printedQuarantine)
+							.. " family='" .. tostring(family) .. "'"
+							.. " id=" .. tostring(itemId)
+							.. " name='" .. tostring(itemName) .. "'"
+							.. " minRejectPetLevel=" .. tostring(row.minRejectPetLevel)
+							.. " reason=" .. tostring(row.reason));
+					end
+				end
+				if (printedQuarantine >= limit) then
+					break;
+				end
+			end
+			if (printedQuarantine >= limit) then
+				break;
+			end
+		end
+	end
+end
+
 function FOM_ChatCommandHandler(msg)
 
 	if ( msg == "" ) then
@@ -1051,6 +1601,7 @@ function FOM_ChatCommandHandler(msg)
 		GFWUtils.Print("- "..GFWUtils.Hilite("quality high").." | "..GFWUtils.Hilite("low").." - Set whether to prefer foods that give your pet more happiness faster or less happiness more slowly.");
 		GFWUtils.Print("- "..GFWUtils.Hilite("feed").." - Feed your pet (automatically finds an appropriate food).");
 		GFWUtils.Print("- "..GFWUtils.Hilite("feed <name>").." - Feed your pet a specific food.");
+		GFWUtils.Print("- "..GFWUtils.Hilite("fooddata [limit]").." - Print collected food intelligence (unknown queue, exception blocks, quarantine). Defaults to 20 rows per section.");
 		GFWUtils.Print("- "..GFWUtils.Hilite("add <diet> <name>").." - Add food to list.");
 		GFWUtils.Print("- "..GFWUtils.Hilite("remove <diet> <name>").." - Remove food from list.");
 		GFWUtils.Print("- "..GFWUtils.Hilite("show <diet>").." - Show food list.");
@@ -1295,6 +1846,12 @@ function FOM_ChatCommandHandler(msg)
 	end
 	
 	-- Feed Pet
+	local _, _, dumpCmd, dumpLimit = string.find(msg, "(%w+) *(%w*)");
+	if (dumpCmd == "fooddata" or dumpCmd == "dumpfood" or dumpCmd == "data") then
+		FOM_PrintCollectedFoodData(dumpLimit);
+		return;
+	end
+
 	local _, _, cmd, foodString = string.find(msg, "(%w+) *(.*)");
 	if ( cmd == "feed" ) then
 		if (foodString == "") then
@@ -1610,31 +2167,145 @@ function FOM_HasFeedEffect()
 end
 
 -- Feed Pet
-function FOM_Feed(aFood)
-	if MTH_IsModuleEnabled and not MTH_IsModuleEnabled("feedomatic") then
+local function FOM_CloneSet(source)
+	local clone = {};
+	if (type(source) ~= "table") then
+		return clone;
+	end
+	for key, value in source do
+		if (value) then
+			clone[key] = true;
+		end
+	end
+	return clone;
+end
+
+local function FOM_CountSetEntries(source)
+	if (type(source) ~= "table") then
+		return 0;
+	end
+	local count = 0;
+	for _, value in source do
+		if (value) then
+			count = count + 1;
+		end
+	end
+	return count;
+end
+
+local function FOM_CloneFoodList(source)
+	local clone = {};
+	if (type(source) ~= "table") then
+		return clone;
+	end
+	for i = 1, table.getn(source) do
+		clone[i] = source[i];
+	end
+	return clone;
+end
+
+local function FOM_GetFeedScanCacheKey(petInfo)
+	if (type(petInfo) ~= "table") then
+		return "none";
+	end
+	return tostring(petInfo.name or "")
+		.. "|" .. tostring(petInfo.family or "")
+		.. "|" .. tostring(tonumber(petInfo.level) or 0);
+end
+
+local function FOM_GetCachedAutoChoice(excludedItemIds)
+	if (type(FOM_LAST_AUTO_CHOICE) ~= "table") then
+		return nil, nil, nil;
+	end
+	local now = (type(GetTime) == "function") and (GetTime() or 0) or 0;
+	if ((now - (tonumber(FOM_LAST_AUTO_CHOICE.at) or 0)) > FOM_LAST_AUTO_CHOICE_TTL) then
+		return nil, nil, nil;
+	end
+	local bag = tonumber(FOM_LAST_AUTO_CHOICE.bag);
+	local slot = tonumber(FOM_LAST_AUTO_CHOICE.slot);
+	local itemId = tonumber(FOM_LAST_AUTO_CHOICE.itemId);
+	if (bag == nil or slot == nil or itemId == nil) then
+		return nil, nil, nil;
+	end
+	if (type(excludedItemIds) == "table" and excludedItemIds[itemId]) then
+		return nil, nil, nil;
+	end
+	if (type(GetContainerItemLink) ~= "function") then
+		return nil, nil, nil;
+	end
+	local link = GetContainerItemLink(bag, slot);
+	if (not link) then
+		return nil, nil, nil;
+	end
+	local linkId = FOM_IDFromLink(link);
+	if (tonumber(linkId) ~= itemId) then
+		return nil, nil, nil;
+	end
+	return bag, slot, itemId;
+end
+
+local function FOM_SetCachedAutoChoice(bag, slot, itemId)
+	if (bag == nil or slot == nil or itemId == nil) then
+		return;
+	end
+	FOM_LAST_AUTO_CHOICE = {
+		at = (type(GetTime) == "function") and (GetTime() or 0) or 0,
+		bag = tonumber(bag),
+		slot = tonumber(slot),
+		itemId = tonumber(itemId),
+	};
+end
+
+local function FOM_TryPickSinglePrecomputedFood(foodList, excludedItemIds, allowUseful)
+	if (type(foodList) ~= "table" or table.getn(foodList) ~= 1) then
+		return nil, nil;
+	end
+	local foodInfo = foodList[1];
+	if (type(foodInfo) ~= "table") then
+		return nil, nil;
+	end
+	local itemId = tonumber(foodInfo.itemId);
+	if (itemId ~= nil and type(excludedItemIds) == "table" and excludedItemIds[itemId]) then
+		return nil, nil;
+	end
+	if (not allowUseful and foodInfo.useful) then
+		return nil, nil;
+	end
+	return foodInfo.bag, foodInfo.slot;
+end
+
+function FOM_Feed(aFood, options)
+	local feedStartMs = FOM_PerfNowMs();
+	options = options or {};
+	local retryCount = tonumber(options.retryCount) or 0;
+	local excludedItemIds = FOM_CloneSet(options.excludedItemIds);
+	local sourceTag = (retryCount > 0) and "feedomatic:auto-retry" or "feedomatic:auto";
+	local manualFood = (aFood ~= nil and tostring(aFood) ~= "");
+
+	if MTH_IsModuleEnabled and not MTH_IsModuleEnabled("feedomatic", false) then
 		if DEFAULT_CHAT_FRAME and DEFAULT_CHAT_FRAME.AddMessage then
 			MTH:Print("[FOM WRAP] FOM_Feed blocked: module disabled", "debug")
 		end
-		return;
+		return false;
 	end
 		
 	-- Make sure we have a feedable pet
 	local petInfo = MTH_FOM_GetCorePetInfo();
 	if not (petInfo and petInfo.liveExists) then 
 		GFWUtils.Note(FOM_ERROR_NO_PET); 
-		return;
+		return false;
 	end
 	if (petInfo.dead or (tonumber(petInfo.health) and tonumber(petInfo.health) <= 0)) then
 		GFWUtils.Note(FOM_ERROR_PET_DEAD); 
-		return;
+		return false;
 	end
 	if (FOM_GetPetDietList() == nil) then
 		GFWUtils.Note(FOM_ERROR_NO_FEEDABLE_PET); 
-		return;
+		return false;
 	end
 	if (UnitAffectingCombat("player") or UnitAffectingCombat("pet")) then
 		GFWUtils.Note(FOM_ERROR_IN_COMBAT); 
-		return;
+		return false;
 	end
 	
 	-- Assign Variable
@@ -1642,12 +2313,17 @@ function FOM_Feed(aFood)
 	FOM_Trace("feed request pet='" .. tostring(pet)
 		.. "' level=" .. tostring(petInfo.level)
 		.. " happiness=" .. tostring(petInfo.happiness)
-		.. " manualFood='" .. tostring(aFood or "") .. "'")
+		.. " manualFood='" .. tostring(aFood or "") .. "'"
+		.. " retry=" .. tostring(retryCount)
+		.. " excluded=" .. tostring(FOM_CountSetEntries(excludedItemIds)))
 	
+	local checkSetupStartMs = FOM_PerfNowMs();
 	FOM_CheckSetup();
+	FOM_PerfRecord("FOM_CheckSetup", FOM_PerfNowMs() - checkSetupStartMs, "retry=" .. tostring(retryCount), false);
 	if (FOM_LastPetName == nil or FOM_LastPetName == "") then
 		GFWUtils.DebugLog("Can't get pet info.");
-		return;
+		FOM_PerfRecord("FOM_Feed total", FOM_PerfNowMs() - feedStartMs, "result=no-pet-name", true);
+		return false;
 	end
 
 	if (GetLocale() ~= "enUS") then
@@ -1662,28 +2338,80 @@ function FOM_Feed(aFood)
 	
 	-- Look for Food
 	local foodBag, foodItem;
-	if (aFood ~= nil) then
+	local precomputedFoodList = nil;
+	local openSlots = nil;
+	if (manualFood) then
 		-- if told to feed a specific food, do so
 		foodBag, foodItem = FOM_FindSpecificFood(aFood);
 		if ( foodBag == nil) then
 			-- No Food Could be Found
 			GFWUtils.Print(string.format(FOM_ERROR_FOOD_NOT_FOUND, pet, aFood));
-			return;
+			FOM_PerfRecord("FOM_Feed total", FOM_PerfNowMs() - feedStartMs, "result=manual-not-found", true);
+			return false;
 		end
 		FOM_LastChoiceReason = "manual selection";
 	else
-		foodBag, foodItem = FOM_NewFindFood();
+		local cachedChoiceStartMs = FOM_PerfNowMs();
+		local cachedBag, cachedSlot, cachedItemId = FOM_GetCachedAutoChoice(excludedItemIds);
+		if (cachedBag ~= nil and cachedSlot ~= nil) then
+			foodBag, foodItem = cachedBag, cachedSlot;
+			FOM_LastChoiceReason = "cached previous food";
+			FOM_PerfRecord("FOM_AutoChoice cache", FOM_PerfNowMs() - cachedChoiceStartMs,
+				"hit itemId=" .. tostring(cachedItemId), false);
+		else
+			FOM_PerfRecord("FOM_AutoChoice cache", FOM_PerfNowMs() - cachedChoiceStartMs, "miss", false);
+		end
+
+		if (foodBag == nil) then
+		local precomputeStartMs = FOM_PerfNowMs();
+		local cacheNow = (type(GetTime) == "function") and (GetTime() or 0) or 0;
+		if (retryCount <= 0
+			and type(FOM_FEED_SCAN_CACHE) == "table"
+			and (cacheNow - (tonumber(FOM_FEED_SCAN_CACHE.at) or 0)) <= FOM_FEED_SCAN_CACHE_TTL
+			and type(FOM_FEED_SCAN_CACHE.foods) == "table") then
+			precomputedFoodList = FOM_CloneFoodList(FOM_FEED_SCAN_CACHE.foods);
+			openSlots = tonumber(FOM_FEED_SCAN_CACHE.openSlots) or 0;
+			FOM_PerfRecord("FOM_Feed precompute", FOM_PerfNowMs() - precomputeStartMs,
+				"cache-hit foods=" .. tostring(table.getn(precomputedFoodList)) .. " openSlots=" .. tostring(openSlots), false);
+		else
+			precomputedFoodList = FOM_FlatFoodList();
+			openSlots = FOM_NumOpenBagSlots();
+			FOM_FEED_SCAN_CACHE = {
+				at = cacheNow,
+				key = FOM_GetFeedScanCacheKey(petInfo),
+				foods = FOM_CloneFoodList(precomputedFoodList),
+				openSlots = openSlots,
+			};
+			FOM_PerfRecord("FOM_Feed precompute", FOM_PerfNowMs() - precomputeStartMs,
+				"cache-miss foods=" .. tostring(table.getn(precomputedFoodList)) .. " openSlots=" .. tostring(openSlots), false);
+		end
+
+		local fastPickStartMs = FOM_PerfNowMs();
+		foodBag, foodItem = FOM_TryPickSinglePrecomputedFood(precomputedFoodList, excludedItemIds, (FOM_Config.AvoidUsefulFood and false or true));
+		if (foodBag ~= nil) then
+			FOM_LastChoiceReason = "single candidate fast-path";
+			FOM_PerfRecord("FOM_SingleCandidate", FOM_PerfNowMs() - fastPickStartMs, "hit", false);
+		else
+			FOM_PerfRecord("FOM_SingleCandidate", FOM_PerfNowMs() - fastPickStartMs, "miss", false);
+		end
+
+		if (foodBag == nil) then
+		local findStartMs = FOM_PerfNowMs();
+		foodBag, foodItem = FOM_NewFindFood(nil, excludedItemIds, precomputedFoodList, openSlots);
+		FOM_PerfRecord("FOM_NewFindFood primary", FOM_PerfNowMs() - findStartMs, "found=" .. tostring(foodBag ~= nil), false);
+		end
+		end
 	end
 
-	local fallbackBag, fallbackItem = FOM_NewFindFood(1);
+	local fallbackBag, fallbackItem = nil, nil;
+	if (not manualFood and foodBag == nil and FOM_Config.Fallback) then
+		local fallbackStartMs = FOM_PerfNowMs();
+		fallbackBag, fallbackItem = FOM_NewFindFood(1, excludedItemIds, precomputedFoodList, openSlots);
+		FOM_PerfRecord("FOM_NewFindFood fallback", FOM_PerfNowMs() - fallbackStartMs, "found=" .. tostring(fallbackBag ~= nil), false);
+	end
 	
 	if ( foodBag == nil) then
-		if (not FOM_Config.Fallback and fallbackBag) then
-			local pronoun = FOM_PRONOUN_MALE;
-			if (UnitSex("pet") == 3) then pronoun = FOM_PRONOUN_FEMALE; end
-			GFWUtils.Print(string.format(FOM_ERROR_NO_FOOD_NO_FALLBACK, pet, pronoun));
-			return;
-		elseif (fallbackBag) then
+		if (fallbackBag) then
 			foodBag, foodItem = fallbackBag, fallbackItem;
 			if (FOM_LastChoiceReason == nil or FOM_LastChoiceReason == "") then
 				FOM_LastChoiceReason = "fallback to useful food";
@@ -1694,24 +2422,31 @@ function FOM_Feed(aFood)
 			-- No Food Could be Found
 			GFWUtils.Print(string.format(FOM_ERROR_NO_FOOD, pet));
 			FOM_LastChoiceReason = nil;
-			return;
+			FOM_PerfRecord("FOM_Feed total", FOM_PerfNowMs() - feedStartMs, "result=no-food", true);
+			return false;
 		end
 	end
 		
+	local prepareStartMs = FOM_PerfNowMs();
 	FOM_LastFood = GetContainerItemLink(foodBag, foodItem);
 		local selectedId = FOM_IDFromLink(FOM_LastFood)
-		local selectedFoodLevel = (type(MTH_FEED_GetFoodLevel) == "function") and MTH_FEED_GetFoodLevel(selectedId) or nil
+		FOM_SetCachedAutoChoice(foodBag, foodItem, selectedId)
+		local selectedFoodLevel = FOM_GetFoodLevelOverride(selectedId);
+		if (selectedFoodLevel == nil and type(MTH_FEED_GetFoodLevel) == "function") then
+			selectedFoodLevel = MTH_FEED_GetFoodLevel(selectedId);
+		end
 		local coreAttemptId = FOM_CoreBeginAttempt({
 			itemId = selectedId,
 			itemName = FOM_NameFromLink(FOM_LastFood),
 			itemLink = tostring(FOM_LastFood or ""),
-			source = "feedomatic:auto",
+			source = sourceTag,
 			petId = tostring(petInfo and petInfo.id or ""),
 			petName = tostring(pet or ""),
 			family = tostring(petInfo and petInfo.family or ""),
 			petLevel = tonumber(petInfo and petInfo.level) or nil,
 			foodLevel = selectedFoodLevel,
 		})
+		FOM_PerfRecord("FOM_Feed prepare", FOM_PerfNowMs() - prepareStartMs, "itemId=" .. tostring(selectedId), false);
 		FOM_Trace("selected food link='" .. tostring(FOM_LastFood)
 			.. "' itemId=" .. tostring(selectedId)
 			.. " bag=" .. tostring(foodBag)
@@ -1721,10 +2456,12 @@ function FOM_Feed(aFood)
 	GFWUtils.DebugLog("Picked "..FOM_LastFood.." (bag "..foodBag..", slot "..foodItem..") for feeding.");
 	if (FOM_Config.Debug) then
 		-- don't actually feed anything, just show what we would choose
-		return;
+		FOM_PerfRecord("FOM_Feed total", FOM_PerfNowMs() - feedStartMs, "result=debug", true);
+		return false;
 	end
 	
 	-- Actually feed the item to the pet
+	local dropStartMs = FOM_PerfNowMs();
 	PickupContainerItem(foodBag, foodItem);
 	FOM_Trace("feed execute pickup bag=" .. tostring(foodBag)
 		.. " slot=" .. tostring(foodItem)
@@ -1740,6 +2477,7 @@ function FOM_Feed(aFood)
 		end
 		FOM_Trace("feed execute drop on pet cursorHasItemAfterDrop=" .. tostring(CursorHasItem() and true or false))
 	end
+	FOM_PerfRecord("FOM_Feed drop", FOM_PerfNowMs() - dropStartMs, "cursor=" .. tostring(CursorHasItem() and true or false), false);
 	if (coreAttemptId and type(MTH_FEED_RecordClientDropResult) == "function") then
 		pcall(MTH_FEED_RecordClientDropResult, coreAttemptId, {
 			consumedFromCursor = (CursorHasItem() and false or true),
@@ -1751,25 +2489,33 @@ function FOM_Feed(aFood)
 		FOM_CoreRecordReject(coreAttemptId, "client-drop-fail", nil);
 		FOM_CoreFinalizeAttempt(coreAttemptId, "rejected", "client-drop-fail");
 		FOM_Trace("feed execute returned item to bag")
+		FOM_PerfRecord("FOM_Feed total", FOM_PerfNowMs() - feedStartMs, "result=cursor-fail", true);
+		return false;
 	else
 		FOM_Trace("feed execute accepted by client (item consumed from cursor)")
+		if (selectedId ~= nil) then
+			excludedItemIds[selectedId] = true;
+		end
 		FOM_LastFeedAttempt = {
 			startedAt = GetTime() or 0,
 			petName = tostring(pet or ""),
 			itemId = selectedId,
 			itemLink = tostring(FOM_LastFood or ""),
 			coreAttemptId = coreAttemptId,
+			alertMode = tostring(FOM_Config.Alert or ""),
+			petLevel = tonumber(petInfo and petInfo.level) or nil,
+			retryCount = retryCount,
+			excludedItemIds = excludedItemIds,
+			manualFood = manualFood,
 			loggedFirstCheck = false,
 		}
 		FOM_State.ShouldFeed = nil;
-		-- Alert
-		if ( FOM_Config.Alert == "chat") then
-			GFWUtils.Print(string.format(FOM_FEEDING_EAT, pet, GFWUtils.Hilite(FOM_LastFood)));
-		elseif ( FOM_Config.Alert == "emote") then
-			SendChatMessage(string.format(FOM_FEEDING_FEED, pet, FOM_LastFood).. FOM_RandomEmote(), "EMOTE");
-		end
+		FOM_Trace("feed alert deferred until confirmation itemId=" .. tostring(selectedId)
+			.. " pet='" .. tostring(pet or "")
+			.. "' mode='" .. tostring(FOM_Config.Alert or "") .. "'")
+		FOM_PerfRecord("FOM_Feed total", FOM_PerfNowMs() - feedStartMs, "result=ok itemId=" .. tostring(selectedId), true);
+		return true;
 	end
-		
 end
 
 function FOM_RandomEmote()
@@ -1809,22 +2555,50 @@ function FOM_FindSpecificFood(foodName)
 end
 
 function FOM_IsTemporaryFood(itemLink)
+	local numericItemId = FOM_IDFromLink(itemLink);
+	if (numericItemId ~= nil and FOM_TEMP_FOOD_CACHE[numericItemId] ~= nil) then
+		return FOM_TEMP_FOOD_CACHE[numericItemId] and true or false;
+	end
 	
 	local _, _, link = string.find(itemLink, "(item:%d+:%d+:%d+:%d+)");
 	if (link == nil or link == "") then 
+		if (numericItemId ~= nil) then
+			FOM_TEMP_FOOD_CACHE[numericItemId] = false;
+		end
 		return false; 
 	end
 	FOMTooltip:ClearLines();
 	FOMTooltip:SetHyperlink(link);
 	if (FOMTooltipTextLeft2:GetText() == ITEM_CONJURED) then
+		if (numericItemId ~= nil) then
+			FOM_TEMP_FOOD_CACHE[numericItemId] = true;
+		end
 		return true;
 	else
+		if (numericItemId ~= nil) then
+			FOM_TEMP_FOOD_CACHE[numericItemId] = false;
+		end
 		return false;
 	end	
 
 end
 
+local function FOM_EnsureQuestScanFresh(maxAgeSeconds)
+	if (not FOM_Config.AvoidQuestFood) then
+		return;
+	end
+	local now = (type(GetTime) == "function") and (GetTime() or 0) or 0;
+	local age = now - (tonumber(FOM_LAST_QUEST_SCAN_AT) or 0);
+	local maxAge = tonumber(maxAgeSeconds) or 1.5;
+	if (age < maxAge) then
+		return;
+	end
+	FOM_ScanQuests();
+	FOM_LAST_QUEST_SCAN_AT = now;
+end
+
 function FOM_FlatFoodList()
+	local flatStartMs = FOM_PerfNowMs();
 	local foodList = {};
 	local overflowFoodList = {};
 	local scanned = 0;
@@ -1832,9 +2606,14 @@ function FOM_FlatFoodList()
 	local compatibleCount = 0;
 	local overflowCompatibleCount = 0;
 	local rejectedByException = 0;
+	local rejectedByLevelOverride = 0;
+	local rejectedByQuarantine = 0;
+	local unknownLevelCandidates = 0;
 	FOM_Quantity = { };
+	FOM_EnsureQuestScanFresh(1.5);
 	local petInfo = MTH_FOM_GetCorePetInfo();
 	local petLevel = tonumber(petInfo and petInfo.level) or 0;
+	local familyKey = FOM_GetFamilyKeyFromInfo(petInfo);
 	for bagNum = 0, 4 do
 		if (not FOM_BagIsQuiver(bagNum) ) then
 		-- skip bags that can't contain food
@@ -1852,51 +2631,54 @@ function FOM_FlatFoodList()
 						local name = FOM_NameFromLink(itemLink);
 						FOM_FoodIDsToNames[itemID] = name;
 						local isUseful = FOM_IsUsefulFood(itemID, itemCount);
-						local isKnownFood = (type(MTH_FEED_IsKnownFoodItem) == "function") and MTH_FEED_IsKnownFoodItem(itemID) or FOM_IsKnownFood(itemID);
-						local foodLevel = (type(MTH_FEED_GetFoodLevel) == "function") and MTH_FEED_GetFoodLevel(itemID) or nil;
-						if (not isKnownFood and type(MTH_FEED_RecordUnknownFoodCandidate) == "function") then
-							pcall(MTH_FEED_RecordUnknownFoodCandidate, {
-								itemId = itemID,
-								itemName = name,
-								itemLink = tostring(itemLink or ""),
-								source = "bag-scan",
-								observedFoodLevel = foodLevel,
-								observedDietHint = nil,
-								evidenceType = "bag-scan",
-							});
+						local isKnownFood = FOM_IsKnownFood(itemID);
+						local foodLevel = FOM_GetFoodLevelOverride(itemID);
+						if (foodLevel == nil and type(MTH_FEED_GetFoodLevel) == "function") then
+							foodLevel = MTH_FEED_GetFoodLevel(itemID);
 						end
 
-						local isExceptionReject = (type(MTH_FEED_IsExceptionReject) == "function") and MTH_FEED_IsExceptionReject(itemID) or false;
+						local isExceptionReject = false;
+						local isLevelOverrideReject = not FOM_IsItemPetLevelCompatible(itemID, petLevel);
+						local isQuarantineReject = FOM_IsQuarantined(itemID, petLevel, familyKey);
 						if (isExceptionReject) then
 							rejectedByException = rejectedByException + 1;
+						end
+						if (isLevelOverrideReject) then
+							rejectedByLevelOverride = rejectedByLevelOverride + 1;
+						end
+						if (isQuarantineReject) then
+							rejectedByQuarantine = rejectedByQuarantine + 1;
 						end
 
 						local isCompatible = true;
 						local isAbovePreferredLevel = false;
-						if (petLevel > 0 and foodLevel ~= nil) then
-							if (type(MTH_FEED_GetFoodCompatibilityWindow) == "function") then
-								local minAllowed, maxAllowed = MTH_FEED_GetFoodCompatibilityWindow(petLevel);
-								local numericFood = tonumber(foodLevel) or 0;
-								if (minAllowed ~= nil and numericFood < tonumber(minAllowed)) then
-									isCompatible = false;
-								end
-								if (maxAllowed ~= nil and numericFood > tonumber(maxAllowed)) then
-									isCompatible = false;
-									isAbovePreferredLevel = true;
-								end
-							elseif (type(MTH_FEED_IsFoodCompatible) == "function") then
-								isCompatible = MTH_FEED_IsFoodCompatible(petLevel, foodLevel);
-							end
+						local hasKnownLevel = (tonumber(foodLevel) ~= nil);
+						if (not hasKnownLevel) then
+							unknownLevelCandidates = unknownLevelCandidates + 1;
 						end
 
-						if (isCompatible and not isExceptionReject) then
+						if (isCompatible and not isExceptionReject and not isLevelOverrideReject and not isQuarantineReject) then
 							compatibleCount = compatibleCount + 1;
-							local foodQuality = tonumber(foodLevel) or MAX_QUALITY;
-							table.insert(foodList, {bag=bagNum, slot=itemNum, link=itemLink, count=itemCount, quality=foodQuality, useful=isUseful, temp=FOM_IsTemporaryFood(itemLink)});
-						elseif (isAbovePreferredLevel and not isExceptionReject) then
+							local foodQuality = tonumber(foodLevel);
+							if (foodQuality == nil) then
+								if (FOM_Config.PreferHigherQuality) then
+									foodQuality = FOM_UNKNOWN_QUALITY_FOR_DESC;
+								else
+									foodQuality = FOM_UNKNOWN_QUALITY_FOR_ASC;
+								end
+							end
+							table.insert(foodList, {bag=bagNum, slot=itemNum, link=itemLink, itemId=itemID, count=itemCount, quality=foodQuality, useful=isUseful, temp=FOM_IsTemporaryFood(itemLink), knownLevel=hasKnownLevel});
+						elseif (isAbovePreferredLevel and not isExceptionReject and not isLevelOverrideReject and not isQuarantineReject) then
 							overflowCompatibleCount = overflowCompatibleCount + 1;
-							local overflowQuality = tonumber(foodLevel) or MAX_QUALITY;
-							table.insert(overflowFoodList, {bag=bagNum, slot=itemNum, link=itemLink, count=itemCount, quality=overflowQuality, useful=isUseful, temp=FOM_IsTemporaryFood(itemLink), overflow=true});
+							local overflowQuality = tonumber(foodLevel);
+							if (overflowQuality == nil) then
+								if (FOM_Config.PreferHigherQuality) then
+									overflowQuality = FOM_UNKNOWN_QUALITY_FOR_DESC;
+								else
+									overflowQuality = FOM_UNKNOWN_QUALITY_FOR_ASC;
+								end
+							end
+							table.insert(overflowFoodList, {bag=bagNum, slot=itemNum, link=itemLink, itemId=itemID, count=itemCount, quality=overflowQuality, useful=isUseful, temp=FOM_IsTemporaryFood(itemLink), overflow=true, knownLevel=hasKnownLevel});
 						end
 					end
 				end
@@ -1911,14 +2693,78 @@ function FOM_FlatFoodList()
 		.. " compatible=" .. tostring(compatibleCount)
 		.. " overflowCompatible=" .. tostring(overflowCompatibleCount)
 		.. " exceptionRejects=" .. tostring(rejectedByException)
+		.. " levelOverrideRejects=" .. tostring(rejectedByLevelOverride)
+		.. " quarantineRejects=" .. tostring(rejectedByQuarantine)
+		.. " unknownLevel=" .. tostring(unknownLevelCandidates)
 		.. " candidates=" .. tostring(table.getn(foodList)))
+	if (FOM_PERF_TRACE_ENABLED) then
+		FOM_PerfRecord("FOM_FlatFoodList", FOM_PerfNowMs() - flatStartMs,
+			"scanned=" .. tostring(scanned)
+			.. " inDiet=" .. tostring(inDiet)
+			.. " candidates=" .. tostring(table.getn(foodList)),
+			false);
+	end
 	return foodList;
 end
 
-function FOM_NewFindFood(fallback)
-	local FlatFoodList = FOM_FlatFoodList();
+function FOM_NewFindFood(fallback, excludedItemIds, precomputedFoodList, openSlotsOverride)
+	local findStartMs = FOM_PerfNowMs();
+	local FlatFoodList = nil;
+	if (type(precomputedFoodList) == "table") then
+		FlatFoodList = FOM_CloneFoodList(precomputedFoodList);
+	else
+		FlatFoodList = FOM_FlatFoodList();
+	end
 	local initialCount = table.getn(FlatFoodList)
 	local reasonParts = {};
+	if (initialCount <= 0) then
+		FOM_LastChoiceReason = nil;
+		if (FOM_PERF_TRACE_ENABLED) then
+			FOM_PerfRecord("FOM_NewFindFood", FOM_PerfNowMs() - findStartMs,
+				"fallback=" .. tostring(fallback and true or false)
+				.. " initial=0 final=0",
+				false);
+		end
+		return nil;
+	end
+	local petInfo = MTH_FOM_GetCorePetInfo();
+	local petLevel = tonumber(petInfo and petInfo.level) or 0;
+
+	if (petLevel >= FOM_REQUIRE_KNOWN_LEVEL_PET_LEVEL) then
+		local knownCount = 0;
+		for _, foodInfo in FlatFoodList do
+			if (foodInfo.knownLevel) then
+				knownCount = knownCount + 1;
+			end
+		end
+		if (knownCount > 0) then
+			local knownOnly = {};
+			for _, foodInfo in FlatFoodList do
+				if (foodInfo.knownLevel) then
+					table.insert(knownOnly, foodInfo);
+				end
+			end
+			FlatFoodList = knownOnly;
+			table.insert(reasonParts, "known-level required at high pet level");
+		end
+	end
+
+	if (type(excludedItemIds) == "table") then
+		local allowedFoods = {};
+		local excludedCount = 0;
+		for _, foodInfo in FlatFoodList do
+			local id = tonumber(foodInfo.itemId);
+			if (id ~= nil and excludedItemIds[id]) then
+				excludedCount = excludedCount + 1;
+			else
+				table.insert(allowedFoods, foodInfo);
+			end
+		end
+		if (excludedCount > 0) then
+			FlatFoodList = allowedFoods;
+			table.insert(reasonParts, "excluded failed foods=" .. tostring(excludedCount));
+		end
+	end
 	
 	-- if there are any conjured foods, drop everything else from the list
 	local tempFoodsOnly = {};
@@ -1935,7 +2781,11 @@ function FOM_NewFindFood(fallback)
 	
 	
 	table.sort(FlatFoodList, FOM_SortCount); -- small stacks first
-	if (FOM_NumOpenBagSlots() > FOM_Config.KeepOpenSlots) then
+	local openSlots = tonumber(openSlotsOverride);
+	if (openSlots == nil) then
+		openSlots = FOM_NumOpenBagSlots();
+	end
+	if (openSlots > FOM_Config.KeepOpenSlots) then
 		if (FOM_Config.PreferHigherQuality) then
 			table.sort(FlatFoodList, FOM_SortQualityDescending); -- higher quality first
 			table.insert(reasonParts, "higher quality preferred");
@@ -1966,6 +2816,13 @@ function FOM_NewFindFood(fallback)
 		.. " postConjured=" .. tostring(postConjuredCount)
 		.. " postFilters=" .. tostring(table.getn(FlatFoodList))
 		.. " reasons='" .. tostring(table.concat(reasonParts, ", ")) .. "'")
+	if (FOM_PERF_TRACE_ENABLED) then
+		FOM_PerfRecord("FOM_NewFindFood", FOM_PerfNowMs() - findStartMs,
+			"fallback=" .. tostring(fallback and true or false)
+			.. " initial=" .. tostring(initialCount)
+			.. " final=" .. tostring(table.getn(FlatFoodList)),
+			false);
+	end
 		
 	for _, foodInfo in FlatFoodList do
 		if (foodInfo.overflow) then
@@ -2031,7 +2888,6 @@ function FOM_IsUsefulFood(itemID, quantity)
 		end
 	end
 	if (FOM_Config.AvoidQuestFood) then
-		FOM_ScanQuests();
 		if (FOM_QuestFood ~= nil and FOM_QuestFood[FOM_RealmPlayer] ~= nil and FOM_QuestFood[FOM_RealmPlayer][foodName]) then
 			if (FOM_Quantity[foodName] == nil) then
 				FOM_Quantity[foodName] = quantity;

@@ -944,9 +944,6 @@ function MTH_FEED_BeginAttempt(payload)
 			itemIcon = infoTexture
 		end
 	end
-	if (not itemIcon or itemIcon == "") then
-		itemIcon = MTH_FEED_FindItemIconInBags(itemId, payload and payload.itemName)
-	end
 
 	MTH_FEED_Runtime.attempts[attemptId] = {
 		id = attemptId,
@@ -1117,7 +1114,7 @@ function MTH_FEED_IsFoodCompatible(petLevel, foodLevel)
 	return true
 end
 
-function MTH_FEED_IsExceptionReject(itemId)
+function MTH_FEED_IsExceptionReject(itemId, petLevel)
 	local key = tonumber(itemId)
 	if not key then
 		return false
@@ -1126,6 +1123,11 @@ function MTH_FEED_IsExceptionReject(itemId)
 	local row = store.exceptions.byItemId[key]
 	if type(row) ~= "table" then
 		return false
+	end
+	local numericPet = tonumber(petLevel)
+	local blockedAtOrAbove = tonumber(row.blockAtOrAbovePetLevel)
+	if blockedAtOrAbove and numericPet and numericPet >= blockedAtOrAbove then
+		return true
 	end
 	if row.anomalyReject ~= true then
 		return false
@@ -1141,10 +1143,64 @@ function MTH_FEED_IsExceptionReject(itemId)
 	if not reasons then
 		return false
 	end
+	local lowLevelCount = tonumber(reasons.lowLevel) or 0
+	if lowLevelCount >= 1 then
+		local maxPetLevel = tonumber(row.maxPetLevel)
+		if numericPet and maxPetLevel then
+			if numericPet > maxPetLevel then
+				return true
+			end
+		else
+			return true
+		end
+	end
 	local wrongFoodCount = tonumber(reasons.wrongFood) or 0
 	if wrongFoodCount < 2 then
 		return false
 	end
+	return true
+end
+
+function MTH_FEED_BlockItemForPetLevel(itemId, petLevel, reason)
+	local key = tonumber(itemId)
+	local numericPet = tonumber(petLevel)
+	if not key or not numericPet then
+		return false
+	end
+	if numericPet < 1 then
+		numericPet = 1
+	end
+	local store = MTH_FEED_EnsureStore()
+	if type(store.exceptions.byItemId[key]) ~= "table" then
+		store.exceptions.byItemId[key] = {
+			anomalyReject = true,
+			reasons = { noBuff = 0, wrongFood = 0, lowLevel = 0, unknown = 0 },
+			lastObservedAt = 0,
+		}
+	end
+	local row = store.exceptions.byItemId[key]
+	if type(row.reasons) ~= "table" then
+		row.reasons = { noBuff = 0, wrongFood = 0, lowLevel = 0, unknown = 0 }
+	end
+	row.anomalyReject = true
+	row.lastObservedAt = MTH_FEED_Now()
+	if tonumber(row.blockAtOrAbovePetLevel) == nil or numericPet < tonumber(row.blockAtOrAbovePetLevel) then
+		row.blockAtOrAbovePetLevel = numericPet
+	end
+	local normalizedReason = MTH_FEED_NormalizeReason(reason, nil)
+	if normalizedReason == "no-buff" then
+		row.reasons.noBuff = (tonumber(row.reasons.noBuff) or 0) + 1
+	elseif normalizedReason == "low-level" then
+		row.reasons.lowLevel = (tonumber(row.reasons.lowLevel) or 0) + 1
+	elseif normalizedReason == "wrong-food" then
+		row.reasons.wrongFood = (tonumber(row.reasons.wrongFood) or 0) + 1
+	else
+		row.reasons.unknown = (tonumber(row.reasons.unknown) or 0) + 1
+	end
+	MTH_FEED_TouchStore(store)
+	MTH_FEED_Trace("BlockItemForPetLevel itemId=" .. tostring(key)
+		.. " blockAtOrAbove=" .. tostring(row.blockAtOrAbovePetLevel)
+		.. " reason=" .. tostring(normalizedReason))
 	return true
 end
 
@@ -1157,7 +1213,7 @@ function MTH_FEED_GetPetFeedStats(petId)
 	return store.byPetId[key]
 end
 
-local function MTH_FEED_UpsertException(store, itemId, reason)
+local function MTH_FEED_UpsertException(store, itemId, reason, petLevel)
 	if not itemId then
 		return
 	end
@@ -1179,11 +1235,51 @@ local function MTH_FEED_UpsertException(store, itemId, reason)
 		row.reasons.wrongFood = (tonumber(row.reasons.wrongFood) or 0) + 1
 	elseif reason == "low-level" then
 		row.reasons.lowLevel = (tonumber(row.reasons.lowLevel) or 0) + 1
+		local numericPetLevel = tonumber(petLevel)
+		if numericPetLevel and numericPetLevel > 1 then
+			local derivedMaxPetLevel = numericPetLevel - 1
+			if derivedMaxPetLevel < 1 then
+				derivedMaxPetLevel = 1
+			end
+			if tonumber(row.maxPetLevel) == nil or derivedMaxPetLevel < tonumber(row.maxPetLevel) then
+				row.maxPetLevel = derivedMaxPetLevel
+			end
+		end
 	else
 		row.reasons.unknown = (tonumber(row.reasons.unknown) or 0) + 1
 	end
 	row.anomalyReject = true
 	row.lastObservedAt = MTH_FEED_Now()
+end
+
+local function MTH_FEED_ClearStaleExceptionOnAccept(store, itemId)
+	if not itemId or type(store) ~= "table" or type(store.exceptions) ~= "table" or type(store.exceptions.byItemId) ~= "table" then
+		return
+	end
+	local key = tonumber(itemId) or itemId
+	local row = store.exceptions.byItemId[key]
+	if type(row) ~= "table" then
+		return
+	end
+	if type(row.reasons) ~= "table" then
+		store.exceptions.byItemId[key] = nil
+		return
+	end
+	row.reasons.noBuff = 0
+	row.lastObservedAt = MTH_FEED_Now()
+
+	local noBuff = tonumber(row.reasons.noBuff) or 0
+	local lowLevel = tonumber(row.reasons.lowLevel) or 0
+	local wrongFood = tonumber(row.reasons.wrongFood) or 0
+	local unknown = tonumber(row.reasons.unknown) or 0
+	if noBuff <= 0
+		and lowLevel <= 0
+		and wrongFood <= 0
+		and unknown <= 0
+		and tonumber(row.blockAtOrAbovePetLevel) == nil
+		and tonumber(row.maxPetLevel) == nil then
+		store.exceptions.byItemId[key] = nil
+	end
 end
 
 function MTH_FEED_FinalizeAttempt(attemptId, payload)
@@ -1245,6 +1341,7 @@ function MTH_FEED_FinalizeAttempt(attemptId, payload)
 		if itemRow then
 			itemRow.accepted = itemRow.accepted + 1
 		end
+		MTH_FEED_ClearStaleExceptionOnAccept(store, row.itemId)
 		local petKey = tostring((petRow and petRow.petId) or row.petId or "")
 		if petKey ~= "" then
 			MTH_FEED_Runtime.sessionFeedsByPetId[petKey] = (tonumber(MTH_FEED_Runtime.sessionFeedsByPetId[petKey]) or 0) + 1
@@ -1261,7 +1358,7 @@ function MTH_FEED_FinalizeAttempt(attemptId, payload)
 		if itemRow then
 			itemRow.rejected = itemRow.rejected + 1
 		end
-		MTH_FEED_UpsertException(store, row.itemId, reason)
+		MTH_FEED_UpsertException(store, row.itemId, reason, row.petLevel)
 	end
 
 	if itemRow then
@@ -1283,9 +1380,6 @@ function MTH_FEED_FinalizeAttempt(attemptId, payload)
 			if directTexture and directTexture ~= "" then
 				persistedIcon = directTexture
 			end
-		end
-		if (not persistedIcon or persistedIcon == "") then
-			persistedIcon = MTH_FEED_FindItemIconInBags(row.itemId, row.itemName)
 		end
 		if persistedIcon and persistedIcon ~= "" then
 			itemRow.itemIcon = persistedIcon

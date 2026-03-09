@@ -79,6 +79,8 @@
 			<Frame name="$parentSmartAmmo" hidden="true" enableMouse="true"/>
 			<Frame name="$parentFeedOMatic" hidden="true" enableMouse="true"/>
 			<Frame name="$parentAutoBuy" hidden="true" enableMouse="true"/>
+			<Frame name="$parentAutoQuest" hidden="true" enableMouse="true"/>
+			<Frame name="$parentICU" hidden="true" enableMouse="true"/>
 			<Frame name="$parentChronometer" hidden="true" enableMouse="true"/>
 			<Frame name="$parentCredits" hidden="true" enableMouse="true"/>
 

@@ -6,7 +6,7 @@
 local MTH_Tooltips = {
 	name = "tooltips",
 	enabled = true,
-	version = "1.0.6",
+	version = "1.1.0",
 	events = {
 		"UPDATE_MOUSEOVER_UNIT",
 		"UNIT_NAME_UPDATE",
@@ -111,6 +111,55 @@ local function MTH_TT_IsOwnPetTooltipsEnabled()
 	local store = MTH_TT_GetOptionsStore()
 	if type(store) == "table" then
 		return store.ownPetTooltips and true or false
+	end
+	return false
+end
+
+local function MTH_TT_GetAutoQuestStore()
+	if type(MTH_CharSavedVariables) ~= "table" then
+		return nil
+	end
+	local store = MTH_CharSavedVariables.autoquest
+	if type(store) ~= "table" then
+		store = MTH_CharSavedVariables.questautomation
+	end
+	if type(store) ~= "table" then
+		return nil
+	end
+	if store.scorpokDrazial == nil then
+		store.scorpokDrazial = false
+	end
+	if store.scorpokTooltip == nil then
+		store.scorpokTooltip = false
+	end
+	return store
+end
+
+local function MTH_TT_IsScorpokAutomationEnabled()
+	local store = MTH_TT_GetAutoQuestStore()
+	if type(store) ~= "table" then
+		return false
+	end
+	return store.scorpokDrazial and true or false
+end
+
+local function MTH_TT_IsScorpokTooltipEnabled()
+	local store = MTH_TT_GetAutoQuestStore()
+	if type(store) ~= "table" then
+		return false
+	end
+	return store.scorpokTooltip and true or false
+end
+
+local function MTH_TT_IsAutoQuestModuleEnabled()
+	if MTH and type(MTH.GetModule) == "function" then
+		local module = MTH:GetModule("autoquest")
+		if type(module) == "table" and module.enabled ~= nil then
+			return module.enabled and true or false
+		end
+	end
+	if MTH and type(MTH.IsModuleEnabled) == "function" then
+		return MTH:IsModuleEnabled("autoquest", false) and true or false
 	end
 	return false
 end
@@ -556,6 +605,191 @@ local function MTH_TT_ColorizeDigitsBlue(text)
 		return ""
 	end
 	return string.gsub(source, "(%d+)", "|cff73bfff%1|r")
+end
+
+local MTH_TT_SCORPOK_NPC_NAME = "Bloodmage Drazial"
+local MTH_TT_SCORPOK_TARGET_NPC_IDS = {
+	[7505] = true,
+	[5988] = true,
+	[5982] = true,
+	[5992] = true,
+	[5993] = true,
+}
+local MTH_TT_SCORPOK_TARGET_NPC_NAMES = {
+	[MTH_TT_NormalizeName("Bloodmage Drazial")] = true,
+	[MTH_TT_NormalizeName("Scorpok Stinger")] = true,
+	[MTH_TT_NormalizeName("Black Slayer")] = true,
+	[MTH_TT_NormalizeName("Ashmane Boar")] = true,
+	[MTH_TT_NormalizeName("Helboar")] = true,
+}
+local MTH_TT_ITEM_SCORPOK_PINCER_ID = 8393
+local MTH_TT_ITEM_VULTURE_GIZZARD_ID = 8396
+local MTH_TT_ITEM_BLASTED_BOAR_LUNG_ID = 8392
+local MTH_TT_ITEM_GROUND_SCORPOK_ASSAY_ID = 8412
+
+local function MTH_TT_ParseNpcIdFromGuid(guid)
+	if type(guid) ~= "string" or guid == "" then
+		return nil
+	end
+	local _, _, _, _, _, npcId = string.find(guid, "^Creature%-%d+%-%d+%-%d+%-%d+%-(%d+)%-%x+$")
+	if npcId then
+		return tonumber(npcId)
+	end
+	if string.sub(guid, 1, 2) == "0x" and string.len(guid) >= 12 then
+		local hex = string.sub(guid, 9, 12)
+		local parsed = tonumber(hex, 16)
+		if parsed and parsed > 0 then
+			return parsed
+		end
+	end
+	return nil
+end
+
+local function MTH_TT_GetBagItemCount(itemId)
+	local getContainerNumSlots = _G and _G["GetContainerNumSlots"] or nil
+	local getContainerItemLink = _G and _G["GetContainerItemLink"] or nil
+	local getContainerItemInfo = _G and _G["GetContainerItemInfo"] or nil
+	if type(getContainerNumSlots) ~= "function" or type(getContainerItemLink) ~= "function" then
+		return 0
+	end
+	local total = 0
+	for bag = 0, 4 do
+		local slots = math.floor(tonumber(getContainerNumSlots(bag)) or 0)
+		for slot = 1, slots do
+			local link = getContainerItemLink(bag, slot)
+			if type(link) == "string" and link ~= "" then
+				local _, _, foundText = string.find(link, "item:(%d+)")
+				local found = tonumber(foundText)
+				if found and tonumber(found) == tonumber(itemId) then
+					local count = 1
+					if type(getContainerItemInfo) == "function" then
+						local _, stackCount = getContainerItemInfo(bag, slot)
+						count = math.floor(tonumber(stackCount) or 1)
+					end
+					total = total + count
+				end
+			end
+		end
+	end
+	return total
+end
+
+local function MTH_TT_ColorCountByThreshold(value, threshold)
+	local n = math.floor(tonumber(value) or 0)
+	if n <= 0 then
+		return "|cffff0000" .. tostring(n) .. "|r"
+	end
+	local modFn = nil
+	if type(rawget) == "function" and type(math) == "table" then
+		modFn = rawget(math, "mod") or rawget(math, "fmod")
+	elseif type(math) == "table" then
+		modFn = math.fmod
+	end
+	if threshold > 0 and type(modFn) == "function" and modFn(n, threshold) == 0 then
+		return "|cff00ff00" .. tostring(n) .. "|r"
+	end
+	return "|cffffa500" .. tostring(n) .. "|r"
+end
+
+local function MTH_TT_ColorAssayCount(value)
+	local n = math.floor(tonumber(value) or 0)
+	if n > 0 then
+		return "|cff73bfff" .. tostring(n) .. "|r"
+	end
+	return tostring(n)
+end
+
+local function MTH_TT_HasScorpokTooltipLine()
+	if not GameTooltip or not GameTooltip.NumLines then return false end
+	for i = 1, GameTooltip:NumLines() do
+		local left = getglobal("GameTooltipTextLeft" .. i)
+		if left and left.GetText then
+			local text = tostring(left:GetText() or "")
+			if string.find(text, "MTH Auto Quest", 1, true)
+				or string.find(text, "Ground Scorpok Assay", 1, true) then
+				return true
+			end
+		end
+	end
+	return false
+end
+
+local function MTH_TT_IsScorpokTooltipZoneAllowed()
+	local getRealZoneText = _G and _G["GetRealZoneText"] or nil
+	local getZoneText = _G and _G["GetZoneText"] or nil
+	local zoneName = ""
+	if type(getRealZoneText) == "function" then
+		zoneName = tostring(getRealZoneText() or "")
+	end
+	if zoneName == "" and type(getZoneText) == "function" then
+		zoneName = tostring(getZoneText() or "")
+	end
+	if zoneName == "" then
+		return true
+	end
+	return MTH_TT_NormalizeName(zoneName) == MTH_TT_NormalizeName("Blasted Lands")
+end
+
+local function MTH_TT_AddScorpokTargetsTooltip(unit, unitName)
+	if not MTH_TT_IsAutoQuestModuleEnabled() then
+		return false
+	end
+	if not MTH_TT_IsScorpokAutomationEnabled() or not MTH_TT_IsScorpokTooltipEnabled() then
+		return false
+	end
+	if not MTH_TT_IsScorpokTooltipZoneAllowed() then
+		return false
+	end
+	if MTH_TT_HasScorpokTooltipLine() then
+		return false
+	end
+
+	local npcId = nil
+	if type(UnitGUID) == "function" then
+		npcId = MTH_TT_ParseNpcIdFromGuid(UnitGUID(unit))
+	end
+	local isDrazial = false
+	if tonumber(npcId) == 7505 then
+		isDrazial = true
+	elseif MTH_TT_Lower(unitName) == MTH_TT_Lower(MTH_TT_SCORPOK_NPC_NAME) then
+		isDrazial = true
+	end
+	local isTargetNpc = false
+	if npcId and MTH_TT_SCORPOK_TARGET_NPC_IDS[tonumber(npcId)] then
+		isTargetNpc = true
+	end
+	if not isTargetNpc then
+		local normalizedName = MTH_TT_NormalizeName(unitName)
+		isTargetNpc = MTH_TT_SCORPOK_TARGET_NPC_NAMES[normalizedName] and true or false
+		if not isTargetNpc then
+			isTargetNpc = MTH_TT_Lower(unitName) == MTH_TT_Lower(MTH_TT_SCORPOK_NPC_NAME)
+		end
+	end
+	if not isTargetNpc then
+		return false
+	end
+
+	local pincer = MTH_TT_GetBagItemCount(MTH_TT_ITEM_SCORPOK_PINCER_ID)
+	local gizzard = MTH_TT_GetBagItemCount(MTH_TT_ITEM_VULTURE_GIZZARD_ID)
+	local lung = MTH_TT_GetBagItemCount(MTH_TT_ITEM_BLASTED_BOAR_LUNG_ID)
+	local assayInBag = MTH_TT_GetBagItemCount(MTH_TT_ITEM_GROUND_SCORPOK_ASSAY_ID)
+	local assaysToGet = math.floor(math.min((pincer / 3), (gizzard / 2), lung))
+
+	GameTooltip:AddLine(" ")
+	GameTooltip:AddLine("|cffffff00MTH Auto Quest|r")
+	GameTooltip:AddLine(" - Scorpok Pincer - " .. MTH_TT_ColorCountByThreshold(pincer, 3), 1, 1, 1)
+	GameTooltip:AddLine(" - Vulture Gizzard - " .. MTH_TT_ColorCountByThreshold(gizzard, 2), 1, 1, 1)
+	GameTooltip:AddLine(" - Blasted Boar Lung - " .. MTH_TT_ColorCountByThreshold(lung, 1), 1, 1, 1)
+	local assaysToGetText = "|cff73bfff" .. tostring(assaysToGet) .. "|r"
+	GameTooltip:AddLine(
+		"Assays to get : " .. assaysToGetText .. " | Assays in bag : " .. MTH_TT_ColorAssayCount(assayInBag),
+		1, 1, 1
+	)
+	if isDrazial then
+		GameTooltip:AddLine("Spam SHIFT-click!", 0.7, 0.9, 1)
+	end
+	GameTooltip:AddLine("Recipes: 3x Pincer, 2x Gizzard, 1x Lung", 0.7, 0.7, 0.7)
+	return true
 end
 
 local function MTH_TT_AddOwnPetTooltipHint()
@@ -1251,7 +1485,8 @@ local function MTH_TT_AddTooltip(unit)
 	local ammoVendorTooltipsEnabled = MTH_TT_IsAmmoVendorTooltipsEnabled()
 	local vendorInfo = ammoVendorTooltipsEnabled and MTH_TT_FindVendorInfo(name) or nil
 	local row = beastTooltipsEnabled and MTH_TT_FindBeastRow(name) or nil
-	if not row and not vendorInfo then
+	local scorpokAdded = MTH_TT_AddScorpokTargetsTooltip(unit, name)
+	if not row and not vendorInfo and not scorpokAdded then
 		state.lookupMiss = (state.lookupMiss or 0) + 1
 		MTH_TT_StateSet("lookup-miss", name, normalized)
 		MTH_TT_Log("lookup miss: unit='" .. tostring(name) .. "' normalized='" .. tostring(normalized) .. "'")
@@ -1259,6 +1494,9 @@ local function MTH_TT_AddTooltip(unit)
 	end
 
 	local addedAnything = nil
+	if scorpokAdded then
+		addedAnything = 1
+	end
 
 	if vendorInfo and (vendorInfo.arrows or vendorInfo.bullets) and not MTH_TT_HasExistingVendorTooltipLine() then
 		if vendorInfo.arrows and vendorInfo.bullets then

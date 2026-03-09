@@ -6,7 +6,7 @@
 local MTH_FeedOMatic = {
 	name = "feedomatic",
 	enabled = false,
-	version = "1.0.6",
+	version = "1.1.0",
 	events = {
 		"VARIABLES_LOADED",
 			"MERCHANT_SHOW",
@@ -38,7 +38,7 @@ function MTH_FeedOMatic_OnUpdate(elapsed)
 	if not elapsed then
 		return
 	end
-	if not (MTH and MTH.IsModuleEnabled and MTH:IsModuleEnabled("feedomatic", true)) then
+	if not (MTH and MTH.IsModuleEnabled and MTH:IsModuleEnabled("feedomatic", false)) then
 		return
 	end
 	if type(FOM_OnUpdate) == "function" then

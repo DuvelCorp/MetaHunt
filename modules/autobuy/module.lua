@@ -6,7 +6,7 @@
 local MTH_AutoBuy = {
 	name = "autobuy",
 	enabled = false,
-	version = "1.0.6",
+	version = "1.1.0",
 	events = {
 		"VARIABLES_LOADED",
 		"MERCHANT_SHOW",

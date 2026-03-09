@@ -159,6 +159,16 @@ function MTH_SetupCreditsOptions()
 		cursor,
 		-4)
 
+
+	cursor = MTH_CreditsCreateText(content, cursor,
+		MTH_CR_L("CREDITS_ABOUT_ICU", "- ICU was an old vanilla addon. I used the following last revision and added many more features of config options to it."),
+		"GameFontNormalSmall", -10)
+	cursor = MTH_CreditsCreateLink(content,
+		"https://github.com/wigan91/ICU-TWoW",
+		"https://github.com/wigan91/ICU-TWoW",
+		cursor,
+		-4)
+
 	cursor = MTH_CreditsCreateText(content, cursor,
 		MTH_CR_L("CREDITS_ABOUT_MAP", "- The Map/Marker system is the one of pfQuest from Master Shagu. Unfortunately he is no more reachable for some months and I could not have some talk with him about this. I mostly let it untouched, I just made slight modifications so it can integrate better within Metahunt, and doesn't conflict with pfQuest."),
 		"GameFontNormalSmall", -10)

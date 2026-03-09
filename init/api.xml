@@ -15,6 +15,8 @@
   <Include file="..\api\options-chronometer.lua"/>
   <Include file="..\api\options-credits.lua"/>
   <Include file="..\api\options-autobuy.lua"/>
+  <Include file="..\api\options-autoquest.lua"/>
+  <Include file="..\api\options-icu.lua"/>
   <Include file="..\api\options-shell.lua"/>
   <Include file="..\api\options-zbuttons.lua"/>
   <Include file="..\api\options-feedomatic.lua"/>
@@ -30,6 +32,10 @@
   <Include file="..\api\map-markers.lua"/>
   <Include file="..\api\core-framework.lua"/>
   <Include file="..\api\core-scan-stablemaster.lua"/>
+  <Include file="..\api\pets-service-lifecycle.lua"/>
+  <Include file="..\api\pets-service-vitals.lua"/>
+  <Include file="..\api\pets-service-runaway.lua"/>
+  <Include file="..\api\pets-service-stablescan.lua"/>
   <Include file="..\api\core-scan-beasttraining.lua"/>
   <Include file="..\api\core-scan-spellbookpet.lua"/>
   <Include file="..\api\core.lua"/>

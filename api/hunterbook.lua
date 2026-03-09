@@ -55,7 +55,7 @@ local function MTH_BOOK_FamiliesTrace(message)
 end
 
 local MTH_BOOK_STATE = {
-	mode = "stable",
+	mode = "pets",
 	search = "",
 	quick = "all",
 	minLevel = nil,
@@ -1537,13 +1537,75 @@ local function MTH_BOOK_BuildResults()
 	if MTH_BOOK_STATE.mode == "pethistory" then
 		local store = MTH_BOOK_GetPetDatastore()
 		if type(store) ~= "table" or type(store.historyById) ~= "table" then return results end
+
+		local cached = {}
 		for petId, row in pairs(store.historyById) do
 			if type(row) == "table" then
-				table.insert(results, petId)
+				local idText = tostring(petId)
+				table.insert(cached, {
+					id = petId,
+					idText = idText,
+					name = MTH_BOOK_SafeLower(row.name),
+					family = MTH_BOOK_SafeLower(row.family),
+					level = tonumber(row.level) or 0,
+					abandonedAt = tonumber(row.abandonedAt) or 0,
+					reason = MTH_BOOK_SafeLower(tostring(row.abandonReason or "")),
+				})
 			end
 		end
-		table.sort(results, MTH_BOOK_PetHistorySort)
-		MTH_BOOK_ApplyActiveSort(results)
+
+		local function defaultHistoryCompare(a, b)
+			if a.abandonedAt ~= b.abandonedAt then
+				return a.abandonedAt > b.abandonedAt
+			end
+			if a.name ~= b.name then
+				return a.name < b.name
+			end
+			return a.idText < b.idText
+		end
+
+		local state = MTH_BOOK_GetSortState()
+		if state and state.col then
+			table.sort(cached, function(a, b)
+				local ka = nil
+				local kb = nil
+				if state.col == 1 then
+					ka = a.idText
+					kb = b.idText
+				elseif state.col == 2 then
+					ka = a.name
+					kb = b.name
+				elseif state.col == 3 then
+					ka = a.family
+					kb = b.family
+				elseif state.col == 4 then
+					ka = a.level
+					kb = b.level
+				elseif state.col == 5 then
+					ka = a.abandonedAt
+					kb = b.abandonedAt
+				elseif state.col == 6 then
+					ka = a.reason
+					kb = b.reason
+				end
+
+				if ka ~= kb then
+					if ka == nil then return not state.asc end
+					if kb == nil then return state.asc end
+					if state.asc then
+						return ka < kb
+					end
+					return ka > kb
+				end
+				return defaultHistoryCompare(a, b)
+			end)
+		else
+			table.sort(cached, defaultHistoryCompare)
+		end
+
+		for i = 1, table.getn(cached) do
+			table.insert(results, cached[i].id)
+		end
 		return results
 	end
 
@@ -4379,23 +4441,14 @@ local function MTH_BOOK_LayoutSectionTabs()
 	local sectionPetHistory = getglobal("MTH_BOOK_SectionPetHistory")
 	if not (tabBar and sectionPets and sectionFamilies and sectionPetAbilities and sectionItems and sectionNPCs and sectionProjectiles and sectionAmmoBags) then return end
 
-	if sectionStable then
-		sectionStable:ClearAllPoints()
-		sectionStable:SetPoint("TOPLEFT", tabBar, "TOPLEFT", 0, 0)
-	end
+	sectionPets:ClearAllPoints()
+	sectionPets:SetPoint("TOPLEFT", tabBar, "TOPLEFT", 0, 0)
 
 	sectionPetAbilities:ClearAllPoints()
-	if sectionStable then
-		sectionPetAbilities:SetPoint("LEFT", sectionStable, "RIGHT", 2, 0)
-	else
-		sectionPetAbilities:SetPoint("TOPLEFT", tabBar, "TOPLEFT", 0, 0)
-	end
-
-	sectionPets:ClearAllPoints()
-	sectionPets:SetPoint("LEFT", sectionPetAbilities, "RIGHT", 2, 0)
+	sectionPetAbilities:SetPoint("LEFT", sectionPets, "RIGHT", 2, 0)
 
 	sectionFamilies:ClearAllPoints()
-	sectionFamilies:SetPoint("LEFT", sectionPets, "RIGHT", 2, 0)
+	sectionFamilies:SetPoint("LEFT", sectionPetAbilities, "RIGHT", 2, 0)
 
 	sectionNPCs:ClearAllPoints()
 	sectionNPCs:SetPoint("LEFT", sectionFamilies, "RIGHT", 2, 0)
@@ -4409,9 +4462,18 @@ local function MTH_BOOK_LayoutSectionTabs()
 	sectionAmmoBags:ClearAllPoints()
 	sectionAmmoBags:SetPoint("LEFT", sectionProjectiles, "RIGHT", 2, 0)
 
+	if sectionStable then
+		sectionStable:ClearAllPoints()
+		sectionStable:SetPoint("LEFT", sectionAmmoBags, "RIGHT", 2, 0)
+	end
+
 	if sectionPetHistory then
 		sectionPetHistory:ClearAllPoints()
-		sectionPetHistory:SetPoint("LEFT", sectionAmmoBags, "RIGHT", 2, 0)
+		if sectionStable then
+			sectionPetHistory:SetPoint("LEFT", sectionStable, "RIGHT", 2, 0)
+		else
+			sectionPetHistory:SetPoint("LEFT", sectionAmmoBags, "RIGHT", 2, 0)
+		end
 	end
 end
 
