@@ -20,4 +20,10 @@ MetaHunt Module Loader
 
   <!-- AutoBuy Module - ENABLED -->
   <Include file="..\modules\autobuy\loader.xml"/>
+
+  <!-- Auto Quest Module - ENABLED -->
+  <Include file="..\modules\autoquest\loader.xml"/>
+
+  <!-- ICU Module - ENABLED (runtime default: disabled) -->
+  <Include file="..\modules\icu\loader.xml"/>
 </Ui>

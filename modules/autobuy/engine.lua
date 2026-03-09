@@ -632,7 +632,7 @@ end
 function Engine:EnsureDefaults()
 	local store = self:GetConfigStore()
 	if store.enabled == nil then
-		store.enabled = true
+		store.enabled = false
 	end
 	if type(store.food) ~= "table" then
 		store.food = {}
@@ -647,13 +647,13 @@ function Engine:EnsureDefaults()
 		store.petFood = {}
 	end
 	if store.food.enabled == nil then
-		store.food.enabled = true
+		store.food.enabled = false
 	end
 	if store.ammo.enabled == nil then
-		store.ammo.enabled = true
+		store.ammo.enabled = false
 	end
 	if store.projectiles.enabled == nil then
-		store.projectiles.enabled = true
+		store.projectiles.enabled = false
 	end
 	if store.petFood.enabled == nil then
 		store.petFood.enabled = false

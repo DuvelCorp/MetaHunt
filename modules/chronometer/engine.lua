@@ -59,6 +59,45 @@ Chronometer.dataSetup = {}
 local latins = { I = 1, II = 2, III = 3, IV = 4, V = 5, VI = 6, VII = 7, VIII = 8, IX = 9, X = 10, XI = 11, XII = 12, XIII = 13, XIV = 14 }
 local BAR_GROUP = "MTHChronometer"
 local PARSER_OWNER = "MTHChronometerHunter"
+local MTH_CHRON_TRACE_ENABLED = false
+
+local function MTH_CHRON_Trace(msg)
+	if not MTH_CHRON_TRACE_ENABLED then
+		return
+	end
+	if MTH and MTH.Print then
+		MTH:Print("[CHRONTRACE] " .. tostring(msg), "debug")
+	elseif DEFAULT_CHAT_FRAME and DEFAULT_CHAT_FRAME.AddMessage then
+		DEFAULT_CHAT_FRAME:AddMessage("[CHRONTRACE] " .. tostring(msg))
+	end
+end
+
+local function MTH_CHRON_FormatBarPosition(profile)
+	local bp = profile and profile.barposition
+	if type(bp) ~= "table" then
+		return "<none>"
+	end
+	return tostring(bp.point or "nil")
+		.. "/" .. tostring(bp.relativePoint or "nil")
+		.. " @(" .. tostring(bp.x) .. "," .. tostring(bp.y) .. ")"
+end
+
+local function MTH_CHRON_DescribePoint(frame)
+	if not (frame and frame.GetPoint) then
+		return "<no-frame>"
+	end
+	local point, relTo, relPoint, x, y = frame:GetPoint()
+	local relName = "nil"
+	if type(relTo) == "table" and relTo.GetName then
+		relName = tostring(relTo:GetName() or "<anon>")
+	elseif relTo then
+		relName = tostring(relTo)
+	end
+	return tostring(point or "nil")
+		.. "->" .. relName
+		.. ":" .. tostring(relPoint or "nil")
+		.. " @(" .. tostring(x) .. "," .. tostring(y) .. ")"
+end
 
 local COLOR_NAME_MAP = {
 	white = { 1.0, 1.0, 1.0 },
@@ -156,21 +195,66 @@ end
 
 local function ensureProfile()
 	if not MTH or not MTH.GetModuleCharSavedVariables then
+		MTH_CHRON_Trace("ensureProfile fallback defaults (no MTH store)")
 		return shallowCopy(DEFAULTS)
 	end
 
 	local store = MTH:GetModuleCharSavedVariables("chronometer")
 	if type(store) ~= "table" then
+		MTH_CHRON_Trace("ensureProfile fallback defaults (invalid store)")
 		return shallowCopy(DEFAULTS)
+	end
+	if type(store.profile) ~= "table"
+		and type(MTH_CharSavedVariables) == "table"
+		and type(MTH_CharSavedVariables.chronometer) == "table"
+	then
+		local legacyChar = MTH_CharSavedVariables.chronometer
+		if type(legacyChar.profile) == "table" then
+			store.profile = deepCopyValue(legacyChar.profile)
+			MTH_CHRON_Trace("ensureProfile migrated legacy MTH_CharSavedVariables.chronometer.profile")
+		elseif type(legacyChar.barposition) == "table" then
+			store.profile = { barposition = deepCopyValue(legacyChar.barposition) }
+			MTH_CHRON_Trace("ensureProfile migrated legacy MTH_CharSavedVariables.chronometer.barposition")
+		end
+	end
+	if type(store.profile) ~= "table"
+		and type(MTH_SavedVariables) == "table"
+		and type(MTH_SavedVariables.chronometer) == "table"
+	then
+		local legacyAccount = MTH_SavedVariables.chronometer
+		if type(legacyAccount.profile) == "table" then
+			store.profile = deepCopyValue(legacyAccount.profile)
+			MTH_CHRON_Trace("ensureProfile migrated legacy MTH_SavedVariables.chronometer.profile")
+		elseif type(legacyAccount.barposition) == "table" then
+			store.profile = { barposition = deepCopyValue(legacyAccount.barposition) }
+			MTH_CHRON_Trace("ensureProfile migrated legacy MTH_SavedVariables.chronometer.barposition")
+		end
 	end
 	if type(store.profile) ~= "table" and MTH.GetModuleSavedVariables then
 		local accountStore = MTH:GetModuleSavedVariables("chronometer")
 		if type(accountStore) == "table" and type(accountStore.profile) == "table" then
 			store.profile = deepCopyValue(accountStore.profile)
+			MTH_CHRON_Trace("ensureProfile copied account profile into char store")
 		end
 	end
 	if type(store.profile) ~= "table" then
 		store.profile = {}
+	end
+	if type(store.profile.barposition) ~= "table" and type(store.barposition) == "table" then
+		store.profile.barposition = deepCopyValue(store.barposition)
+		MTH_CHRON_Trace("ensureProfile migrated legacy char barposition -> profile.barposition")
+	end
+	if type(store.profile.barposition) ~= "table" and MTH.GetModuleSavedVariables then
+		local accountStore = MTH:GetModuleSavedVariables("chronometer")
+		if type(accountStore) == "table" then
+			if type(accountStore.barposition) == "table" then
+				store.profile.barposition = deepCopyValue(accountStore.barposition)
+				MTH_CHRON_Trace("ensureProfile migrated legacy account barposition -> profile.barposition")
+			elseif type(accountStore.profile) == "table" and type(accountStore.profile.barposition) == "table" then
+				store.profile.barposition = deepCopyValue(accountStore.profile.barposition)
+				MTH_CHRON_Trace("ensureProfile copied account profile.barposition -> char profile.barposition")
+			end
+		end
 	end
 	local profile = store.profile
 
@@ -198,7 +282,66 @@ local function ensureProfile()
 		profile.disabledSpells.HUNTER = {}
 	end
 
+	MTH_CHRON_Trace("ensureProfile result barposition=" .. MTH_CHRON_FormatBarPosition(profile))
+
 	return profile
+end
+
+local function MTH_CHRON_PersistAnchorPosition(self, reason)
+	if not (self and self.anchor and self.anchor.GetPoint) then
+		return false
+	end
+	if type(self.profile) ~= "table" then
+		return false
+	end
+	if type(self.profile.barposition) ~= "table" then
+		self.profile.barposition = {}
+	end
+	local point, _, relPoint, x, y = self.anchor:GetPoint()
+	x = tonumber(x)
+	y = tonumber(y)
+	if not (point and relPoint and x and y) then
+		return false
+	end
+	x = math.floor(x + 0.5)
+	y = math.floor(y + 0.5)
+	self.profile.barposition.point = point
+	self.profile.barposition.relativePoint = relPoint
+	self.profile.barposition.x = x
+	self.profile.barposition.y = y
+	MTH_CHRON_Trace("persist-anchor reason=" .. tostring(reason or "")
+		.. " profile=" .. MTH_CHRON_FormatBarPosition(self.profile))
+	return true
+end
+
+local function MTH_CHRON_RestoreAnchorFromProfile(self, reason)
+	if not (self and self.anchor and self.anchor.ClearAllPoints and self.anchor.SetPoint) then
+		return false
+	end
+	if type(self.profile) ~= "table" then
+		return false
+	end
+	local bp = self.profile.barposition
+	if type(bp) ~= "table" then
+		return false
+	end
+	local px = tonumber(bp.x)
+	local py = tonumber(bp.y)
+	local ppoint = tostring(bp.point or "")
+	local prelpoint = tostring(bp.relativePoint or "")
+	if not (px and py and ppoint ~= "") then
+		MTH_CHRON_Trace("restore-anchor skipped reason=" .. tostring(reason or "")
+			.. " profile=" .. MTH_CHRON_FormatBarPosition(self.profile))
+		return false
+	end
+	if prelpoint == "" then
+		prelpoint = ppoint
+	end
+	self.anchor:ClearAllPoints()
+	self.anchor:SetPoint(ppoint, UIParent, prelpoint, px, py)
+	MTH_CHRON_Trace("restore-anchor applied reason=" .. tostring(reason or "")
+		.. " frame=" .. MTH_CHRON_DescribePoint(self.anchor))
+	return true
 end
 
 local function MTH_CHRON_IsPersistedEnabled()
@@ -272,6 +415,70 @@ local function parseRankNumber(text)
 	return 0
 end
 
+local function resolvePlayerClassBucket(profile)
+	profile = profile or {}
+	local buckets = profile.disabledSpells
+	if type(buckets) ~= "table" then
+		return "HUNTER"
+	end
+
+	local localizedClass, classToken = UnitClass("player")
+	local candidates = {
+		classToken,
+		localizedClass,
+		string.upper(tostring(classToken or "")),
+		string.upper(tostring(localizedClass or "")),
+		"HUNTER",
+	}
+
+	for i = 1, table.getn(candidates) do
+		local key = tostring(candidates[i] or "")
+		if key ~= "" and type(buckets[key]) == "table" then
+			return key
+		end
+	end
+
+	return tostring(classToken or localizedClass or "HUNTER")
+end
+
+local function normalizeTimerName(name)
+	local normalized = tostring(name or "")
+	normalized = string.gsub(normalized, "^%s+", "")
+	normalized = string.gsub(normalized, "%s+$", "")
+	normalized = string.gsub(normalized, "%s+", " ")
+	normalized = string.lower(normalized)
+	return normalized
+end
+
+local function isTimerDisabled(profile, timerClass, timerName)
+	local disabledSpells = profile and profile.disabledSpells
+	if type(disabledSpells) ~= "table" then
+		return false, "no-disabled-table"
+	end
+
+	local classBucket = disabledSpells[timerClass]
+	if type(classBucket) ~= "table" then
+		return false, "no-class-bucket"
+	end
+
+	if classBucket[timerName] ~= nil then
+		return true, "exact"
+	end
+
+	local wanted = normalizeTimerName(timerName)
+	if wanted == "" then
+		return false, "empty-name"
+	end
+
+	for key, value in pairs(classBucket) do
+		if value ~= nil and normalizeTimerName(key) == wanted then
+			return true, "normalized"
+		end
+	end
+
+	return false, "miss"
+end
+
 local function getActionSpell(slot)
 	if GetActionText(slot) or not HasAction(slot) then
 		return nil, 0
@@ -314,6 +521,7 @@ function Chronometer:MTH_Initialize()
 	end
 
 	self.profile = ensureProfile()
+	MTH_CHRON_Trace("MTH_Initialize profile=" .. MTH_CHRON_FormatBarPosition(self.profile))
 	self.parser = ParserLib:GetInstance("1.1")
 
 	self.COLOR_MAP = {
@@ -324,6 +532,7 @@ function Chronometer:MTH_Initialize()
 	}
 
 	self.anchor = self:CreateAnchor("MetaHunt Chronometer", 0, 1, 0)
+	MTH_CHRON_Trace("MTH_Initialize anchor-created point=" .. MTH_CHRON_DescribePoint(self.anchor))
 	self:RegisterCandyBarGroup(BAR_GROUP)
 	self:SetCandyBarGroupPoint(BAR_GROUP, "TOP", self.anchor, "BOTTOM", 0, 0)
 
@@ -332,16 +541,19 @@ end
 
 function Chronometer:MTH_Enable()
 	self._mth_explicitEnable = true
+	MTH_CHRON_Trace("MTH_Enable called")
 	self:MTH_Initialize()
 	self:OnEnable()
 	self._mth_explicitEnable = nil
 end
 
 function Chronometer:MTH_Disable()
+	MTH_CHRON_Trace("MTH_Disable called")
 	self:OnDisable()
 end
 
 function Chronometer:OnEnable()
+	MTH_CHRON_Trace("OnEnable begin enabled=" .. tostring(self._mth_enabled and true or false))
 	if self._mth_enabled then
 		return
 	end
@@ -371,8 +583,13 @@ function Chronometer:OnEnable()
 	self._mth_enabled = true
 
 	self.profile = ensureProfile()
+	MTH_CHRON_Trace("OnEnable profile-after-ensure=" .. MTH_CHRON_FormatBarPosition(self.profile))
 	self:SetCandyBarGroupGrowth(BAR_GROUP, self.profile.growup and true or false)
 	self:SetCandyBarGroupVerticalSpacing(BAR_GROUP, self.profile.spacing or 0)
+	if self.anchor then
+		MTH_CHRON_Trace("OnEnable anchor-current-point=" .. MTH_CHRON_DescribePoint(self.anchor))
+	end
+	MTH_CHRON_RestoreAnchorFromProfile(self, "OnEnable")
 
 	self.groups = {}
 	self.timers = {}
@@ -450,16 +667,39 @@ function Chronometer:OnEnable()
 	self:RegisterEvent("SPELLCAST_INTERRUPTED")
 	self:RegisterEvent("SPELLCAST_START")
 	self:RegisterEvent("SPELLCAST_STOP")
+	self:RegisterEvent("UNIT_AURA")
 	self:RegisterEvent("PLAYER_DEAD")
+	self:RegisterEvent("VARIABLES_LOADED")
+	self:RegisterEvent("PLAYER_ENTERING_WORLD")
+	self:RegisterEvent("PLAYER_LOGOUT")
 	self.parser:RegisterEvent(PARSER_OWNER, "CHAT_MSG_SPELL_SELF_DAMAGE", function(event, info) self:SELF_DAMAGE(event, info) end)
 	self.parser:RegisterEvent(PARSER_OWNER, "CHAT_MSG_SPELL_DAMAGESHIELDS_ON_SELF", function(event, info) self:SELF_DAMAGE(event, info) end)
 	self.parser:RegisterEvent(PARSER_OWNER, "CHAT_MSG_SPELL_FAILED_LOCALPLAYER", function(event, info) self:SPELL_FAILED(event, info) end)
+end
+
+function Chronometer:VARIABLES_LOADED()
+	self.profile = ensureProfile()
+	MTH_CHRON_RestoreAnchorFromProfile(self, "VARIABLES_LOADED")
+end
+
+function Chronometer:PLAYER_ENTERING_WORLD()
+	self.profile = ensureProfile()
+	MTH_CHRON_RestoreAnchorFromProfile(self, "PLAYER_ENTERING_WORLD")
+end
+
+function Chronometer:PLAYER_LOGOUT()
+	MTH_CHRON_PersistAnchorPosition(self, "PLAYER_LOGOUT")
 end
 
 function Chronometer:OnDisable()
 	if not self._mth_enabled then
 		return
 	end
+	MTH_CHRON_Trace("OnDisable begin profile=" .. MTH_CHRON_FormatBarPosition(self.profile))
+	if self.anchor then
+		MTH_CHRON_Trace("OnDisable anchor-point=" .. MTH_CHRON_DescribePoint(self.anchor))
+	end
+	MTH_CHRON_PersistAnchorPosition(self, "OnDisable")
 	self._mth_enabled = false
 
 	if self.bars then
@@ -563,9 +803,12 @@ function Chronometer:StartTimer(timer, name, target, rank, durmod)
 		end
 	end
 
-	local _, class = UnitClass("player")
-	local timerClass = timer.x.cl == nil and class or timer.x.cl
-	if self.profile.disabledSpells[timerClass] and self.profile.disabledSpells[timerClass][name] ~= nil then
+	local timerClass = timer.x.cl
+	if timerClass == nil then
+		timerClass = resolvePlayerClassBucket(self.profile)
+	end
+	local blocked, reason = isTimerDisabled(self.profile, timerClass, name)
+	if blocked then
 		return
 	end
 
@@ -958,11 +1201,22 @@ function Chronometer:CreateAnchor(text, r, g, b)
 
 	local px = tonumber(self.profile and self.profile.barposition and self.profile.barposition.x)
 	local py = tonumber(self.profile and self.profile.barposition and self.profile.barposition.y)
+	local ppoint = tostring(self.profile and self.profile.barposition and self.profile.barposition.point or "")
+	local prelpoint = tostring(self.profile and self.profile.barposition and self.profile.barposition.relativePoint or "")
+	MTH_CHRON_Trace("CreateAnchor saved-in profile=" .. MTH_CHRON_FormatBarPosition(self.profile))
 	if px ~= nil and py ~= nil then
+		if ppoint == "" then
+			ppoint = "TOPLEFT"
+		end
+		if prelpoint == "" then
+			prelpoint = ppoint
+		end
 		frame:ClearAllPoints()
-		frame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", px, py)
+		frame:SetPoint(ppoint, UIParent, prelpoint, px, py)
+		MTH_CHRON_Trace("CreateAnchor restored point=" .. MTH_CHRON_DescribePoint(frame))
 	else
 		frame:SetPoint("CENTER", UIParent, "CENTER", 0, 50)
+		MTH_CHRON_Trace("CreateAnchor default point=" .. MTH_CHRON_DescribePoint(frame))
 	end
 
 	frame:SetScript("OnDragStart", function(self)
@@ -970,6 +1224,7 @@ function Chronometer:CreateAnchor(text, r, g, b)
 		if not self or not self.StartMoving then
 			return
 		end
+		MTH_CHRON_Trace("anchor drag-start point=" .. MTH_CHRON_DescribePoint(self))
 		self:StartMoving()
 	end)
 	frame:SetScript("OnDragStop", function(self)
@@ -995,8 +1250,12 @@ function Chronometer:CreateAnchor(text, r, g, b)
 		self:SetPoint(point or "TOPLEFT", UIParent, point or "TOPLEFT", x, y)
 
 		if self.owner and self.owner.profile and type(self.owner.profile.barposition) == "table" then
+			self.owner.profile.barposition.point = point or "TOPLEFT"
+			self.owner.profile.barposition.relativePoint = point or "TOPLEFT"
 			self.owner.profile.barposition.x = x
 			self.owner.profile.barposition.y = y
+			MTH_CHRON_Trace("anchor drag-stop saved profile=" .. MTH_CHRON_FormatBarPosition(self.owner.profile)
+				.. " frame=" .. MTH_CHRON_DescribePoint(self))
 		end
 	end)
 
@@ -1120,6 +1379,62 @@ function Chronometer:PLAYER_DEAD()
 			self:ReallyStopBar(self.bars[i].id)
 		end
 	end
+end
+
+function Chronometer:UNIT_AURA(unit)
+	local auraUnit = unit
+	if (not auraUnit or auraUnit == "") and type(arg1) == "string" then
+		auraUnit = arg1
+	end
+	if auraUnit ~= "pet" then
+		return
+	end
+	if not (UnitExists and UnitExists("pet")) then
+		return
+	end
+
+	local feedSpell = BS and BS["Feed Pet"] or "Feed Pet"
+	local timer = self.timers and self.timers[self.SPELL] and self.timers[self.SPELL][feedSpell]
+	if not timer then
+		return
+	end
+
+	local hasFeedAura = false
+	if type(UnitBuff) == "function" then
+		for i = 1, 32 do
+			local texture = UnitBuff("pet", i)
+			if not texture then
+				break
+			end
+			local tex = tostring(texture)
+			if string.find(tex, "Ability_Hunter_BeastTraining", 1, true)
+				or string.find(tex, "INV_Misc_Fork&Knife", 1, true)
+			then
+				hasFeedAura = true
+				break
+			end
+		end
+	end
+
+	if not hasFeedAura then
+		return
+	end
+
+	local petName = UnitName and UnitName("pet") or "none"
+	if not petName or petName == "" then
+		petName = "none"
+	end
+
+	for i = 1, 20 do
+		local bar = self.bars and self.bars[i]
+		if bar and bar.id and bar.name == feedSpell then
+			if bar.target == petName or bar.target == "none" then
+				return
+			end
+		end
+	end
+
+	self:StartTimer(timer, feedSpell, petName)
 end
 
 function Chronometer:UseAction(slot, clicked, onself)

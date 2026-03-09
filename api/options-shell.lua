@@ -195,6 +195,21 @@ function MTH_SelectOptionsTab(tabKey)
 		else
 			MTH_SetupAutoBuyOptions()
 		end
+	elseif tabKey == "AutoQuest" then
+		if type(MTH_SetupAutoQuestOptions) == "function" then
+			MTH_SetupAutoQuestOptions()
+			MTH_OPTIONS_SETUP["AutoQuest"] = true
+		end
+	elseif tabKey == "ICU" then
+		if type(MTH_SetupICUOptions) == "function" then
+			MTH_SetupICUOptions()
+			MTH_OPTIONS_SETUP["ICU"] = true
+			if type(MTH_RefreshICUOptions) == "function" then
+				MTH_RefreshICUOptions()
+			end
+		elseif MTH and MTH.Print then
+			MTH:Print("ICU options setup function is not loaded", "error")
+		end
 	elseif tabKey == "Credits" then
 		local setupCredits = _G and _G["MTH_SetupCreditsOptions"]
 		if type(setupCredits) == "function" then

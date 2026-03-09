@@ -1,8 +1,8 @@
 # MetaHunt
 
 MetaHunt is a Turtle WoW Hunter toolkit.
-It combines never-seen pet-centric and beast tracking features, and revives old broken hunter add-ons.
-It provides usefull tools for all hunters, wheter they are still leveling, lone-wolf, or HL raider.
+It is a modern modular addon that combines never-seen features, and improves/fixes a few old hunter add-ons.
+It provides a bunch usefull tools for all huntards, wheter they are still leveling, lone-wolf, or HL raider.
 
  ## Twow Data
 
@@ -48,9 +48,19 @@ Now compatible with Turtle, feed your pet with one key bind, it will always pick
 
 The good old Chronometer addon, purged of non-necessary things and reconfigured for a pure hunter use.
 
- ## Autobuy
+ ## ICU (I see you)
+
+Old addon used to display Targets' enhanced information when you click on your minimap tracking things. MetaHunt offers many more customization options for it.
+
+
+ ## Auto-Buy
 
 Define your own simple rules for auto buy ammo and pet food when you open a vendor.
+
+ ## Auto-Quest
+
+Just spam SHIFT-click on the NPC to validate quests Scorpok and Thorium arrows. Addionally you can have an enhanced tooltip that display your actual Scorpok-related items when you mouseover the mobs involved.
+
 
  ## The book of Hunters
 

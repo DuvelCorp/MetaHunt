@@ -14,6 +14,71 @@ BINDING_HEADER_ZToysHeader = "ZToys Buttons"
 ZHunterModTooltip = CreateFrame("GameTooltip", "ZHunterModScan", nil, "GameTooltipTemplate")
 ZHunterModTooltipTextLeft1 = getglobal("ZHunterModScanTextLeft1")
 
+MTH_ZH_TRACE_ENABLED = false
+
+local function MTH_ZH_DescribePoint(frame)
+	if not (frame and frame.GetPoint) then
+		return "<no-frame>"
+	end
+	local point, relTo, relPoint, x, y = frame:GetPoint()
+	local relName = "nil"
+	if type(relTo) == "table" and relTo.GetName then
+		relName = tostring(relTo:GetName() or "<anon>")
+	elseif relTo then
+		relName = tostring(relTo)
+	end
+	return tostring(point or "nil")
+		.. "->" .. relName
+		.. ":" .. tostring(relPoint or "nil")
+		.. " @(" .. tostring(x) .. "," .. tostring(y) .. ")"
+end
+
+function MTH_ZH_Trace(msg)
+	if not MTH_ZH_TRACE_ENABLED then
+		return
+	end
+	if MTH and MTH.Print then
+		MTH:Print("[ZHTRACE] " .. tostring(msg), "debug")
+	elseif DEFAULT_CHAT_FRAME and DEFAULT_CHAT_FRAME.AddMessage then
+		DEFAULT_CHAT_FRAME:AddMessage("[ZHTRACE] " .. tostring(msg))
+	end
+end
+
+function MTH_ZH_TraceButtonPoint(frame, reason)
+	if not MTH_ZH_TRACE_ENABLED then
+		return
+	end
+	if not frame then
+		MTH_ZH_Trace("point " .. tostring(reason or "") .. " frame=nil")
+		return
+	end
+	local name = frame.GetName and frame:GetName() or "<unnamed>"
+	MTH_ZH_Trace("point " .. tostring(reason or "") .. " " .. tostring(name) .. " " .. MTH_ZH_DescribePoint(frame))
+end
+
+function MTH_ZH_TraceAllButtonPoints(reason)
+	if not MTH_ZH_TRACE_ENABLED then
+		return
+	end
+	local names = {
+		"zButtonAspect",
+		"zButtonAmmo",
+		"zButtonTrack",
+		"zButtonTrap",
+		"zButtonRanged",
+		"zButtonPet",
+		"zButtonMounts",
+		"zButtonCompanions",
+		"zButtonToys",
+	}
+	MTH_ZH_Trace("snapshot begin reason=" .. tostring(reason or ""))
+	for i = 1, table.getn(names) do
+		local frame = getglobal(names[i])
+		MTH_ZH_TraceButtonPoint(frame, tostring(reason or "") .. ":" .. tostring(names[i]))
+	end
+	MTH_ZH_Trace("snapshot end reason=" .. tostring(reason or ""))
+end
+
 function MTH_ZH_IsModuleEnabled()
 	if not (MTH and MTH.IsModuleEnabled) then
 		return true
@@ -105,6 +170,7 @@ function MTH_ZH_HandleDisabledSlash(message, tableKey, fieldKey)
 end
 
 function ZHunterMod_AlignButtons()
+	MTH_ZH_TraceAllButtonPoints("AlignButtons:before")
 	zButtonAmmo:ClearAllPoints()
 	zButtonAmmo:SetPoint("TOP", zButtonAspect, "BOTTOM", 0, -15)
 	zButtonTrack:ClearAllPoints()
@@ -123,6 +189,7 @@ function ZHunterMod_AlignButtons()
 		AutoStripDisplay:ClearAllPoints()
 		AutoStripDisplay:SetPoint("TOP", zButtonToys, "BOTTOM", 0, -10)
 	end
+	MTH_ZH_TraceAllButtonPoints("AlignButtons:after")
 end
 
 function ZMarkTarget()

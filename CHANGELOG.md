@@ -2,6 +2,38 @@
 
 All notable changes to MetaHunt will be documented in this file.
 
+## [1.1.0] - 2026-03-09
+
+### Added
+- Added new `ICU` module with dedicated options panel.
+- Added ICU custom popup anchor mode with draggable anchor and direction toggle.
+- Added ICU popup hide delay options (`INSTANT`, 1..10 seconds).
+- Added new `Auto Quest` module for :
+	- `Salt of the Scorpok` (`Bloodmage Drazial`)
+	- `Arrows Are For Sissies` (`Artilleryman Sheldonore`)
+- Added a Food Feed learning feature to Feed-O-Matic.
+- Added Chronometer `Entrapment` effect tracking support.    
+
+### Changed
+- Loads of Frame/Handlers/Processes adjustments to optimize addon's CPU time and Memory usage.
+- Updated Chronometer Improved Wing Clip effect color to `MAROON` for clearer effect-bar distinction.
+- Reworked Stable Master processing to minimize swap-time overhead:
+	- No auto-scan on `PET_STABLE_SHOW`.
+	- Deferred stable scan moved to `PET_STABLE_CLOSED`.
+	- Optional heavy workloads are skipped while stable UI is open.
+- Changed Hunter Book page order, and default opening page to `Beast Lore`.
+- Optimized `Pet History` result build/sort path using cached precomputed sort keys.
+- Modules Auto-Buy, Auto-Quest, ICU, Feed-O-Matic are by default disabled on first use on a character.
+
+### Fixed
+- Fixed issues with zBouttons,Autostrp and Chronometer bar anchor not retaining their configured spawn position after the disabling/renabling of the Addon.
+- Fixed issues with options checkbox-state not always retaining their state on startup.
+- Fixed multiple issues in Feeed-O-Matic with some foods that were accepted by lvl 60 pets in Vanilla and are not anymore on Turtle.
+- Fixed Chronometer spell/event disable toggles in options so disabled entries now reliably block bar creation.
+- Fixed Chronometer `Feed Pet` bar missing trigger by adding `UNIT_AURA` fallback detection.
+- Fixed stable swap stutter/freezes by removing heavy processing from repeated `UNIT_PET` bursts during stable interactions.
+
+
 ## [1.0.6] - 2026-03-05
 
 ### Fixed

@@ -8,7 +8,7 @@ MTH_ZH_MANAGED_HOOKS = true
 local MTH_ZHunter = {
 	name = "zhunter",
 	enabled = true,
-	version = "1.0.6",
+	version = "1.1.0",
 	events = {
 		"VARIABLES_LOADED",
 		"PLAYER_ENTERING_WORLD",
@@ -29,6 +29,12 @@ local function MTH_ZH_Log(msg)
 		return
 	end
 	MTH:Print("[ZH MODULE] " .. tostring(msg), "debug")
+end
+
+local function MTH_ZH_TraceLocal(msg)
+	if type(MTH_ZH_Trace) == "function" then
+		MTH_ZH_Trace(msg)
+	end
 end
 
 local MTH_ZH_PostLoginRestoreFrame = nil
@@ -105,7 +111,6 @@ function MTH_ZH_OnDeferredInitComplete()
 		return
 	end
 	MTH_ZH_SyncSavedVariables()
-	MTH_ZH_ApplyDefaultWidgetSpawnLayoutOnce()
 	MTH_ZH_RestoreRuntimeFeatureFlags()
 	MTH_ZH_QueuePostLoginRestore("deferred-init")
 end
@@ -132,6 +137,9 @@ MTH_ZH_QueuePostLoginRestore = function(tag)
 
 		MTH_ZH_SyncSavedVariables()
 		MTH_ZH_RestoreRuntimeFeatureFlags()
+		if type(MTH_ZH_TraceAllButtonPoints) == "function" then
+			MTH_ZH_TraceAllButtonPoints("post-login-restore:" .. tostring(tag))
+		end
 		MTH_ZH_Log("post-login restore applied: " .. tostring(tag))
 	end)
 end
@@ -170,10 +178,17 @@ local function MTH_ZH_EnsureBootstrapRestoreFrame()
 end
 
 MTH_ZH_ApplyEnabledRuntimeState = function(source)
+	MTH_ZH_TraceLocal("apply-enabled-runtime-state source=" .. tostring(source or ""))
+	if type(MTH_ZH_TraceAllButtonPoints) == "function" then
+		MTH_ZH_TraceAllButtonPoints("apply-enabled:before:" .. tostring(source or ""))
+	end
 	MTH_ZH_SyncSavedVariables()
 	MTH_ZH_SetButtonsVisible(true)
 	MTH_ZH_SetAuxFramesVisible(true)
 	MTH_ZH_RestoreRuntimeFeatureFlags()
+	if type(MTH_ZH_TraceAllButtonPoints) == "function" then
+		MTH_ZH_TraceAllButtonPoints("apply-enabled:after:" .. tostring(source or ""))
+	end
 end
 
 MTH_ZH_SyncSavedVariables = function()
@@ -182,17 +197,22 @@ MTH_ZH_SyncSavedVariables = function()
 	end
 
 	local moduleStore = MTH:GetModuleCharSavedVariables("zhunter")
+	MTH_ZH_TraceLocal("sync-saved begin zhuntermod_saved=" .. tostring(type(ZHunterMod_Saved)))
 
 	if type(ZHunterMod_Saved) == "table" then
 		if MTH_CharSavedVariables and MTH_CharSavedVariables.modules then
 			MTH_CharSavedVariables.modules.zhunter = ZHunterMod_Saved
+			MTH_ZH_TraceLocal("sync-saved wrote ZHunterMod_Saved -> MTH_CharSavedVariables.modules.zhunter")
 		end
 	elseif type(moduleStore) == "table" then
 		ZHunterMod_Saved = moduleStore
+		MTH_ZH_TraceLocal("sync-saved loaded moduleStore -> ZHunterMod_Saved")
 	end
+	MTH_ZH_TraceLocal("sync-saved end")
 end
 
 MTH_ZH_SetButtonsVisible = function(visible)
+	MTH_ZH_TraceLocal("set-buttons-visible visible=" .. tostring(visible and true or false))
 	local buttonNames = {
 		"zButtonAspect",
 		"zButtonTrack",
@@ -274,11 +294,17 @@ MTH_ZH_SetButtonsVisible = function(visible)
 	for _, buttonName in ipairs(buttonNames) do
 		local button = getglobal(buttonName)
 		if button then
+			if type(MTH_ZH_TraceButtonPoint) == "function" then
+				MTH_ZH_TraceButtonPoint(button, "set-buttons-visible:before:" .. tostring(buttonName))
+			end
 			MTH_ZH_SetChildButtonsVisible(button, buttonName, visible)
 			if visible then
 				button:Show()
 			else
 				button:Hide()
+			end
+			if type(MTH_ZH_TraceButtonPoint) == "function" then
+				MTH_ZH_TraceButtonPoint(button, "set-buttons-visible:after:" .. tostring(buttonName))
 			end
 		end
 	end
@@ -358,6 +384,7 @@ function MTH_ZHunter:init()
 end
 
 function MTH_ZHunter:setEnabled(enabled)
+	MTH_ZH_TraceLocal("module setEnabled enabled=" .. tostring(enabled and true or false))
 	MTH_ZH_SyncSavedVariables()
 	if enabled then
 		MTH_ZH_EnsureBootstrapRestoreFrame()
@@ -366,8 +393,14 @@ function MTH_ZHunter:setEnabled(enabled)
 	else
 		MTH_ZH_ClearRuntimeFeatureFlags()
 		MTH_ZH_SetAdjustmentHandlersActive(false)
+		if type(MTH_ZH_TraceAllButtonPoints) == "function" then
+			MTH_ZH_TraceAllButtonPoints("setEnabled:false:before-hide")
+		end
 		MTH_ZH_SetButtonsVisible(false)
 		MTH_ZH_SetAuxFramesVisible(false)
+		if type(MTH_ZH_TraceAllButtonPoints) == "function" then
+			MTH_ZH_TraceAllButtonPoints("setEnabled:false:after-hide")
+		end
 	end
 end
 

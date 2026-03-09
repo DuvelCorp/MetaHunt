@@ -8,6 +8,24 @@ local MTH_PS_VERBOSE_LOGS = false
 local MTH_PS_ForceScanUntil = 0
 local MTH_PS_ForceScanBudget = 0
 local MTH_PS_EventThrottle = {}
+local MTH_PS_LastNoPetScanAt = 0
+
+local function MTH_PS_IsPlayerDeadOrGhost()
+	if type(UnitIsDeadOrGhost) == "function" then
+		return UnitIsDeadOrGhost("player") and true or false
+	end
+	if type(UnitIsDead) == "function" then
+		return UnitIsDead("player") and true or false
+	end
+	return false
+end
+
+local function MTH_PS_HasLivePet()
+	if type(UnitExists) ~= "function" then
+		return false
+	end
+	return UnitExists("pet") and true or false
+end
 
 local function MTH_PS_ClearForceWindow()
 	MTH_PS_ForceScanUntil = 0
@@ -207,6 +225,41 @@ function MTH_PSP_RequestScan(trigger, minIntervalSeconds)
 	local minInterval = tonumber(minIntervalSeconds) or 1
 	local bypassThrottle = false
 	local bypassReason = ""
+	local deadOrGhost = MTH_PS_IsPlayerDeadOrGhost()
+	local hasLivePet = MTH_PS_HasLivePet()
+
+	if deadOrGhost then
+		if triggerText == "PET_BAR_UPDATE" or triggerText == "event:PET_BAR_UPDATE"
+			or triggerText == "SPELLS_CHANGED" or triggerText == "event:SPELLS_CHANGED"
+			or triggerText == "LEARNED_SPELL_IN_TAB" or triggerText == "event:LEARNED_SPELL_IN_TAB"
+		then
+			MTH_PS_TraceTrigger(triggerText, false, "dead-skip")
+			return false
+		end
+	end
+
+	if not hasLivePet then
+		if MTH_PS_IsFollowupEventTrigger(triggerText) then
+			MTH_PS_TraceTrigger(triggerText, false, "no-pet-followup")
+			return false
+		end
+		if triggerText ~= "manual"
+			and triggerText ~= "PLAYER_ENTERING_WORLD"
+			and triggerText ~= "event:PLAYER_ENTERING_WORLD"
+			and triggerText ~= "UNIT_PET"
+			and triggerText ~= "event:UNIT_PET"
+		then
+			MTH_PS_TraceTrigger(triggerText, false, "no-pet")
+			return false
+		end
+		if (now - (tonumber(MTH_PS_LastNoPetScanAt) or 0)) < 5 then
+			MTH_PS_TraceTrigger(triggerText, false, "no-pet-throttled")
+			return false
+		end
+		MTH_PS_LastNoPetScanAt = now
+	else
+		MTH_PS_LastNoPetScanAt = 0
+	end
 
 	if MTH_PS_IsPriorityTrigger(triggerText) then
 		bypassThrottle = true
@@ -256,16 +309,16 @@ local function MTH_PS_OnEvent(_, evt, eventArg1)
 	if evt == "PLAYER_ENTERING_WORLD" or evt == "UNIT_PET" or evt == "PET_BAR_UPDATE" or evt == "SPELLS_CHANGED" or evt == "LEARNED_SPELL_IN_TAB" then
 		local minInterval = 1
 		if evt == "PET_BAR_UPDATE" then
-			minInterval = 2
+			minInterval = 4
 		elseif evt == "SPELLS_CHANGED" then
-			minInterval = 2.5
+			minInterval = 4
 		elseif evt == "LEARNED_SPELL_IN_TAB" then
-			minInterval = 0.75
+			minInterval = 1.5
 		elseif evt == "UNIT_PET" then
-			minInterval = 0.5
+			minInterval = 1
 		end
 		if MTH_PS_ShouldHandleEvent(evt, minInterval) then
-			MTH_PSP_RequestScan(evt, 1)
+			MTH_PSP_RequestScan(evt, minInterval)
 		end
 	end
 end
@@ -278,7 +331,7 @@ function MTH_PS_InitService()
 		return
 	end
 
-	MTH_PS_Frame = CreateFrame("Frame", "MTHPetSpellScanFrame")
+	MTH_PS_Frame = CreateFrame("Frame", "MTHPetSpellbookEventFrame")
 	MTH_PS_Frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 	MTH_PS_Frame:RegisterEvent("UNIT_PET")
 	MTH_PS_Frame:RegisterEvent("PET_BAR_UPDATE")
@@ -295,6 +348,7 @@ function MTH_PS_ShutdownService(_reason)
 	MTH_PS_Frame:SetScript("OnEvent", nil)
 	MTH_PS_Frame = nil
 	MTH_PS_LastScanAt = 0
+	MTH_PS_LastNoPetScanAt = 0
 	MTH_PS_ClearForceWindow()
 end
 

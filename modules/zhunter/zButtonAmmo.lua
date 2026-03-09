@@ -30,13 +30,14 @@ local ZHUNTER_AMMO_MAX_COUNT = math.max(table.getn(MTH_AMMO_ARROWS or {}), table
 local zButtonAmmo_Cache = {}
 local zButtonAmmo_LastCacheSignature = nil
 local zButtonAmmo_LastRefreshAt = 0
-local zButtonAmmo_MinRefreshInterval = 0.20
+local zButtonAmmo_MinRefreshInterval = 0.50
 local zButtonAmmo_MinBagRefreshInterval = 0.75
 local zButtonAmmo_KnownAmmoTypes = nil
 local zButtonAmmo_AmmoBags = {}
 local zButtonAmmo_LastFullScanAt = 0
 local zButtonAmmo_MinUnknownBagScanInterval = 5.0
 local zButtonAmmo_EmptyScanStreak = 0
+local zButtonAmmo_LastEquippedAmmoSeen = nil
 local zButtonAmmo_GetKnownAmmoTypes
 
 local function zButtonAmmo_BagHasAmmoNow(bagId)
@@ -947,6 +948,14 @@ function zButtonAmmoAdjustment_OnEvent()
 	
 	if event == "UNIT_INVENTORY_CHANGED" or event == "BAG_UPDATE" or event == "PLAYER_ALIVE" or event == "PLAYER_UNGHOST" then
 		local now = GetTime and GetTime() or 0
+		if event == "UNIT_INVENTORY_CHANGED" then
+			local equippedNow = zButtonAmmo_GetEquippedAmmoName()
+			if equippedNow == zButtonAmmo_LastEquippedAmmoSeen and now > 0 and zButtonAmmo_LastRefreshAt > 0 and (now - zButtonAmmo_LastRefreshAt) < 1.0 then
+				zButtonAmmo_UpdateParentCountFast()
+				return
+			end
+			zButtonAmmo_LastEquippedAmmoSeen = equippedNow
+		end
 		local bagIsAmmoRelated = false
 		if event == "BAG_UPDATE" and arg1 ~= nil then
 			local bagId = tonumber(arg1)
@@ -1070,6 +1079,7 @@ function zButtonAmmoAdjustment_OnEvent()
 		-- Save the currently equipped ammo for restoration on next reload
 		if equippedAmmoName then
 			zButtonAmmo_SaveEquippedAmmo(equippedAmmoName)
+			zButtonAmmo_LastEquippedAmmoSeen = equippedAmmoName
 		end
 	end	
 end

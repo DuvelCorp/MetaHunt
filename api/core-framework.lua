@@ -1,5 +1,5 @@
 MTH = MTH or {
-	version = "1.0.6",
+	version = "1.1.0",
 	name = "MetaHunt",
 	modules = {},
 	config = {},
@@ -17,6 +17,13 @@ local MTH_MESSAGE_DEFAULTS = {
 	petRanAway = true,
 	mapMarkers = true,
 	stableScan = true,
+}
+
+local MTH_MODULE_DEFAULT_STATES = {
+	autoquest = false,
+	autobuy = false,
+	feedomatic = false,
+	icu = false,
 }
 
 local function MTH_ClassGateTrace(_step, _detail)
@@ -434,6 +441,9 @@ local function MTH_GetPersistedModuleEnabled(name, defaultEnabled)
 	if type(MTH_CharSavedVariables.modules) ~= "table" then
 		MTH_CharSavedVariables.modules = {}
 	end
+	if type(MTH_CharSavedVariables.modules[resolvedName]) ~= "table" then
+		MTH_CharSavedVariables.modules[resolvedName] = {}
+	end
 
 	if type(MTH_SavedVariables) ~= "table" then
 		MTH_SavedVariables = {}
@@ -443,6 +453,19 @@ local function MTH_GetPersistedModuleEnabled(name, defaultEnabled)
 	end
 	if type(MTH_SavedVariables.modules) ~= "table" then
 		MTH_SavedVariables.modules = {}
+	end
+
+	local hardDefault = MTH_MODULE_DEFAULT_STATES[resolvedName]
+	if hardDefault ~= nil then
+		local hasCharState = MTH_CharSavedVariables.moduleStates[resolvedName] ~= nil
+			or MTH_CharSavedVariables.modules[resolvedName].enabled ~= nil
+		if not hasCharState then
+			local resolved = hardDefault and true or false
+			MTH_CharSavedVariables.moduleStates[resolvedName] = resolved
+			MTH_CharSavedVariables.modules[resolvedName].enabled = resolved
+			MTH_ModuleStateDebug("read " .. tostring(name) .. " seeded char default=" .. tostring(resolved))
+			return resolved
+		end
 	end
 
 	if type(MTH_CharSavedVariables.moduleStates) == "table"

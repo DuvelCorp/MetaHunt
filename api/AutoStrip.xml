@@ -68,6 +68,9 @@
 				if ( this.isMoving ) then
 					this:StopMovingOrSizing()
 					this.isMoving = false
+					if AutoStrip_SaveDisplayPosition then
+						AutoStrip_SaveDisplayPosition("mouse-up-stop")
+					end
 				end
 			</OnMouseUp>
 			<OnDragStart>
@@ -79,6 +82,9 @@
 			<OnDragStop>
 				this:StopMovingOrSizing()
 				this.isMoving = false
+				if AutoStrip_SaveDisplayPosition then
+					AutoStrip_SaveDisplayPosition("drag-stop")
+				end
 			</OnDragStop>
 		</Scripts>
 		<NormalTexture name="$parentNormalTexture" file="Interface\Buttons\UI-Quickslot2">

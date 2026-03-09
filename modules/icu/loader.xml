@@ -1,0 +1,8 @@
+<!--
+ICU Module Loader
+Loads ICU runtime and wraps it in the MetaHunt module system.
+-->
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+  <Include file="MTH_ICU.xml"/>
+  <Include file="module.lua"/>
+</Ui>
