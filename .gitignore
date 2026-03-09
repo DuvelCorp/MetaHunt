@@ -5,6 +5,10 @@
 # Keep this ignore file tracked
 !.gitignore
 
+# Keep the .media folder tracked for README images
+!.media
+!.media/**
+
 # Exclude non-runtime localization helper artifacts
 tools/
 LOC*.md
