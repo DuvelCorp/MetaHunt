@@ -1244,7 +1244,7 @@ function MTH_Map:Init()
 	self.nodesByZone = self.nodesByZone or {}
 
 	if not self.controller then
-		self.controller = CreateFrame("Frame", "MTHMapController", UIParent)
+		self.controller = CreateFrame("Frame", "MTH_MapController", UIParent)
 		self.controller:RegisterEvent("PLAYER_ENTERING_WORLD")
 		self.controller:RegisterEvent("ZONE_CHANGED")
 		self.controller:RegisterEvent("ZONE_CHANGED_NEW_AREA")

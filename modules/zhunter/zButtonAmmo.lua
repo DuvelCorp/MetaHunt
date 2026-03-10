@@ -681,6 +681,8 @@ local function zButtonAmmo_ApplyRuntimeSettings()
 	local saved = zButtonAmmo_GetSaved()
 	zButtonAmmo.tooltip = saved["tooltip"] and true or false
 	zButtonAmmo.hideonclick = saved["children"] and saved["children"]["hideonclick"] and true or false
+	zButtonAmmo.expandonhover = saved["children"] and saved["children"]["expandonhover"] and true or false
+	zButtonAmmo.fadetimer = saved["children"] and tonumber(saved["children"]["fadetimer"]) or 0
 	if saved["showammoname"] == nil then
 		saved["showammoname"] = 1
 	end
@@ -707,7 +709,7 @@ local function zButtonAmmo_DeferredStartupSync()
 	end
 
 	local attempts = 0
-	local syncFrame = CreateFrame("Frame", "zButtonAmmoStartupSync")
+	local syncFrame = CreateFrame("Frame", "MTH_ZH_AmmoStartupSync")
 	if not syncFrame then
 		return
 	end
@@ -805,12 +807,12 @@ function zButtonAmmo_OnEvent()
 		zButtonAmmo.customSetButtons = zButtonAmmo_SetButtons
 		zButtonAmmo.customUpdateButton = zButtonAmmo_UpdateButton
 		zButtonAmmo_CreateButtons()
-			zButtonAmmoAdjustment = CreateFrame("Frame", "zButtonAmmoAdjustment")
-		zButtonAmmoAdjustment:RegisterEvent("UNIT_INVENTORY_CHANGED")
-		zButtonAmmoAdjustment:RegisterEvent("BAG_UPDATE")
-			zButtonAmmoAdjustment:RegisterEvent("PLAYER_ALIVE")
-			zButtonAmmoAdjustment:RegisterEvent("PLAYER_UNGHOST")
-		zButtonAmmoAdjustment:SetScript("OnEvent", zButtonAmmoAdjustment_OnEvent)
+			MTH_ZH_AmmoAdjust = CreateFrame("Frame", "MTH_ZH_AmmoAdjust")
+		MTH_ZH_AmmoAdjust:RegisterEvent("UNIT_INVENTORY_CHANGED")
+		MTH_ZH_AmmoAdjust:RegisterEvent("BAG_UPDATE")
+			MTH_ZH_AmmoAdjust:RegisterEvent("PLAYER_ALIVE")
+			MTH_ZH_AmmoAdjust:RegisterEvent("PLAYER_UNGHOST")
+		MTH_ZH_AmmoAdjust:SetScript("OnEvent", MTH_ZH_AmmoAdjust_OnEvent)
 		zButtonAmmo_SetupSizeAndPosition()
 		zButtonAmmo_DeferredStartupSync()
 	end
@@ -875,16 +877,16 @@ function zButtonAmmo_SetupSizeAndPosition()
 	zButtonAmmo_EnsureSpellOrder(ZHunterMod_Ammo_Buttons or zButtonAmmo_GetAmmoList())
 	local saved = zButtonAmmo_GetSaved()
 	if saved["enabled"] == false or saved["enabled"] == 0 then
-		if zButtonAmmoAdjustment and zButtonAmmoAdjustment.SetScript then
-			zButtonAmmoAdjustment:SetScript("OnEvent", nil)
+		if MTH_ZH_AmmoAdjust and MTH_ZH_AmmoAdjust.SetScript then
+			MTH_ZH_AmmoAdjust:SetScript("OnEvent", nil)
 		end
 		if zButtonAmmo and zButtonAmmo.Hide then
 			zButtonAmmo:Hide()
 		end
 		return
 	end
-	if zButtonAmmoAdjustment and zButtonAmmoAdjustment.SetScript then
-		zButtonAmmoAdjustment:SetScript("OnEvent", zButtonAmmoAdjustment_OnEvent)
+	if MTH_ZH_AmmoAdjust and MTH_ZH_AmmoAdjust.SetScript then
+		MTH_ZH_AmmoAdjust:SetScript("OnEvent", MTH_ZH_AmmoAdjust_OnEvent)
 	end
 	local ammoList = ZHunterMod_Ammo_Buttons or zButtonAmmo_GetAmmoList()
 	local arrangeCount = zButtonAmmo.found or table.getn(ammoList)
@@ -928,7 +930,7 @@ function zButtonAmmo_Reset()
 	saved["lastEquipped"] = nil
 end
 
-function zButtonAmmoAdjustment_OnEvent()
+function MTH_ZH_AmmoAdjust_OnEvent()
 	if not zButtonAmmo or not zButtonAmmo.count then
 		return
 	end
@@ -937,8 +939,8 @@ function zButtonAmmoAdjustment_OnEvent()
 	end
 	local saved = zButtonAmmo_GetSaved()
 	if saved["enabled"] == false or saved["enabled"] == 0 then
-		if zButtonAmmoAdjustment and zButtonAmmoAdjustment.SetScript then
-			zButtonAmmoAdjustment:SetScript("OnEvent", nil)
+		if MTH_ZH_AmmoAdjust and MTH_ZH_AmmoAdjust.SetScript then
+			MTH_ZH_AmmoAdjust:SetScript("OnEvent", nil)
 		end
 		if zButtonAmmo and zButtonAmmo.Hide then
 			zButtonAmmo:Hide()

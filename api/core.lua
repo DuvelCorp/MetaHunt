@@ -12,7 +12,7 @@ local function MTH_PT_GetGlobal(name)
 	return nil
 end
 
-local MTH_ItemLinkCacheTooltip = nil
+local MTH_ItemLinkCache = nil
 
 local function MTH_GetQualityHexColor(quality)
 	local q = tonumber(quality)
@@ -34,14 +34,14 @@ function MTH_PrimeItemCache(itemId)
 	if not id or id <= 0 then return false end
 	if type(GetItemInfo) == "function" and GetItemInfo(id) then return true end
 
-	if not MTH_ItemLinkCacheTooltip then
-		MTH_ItemLinkCacheTooltip = CreateFrame("GameTooltip", "MTH_ItemLinkCacheTooltip", UIParent, "GameTooltipTemplate")
-		if not MTH_ItemLinkCacheTooltip then return false end
-		MTH_ItemLinkCacheTooltip:SetOwner(UIParent, "ANCHOR_NONE")
+	if not MTH_ItemLinkCache then
+		MTH_ItemLinkCache = CreateFrame("GameTooltip", "MTH_ItemLinkCache", UIParent, "GameTooltipTemplate")
+		if not MTH_ItemLinkCache then return false end
+		MTH_ItemLinkCache:SetOwner(UIParent, "ANCHOR_NONE")
 	end
 
-	MTH_ItemLinkCacheTooltip:ClearLines()
-	MTH_ItemLinkCacheTooltip:SetHyperlink("item:" .. tostring(id) .. ":0:0:0")
+	MTH_ItemLinkCache:ClearLines()
+	MTH_ItemLinkCache:SetHyperlink("item:" .. tostring(id) .. ":0:0:0")
 	return type(GetItemInfo) == "function" and (GetItemInfo(id) ~= nil) or false
 end
 
@@ -301,6 +301,46 @@ if type(MTH_CommandPetSpellScan) ~= "function" then
 	end
 end
 
+------------------------------------------------------
+-- /mth diag — Runtime Diagnostics
+------------------------------------------------------
+function MTH_CommandDiag()
+	MTH:Print("======= MetaHunt Diagnostics =======", "debug")
+
+	-- 1. Lua version
+	local luaVer = _VERSION or "unknown"
+	MTH:Print("[DIAG] _VERSION = " .. tostring(luaVer), "debug")
+	MTH:Print("[DIAG] string.match = " .. tostring(type(string.match) == "function"), "debug")
+	MTH:Print("[DIAG] string.gfind = " .. tostring(type(string.gfind) == "function"), "debug")
+
+	-- 2. Active modules
+	local moduleCount = 0
+	local enabledModules = {}
+	if MTH.modules then
+		for name, mod in pairs(MTH.modules) do
+			moduleCount = moduleCount + 1
+			if mod.enabled then
+				table.insert(enabledModules, name)
+			end
+		end
+	end
+	MTH:Print("[DIAG] Registered modules: " .. tostring(moduleCount), "debug")
+	MTH:Print("[DIAG] Enabled: " .. table.concat(enabledModules, ", "), "debug")
+
+	-- 3. Event router state
+	local routerFrame = (MTH._eventRouter and MTH._eventRouter.frame) or nil
+	local routerEvents = (MTH._eventRouter and MTH._eventRouter.eventRefs) or {}
+	local eventCount = 0
+	for _ in pairs(routerEvents) do eventCount = eventCount + 1 end
+	MTH:Print("[DIAG] EventRouter frame: " .. tostring(routerFrame ~= nil) .. ", events: " .. tostring(eventCount), "debug")
+
+	-- 4. Debug frame initialized?
+	local dfInit = (MTH_DebugFrame and MTH_DebugFrame.initialized) and true or false
+	MTH:Print("[DIAG] DebugFrame initialized: " .. tostring(dfInit), "debug")
+
+	MTH:Print("======= End Diagnostics =======", "debug")
+end
+
 function SlashCmdList.MTH(msg, editbox)
 	if MTH and MTH.ApplyClassGate and MTH:ApplyClassGate("slash") then
 		return
@@ -312,16 +352,24 @@ function SlashCmdList.MTH(msg, editbox)
 	local lowerMsg = string.lower(msg)
 	local _, _, lowerCmd, lowerArg = string.find(lowerMsg, "^(%S+)%s*(.-)%s*$")
 	if msg == "" then
-		MTH:Print("Available: /mth options, /mth book")
+		MTH:Print("Available: /mth options, /mth book, /mth diag, /mth err")
 	elseif lowerMsg == "options" then
 		MTH_CommandOptions()
 	elseif lowerMsg == "book" or lowerMsg == "hunterbook" then
 		MTH_CommandBook()
 	elseif lowerMsg == "peers" or lowerMsg == "who" then
 		MTH_CommandPeers()
+	elseif lowerMsg == "diag" then
+		MTH_CommandDiag()
+	elseif lowerMsg == "err" or lowerMsg == "errors" or lowerMsg == "debug" then
+		if MTH_DebugFrame and MTH_DebugFrame.Toggle then
+			MTH_DebugFrame:Toggle()
+		else
+			MTH:Print("Debug frame is not available.")
+		end
 	else
 		MTH:Print("Unknown command: " .. tostring(msg))
-		MTH:Print("Available: /mth options, /mth book")
+		MTH:Print("Available: /mth options, /mth book, /mth diag, /mth err")
 	end
 end
 

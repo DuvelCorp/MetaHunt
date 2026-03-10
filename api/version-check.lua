@@ -6,6 +6,7 @@ VC.abbrev = "MTH"
 VC.channelName = "LFT"
 VC.updateUrl = "https://github.com/DuvelCorp/MetaHunt"
 VC.nextPublishAt = nil
+VC.lastPublishedAt = nil
 VC.joinAt = nil
 VC.notified = false
 VC._invalidVersionWarned = false
@@ -219,7 +220,11 @@ function VC:GetTrackedPeers()
 end
 
 function VC:ResetPublishDelay()
-	self.nextPublishAt = VC_GetTimeNow() + math.random(10, 20)
+	local now = VC_GetTimeNow()
+	if self.lastPublishedAt and (now - self.lastPublishedAt) < 600 then
+		return  -- 10-minute cooldown between publishes
+	end
+	self.nextPublishAt = now + math.random(10, 20)
 end
 
 function VC:ShouldPublish()
@@ -247,6 +252,7 @@ function VC:TryPublish()
 	end
 	local payload = self.abbrev .. ":" .. tostring(localVersionNumber) .. ":v"
 	SendChatMessage(payload, "CHANNEL", nil, tostring(channelId))
+	self.lastPublishedAt = VC_GetTimeNow()
 	return true
 end
 
@@ -305,7 +311,7 @@ function VC:HandleRemoteMessage(message, author, channelLabel)
 end
 
 if not VC.frame then
-	local frame = CreateFrame("Frame", "MTHVersionCheckFrame", UIParent)
+	local frame = CreateFrame("Frame", "MTH_VersionCheck", UIParent)
 	if frame then
 		VC.frame = frame
 		frame:RegisterEvent("PLAYER_ENTERING_WORLD")

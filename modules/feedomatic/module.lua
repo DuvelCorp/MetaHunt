@@ -6,7 +6,7 @@
 local MTH_FeedOMatic = {
 	name = "feedomatic",
 	enabled = false,
-	version = "1.1.0",
+	version = "1.2.0",
 	events = {
 		"VARIABLES_LOADED",
 			"MERCHANT_SHOW",
@@ -32,7 +32,7 @@ local MTH_FeedOMatic = {
 }
 
 local MTH_PETL_HOOK_BOUNDARY_KEY = "pet-lifecycle-hooks"
-local MTH_FeedOMatic_MerchantProbeFrame = nil
+local MTH_FOM_MerchantProbe = nil
 
 function MTH_FeedOMatic_OnUpdate(elapsed)
 	if not elapsed then
@@ -47,7 +47,7 @@ function MTH_FeedOMatic_OnUpdate(elapsed)
 end
 
 local function MTH_FeedOMatic_GetRuntimeFrame()
-	return getglobal("Frame_GFW_FeedOMatic")
+	return getglobal("MTH_FOM_OnUpdateFrame")
 end
 
 local function MTH_FeedOMatic_CaptureHookBoundary()
@@ -216,16 +216,16 @@ end
 
 local function MTH_FeedOMatic_SetMerchantProbeEnabled(enabled)
 	if not enabled then
-		if MTH_FeedOMatic_MerchantProbeFrame then
-			MTH_FeedOMatic_MerchantProbeFrame:UnregisterEvent("MERCHANT_SHOW")
-			MTH_FeedOMatic_MerchantProbeFrame:UnregisterEvent("MERCHANT_UPDATE")
+		if MTH_FOM_MerchantProbe then
+			MTH_FOM_MerchantProbe:UnregisterEvent("MERCHANT_SHOW")
+			MTH_FOM_MerchantProbe:UnregisterEvent("MERCHANT_UPDATE")
 		end
 		return
 	end
 
-	if not MTH_FeedOMatic_MerchantProbeFrame then
-		MTH_FeedOMatic_MerchantProbeFrame = CreateFrame("Frame", "MTH_FeedOMatic_MerchantProbeFrame")
-		MTH_FeedOMatic_MerchantProbeFrame:SetScript("OnEvent", function()
+	if not MTH_FOM_MerchantProbe then
+		MTH_FOM_MerchantProbe = CreateFrame("Frame", "MTH_FOM_MerchantProbe")
+		MTH_FOM_MerchantProbe:SetScript("OnEvent", function()
 			local evt = event
 			if evt == "MERCHANT_SHOW" or evt == "MERCHANT_UPDATE" then
 				MTH_FeedOMatic_Log("probe event received: " .. tostring(evt), "debug")
@@ -234,8 +234,8 @@ local function MTH_FeedOMatic_SetMerchantProbeEnabled(enabled)
 		end)
 	end
 
-	MTH_FeedOMatic_MerchantProbeFrame:RegisterEvent("MERCHANT_SHOW")
-	MTH_FeedOMatic_MerchantProbeFrame:RegisterEvent("MERCHANT_UPDATE")
+	MTH_FOM_MerchantProbe:RegisterEvent("MERCHANT_SHOW")
+	MTH_FOM_MerchantProbe:RegisterEvent("MERCHANT_UPDATE")
 	MTH_FeedOMatic_Log("merchant probe enabled", "debug")
 end
 
@@ -277,8 +277,8 @@ function MTH_FeedOMatic:setEnabled(enabled)
 		MTH_FeedOMatic_SyncSavedVariables()
 		MTH_FeedOMatic_EnsureVariablesLoaded(self)
 		MTH_FeedOMatic_SetMerchantProbeEnabled(false)
-		if FOM_FeedButton then
-			FOM_FeedButton:Show()
+		if MTH_FOM_FeedButton then
+			MTH_FOM_FeedButton:Show()
 		end
 	else
 		-- Disable FeedOMatic functionality
@@ -287,8 +287,8 @@ function MTH_FeedOMatic:setEnabled(enabled)
 			FOM_State.ShouldFeed = false
 		end
 		MTH_FeedOMatic_SetMerchantProbeEnabled(false)
-		if FOM_FeedButton then
-			FOM_FeedButton:Hide()
+		if MTH_FOM_FeedButton then
+			MTH_FOM_FeedButton:Hide()
 		end
 	end
 end
@@ -316,8 +316,8 @@ function MTH_FeedOMatic:cleanup()
 		FOM_State.ShouldFeed = false
 	end
 	MTH_FeedOMatic_SetMerchantProbeEnabled(false)
-	if FOM_FeedButton then
-		FOM_FeedButton:Hide();
+	if MTH_FOM_FeedButton then
+		MTH_FOM_FeedButton:Hide();
 	end
 end
 

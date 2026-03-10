@@ -140,7 +140,7 @@ function MTH_BOOK_GetResistanceShortName(nameText)
 	if string.find(lowerName, "arcane", 1, true) then return "AR" end
 	if string.find(lowerName, "nature", 1, true) then return "NR" end
 	if string.find(lowerName, "fire", 1, true) then return "FR" end
-	if string.find(lowerName, "frost", 1, true) then return "FR" end
+	if string.find(lowerName, "frost", 1, true) then return "FrR" end
 	if string.find(lowerName, "shadow", 1, true) then return "SR" end
 	return tostring(nameText or "-")
 end

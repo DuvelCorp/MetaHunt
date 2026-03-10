@@ -485,16 +485,22 @@ local function getActionSpell(slot)
 	end
 
 	if not Chronometer._scanTooltip then
-		Chronometer._scanTooltip = CreateFrame("GameTooltip", "MTH_ChronometerScanTooltip", UIParent, "GameTooltipTemplate")
-		Chronometer._scanTooltip:SetOwner(UIParent, "ANCHOR_NONE")
+		local tip = CreateFrame("GameTooltip", "MTH_ChrBarProbe", UIParent)
+		tip:SetOwner(UIParent, "ANCHOR_NONE")
+		for i = 1, 4 do
+			local L = tip:CreateFontString("MTH_ChrBarProbeTextLeft"..i, "ARTWORK", "GameTooltipText")
+			local R = tip:CreateFontString("MTH_ChrBarProbeTextRight"..i, "ARTWORK", "GameTooltipText")
+			tip:AddFontStrings(L, R)
+		end
+		Chronometer._scanTooltip = tip
 	end
 
 	local tooltip = Chronometer._scanTooltip
 	tooltip:ClearLines()
 	tooltip:SetAction(slot)
 
-	local left1 = getglobal("MTH_ChronometerScanTooltipTextLeft1")
-	local left2 = getglobal("MTH_ChronometerScanTooltipTextLeft2")
+	local left1 = getglobal("MTH_ChrBarProbeTextLeft1")
+	local left2 = getglobal("MTH_ChrBarProbeTextLeft2")
 	local spellName = left1 and left1:GetText() or nil
 	if not spellName or spellName == "" then
 		return nil, 0
@@ -1191,7 +1197,7 @@ function Chronometer:ToggleAnchor()
 end
 
 function Chronometer:CreateAnchor(text, r, g, b)
-	local frame = CreateFrame("Button", "MTHChronometerAnchor", UIParent)
+	local frame = CreateFrame("Button", "MTH_ChronometerAnchor", UIParent)
 	frame:SetWidth(220)
 	frame:SetHeight(25)
 	frame.owner = self
@@ -1219,25 +1225,23 @@ function Chronometer:CreateAnchor(text, r, g, b)
 		MTH_CHRON_Trace("CreateAnchor default point=" .. MTH_CHRON_DescribePoint(frame))
 	end
 
-	frame:SetScript("OnDragStart", function(self)
-		self = self or this
-		if not self or not self.StartMoving then
+	frame:SetScript("OnDragStart", function()
+		if not this or not this.StartMoving then
 			return
 		end
-		MTH_CHRON_Trace("anchor drag-start point=" .. MTH_CHRON_DescribePoint(self))
-		self:StartMoving()
+		MTH_CHRON_Trace("anchor drag-start point=" .. MTH_CHRON_DescribePoint(this))
+		this:StartMoving()
 	end)
-	frame:SetScript("OnDragStop", function(self)
-		self = self or this
-		if not self then
+	frame:SetScript("OnDragStop", function()
+		if not this then
 			return
 		end
 
-		if self.StopMovingOrSizing then
-			self:StopMovingOrSizing()
+		if this.StopMovingOrSizing then
+			this:StopMovingOrSizing()
 		end
 
-		local point, _, _, x, y = self:GetPoint()
+		local point, _, _, x, y = this:GetPoint()
 		x = tonumber(x)
 		y = tonumber(y)
 		if not x or not y then
@@ -1246,16 +1250,16 @@ function Chronometer:CreateAnchor(text, r, g, b)
 
 		x = math.floor(x + 0.5)
 		y = math.floor(y + 0.5)
-		self:ClearAllPoints()
-		self:SetPoint(point or "TOPLEFT", UIParent, point or "TOPLEFT", x, y)
+		this:ClearAllPoints()
+		this:SetPoint(point or "TOPLEFT", UIParent, point or "TOPLEFT", x, y)
 
-		if self.owner and self.owner.profile and type(self.owner.profile.barposition) == "table" then
-			self.owner.profile.barposition.point = point or "TOPLEFT"
-			self.owner.profile.barposition.relativePoint = point or "TOPLEFT"
-			self.owner.profile.barposition.x = x
-			self.owner.profile.barposition.y = y
-			MTH_CHRON_Trace("anchor drag-stop saved profile=" .. MTH_CHRON_FormatBarPosition(self.owner.profile)
-				.. " frame=" .. MTH_CHRON_DescribePoint(self))
+		if this.owner and this.owner.profile and type(this.owner.profile.barposition) == "table" then
+			this.owner.profile.barposition.point = point or "TOPLEFT"
+			this.owner.profile.barposition.relativePoint = point or "TOPLEFT"
+			this.owner.profile.barposition.x = x
+			this.owner.profile.barposition.y = y
+			MTH_CHRON_Trace("anchor drag-stop saved profile=" .. MTH_CHRON_FormatBarPosition(this.owner.profile)
+				.. " frame=" .. MTH_CHRON_DescribePoint(this))
 		end
 	end)
 

@@ -29,7 +29,7 @@ function MTH_DebugFrame:Initialize()
 	self.initialized = true
 
 	-- Create main frame
-	self.frame = CreateFrame("Frame", "MTH_DebugFrameWindow", UIParent)
+	self.frame = CreateFrame("Frame", "MTH_DebugWindow", UIParent)
 	self.frame:SetWidth(800)
 	self.frame:SetHeight(400)
 	self.frame:SetPoint("CENTER", UIParent, "CENTER")
@@ -51,13 +51,13 @@ function MTH_DebugFrame:Initialize()
 	if UISpecialFrames then
 		local already = false
 		for i = 1, table.getn(UISpecialFrames) do
-			if UISpecialFrames[i] == "MTH_DebugFrameWindow" then
+			if UISpecialFrames[i] == "MTH_DebugWindow" then
 				already = true
 				break
 			end
 		end
 		if not already then
-			table.insert(UISpecialFrames, "MTH_DebugFrameWindow")
+			table.insert(UISpecialFrames, "MTH_DebugWindow")
 		end
 	end
 
@@ -91,7 +91,7 @@ function MTH_DebugFrame:Initialize()
 	copyButton:SetScript("OnClick", function() MTH_DebugFrame:SelectAllText() end)
 
 	-- Scroll frame + text content with proper vertical scrollbar
-	self.scrollFrame = CreateFrame("ScrollFrame", "MTH_DebugScrollFrame", self.frame, "UIPanelScrollFrameTemplate")
+	self.scrollFrame = CreateFrame("ScrollFrame", "MTH_DebugScroll", self.frame, "UIPanelScrollFrameTemplate")
 	self.scrollFrame:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 15, -50)
 	self.scrollFrame:SetPoint("BOTTOMRIGHT", self.frame, "BOTTOMRIGHT", -35, 45)
 
@@ -366,8 +366,8 @@ MTH_DebugFrame.UninstallHooks = MTH_DF_UninstallHooks
 -- Event listener for addon load
 local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("ADDON_LOADED")
-eventFrame:SetScript("OnEvent", function(self, event, addonName)
-	if event == "ADDON_LOADED" and addonName == "MetaHunt" then
+eventFrame:SetScript("OnEvent", function()
+	if event == "ADDON_LOADED" and arg1 == "MetaHunt" then
 		if MTH and MTH.GetConfig then
 			MTH_DF_SetGlobalCaptureEnabled(MTH:GetConfig("debug", "globalErrorCapture", false))
 		end

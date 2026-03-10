@@ -5066,19 +5066,19 @@ local function MTH_BOOK_WireUI(frame)
 		listSlider:SetScript("OnMouseDown", function()
 			MTH_BOOK_STATE.sliderDragging = true
 			MTH_BOOK_SetSliderFromCursor(this)
+			this:SetScript("OnUpdate", function()
+				if IsMouseButtonDown and not IsMouseButtonDown("LeftButton") then
+					MTH_BOOK_STATE.sliderDragging = false
+					this:SetScript("OnUpdate", nil)
+				else
+					MTH_BOOK_SetSliderFromCursor(this)
+				end
+			end)
 		end)
 		listSlider:SetScript("OnMouseUp", function()
 			MTH_BOOK_SetSliderFromCursor(this)
 			MTH_BOOK_STATE.sliderDragging = false
-		end)
-		listSlider:SetScript("OnUpdate", function()
-			if MTH_BOOK_STATE.sliderDragging then
-				if IsMouseButtonDown and not IsMouseButtonDown("LeftButton") then
-					MTH_BOOK_STATE.sliderDragging = false
-				else
-					MTH_BOOK_SetSliderFromCursor(this)
-				end
-			end
+			this:SetScript("OnUpdate", nil)
 		end)
 		listSlider:SetScript("OnValueChanged", function()
 			local value = this:GetValue()
@@ -5181,19 +5181,19 @@ local function MTH_BOOK_WireUI(frame)
 			sliderBackdrop:SetScript("OnMouseDown", function()
 				MTH_BOOK_STATE.sliderDragging = true
 				MTH_BOOK_SetSliderFromCursor(listSlider)
+				listSlider:SetScript("OnUpdate", function()
+					if IsMouseButtonDown and not IsMouseButtonDown("LeftButton") then
+						MTH_BOOK_STATE.sliderDragging = false
+						this:SetScript("OnUpdate", nil)
+					else
+						MTH_BOOK_SetSliderFromCursor(listSlider)
+					end
+				end)
 			end)
 			sliderBackdrop:SetScript("OnMouseUp", function()
 				MTH_BOOK_SetSliderFromCursor(listSlider)
 				MTH_BOOK_STATE.sliderDragging = false
-			end)
-			sliderBackdrop:SetScript("OnUpdate", function()
-				if MTH_BOOK_STATE.sliderDragging then
-					if IsMouseButtonDown and not IsMouseButtonDown("LeftButton") then
-						MTH_BOOK_STATE.sliderDragging = false
-					else
-						MTH_BOOK_SetSliderFromCursor(listSlider)
-					end
-				end
+				listSlider:SetScript("OnUpdate", nil)
 			end)
 		end
 	end

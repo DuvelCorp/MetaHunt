@@ -103,6 +103,8 @@ local function zButtonAspect_ApplyRuntimeSettings()
 	local saved = zButtonAspect_GetSaved()
 	zButtonAspect.tooltip = saved["tooltip"] and true or false
 	zButtonAspect.hideonclick = saved["children"] and saved["children"]["hideonclick"] and true or false
+	zButtonAspect.expandonhover = saved["children"] and saved["children"]["expandonhover"] and true or false
+	zButtonAspect.fadetimer = saved["children"] and tonumber(saved["children"]["fadetimer"]) or 0
 end
 
 local function zButtonAspect_IsKnownAspectSpellId(spellId)
@@ -157,14 +159,14 @@ function zButtonAspect_OnEvent()
 			return
 		end
 		zButtonAspect_CreateButtons()
-		zButtonAspectAdjustment = CreateFrame("Frame", "zButtonAspectAdjustment")
-		zButtonAspectAdjustment:RegisterEvent("PLAYER_AURAS_CHANGED")
-		zButtonAspectAdjustment:RegisterEvent("PLAYER_ENTERING_WORLD")
-		zButtonAspectAdjustment:RegisterEvent("SPELLS_CHANGED")
-		zButtonAspectAdjustment:RegisterEvent("CHARACTER_POINTS_CHANGED")
-		zButtonAspectAdjustment:RegisterEvent("LEARNED_SPELL_IN_TAB")
-		zButtonAspectAdjustment:SetScript("OnEvent", zButtonAspectAdjustment_OnEvent)
-		zButtonAspect_Tooltip = CreateFrame("GameTooltip", "zButtonAspect_AuraProbeScan", nil, "GameTooltipTemplate")
+		MTH_ZH_AspectAdjust = CreateFrame("Frame", "MTH_ZH_AspectAdjust")
+		MTH_ZH_AspectAdjust:RegisterEvent("PLAYER_AURAS_CHANGED")
+		MTH_ZH_AspectAdjust:RegisterEvent("PLAYER_ENTERING_WORLD")
+		MTH_ZH_AspectAdjust:RegisterEvent("SPELLS_CHANGED")
+		MTH_ZH_AspectAdjust:RegisterEvent("CHARACTER_POINTS_CHANGED")
+		MTH_ZH_AspectAdjust:RegisterEvent("LEARNED_SPELL_IN_TAB")
+		MTH_ZH_AspectAdjust:SetScript("OnEvent", MTH_ZH_AspectAdjust_OnEvent)
+		zButtonAspect_Tooltip = CreateFrame("GameTooltip", "MTH_ZH_AspectProbe", nil, "GameTooltipTemplate")
 		if zButtonAspect_Tooltip and zButtonAspect_Tooltip.GetName then
 			local tooltipName = zButtonAspect_Tooltip:GetName()
 			if tooltipName then
@@ -203,16 +205,16 @@ function zButtonAspect_SetupSizeAndPosition()
 	zButtonAspect_EnsureConfig()
 	local saved = zButtonAspect_GetSaved()
 	if saved["enabled"] == false or saved["enabled"] == 0 then
-		if zButtonAspectAdjustment and zButtonAspectAdjustment.SetScript then
-			zButtonAspectAdjustment:SetScript("OnEvent", nil)
+		if MTH_ZH_AspectAdjust and MTH_ZH_AspectAdjust.SetScript then
+			MTH_ZH_AspectAdjust:SetScript("OnEvent", nil)
 		end
 		if zButtonAspect and zButtonAspect.Hide then
 			zButtonAspect:Hide()
 		end
 		return
 	end
-	if zButtonAspectAdjustment and zButtonAspectAdjustment.SetScript then
-		zButtonAspectAdjustment:SetScript("OnEvent", zButtonAspectAdjustment_OnEvent)
+	if MTH_ZH_AspectAdjust and MTH_ZH_AspectAdjust.SetScript then
+		MTH_ZH_AspectAdjust:SetScript("OnEvent", MTH_ZH_AspectAdjust_OnEvent)
 	end
 	local displayCount = zButtonAspect.found or ZHUNTER_ASPECT_MAX
 	if displayCount < 0 then
@@ -248,7 +250,7 @@ function zButtonAspect_Reset()
 	zButtonAspect_EnsureConfig()
 end
 
-function zButtonAspectAdjustment_OnEvent()
+function MTH_ZH_AspectAdjust_OnEvent()
 	if not zButtonAspect or not zButtonAspect.count then
 		return
 	end

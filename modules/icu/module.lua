@@ -6,7 +6,7 @@
 local MTH_ICU = {
 	name = "icu",
 	enabled = false,
-	version = "1.1.0",
+	version = "1.2.0",
 	events = {
 		"VARIABLES_LOADED",
 	},

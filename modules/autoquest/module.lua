@@ -6,7 +6,7 @@
 local MTH_AutoQuest = {
 	name = "autoquest",
 	enabled = false,
-	version = "1.1.0",
+	version = "1.2.0",
 	events = {
 		"GOSSIP_SHOW",
 		"QUEST_GREETING",
@@ -34,7 +34,6 @@ local QA_ITEM_BLASTED_BOAR_LUNG_NAME = "Blasted Boar Lung"
 local QA_ITEM_VULTURE_GIZZARD_NAME = "Vulture Gizzard"
 local QA_ITEM_GROUND_SCORPOK_ASSAY_NAME = "Ground Scorpok Assay"
 
-local QA_DirectEventFrame = nil
 local QA_TooltipHooked = false
 local QA_TooltipPollFrame = nil
 local QA_TooltipRefreshFrame = nil
@@ -292,7 +291,8 @@ local function QA_CountItemInBags(expectedId, expectedName)
 		for slot = 1, slots do
 			local link = getContainerItemLink(bag, slot)
 			if type(link) == "string" and link ~= "" then
-				local itemId = tonumber(string.match(link, "item:(%d+)"))
+				local _, _, itemIdStr = string.find(link, "item:(%d+)")
+				local itemId = tonumber(itemIdStr)
 				local itemName = nil
 				if type(getItemInfo) == "function" then
 					itemName = getItemInfo(link)
@@ -456,8 +456,8 @@ local function QA_EnsureTooltipHook()
 
 	if hasHookScript and onTooltipSetUnitExists then
 		pcall(function()
-			GameTooltip:HookScript("OnTooltipSetUnit", function(self)
-				QA_AppendDrazialTooltip(self, "hook:setunit")
+			GameTooltip:HookScript("OnTooltipSetUnit", function()
+				QA_AppendDrazialTooltip(this, "hook:setunit")
 			end)
 		end)
 	elseif hasSetScript and hasGetScript and onTooltipSetUnitExists then
@@ -466,11 +466,11 @@ local function QA_EnsureTooltipHook()
 		end)
 		if okGetPrev then
 			pcall(function()
-				GameTooltip:SetScript("OnTooltipSetUnit", function(self)
+				GameTooltip:SetScript("OnTooltipSetUnit", function()
 					if type(previous) == "function" then
-						previous(self)
+						previous()
 					end
-					QA_AppendDrazialTooltip(self, "script:setunit")
+					QA_AppendDrazialTooltip(this, "script:setunit")
 				end)
 			end)
 		end
@@ -478,8 +478,8 @@ local function QA_EnsureTooltipHook()
 
 	if hasHookScript and onShowExists then
 		pcall(function()
-			GameTooltip:HookScript("OnShow", function(self)
-				QA_AppendDrazialTooltip(self, "hook:show")
+			GameTooltip:HookScript("OnShow", function()
+				QA_AppendDrazialTooltip(this, "hook:show")
 			end)
 		end)
 	elseif hasSetScript and hasGetScript and onShowExists then
@@ -488,11 +488,11 @@ local function QA_EnsureTooltipHook()
 		end)
 		if okGetPrevShow then
 			pcall(function()
-				GameTooltip:SetScript("OnShow", function(self)
+				GameTooltip:SetScript("OnShow", function()
 					if type(previousShow) == "function" then
-						previousShow(self)
+						previousShow()
 					end
-					QA_AppendDrazialTooltip(self, "script:show")
+					QA_AppendDrazialTooltip(this, "script:show")
 				end)
 			end)
 		end
@@ -505,17 +505,17 @@ local function QA_EnsureTooltipPoller()
 	if QA_TooltipPollFrame then
 		return
 	end
-	local frame = CreateFrame("Frame", "MTH_AutoQuestTooltipPollFrame")
+	local frame = CreateFrame("Frame", "MTH_AQTooltipPoll")
 	if not frame then
 		return
 	end
 	frame._mthElapsed = 0
-	frame:SetScript("OnUpdate", function(self, elapsed)
-		self._mthElapsed = (self._mthElapsed or 0) + (elapsed or arg1 or 0)
-		if self._mthElapsed < 0.20 then
+	frame:SetScript("OnUpdate", function()
+		this._mthElapsed = (this._mthElapsed or 0) + (arg1 or 0)
+		if this._mthElapsed < 0.20 then
 			return
 		end
-		self._mthElapsed = 0
+		this._mthElapsed = 0
 		if not (MTH_AutoQuest and MTH_AutoQuest.enabled) then
 			return
 		end
@@ -591,16 +591,16 @@ end
 local function QA_RequestTooltipRefresh(delaySeconds)
 	delaySeconds = tonumber(delaySeconds) or 0.10
 	if not QA_TooltipRefreshFrame then
-		QA_TooltipRefreshFrame = CreateFrame("Frame", "MTH_AutoQuestTooltipRefreshFrame")
+		QA_TooltipRefreshFrame = CreateFrame("Frame", "MTH_AQTooltipRefresh")
 		if not QA_TooltipRefreshFrame then
 			return
 		end
-		QA_TooltipRefreshFrame:SetScript("OnUpdate", function(self, elapsed)
-			local frameRef = self or this or QA_TooltipRefreshFrame
+		QA_TooltipRefreshFrame:SetScript("OnUpdate", function()
+			local frameRef = this or QA_TooltipRefreshFrame
 			if not frameRef then
 				return
 			end
-			frameRef._elapsed = (frameRef._elapsed or 0) + (elapsed or arg1 or 0)
+			frameRef._elapsed = (frameRef._elapsed or 0) + (arg1 or 0)
 			if frameRef._elapsed < (frameRef._delay or 0.10) then
 				return
 			end
@@ -915,48 +915,14 @@ local function QA_RunProfileAutomation(eventName, profile)
 	end
 end
 
-local function QA_SetDirectEventFrameActive(active)
-	if not QA_DirectEventFrame then
-		return
-	end
-	if active then
-		QA_DirectEventFrame:RegisterEvent("GOSSIP_SHOW")
-		QA_DirectEventFrame:RegisterEvent("QUEST_GREETING")
-		QA_DirectEventFrame:RegisterEvent("QUEST_DETAIL")
-		QA_DirectEventFrame:RegisterEvent("QUEST_PROGRESS")
-		QA_DirectEventFrame:RegisterEvent("QUEST_COMPLETE")
-	else
-		QA_DirectEventFrame:UnregisterAllEvents()
-	end
-end
-
-local function QA_EnsureDirectEventFrame(moduleRef)
-	if QA_DirectEventFrame then
-		return QA_DirectEventFrame
-	end
-	local frame = CreateFrame("Frame", "MTH_AutoQuestEventFrame")
-	if not frame then
-		QA_Debug("direct frame create failed")
-		return nil
-	end
-	frame:SetScript("OnEvent", function(_, eventName)
-		eventName = eventName or event
-		if not (moduleRef and moduleRef.enabled) then
-			return
-		end
-		QA_Debug("directEvent=" .. tostring(eventName))
-		QA_RunProfileAutomation(eventName, QA_PROFILE_SCORPOK)
-		QA_RunProfileAutomation(eventName, QA_PROFILE_SISSIES)
-	end)
-	QA_DirectEventFrame = frame
-	return frame
-end
+-- NOTE: QA_DirectEventFrame removed (Phase 2 fix #22b)
+-- The central event router already dispatches GOSSIP_SHOW, QUEST_GREETING,
+-- QUEST_DETAIL, QUEST_PROGRESS, QUEST_COMPLETE to MTH_AutoQuest:onEvent().
+-- Having a second frame register the same events caused double-dispatch.
 
 function MTH_AutoQuest:init()
 	local store = QA_GetOptionsStore()
 	self.initialized = true
-	QA_EnsureDirectEventFrame(self)
-	QA_SetDirectEventFrameActive(self.enabled and true or false)
 	QA_Debug("init: module active=" .. tostring(self.enabled and true or false)
 		.. ", option scorpokDrazial=" .. tostring(store and store.scorpokDrazial and true or false)
 		.. ", option arrowsForSissies=" .. tostring(store and store.arrowsForSissies and true or false)
@@ -965,7 +931,6 @@ end
 
 function MTH_AutoQuest:setEnabled(enabled)
 	self.enabled = enabled and true or false
-	QA_SetDirectEventFrameActive(self.enabled and true or false)
 end
 
 function MTH_AutoQuest:onEvent(eventName)
@@ -981,7 +946,7 @@ function MTH_AutoQuest:onEvent(eventName)
 end
 
 function MTH_AutoQuest:cleanup()
-	QA_SetDirectEventFrameActive(false)
+	-- no-op: direct event frame removed in Phase 2
 end
 
 MTH:RegisterModule("autoquest", MTH_AutoQuest)

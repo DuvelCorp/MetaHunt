@@ -112,7 +112,7 @@ end
 
 local function AutoStrip_QueueDeferredRestore(reason)
 	if not AutoStrip_RestoreFrame then
-		AutoStrip_RestoreFrame = CreateFrame("Frame", "AutoStripRestoreFrame")
+		AutoStrip_RestoreFrame = CreateFrame("Frame", "MTH_AutoStripRestore")
 		if not AutoStrip_RestoreFrame then
 			return
 		end
@@ -316,7 +316,7 @@ local function AutoStrip_HandleSlash(msg)
 	end
 end
 
-AutoStrip_Frame = CreateFrame("Frame", "AutoStripFrame")
+AutoStrip_Frame = CreateFrame("Frame", "MTH_AutoStripEvent")
 if AutoStrip_Frame then
 	AutoStrip_Frame:RegisterEvent("VARIABLES_LOADED")
 	AutoStrip_Frame:RegisterEvent("PLAYER_REGEN_DISABLED")

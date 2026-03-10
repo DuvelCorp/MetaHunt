@@ -65,11 +65,10 @@ local function MTH_UIR_CreateControl(frame, key, option, context, x, y, width)
 		checkButton:SetPoint("TOPLEFT", frame, "TOPLEFT", x, y + 2)
 		checkButton:SetChecked(MTH_UI.ResolveValue(option.get, context) and 1 or nil)
 		MTH_UIR_SetCheckboxLabel(checkButton, optionName or "")
-		checkButton:SetScript("OnClick", function(self)
-			self = self or this
-			if not self then return end
+		checkButton:SetScript("OnClick", function()
+			if not this then return end
 			if option.set then
-				option.set(context, self:GetChecked() == 1)
+				option.set(context, this:GetChecked() == 1)
 			end
 		end)
 		if MTH_UI.ResolveValue(option.disabled, context) then
@@ -100,8 +99,8 @@ local function MTH_UIR_CreateControl(frame, key, option, context, x, y, width)
 		text:SetText(optionName or "Run")
 		text:SetTextColor(1.00, 0.82, 0.00)
 
-		button:SetScript("OnEnter", function(self) self = self or this if self then self:SetBackdropBorderColor(0.6, 0.6, 0.6) end end)
-		button:SetScript("OnLeave", function(self) self = self or this if self then self:SetBackdropBorderColor(0.4, 0.4, 0.4) end end)
+		button:SetScript("OnEnter", function() if this then this:SetBackdropBorderColor(0.6, 0.6, 0.6) end end)
+		button:SetScript("OnLeave", function() if this then this:SetBackdropBorderColor(0.4, 0.4, 0.4) end end)
 		button:SetScript("OnClick", function()
 			if option.func then
 				option.func(context)
@@ -139,8 +138,8 @@ local function MTH_UIR_CreateControl(frame, key, option, context, x, y, width)
 		text:SetText(tostring(currentValue or "Choose"))
 		text:SetTextColor(0.90, 0.90, 0.90)
 
-		button:SetScript("OnEnter", function(self) self = self or this if self then self:SetBackdropBorderColor(0.6, 0.6, 0.6) end end)
-		button:SetScript("OnLeave", function(self) self = self or this if self then self:SetBackdropBorderColor(0.4, 0.4, 0.4) end end)
+		button:SetScript("OnEnter", function() if this then this:SetBackdropBorderColor(0.6, 0.6, 0.6) end end)
+		button:SetScript("OnLeave", function() if this then this:SetBackdropBorderColor(0.4, 0.4, 0.4) end end)
 		button:SetScript("OnClick", function()
 			if option.onClick then
 				option.onClick(context, option)

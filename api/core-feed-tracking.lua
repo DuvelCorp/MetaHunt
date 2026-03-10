@@ -460,6 +460,7 @@ local function MTH_FEED_CoreTrackerOnEvent()
 		end
 	elseif evt == "BAG_UPDATE" then
 		MTH_FEED_IndexBagFoods()
+		MTH_FEED_InvalidateDietMapCache()
 	elseif evt == "CHAT_MSG_SPELL_PERIODIC_SELF_BUFFS" then
 		if MTH_FEED_ActiveCoreAttemptId and MTH_FEED_HasPetFeedBuff() then
 			MTH_FEED_Trace("Core tracker buff event confirms acceptance")
@@ -468,7 +469,32 @@ local function MTH_FEED_CoreTrackerOnEvent()
 	end
 end
 
+local MTH_FEED_CoreTrackerUpdateElapsed = 0
+local MTH_FEED_LastStaleCleanupAt = 0
+
 local function MTH_FEED_CoreTrackerOnUpdate()
+	MTH_FEED_CoreTrackerUpdateElapsed = MTH_FEED_CoreTrackerUpdateElapsed + (arg1 or 0)
+	if MTH_FEED_CoreTrackerUpdateElapsed < 0.10 then
+		return
+	end
+	MTH_FEED_CoreTrackerUpdateElapsed = 0
+
+	-- Periodic stale attempt cleanup (every ~30 seconds)
+	local now = GetTime() or 0
+	if (now - MTH_FEED_LastStaleCleanupAt) >= 30 then
+		MTH_FEED_LastStaleCleanupAt = now
+		if MTH_FEED_Runtime and type(MTH_FEED_Runtime.attempts) == "table" then
+			for id, row in pairs(MTH_FEED_Runtime.attempts) do
+				if type(row) == "table" then
+					local age = now - (tonumber(row.startedAt) or now)
+					if age > 10 then
+						MTH_FEED_Runtime.attempts[id] = nil
+					end
+				end
+			end
+		end
+	end
+
 	local attemptId = MTH_FEED_ActiveCoreAttemptId
 	if attemptId == nil then
 		return
@@ -499,7 +525,7 @@ local function MTH_FEED_EnsureTrackerFrame()
 	if MTH_FEED_TrackerFrame then
 		return MTH_FEED_TrackerFrame
 	end
-	local frame = CreateFrame("Frame", "MTH_FeedTrackingFrame")
+	local frame = CreateFrame("Frame", "MTH_FeedTracking")
 	if not frame then
 		return nil
 	end
@@ -617,19 +643,17 @@ local function MTH_FEED_EnsureBootstrapFrame()
 	if MTH_FEED_BootstrapFrame ~= nil then
 		return MTH_FEED_BootstrapFrame
 	end
-	local frame = CreateFrame("Frame", "MTH_FeedTrackingBootstrapFrame")
+	local frame = CreateFrame("Frame", "MTH_FeedTrackingBoot")
 	if not frame then
 		return nil
 	end
 	frame:RegisterEvent("VARIABLES_LOADED")
 	frame:RegisterEvent("PLAYER_LOGIN")
 	frame:RegisterEvent("PLAYER_ENTERING_WORLD")
-	frame:SetScript("OnEvent", function(self)
+	frame:SetScript("OnEvent", function()
 		MTH_FEED_ReinstallCoreTracking()
-		if self and self.UnregisterAllEvents then
-			self:UnregisterAllEvents()
-			self:SetScript("OnEvent", nil)
-		end
+		this:UnregisterAllEvents()
+		this:SetScript("OnEvent", nil)
 	end)
 	MTH_FEED_BootstrapFrame = frame
 	return frame
@@ -826,7 +850,16 @@ local function MTH_FEED_NormalizeReason(reason, rawMessage)
 	return "unknown"
 end
 
+local MTH_FEED_DietMapCache = nil
+
+local function MTH_FEED_InvalidateDietMapCache()
+	MTH_FEED_DietMapCache = nil
+end
+
 local function MTH_FEED_GetDietByItemIdMap()
+	if MTH_FEED_DietMapCache then
+		return MTH_FEED_DietMapCache
+	end
 	local map = {}
 	if type(FOM_Foods) ~= "table" then
 		return map
@@ -841,6 +874,7 @@ local function MTH_FEED_GetDietByItemIdMap()
 			end
 		end
 	end
+	MTH_FEED_DietMapCache = map
 	return map
 end
 

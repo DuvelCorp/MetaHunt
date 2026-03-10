@@ -72,10 +72,9 @@ function MTH_SetupAutoQuestOptions()
 	local moduleToggle = MTH_CreateCheckbox(container, "MetaHuntOptionsAutoQuestModuleToggle", "Enable Auto Quest module", -70, 20)
 	if moduleToggle then
 		moduleToggle:SetChecked(moduleEnabled and true or false)
-		moduleToggle:SetScript("OnClick", function(self)
-			self = self or this
-			if not self then return end
-			local enabled = MTH_AQ_IsChecked(self)
+		moduleToggle:SetScript("OnClick", function()
+			if not this then return end
+			local enabled = MTH_AQ_IsChecked(this)
 			if MTH and MTH.SetModuleEnabled then
 				local ok, err = MTH:SetModuleEnabled("autoquest", enabled)
 				if not ok and MTH and MTH.Print then
@@ -84,7 +83,7 @@ function MTH_SetupAutoQuestOptions()
 			end
 			local module = MTH and MTH.GetModule and MTH:GetModule("autoquest") or nil
 			local actual = (type(module) == "table" and module.enabled ~= nil) and (module.enabled and true or false) or enabled
-			self:SetChecked(actual and true or false)
+			this:SetChecked(actual and true or false)
 		end)
 	end
 
@@ -151,9 +150,8 @@ function MTH_SetupAutoQuestOptions()
 			store.scorpokDrazial and true or false
 		)
 		if scorpokToggle then
-			scorpokToggle:SetScript("OnClick", function(self)
-				self = self or this
-				local enabled = MTH_AQ_IsChecked(self)
+			scorpokToggle:SetScript("OnClick", function()
+				local enabled = MTH_AQ_IsChecked(this)
 				store.scorpokDrazial = enabled and true or false
 				if MTH and MTH.GetModuleCharSavedVariables then
 					local moduleStore = MTH:GetModuleCharSavedVariables("autoquest")
@@ -176,9 +174,8 @@ function MTH_SetupAutoQuestOptions()
 			store.scorpokTooltip and true or false
 		)
 		if tooltipToggle then
-			tooltipToggle:SetScript("OnClick", function(self)
-				self = self or this
-				local enabled = MTH_AQ_IsChecked(self)
+			tooltipToggle:SetScript("OnClick", function()
+				local enabled = MTH_AQ_IsChecked(this)
 				store.scorpokTooltip = enabled and true or false
 				if MTH and MTH.GetModuleCharSavedVariables then
 					local moduleStore = MTH:GetModuleCharSavedVariables("autoquest")
@@ -212,9 +209,8 @@ function MTH_SetupAutoQuestOptions()
 			store.arrowsForSissies and true or false
 		)
 		if sissiesToggle then
-			sissiesToggle:SetScript("OnClick", function(self)
-				self = self or this
-				local enabled = MTH_AQ_IsChecked(self)
+			sissiesToggle:SetScript("OnClick", function()
+				local enabled = MTH_AQ_IsChecked(this)
 				store.arrowsForSissies = enabled and true or false
 				if MTH and MTH.GetModuleCharSavedVariables then
 					local moduleStore = MTH:GetModuleCharSavedVariables("autoquest")

@@ -226,10 +226,9 @@ function MTH_SetupFeedOMaticOptions()
 
 	local moduleCheck = MTH_CreateCheckbox(container, "MetaHuntOptionsFeedOMaticEnabled", MTH_FOM_L("FOM_ENABLE_MODULE", "Enable FeedOMatic module"), -32 + yAdjust)
 	if moduleCheck then
-		moduleCheck:SetScript("OnClick", function(self)
-			self = self or this
-			if not self then return end
-			local enabled = self:GetChecked() == 1
+		moduleCheck:SetScript("OnClick", function()
+			if not this then return end
+			local enabled = this:GetChecked() == 1
 			if MTH and MTH.SetModuleEnabled then
 				local ok, err = MTH:SetModuleEnabled("feedomatic", enabled)
 				if not ok and MTH and MTH.Print then
@@ -263,11 +262,11 @@ function MTH_SetupFeedOMaticOptions()
 			MTH_FOM_StartBindingCapture()
 		end
 	end)
-	bindButton:SetScript("OnKeyDown", function(_, key)
+	bindButton:SetScript("OnKeyDown", function()
 		if not MTH_FOM_STATE.bindingCapture then
 			return
 		end
-		key = key or arg1
+		local key = arg1
 		if not key or key == "" then
 			return
 		end
@@ -305,10 +304,10 @@ function MTH_SetupFeedOMaticOptions()
 	MTH_FOM_STATE.ctrl.PreferHigherQuality = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMPreferQuality", FOM_OptionsButtonText and FOM_OptionsButtonText["PreferHigherQuality"] or MTH_FOM_L("FOM_LABEL_PREFER_HIGHER_QUALITY_FOOD", "Prefer higher quality food"), -220 + yAdjust)
 	MTH_FOM_STATE.ctrl.Fallback = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMFallback", FOM_OptionsButtonText and FOM_OptionsButtonText["Fallback"] or MTH_FOM_L("FOM_LABEL_FALLBACK_TO_AVOIDED_FOODS", "Fallback to avoided foods"), -245 + yAdjust)
 
-	if MTH_FOM_STATE.ctrl.AvoidQuestFood then MTH_FOM_STATE.ctrl.AvoidQuestFood:SetScript("OnClick", function(self) self = self or this if not self then return end FOM_Config.AvoidQuestFood = self:GetChecked() == 1 end) end
-	if MTH_FOM_STATE.ctrl.AvoidBonusFood then MTH_FOM_STATE.ctrl.AvoidBonusFood:SetScript("OnClick", function(self) self = self or this if not self then return end FOM_Config.AvoidBonusFood = self:GetChecked() == 1 end) end
-	if MTH_FOM_STATE.ctrl.PreferHigherQuality then MTH_FOM_STATE.ctrl.PreferHigherQuality:SetScript("OnClick", function(self) self = self or this if not self then return end FOM_Config.PreferHigherQuality = self:GetChecked() == 1 end) end
-	if MTH_FOM_STATE.ctrl.Fallback then MTH_FOM_STATE.ctrl.Fallback:SetScript("OnClick", function(self) self = self or this if not self then return end FOM_Config.Fallback = self:GetChecked() == 1 end) end
+	if MTH_FOM_STATE.ctrl.AvoidQuestFood then MTH_FOM_STATE.ctrl.AvoidQuestFood:SetScript("OnClick", function() if not this then return end FOM_Config.AvoidQuestFood = this:GetChecked() == 1 end) end
+	if MTH_FOM_STATE.ctrl.AvoidBonusFood then MTH_FOM_STATE.ctrl.AvoidBonusFood:SetScript("OnClick", function() if not this then return end FOM_Config.AvoidBonusFood = this:GetChecked() == 1 end) end
+	if MTH_FOM_STATE.ctrl.PreferHigherQuality then MTH_FOM_STATE.ctrl.PreferHigherQuality:SetScript("OnClick", function() if not this then return end FOM_Config.PreferHigherQuality = this:GetChecked() == 1 end) end
+	if MTH_FOM_STATE.ctrl.Fallback then MTH_FOM_STATE.ctrl.Fallback:SetScript("OnClick", function() if not this then return end FOM_Config.Fallback = this:GetChecked() == 1 end) end
 
 	local keepOpenLabel = container:CreateFontString("MetaHuntOptionsFOMKeepOpenLabel", "ARTWORK", "GameFontNormalSmall")
 	keepOpenLabel:SetPoint("TOPLEFT", container, "TOPLEFT", 20, -302 + yAdjust)
@@ -320,14 +319,13 @@ function MTH_SetupFeedOMaticOptions()
 	keepOpen:SetHeight(20)
 	keepOpen:SetNumeric(true)
 	keepOpen:SetAutoFocus(false)
-	keepOpen:SetScript("OnTextChanged", function(self)
-		self = self or this
-		if not self then return end
-		local value = tonumber(self:GetText()) or 0
+	keepOpen:SetScript("OnTextChanged", function()
+		if not this then return end
+		local value = tonumber(this:GetText()) or 0
 		FOM_Config.KeepOpenSlots = value
 	end)
-	keepOpen:SetScript("OnEnterPressed", function(self) self = self or this if self then self:ClearFocus() end end)
-	keepOpen:SetScript("OnEscapePressed", function(self) self = self or this if self then self:ClearFocus() end end)
+	keepOpen:SetScript("OnEnterPressed", function() if this then this:ClearFocus() end end)
+	keepOpen:SetScript("OnEscapePressed", function() if this then this:ClearFocus() end end)
 	MTH_FOM_STATE.keepOpenEdit = keepOpen
 
 	local notifyHeader = container:CreateFontString("MetaHuntOptionsFOMNotifyHeader", "ARTWORK", "GameFontHighlight")
@@ -356,10 +354,10 @@ function MTH_SetupFeedOMaticOptions()
 	MTH_FOM_STATE.ctrl.AudioWarningBell = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMAudioWarningBell", FOM_OptionsButtonText and FOM_OptionsButtonText["AudioWarningBell"] or MTH_FOM_L("FOM_LABEL_USE_BELL_SOUND", "Use bell sound"), -403 + yAdjust, rightColumnX)
 	MTH_FOM_STATE.ctrl.TextWarning = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMTextWarning", FOM_OptionsButtonText and FOM_OptionsButtonText["TextWarning"] or MTH_FOM_L("FOM_LABEL_SHOW_TEXT", "Show text"), -428 + yAdjust, rightColumnX)
 	MTH_FOM_STATE.ctrl.IconWarning = MTH_CreateCheckbox(container, "MetaHuntOptionsFOMIconWarning", FOM_OptionsButtonText and FOM_OptionsButtonText["IconWarning"] or MTH_FOM_L("FOM_LABEL_FLASH_ICON", "Flash icon"), -453 + yAdjust, rightColumnX)
-	if MTH_FOM_STATE.ctrl.AudioWarning then MTH_FOM_STATE.ctrl.AudioWarning:SetScript("OnClick", function(self) self = self or this if not self then return end if self:GetChecked() == 1 then if FOM_Config.AudioWarning ~= "bell" then FOM_Config.AudioWarning = true end else FOM_Config.AudioWarning = nil end MTH_RefreshFeedOMaticOptions() end) end
-	if MTH_FOM_STATE.ctrl.AudioWarningBell then MTH_FOM_STATE.ctrl.AudioWarningBell:SetScript("OnClick", function(self) self = self or this if not self then return end if self:GetChecked() == 1 then FOM_Config.AudioWarning = "bell" else FOM_Config.AudioWarning = true end MTH_RefreshFeedOMaticOptions() end) end
-	if MTH_FOM_STATE.ctrl.TextWarning then MTH_FOM_STATE.ctrl.TextWarning:SetScript("OnClick", function(self) self = self or this if not self then return end FOM_Config.TextWarning = self:GetChecked() == 1 end) end
-	if MTH_FOM_STATE.ctrl.IconWarning then MTH_FOM_STATE.ctrl.IconWarning:SetScript("OnClick", function(self) self = self or this if not self then return end FOM_Config.IconWarning = self:GetChecked() == 1 end) end
+	if MTH_FOM_STATE.ctrl.AudioWarning then MTH_FOM_STATE.ctrl.AudioWarning:SetScript("OnClick", function() if not this then return end if this:GetChecked() == 1 then if FOM_Config.AudioWarning ~= "bell" then FOM_Config.AudioWarning = true end else FOM_Config.AudioWarning = nil end MTH_RefreshFeedOMaticOptions() end) end
+	if MTH_FOM_STATE.ctrl.AudioWarningBell then MTH_FOM_STATE.ctrl.AudioWarningBell:SetScript("OnClick", function() if not this then return end if this:GetChecked() == 1 then FOM_Config.AudioWarning = "bell" else FOM_Config.AudioWarning = true end MTH_RefreshFeedOMaticOptions() end) end
+	if MTH_FOM_STATE.ctrl.TextWarning then MTH_FOM_STATE.ctrl.TextWarning:SetScript("OnClick", function() if not this then return end FOM_Config.TextWarning = this:GetChecked() == 1 end) end
+	if MTH_FOM_STATE.ctrl.IconWarning then MTH_FOM_STATE.ctrl.IconWarning:SetScript("OnClick", function() if not this then return end FOM_Config.IconWarning = this:GetChecked() == 1 end) end
 
 	local cookHeader = container:CreateFontString("MetaHuntOptionsFOMCookingHeader", "ARTWORK", "GameFontHighlight")
 	cookHeader:SetPoint("TOPLEFT", container, "TOPLEFT", rightColumnX, -62 + yAdjust)

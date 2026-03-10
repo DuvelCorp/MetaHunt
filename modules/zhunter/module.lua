@@ -8,10 +8,10 @@ MTH_ZH_MANAGED_HOOKS = true
 local MTH_ZHunter = {
 	name = "zhunter",
 	enabled = true,
-	version = "1.1.0",
+	version = "1.2.0",
 	events = {
 		"VARIABLES_LOADED",
-		"PLAYER_ENTERING_WORLD",
+		-- PLAYER_ENTERING_WORLD handled by bootstrap frame + adjustment frames
 		"MTH_PET_LIVE_STATE_CHANGED",
 	},
 	features = {
@@ -37,7 +37,7 @@ local function MTH_ZH_TraceLocal(msg)
 	end
 end
 
-local MTH_ZH_PostLoginRestoreFrame = nil
+local MTH_ZH_PostLoginRestore = nil
 local MTH_ZH_BootstrapFrame = nil
 local MTH_ZH_SyncSavedVariables
 local MTH_ZH_SetButtonsVisible
@@ -116,15 +116,15 @@ function MTH_ZH_OnDeferredInitComplete()
 end
 
 MTH_ZH_QueuePostLoginRestore = function(tag)
-	if not MTH_ZH_PostLoginRestoreFrame then
-		MTH_ZH_PostLoginRestoreFrame = CreateFrame("Frame", "MTH_ZH_PostLoginRestoreFrame")
-		if not MTH_ZH_PostLoginRestoreFrame then
+	if not MTH_ZH_PostLoginRestore then
+		MTH_ZH_PostLoginRestore = CreateFrame("Frame", "MTH_ZH_PostLoginRestore")
+		if not MTH_ZH_PostLoginRestore then
 			return
 		end
 	end
 
-	MTH_ZH_PostLoginRestoreFrame._mthElapsed = 0
-	MTH_ZH_PostLoginRestoreFrame:SetScript("OnUpdate", function()
+	MTH_ZH_PostLoginRestore._mthElapsed = 0
+	MTH_ZH_PostLoginRestore:SetScript("OnUpdate", function()
 		this._mthElapsed = (this._mthElapsed or 0) + (arg1 or 0)
 		if this._mthElapsed < 0.2 then
 			return
@@ -149,7 +149,7 @@ local function MTH_ZH_EnsureBootstrapRestoreFrame()
 		return MTH_ZH_BootstrapFrame
 	end
 
-	MTH_ZH_BootstrapFrame = CreateFrame("Frame", "MTH_ZH_BootstrapRestoreFrame")
+	MTH_ZH_BootstrapFrame = CreateFrame("Frame", "MTH_ZH_BootstrapRestore")
 	if not MTH_ZH_BootstrapFrame then
 		return nil
 	end
@@ -297,10 +297,26 @@ MTH_ZH_SetButtonsVisible = function(visible)
 			if type(MTH_ZH_TraceButtonPoint) == "function" then
 				MTH_ZH_TraceButtonPoint(button, "set-buttons-visible:before:" .. tostring(buttonName))
 			end
-			MTH_ZH_SetChildButtonsVisible(button, buttonName, visible)
 			if visible then
-				button:Show()
+				-- Respect per-button enabled state
+				local getterName = buttonName .. "_GetSaved"
+				local getter = getglobal(getterName)
+				local shouldShow = true
+				if type(getter) == "function" then
+					local ok, saved = pcall(getter)
+					if ok and type(saved) == "table" and (saved["enabled"] == false or saved["enabled"] == 0) then
+						shouldShow = false
+					end
+				end
+				if shouldShow then
+					MTH_ZH_SetChildButtonsVisible(button, buttonName, true)
+					button:Show()
+				else
+					MTH_ZH_SetChildButtonsVisible(button, buttonName, false)
+					button:Hide()
+				end
 			else
+				MTH_ZH_SetChildButtonsVisible(button, buttonName, false)
 				button:Hide()
 			end
 			if type(MTH_ZH_TraceButtonPoint) == "function" then
@@ -316,15 +332,15 @@ end
 
 local function MTH_ZH_SetAdjustmentHandlersActive(active)
 	local frameSpecs = {
-		{ frame = "zButtonAspectAdjustment", handler = "zButtonAspectAdjustment_OnEvent", getter = "zButtonAspect_GetSaved" },
-		{ frame = "zButtonTrackAdjustment", handler = "zButtonTrackAdjustment_OnEvent", getter = "zButtonTrack_GetSaved" },
-		{ frame = "zButtonTrapAdjustment", handler = "zButtonTrapAdjustment_OnEvent", getter = "zButtonTrap_GetSaved" },
-		{ frame = "zButtonRangedAdjustment", handler = "zButtonRangedAdjustment_OnEvent", getter = "zButtonRanged_GetSaved" },
-		{ frame = "zButtonAmmoAdjustment", handler = "zButtonAmmoAdjustment_OnEvent", getter = "zButtonAmmo_GetSaved" },
-		{ frame = "zButtonPetAdjustment", handler = "zButtonPetAdjustment_OnEvent", getter = "zButtonPet_GetSaved" },
-		{ frame = "zButtonMountsAdjustment", handler = "zButtonMountsAdjustment_OnEvent", getter = "zButtonMounts_GetSaved" },
-		{ frame = "zButtonCompanionsAdjustment", handler = "zButtonCompanionsAdjustment_OnEvent", getter = "zButtonCompanions_GetSaved" },
-		{ frame = "zButtonToysAdjustment", handler = "zButtonToysAdjustment_OnEvent", getter = "zButtonToys_GetSaved" },
+		{ frame = "MTH_ZH_AspectAdjust", handler = "MTH_ZH_AspectAdjust_OnEvent", getter = "zButtonAspect_GetSaved" },
+		{ frame = "MTH_ZH_TrackAdjust", handler = "MTH_ZH_TrackAdjust_OnEvent", getter = "zButtonTrack_GetSaved" },
+		{ frame = "MTH_ZH_TrapAdjust", handler = "MTH_ZH_TrapAdjust_OnEvent", getter = "zButtonTrap_GetSaved" },
+		{ frame = "MTH_ZH_RangedAdjust", handler = "MTH_ZH_RangedAdjust_OnEvent", getter = "zButtonRanged_GetSaved" },
+		{ frame = "MTH_ZH_AmmoAdjust", handler = "MTH_ZH_AmmoAdjust_OnEvent", getter = "zButtonAmmo_GetSaved" },
+		{ frame = "MTH_ZH_PetAdjust", handler = "MTH_ZH_PetAdjust_OnEvent", getter = "zButtonPet_GetSaved" },
+		{ frame = "MTH_ZH_MountsAdjust", handler = "MTH_ZH_MountsAdjust_OnEvent", getter = "zButtonMounts_GetSaved" },
+		{ frame = "MTH_ZH_CompanionsAdjust", handler = "MTH_ZH_CompanionsAdjust_OnEvent", getter = "zButtonCompanions_GetSaved" },
+		{ frame = "MTH_ZH_ToysAdjust", handler = "MTH_ZH_ToysAdjust_OnEvent", getter = "zButtonToys_GetSaved" },
 	}
 
 	local function isFeatureEnabled(getterName)

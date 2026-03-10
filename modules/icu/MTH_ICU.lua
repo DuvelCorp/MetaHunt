@@ -1,8 +1,8 @@
-ICU_VERSION = "ICU 1.4 - Shanktank's Version";
+local ICU_VERSION = "ICU 1.4 - Shanktank's Version";
 
-ICU_MAX_LINES = 10;
+local ICU_MAX_LINES = 10;
 
-ICU_CLASSES = {
+local ICU_CLASSES = {
     ["Warrior"] = { .25,   0,   0, .25; },
     ["Mage"]    = {  .5, .25,   0, .25; },
     ["Rogue"]   = { .75,  .5,   0, .25; },
@@ -14,7 +14,7 @@ ICU_CLASSES = {
     ["Paladin"] = { .25,   0,  .5, .75; }
 };
 
-ICU_DESCRIPTIONS = {
+local ICU_DESCRIPTIONS = {
     ["ALERT"]    = "ALERT will immediately ping and add a message in the specified chat when you click the blip of a PvP-flagged player of the opposite faction on the minimap",
     ["ANNOUNCE"] = "ANNOUNCE will add a message in the specified chat when you click an entry in the popup frame",
     ["ANCHOR"]   = "ANCHOR sets the location of the frame that pops up when you click a blip on the minimap",
@@ -29,8 +29,8 @@ ICU_OPTIONS = {
     ["PLAYER_COLOR_MODE"] = { "CLASS", "REACTION", "FACTION", "CUSTOM"; }
 };
 
-ICU_PING_X = 0;
-ICU_PING_Y = 0;
+local ICU_PING_X = 0;
+local ICU_PING_Y = 0;
 
 local icu_prevtooltip = nil;
 local ICU_ENABLED = false;
@@ -74,7 +74,7 @@ local ICU_DEFAULT_BG_COLORS = {
 -- Auxiliary functions
 --------------------------------------------------------------------------------
 
-function ICU_Print(msg)
+local function ICU_Print(msg)
     DEFAULT_CHAT_FRAME:AddMessage(msg, 1, 1, 1);
 end
 
@@ -93,7 +93,7 @@ local function ICU_Trace(msg)
     ICU_PrintMTH("[ICUTRACE] " .. tostring(msg));
 end
 
-function ICU_CommandTrace(mode)
+local function ICU_CommandTrace(mode)
     local action = string.lower(tostring(mode or "status"));
     if action == "on" or action == "1" or action == "true" then
         ICU_TRACE_ENABLED = true;
@@ -348,30 +348,30 @@ local function ICU_EnsureCustomAnchor(store)
         ICU_Trace("custom-anchor default point=CENTER->UIParent:CENTER @(0,50)");
     end
 
-    frame:SetScript("OnDragStart", function(self)
-        self = self or this;
-        if self and self.StartMoving then
-            self:StartMoving();
+    frame:SetScript("OnDragStart", function()
+        this = this or this;
+        if this and this.StartMoving then
+            this:StartMoving();
         end
     end);
 
-    frame:SetScript("OnDragStop", function(self)
-        self = self or this;
-        if not self then return end
+    frame:SetScript("OnDragStop", function()
+        this = this or this;
+        if not this then return end
 
-        if self.StopMovingOrSizing then
-            self:StopMovingOrSizing();
+        if this.StopMovingOrSizing then
+            this:StopMovingOrSizing();
         end
 
-        local _, _, _, x, y = self:GetPoint();
+        local _, _, _, x, y = this:GetPoint();
         x = tonumber(x);
         y = tonumber(y);
         if not x or not y then return end
 
         x = math.floor(x + 0.5);
         y = math.floor(y + 0.5);
-        self:ClearAllPoints();
-        self:SetPoint("TOPLEFT", UIParent, "TOPLEFT", x, y);
+        this:ClearAllPoints();
+        this:SetPoint("TOPLEFT", UIParent, "TOPLEFT", x, y);
 
         local storeNow = ICU_GetStore();
         storeNow["CUSTOM_ANCHOR_X"] = x;
@@ -569,7 +569,7 @@ local function ICU_GetDisplayColor(unit, classToken, store)
     return ICU_GetConfiguredColor(store, "UNKNOWN");
 end
 
-function ICU_IsEnabled()
+local function ICU_IsEnabled()
     return ICU_ENABLED and true or false;
 end
 
@@ -620,7 +620,7 @@ function ICU_SetEnabled(enabled)
     ICU_Clear_Popup();
 end
 
-function ICU_StringifyKeys(tab)
+local function ICU_StringifyKeys(tab)
     local str = "";
 
     for key, _ in pairs(tab) do
@@ -630,7 +630,7 @@ function ICU_StringifyKeys(tab)
     return string.sub(str, 1, -3);
 end
 
-function ICU_TableHasValue(tab, val)
+local function ICU_TableHasValue(tab, val)
     for _, v in ipairs(tab) do
         if val == v then
             return true;

@@ -252,6 +252,8 @@ local function zButtonTrack_ApplyRuntimeSettings()
 	local saved = zButtonTrack_GetSaved()
 	zButtonTrack.tooltip = saved["tooltip"] and true or false
 	zButtonTrack.hideonclick = saved["children"] and saved["children"]["hideonclick"] and true or false
+	zButtonTrack.expandonhover = saved["children"] and saved["children"]["expandonhover"] and true or false
+	zButtonTrack.fadetimer = saved["children"] and tonumber(saved["children"]["fadetimer"]) or 0
 end
 
 
@@ -271,13 +273,13 @@ function zButtonTrack_OnEvent()
 		end
 		zButtonTrack_CreateButtons()
 		zButtonTrack.afterclick = zButtonTrack_AfterClick
-		zButtonTrackAdjustment = CreateFrame("Frame", "zButtonTrackAdjustment")
-		zButtonTrackAdjustment:RegisterEvent("MINIMAP_UPDATE_TRACKING")
-		zButtonTrackAdjustment:RegisterEvent("PLAYER_ENTERING_WORLD")
-		zButtonTrackAdjustment:RegisterEvent("SPELLS_CHANGED")
-		zButtonTrackAdjustment:RegisterEvent("CHARACTER_POINTS_CHANGED")
-		zButtonTrackAdjustment:RegisterEvent("LEARNED_SPELL_IN_TAB")
-		zButtonTrackAdjustment:SetScript("OnEvent", zButtonTrackAdjustment_OnEvent)
+		MTH_ZH_TrackAdjust = CreateFrame("Frame", "MTH_ZH_TrackAdjust")
+		MTH_ZH_TrackAdjust:RegisterEvent("MINIMAP_UPDATE_TRACKING")
+		MTH_ZH_TrackAdjust:RegisterEvent("PLAYER_ENTERING_WORLD")
+		MTH_ZH_TrackAdjust:RegisterEvent("SPELLS_CHANGED")
+		MTH_ZH_TrackAdjust:RegisterEvent("CHARACTER_POINTS_CHANGED")
+		MTH_ZH_TrackAdjust:RegisterEvent("LEARNED_SPELL_IN_TAB")
+		MTH_ZH_TrackAdjust:SetScript("OnEvent", MTH_ZH_TrackAdjust_OnEvent)
 		zButtonTrack_SetupSizeAndPosition()
 	end
 end
@@ -309,16 +311,16 @@ function zButtonTrack_SetupSizeAndPosition()
 	zButtonTrack_EnsureConfig()
 	local saved = zButtonTrack_GetSaved()
 	if saved["enabled"] == false or saved["enabled"] == 0 then
-		if zButtonTrackAdjustment and zButtonTrackAdjustment.SetScript then
-			zButtonTrackAdjustment:SetScript("OnEvent", nil)
+		if MTH_ZH_TrackAdjust and MTH_ZH_TrackAdjust.SetScript then
+			MTH_ZH_TrackAdjust:SetScript("OnEvent", nil)
 		end
 		if zButtonTrack and zButtonTrack.Hide then
 			zButtonTrack:Hide()
 		end
 		return
 	end
-	if zButtonTrackAdjustment and zButtonTrackAdjustment.SetScript then
-		zButtonTrackAdjustment:SetScript("OnEvent", zButtonTrackAdjustment_OnEvent)
+	if MTH_ZH_TrackAdjust and MTH_ZH_TrackAdjust.SetScript then
+		MTH_ZH_TrackAdjust:SetScript("OnEvent", MTH_ZH_TrackAdjust_OnEvent)
 	end
 	local displayCount = zButtonTrack.found or ZHUNTER_TRACK_MAX
 	if displayCount < 0 then
@@ -355,7 +357,7 @@ function zButtonTrack_Reset()
 	zButtonTrack_EnsureConfig()
 end
 
-function zButtonTrackAdjustment_OnEvent()
+function MTH_ZH_TrackAdjust_OnEvent()
 	if not zButtonTrack or not zButtonTrack.count then
 		return
 	end

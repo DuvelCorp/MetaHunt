@@ -93,6 +93,8 @@ local function zButtonMounts_ApplyRuntimeSettings()
 	local saved = zButtonMounts_GetSaved()
 	zButtonMounts.tooltip = saved["tooltip"] and true or false
 	zButtonMounts.hideonclick = saved["children"] and saved["children"]["hideonclick"] and true or false
+	zButtonMounts.expandonhover = saved["children"] and saved["children"]["expandonhover"] and true or false
+	zButtonMounts.fadetimer = saved["children"] and tonumber(saved["children"]["fadetimer"]) or 0
 end
 
 local function zButtonMounts_NormalizeTabName(value)
@@ -225,10 +227,10 @@ function zButtonMounts_OnEvent()
 			return
 		end
 		zButtonMounts_CreateButtons()
-		zButtonMountsAdjustment = CreateFrame("Frame", "zButtonMountsAdjustment")
-		zButtonMountsAdjustment:RegisterEvent("SPELLS_CHANGED")
-		zButtonMountsAdjustment:RegisterEvent("PLAYER_ENTERING_WORLD")
-		zButtonMountsAdjustment:SetScript("OnEvent", zButtonMountsAdjustment_OnEvent)
+		MTH_ZH_MountsAdjust = CreateFrame("Frame", "MTH_ZH_MountsAdjust")
+		MTH_ZH_MountsAdjust:RegisterEvent("SPELLS_CHANGED")
+		MTH_ZH_MountsAdjust:RegisterEvent("PLAYER_ENTERING_WORLD")
+		MTH_ZH_MountsAdjust:SetScript("OnEvent", MTH_ZH_MountsAdjust_OnEvent)
 		zButtonMounts_SetupSizeAndPosition()
 	end
 end
@@ -247,16 +249,16 @@ end
 function zButtonMounts_SetupSizeAndPosition()
 	local saved = zButtonMounts_GetSaved()
 	if saved["enabled"] == false or saved["enabled"] == 0 then
-		if zButtonMountsAdjustment and zButtonMountsAdjustment.SetScript then
-			zButtonMountsAdjustment:SetScript("OnEvent", nil)
+		if MTH_ZH_MountsAdjust and MTH_ZH_MountsAdjust.SetScript then
+			MTH_ZH_MountsAdjust:SetScript("OnEvent", nil)
 		end
 		if zButtonMounts and zButtonMounts.Hide then
 			zButtonMounts:Hide()
 		end
 		return
 	end
-	if zButtonMountsAdjustment and zButtonMountsAdjustment.SetScript then
-		zButtonMountsAdjustment:SetScript("OnEvent", zButtonMountsAdjustment_OnEvent)
+	if MTH_ZH_MountsAdjust and MTH_ZH_MountsAdjust.SetScript then
+		MTH_ZH_MountsAdjust:SetScript("OnEvent", MTH_ZH_MountsAdjust_OnEvent)
 	end
 	local displayCount = zButtonMounts.found or 0
 	if displayCount < 0 then
@@ -291,7 +293,7 @@ function zButtonMounts_Reset()
 	zButtonMounts_EnsureConfig()
 end
 
-function zButtonMountsAdjustment_OnEvent()
+function MTH_ZH_MountsAdjust_OnEvent()
 	if not zButtonMounts then
 		return
 	end

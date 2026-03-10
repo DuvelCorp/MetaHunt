@@ -7,10 +7,10 @@ MTH_SA_MANAGED_HOOKS = true
 local MTH_SmartAmmo = {
 	name = "smartammo",
 	enabled = true,
-	version = "1.1.0",
+	version = "1.2.0",
 	events = {
 		"VARIABLES_LOADED",
-		"PLAYER_ENTERING_WORLD",
+		-- PLAYER_ENTERING_WORLD handled by engine's own frame
 	},
 }
 
