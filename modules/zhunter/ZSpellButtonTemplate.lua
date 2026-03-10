@@ -1,5 +1,35 @@
 -- MAX_SPELLS = 1024
 
+-- Key binding prefix mapping (button name → Bindings.xml binding prefix)
+local ZHUNTER_BINDING_PREFIX = {
+	zButtonAspect = "ZAspect",
+	zButtonTrack = "ZTrack",
+	zButtonTrap = "ZTrap",
+	zButtonAmmo = "ZAmmo",
+	zButtonPet = "ZPet",
+}
+
+local function ZSpellButton_FormatBindingKey(key)
+	if not key or key == "" then return nil end
+	key = string.gsub(key, "SHIFT%-", "S-")
+	key = string.gsub(key, "CTRL%-", "C-")
+	key = string.gsub(key, "ALT%-", "A-")
+	key = string.gsub(key, "NUMPAD", "N")
+	return key
+end
+
+local function ZSpellButton_EnsureKeybindFontString(button)
+	if button._keybindText then return button._keybindText end
+	local fs = button:CreateFontString(nil, "OVERLAY")
+	fs:SetFont("Fonts\\FRIZQT__.TTF", 9, "OUTLINE")
+	fs:SetTextColor(1, 0.82, 0, 1)
+	fs:SetShadowColor(0, 0, 0, 1)
+	fs:SetShadowOffset(1, -1)
+	fs:SetPoint("CENTER", button, "CENTER", 0, 0)
+	button._keybindText = fs
+	return fs
+end
+
 local function ZSpellButton_ApplySavedVisibility(parent, foundCount)
 	if not parent then
 		return
@@ -311,6 +341,12 @@ local function ZSpellButton_EnsureParentFlags(parent)
 	if parent.hideonclick == nil and saved["children"] and saved["children"]["hideonclick"] ~= nil then
 		parent.hideonclick = saved["children"]["hideonclick"] and true or false
 	end
+	if parent.expandonhover == nil and saved["children"] and saved["children"]["expandonhover"] ~= nil then
+		parent.expandonhover = saved["children"]["expandonhover"] and true or false
+	end
+	if parent.fadetimer == nil and saved["children"] then
+		parent.fadetimer = tonumber(saved["children"]["fadetimer"]) or 0
+	end
 end
 
 function ZSpellButton_GetChildrenExpanded(parent)
@@ -333,6 +369,7 @@ function ZSpellButton_SetChildrenExpanded(parent, expanded)
 	if not (parent and parent.name) then
 		return
 	end
+	ZSpellButton_EnsureParentFlags(parent)
 	local saved = MTH_ZH_GetSavedTable(parent.name)
 	if not saved["children"] then
 		saved["children"] = {}
@@ -354,6 +391,7 @@ function ZSpellButton_SetChildrenExpanded(parent, expanded)
 				end
 			end
 		end
+		ZSpellButton_StartFadeTimer(parent)
 	else
 		saved["children"]["expanded"] = 0
 		if parent.children then
@@ -367,6 +405,7 @@ function ZSpellButton_SetChildrenExpanded(parent, expanded)
 				end
 			end
 		end
+		ZSpellButton_StopFadeTimer(parent)
 	end
 end
 
@@ -375,6 +414,92 @@ function ZSpellButton_ApplyChildrenExpanded(parent)
 		return
 	end
 	ZSpellButton_SetChildrenExpanded(parent, ZSpellButton_GetChildrenExpanded(parent))
+	ZSpellButton_UpdateKeybindingText(parent)
+end
+
+-- ========== Fade Timer ==========
+
+local function ZSpellButton_FadeTimerOnUpdate()
+	local parent = this._fadeTimerParent
+	if not parent or not parent._fadeTimerActive then return end
+	local timer = parent.fadetimer
+	if not timer or timer <= 0 then
+		ZSpellButton_StopFadeTimer(parent)
+		return
+	end
+	if MouseIsOver(parent) then
+		parent._lastInteractionTime = GetTime()
+		return
+	end
+	if parent.count then
+		for i = 1, parent.count do
+			local child = getglobal(parent.name .. i)
+			if child and child:IsVisible() and MouseIsOver(child) then
+				parent._lastInteractionTime = GetTime()
+				return
+			end
+		end
+	end
+	local elapsed = GetTime() - (parent._lastInteractionTime or 0)
+	if elapsed >= timer then
+		ZSpellButton_SetChildrenExpanded(parent, false)
+	end
+end
+
+function ZSpellButton_StartFadeTimer(parent)
+	if not parent or not parent.children then return end
+	local timer = parent.fadetimer
+	if not timer or timer <= 0 then return end
+	parent._fadeTimerActive = true
+	parent._lastInteractionTime = GetTime()
+	parent.children._fadeTimerParent = parent
+	parent.children:SetScript("OnUpdate", ZSpellButton_FadeTimerOnUpdate)
+end
+
+function ZSpellButton_StopFadeTimer(parent)
+	if not parent then return end
+	parent._fadeTimerActive = false
+	if parent.children and parent.children.SetScript then
+		parent.children:SetScript("OnUpdate", nil)
+	end
+end
+
+function ZSpellButton_ResetFadeTimer(parent)
+	if parent and parent._fadeTimerActive then
+		parent._lastInteractionTime = GetTime()
+	end
+end
+
+-- ========== Keybinding Text ==========
+
+function ZSpellButton_UpdateKeybindingText(parent)
+	if not (parent and parent.name) then return end
+	local prefix = ZHUNTER_BINDING_PREFIX[parent.name]
+	if not prefix then
+		if parent._keybindText then parent._keybindText:SetText("") end
+		if parent.count then
+			for i = 1, parent.count do
+				local child = getglobal(parent.name .. i)
+				if child and child._keybindText then
+					child._keybindText:SetText("")
+				end
+			end
+		end
+		return
+	end
+	local key1 = GetBindingKey(prefix .. " Parent")
+	local fs = ZSpellButton_EnsureKeybindFontString(parent)
+	fs:SetText(ZSpellButton_FormatBindingKey(key1) or "")
+	if parent.count then
+		for i = 1, parent.count do
+			local child = getglobal(parent.name .. i)
+			if child then
+				local childKey = GetBindingKey(prefix .. " " .. i)
+				local childFs = ZSpellButton_EnsureKeybindFontString(child)
+				childFs:SetText(ZSpellButton_FormatBindingKey(childKey) or "")
+			end
+		end
+	end
 end
 
 local function ZSpellButton_SaveParentPosition(parent)
@@ -558,6 +683,7 @@ end
 function ZSpellButtonParent_OnLoad()
 	this:RegisterEvent("SPELL_UPDATE_COOLDOWN")
 	this:RegisterEvent("LEARNED_SPELL_IN_TAB")
+	this:RegisterEvent("UPDATE_BINDINGS")
 	this:RegisterForDrag("LeftButton")
 	this:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 	local name = this:GetName()
@@ -569,40 +695,37 @@ function ZSpellButtonParent_OnLoad()
 	this:Enable()
 	ZSpellButton_RestoreParentPosition(this)
 	if this.SetScript then
-		this:SetScript("OnDragStart", function(self)
-			self = self or this
+		this:SetScript("OnDragStart", function()
 			if IsAltKeyDown() then
 				if type(MTH_ZH_TraceButtonPoint) == "function" then
-					MTH_ZH_TraceButtonPoint(self, "drag-start")
+					MTH_ZH_TraceButtonPoint(this, "drag-start")
 				end
-				self:StartMoving()
-				self.isMoving = true
+				this:StartMoving()
+				this.isMoving = true
 			end
 		end)
-		this:SetScript("OnDragStop", function(self)
-			self = self or this
-			if not self then
+		this:SetScript("OnDragStop", function()
+			if not this then
 				return
 			end
-			if self.StopMovingOrSizing then
-				self:StopMovingOrSizing()
+			if this.StopMovingOrSizing then
+				this:StopMovingOrSizing()
 			end
-			ZSpellButton_SaveParentPosition(self)
-			self.isMoving = false
+			ZSpellButton_SaveParentPosition(this)
+			this.isMoving = false
 			if type(MTH_ZH_TraceButtonPoint) == "function" then
-				MTH_ZH_TraceButtonPoint(self, "drag-stop")
+				MTH_ZH_TraceButtonPoint(this, "drag-stop")
 			end
 		end)
-		this:SetScript("OnMouseUp", function(self)
-			self = self or this
-			if self and self.isMoving then
-				if self.StopMovingOrSizing then
-					self:StopMovingOrSizing()
+		this:SetScript("OnMouseUp", function()
+			if this and this.isMoving then
+				if this.StopMovingOrSizing then
+					this:StopMovingOrSizing()
 				end
-				ZSpellButton_SaveParentPosition(self)
-				self.isMoving = false
+				ZSpellButton_SaveParentPosition(this)
+				this.isMoving = false
 				if type(MTH_ZH_TraceButtonPoint) == "function" then
-					MTH_ZH_TraceButtonPoint(self, "mouse-up-stop")
+					MTH_ZH_TraceButtonPoint(this, "mouse-up-stop")
 				end
 			end
 		end)
@@ -626,6 +749,8 @@ function ZSpellButtonParent_OnEvent()
 		if this.found > -1 then
 			this:UnregisterEvent("SPELLS_CHANGED")
 		end
+	elseif event == "UPDATE_BINDINGS" then
+		ZSpellButton_UpdateKeybindingText(this)
 	end
 end
 
@@ -634,6 +759,11 @@ function ZSpellButtonParent_OnEnter(frame)
 		frame = this
 	end
 	ZSpellButton_EnsureParentFlags(frame)
+	-- Hover-expand children
+	if frame.expandonhover and not ZSpellButton_GetChildrenExpanded(frame) then
+		ZSpellButton_SetChildrenExpanded(frame, true)
+	end
+	ZSpellButton_ResetFadeTimer(frame)
 	if frame.tooltip and frame.id then
 		GameTooltip:SetOwner(frame, "ANCHOR_TOPLEFT")
 		local msg, rank

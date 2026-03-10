@@ -93,6 +93,8 @@ local function zButtonCompanions_ApplyRuntimeSettings()
 	local saved = zButtonCompanions_GetSaved()
 	zButtonCompanions.tooltip = saved["tooltip"] and true or false
 	zButtonCompanions.hideonclick = saved["children"] and saved["children"]["hideonclick"] and true or false
+	zButtonCompanions.expandonhover = saved["children"] and saved["children"]["expandonhover"] and true or false
+	zButtonCompanions.fadetimer = saved["children"] and tonumber(saved["children"]["fadetimer"]) or 0
 end
 
 local function zButtonCompanions_NormalizeTabName(value)
@@ -225,10 +227,10 @@ function zButtonCompanions_OnEvent()
 			return
 		end
 		zButtonCompanions_CreateButtons()
-		zButtonCompanionsAdjustment = CreateFrame("Frame", "zButtonCompanionsAdjustment")
-		zButtonCompanionsAdjustment:RegisterEvent("SPELLS_CHANGED")
-		zButtonCompanionsAdjustment:RegisterEvent("PLAYER_ENTERING_WORLD")
-		zButtonCompanionsAdjustment:SetScript("OnEvent", zButtonCompanionsAdjustment_OnEvent)
+		MTH_ZH_CompanionsAdjust = CreateFrame("Frame", "MTH_ZH_CompanionsAdjust")
+		MTH_ZH_CompanionsAdjust:RegisterEvent("SPELLS_CHANGED")
+		MTH_ZH_CompanionsAdjust:RegisterEvent("PLAYER_ENTERING_WORLD")
+		MTH_ZH_CompanionsAdjust:SetScript("OnEvent", MTH_ZH_CompanionsAdjust_OnEvent)
 		zButtonCompanions_SetupSizeAndPosition()
 	end
 end
@@ -247,16 +249,16 @@ end
 function zButtonCompanions_SetupSizeAndPosition()
 	local saved = zButtonCompanions_GetSaved()
 	if saved["enabled"] == false or saved["enabled"] == 0 then
-		if zButtonCompanionsAdjustment and zButtonCompanionsAdjustment.SetScript then
-			zButtonCompanionsAdjustment:SetScript("OnEvent", nil)
+		if MTH_ZH_CompanionsAdjust and MTH_ZH_CompanionsAdjust.SetScript then
+			MTH_ZH_CompanionsAdjust:SetScript("OnEvent", nil)
 		end
 		if zButtonCompanions and zButtonCompanions.Hide then
 			zButtonCompanions:Hide()
 		end
 		return
 	end
-	if zButtonCompanionsAdjustment and zButtonCompanionsAdjustment.SetScript then
-		zButtonCompanionsAdjustment:SetScript("OnEvent", zButtonCompanionsAdjustment_OnEvent)
+	if MTH_ZH_CompanionsAdjust and MTH_ZH_CompanionsAdjust.SetScript then
+		MTH_ZH_CompanionsAdjust:SetScript("OnEvent", MTH_ZH_CompanionsAdjust_OnEvent)
 	end
 	local displayCount = zButtonCompanions.found or 0
 	if displayCount < 0 then
@@ -291,7 +293,7 @@ function zButtonCompanions_Reset()
 	zButtonCompanions_EnsureConfig()
 end
 
-function zButtonCompanionsAdjustment_OnEvent()
+function MTH_ZH_CompanionsAdjust_OnEvent()
 	if not zButtonCompanions then
 		return
 	end

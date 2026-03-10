@@ -297,11 +297,10 @@ local function MTH_ICU_BuildUI(container)
 
 	local moduleEnabled = MTH_CreateCheckbox(container, "MetaHuntOptionsICUModuleEnabled", "Enable ICU module", -72, MTH_ICU_LAYOUT.LEFT_X)
 	if moduleEnabled then
-		moduleEnabled:SetScript("OnClick", function(self)
-			self = self or this
-			if not self then return end
+		moduleEnabled:SetScript("OnClick", function()
+			if not this then return end
 			if MTH and MTH.SetModuleEnabled then
-				local ok, err = MTH:SetModuleEnabled("icu", self:GetChecked() == 1)
+				local ok, err = MTH:SetModuleEnabled("icu", this:GetChecked() == 1)
 				if not ok and MTH and MTH.Print then
 					MTH:Print("Failed to change ICU module state: " .. tostring(err), "error")
 				end
@@ -313,11 +312,10 @@ local function MTH_ICU_BuildUI(container)
 
 	local mouseOver = MTH_CreateCheckbox(container, "MetaHuntOptionsICUMouseOver", "Enable CTRL mouseover scan", -98, MTH_ICU_LAYOUT.LEFT_X)
 	if mouseOver then
-		mouseOver:SetScript("OnClick", function(self)
-			self = self or this
-			if not self then return end
+		mouseOver:SetScript("OnClick", function()
+			if not this then return end
 			local store = MTH_ICU_GetStore()
-			store.mouseOver = self:GetChecked() == 1 and true or false
+			store.mouseOver = this:GetChecked() == 1 and true or false
 		end)
 		MTH_ICU_OPT_STATE.controls.mouseOver = mouseOver
 	end
@@ -346,11 +344,10 @@ local function MTH_ICU_BuildUI(container)
 
 	local expandUp = MTH_CreateCheckbox(container, "MetaHuntOptionsICUExpandUp", "Expand Up", -301, MTH_ICU_LAYOUT.LEFT_X + 132)
 	if expandUp then
-		expandUp:SetScript("OnClick", function(self)
-			self = self or this
-			if not self then return end
+		expandUp:SetScript("OnClick", function()
+			if not this then return end
 			local store = MTH_ICU_GetStore()
-			store.EXPAND_UP = self:GetChecked() == 1 and true or false
+			store.EXPAND_UP = this:GetChecked() == 1 and true or false
 			if type(ICU_SetPoints) == "function" then
 				ICU_SetPoints()
 			end
@@ -360,44 +357,40 @@ local function MTH_ICU_BuildUI(container)
 
 	local showGuild = MTH_CreateCheckbox(container, "MetaHuntOptionsICUShowGuild", "Show player guild names", -344, MTH_ICU_LAYOUT.LEFT_X)
 	if showGuild then
-		showGuild:SetScript("OnClick", function(self)
-			self = self or this
-			if not self then return end
+		showGuild:SetScript("OnClick", function()
+			if not this then return end
 			local store = MTH_ICU_GetStore()
-			store.SHOW_GUILD_NAME = self:GetChecked() == 1 and true or false
+			store.SHOW_GUILD_NAME = this:GetChecked() == 1 and true or false
 		end)
 		MTH_ICU_OPT_STATE.controls.showGuildName = showGuild
 	end
 
 	local showClass = MTH_CreateCheckbox(container, "MetaHuntOptionsICUShowClass", "Show player class", -368, MTH_ICU_LAYOUT.LEFT_X)
 	if showClass then
-		showClass:SetScript("OnClick", function(self)
-			self = self or this
-			if not self then return end
+		showClass:SetScript("OnClick", function()
+			if not this then return end
 			local store = MTH_ICU_GetStore()
-			store.SHOW_PLAYER_CLASS = self:GetChecked() == 1 and true or false
+			store.SHOW_PLAYER_CLASS = this:GetChecked() == 1 and true or false
 		end)
 		MTH_ICU_OPT_STATE.controls.showPlayerClass = showClass
 	end
 
 	local showRace = MTH_CreateCheckbox(container, "MetaHuntOptionsICUShowRace", "Show player race", -392, MTH_ICU_LAYOUT.LEFT_X)
 	if showRace then
-		showRace:SetScript("OnClick", function(self)
-			self = self or this
-			if not self then return end
+		showRace:SetScript("OnClick", function()
+			if not this then return end
 			local store = MTH_ICU_GetStore()
-			store.SHOW_PLAYER_RACE = self:GetChecked() == 1 and true or false
+			store.SHOW_PLAYER_RACE = this:GetChecked() == 1 and true or false
 		end)
 		MTH_ICU_OPT_STATE.controls.showPlayerRace = showRace
 	end
 
 	local showTitles = MTH_CreateCheckbox(container, "MetaHuntOptionsICUShowTitles", "Show custom titles in alerts", -416, MTH_ICU_LAYOUT.LEFT_X)
 	if showTitles then
-		showTitles:SetScript("OnClick", function(self)
-			self = self or this
-			if not self then return end
+		showTitles:SetScript("OnClick", function()
+			if not this then return end
 			local store = MTH_ICU_GetStore()
-			store.SHOW_CUSTOM_TITLES = self:GetChecked() == 1 and true or false
+			store.SHOW_CUSTOM_TITLES = this:GetChecked() == 1 and true or false
 		end)
 		MTH_ICU_OPT_STATE.controls.showCustomTitles = showTitles
 	end
@@ -410,11 +403,10 @@ local function MTH_ICU_BuildUI(container)
 
 	local reactionOnlyPvp = MTH_CreateCheckbox(container, "MetaHuntOptionsICUReactionOnlyPvp", "Reaction only when PvP-flagged", -200, MTH_ICU_LAYOUT.RIGHT_X)
 	if reactionOnlyPvp then
-		reactionOnlyPvp:SetScript("OnClick", function(self)
-			self = self or this
-			if not self then return end
+		reactionOnlyPvp:SetScript("OnClick", function()
+			if not this then return end
 			local store = MTH_ICU_GetStore()
-			store.REACTION_ONLY_PVP_PLAYERS = self:GetChecked() == 1 and true or false
+			store.REACTION_ONLY_PVP_PLAYERS = this:GetChecked() == 1 and true or false
 		end)
 		MTH_ICU_OPT_STATE.controls.reactionOnlyPvp = reactionOnlyPvp
 	end

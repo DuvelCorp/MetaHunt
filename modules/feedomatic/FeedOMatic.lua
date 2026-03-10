@@ -780,7 +780,7 @@ local function FOM_DebugLogMerchantFoods(sourceEvent)
 	end
 end
 
-function FOM_FeedButton_OnClick()
+function MTH_FOM_FeedButton_OnClick()
 	if (arg1 == "RightButton") then
 		if (MTH_OpenOptions) then
 			MTH_OpenOptions("FeedOMatic");
@@ -790,7 +790,7 @@ function FOM_FeedButton_OnClick()
 	end
 end
 
-function FOM_FeedButton_OnEnter()
+function MTH_FOM_FeedButton_OnEnter()
 	if ( PetFrameHappiness.tooltip ) then
 		GameTooltip:SetOwner(PetFrameHappiness, "ANCHOR_RIGHT");
 		GameTooltip:SetText(PetFrameHappiness.tooltip);
@@ -807,7 +807,7 @@ function FOM_FeedButton_OnEnter()
 	end
 end
 
-function FOM_FeedButton_OnLeave()
+function MTH_FOM_FeedButton_OnLeave()
 	GameTooltip:Hide();
 end
 
@@ -985,13 +985,13 @@ function FOM_OnEvent(event, arg1)
 				this:RegisterEvent("PLAYER_REGEN_ENABLED");
 			end
 
-			if (FOM_FeedButton == nil) then
-				FOM_FeedButton = CreateFrame("Button", "FOM_FeedButton", PetFrameHappiness);
-				FOM_FeedButton:SetAllPoints(PetFrameHappiness);
-				FOM_FeedButton:RegisterForClicks("LeftButtonUp", "RightButtonUp");
-				FOM_FeedButton:SetScript("OnClick", FOM_FeedButton_OnClick);
-				FOM_FeedButton:SetScript("OnEnter", FOM_FeedButton_OnEnter);
-				FOM_FeedButton:SetScript("OnLeave", FOM_FeedButton_OnLeave);
+			if (MTH_FOM_FeedButton == nil) then
+				MTH_FOM_FeedButton = CreateFrame("Button", "MTH_FOM_FeedButton", PetFrameHappiness);
+				MTH_FOM_FeedButton:SetAllPoints(PetFrameHappiness);
+				MTH_FOM_FeedButton:RegisterForClicks("LeftButtonUp", "RightButtonUp");
+				MTH_FOM_FeedButton:SetScript("OnClick", MTH_FOM_FeedButton_OnClick);
+				MTH_FOM_FeedButton:SetScript("OnEnter", MTH_FOM_FeedButton_OnEnter);
+				MTH_FOM_FeedButton:SetScript("OnLeave", MTH_FOM_FeedButton_OnLeave);
 			end
 					
 			if (FOM_Config.Level == "happy") then
@@ -1236,16 +1236,27 @@ function FOM_DifficultyToNum(level)
 	end
 end
 
+local FOM_CachedPlayerClass = nil
+local FOM_OnUpdateElapsed = 0
+
 function FOM_OnUpdate(elapsed)
-	
-	_, realClass = UnitClass("player");
-	if (realClass ~= "HUNTER") then return; end
+	FOM_OnUpdateElapsed = FOM_OnUpdateElapsed + (elapsed or 0)
+	if FOM_OnUpdateElapsed < 0.05 then
+		return
+	end
+	local dt = FOM_OnUpdateElapsed
+	FOM_OnUpdateElapsed = 0
+
+	if not FOM_CachedPlayerClass then
+		_, FOM_CachedPlayerClass = UnitClass("player")
+	end
+	if (FOM_CachedPlayerClass ~= "HUNTER") then return; end
 
 	-- If it's been more than a second since our last tradeskill update,
 	-- we can allow the event to process again.
-	FOM_TradeSkillLock.EventTimer = FOM_TradeSkillLock.EventTimer + elapsed;
+	FOM_TradeSkillLock.EventTimer = FOM_TradeSkillLock.EventTimer + dt;
 	if (FOM_TradeSkillLock.Locked) then
-		FOM_TradeSkillLock.EventCooldown = FOM_TradeSkillLock.EventCooldown + elapsed;
+		FOM_TradeSkillLock.EventCooldown = FOM_TradeSkillLock.EventCooldown + dt;
 		if (FOM_TradeSkillLock.EventCooldown > FOM_TradeSkillLock.EventCooldownTime) then
 
 			FOM_TradeSkillLock.EventCooldown = 0;
@@ -1415,8 +1426,8 @@ function FOM_CanFeed()
 			if ( UnitLevel("player") >= 40 ) then
 				for _, buffTexture in mountTextureSubStrings do
 					if ( string.find(buff, buffTexture) ) then
-						FOMTooltip:SetUnitBuff("player", buffIndex+1);
-						local msg = FOMTooltipTextLeft1:GetText();
+						MTH_FOM_Tooltip:SetUnitBuff("player", buffIndex+1);
+						local msg = MTH_FOM_TooltipTextLeft1:GetText();
 						if (msg ~= nil) then
 							msg = string.lower(msg);
 							for _, mountName in FOM_MOUNT_NAME_SUBSTRINGS do
@@ -2567,9 +2578,9 @@ function FOM_IsTemporaryFood(itemLink)
 		end
 		return false; 
 	end
-	FOMTooltip:ClearLines();
-	FOMTooltip:SetHyperlink(link);
-	if (FOMTooltipTextLeft2:GetText() == ITEM_CONJURED) then
+	MTH_FOM_Tooltip:ClearLines();
+	MTH_FOM_Tooltip:SetHyperlink(link);
+	if (MTH_FOM_TooltipTextLeft2:GetText() == ITEM_CONJURED) then
 		if (numericItemId ~= nil) then
 			FOM_TEMP_FOOD_CACHE[numericItemId] = true;
 		end

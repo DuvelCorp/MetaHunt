@@ -137,6 +137,8 @@ local function zButtonPet_ApplyRuntimeSettings()
 	local saved = zButtonPet_GetSaved()
 	zButtonPet.tooltip = saved["tooltip"] and true or false
 	zButtonPet.hideonclick = saved["children"] and saved["children"]["hideonclick"] and true or false
+	zButtonPet.expandonhover = saved["children"] and saved["children"]["expandonhover"] and true or false
+	zButtonPet.fadetimer = saved["children"] and tonumber(saved["children"]["fadetimer"]) or 0
 end
 
 local function zButtonPet_RebuildRuntimeSpellMap()
@@ -189,19 +191,19 @@ function zButtonPet_OnEvent()
 		end
 		zButtonPet.customSetButtons = zButtonPet_SetButtons
 		zButtonPet_CreateButtons()
-		zButtonPet.beforeclick = zButtonPetAdjustment_BeforeClick
+		zButtonPet.beforeclick = MTH_ZH_PetAdjust_BeforeClick
 		zButtonPet.afterclick = zButtonPet_AfterClick
-		zButtonPetAdjustment = CreateFrame("Frame", "zButtonPetAdjustment")
-		zButtonPetAdjustment:RegisterEvent("UNIT_HEALTH")
-		zButtonPetAdjustment:RegisterEvent("UNIT_HAPPINESS")
-		zButtonPetAdjustment:RegisterEvent("UNIT_PET")
-		zButtonPetAdjustment:RegisterEvent("PET_BAR_UPDATE")
-		zButtonPetAdjustment:RegisterEvent("PLAYER_ENTERING_WORLD")
-		zButtonPetAdjustment:RegisterEvent("SPELLS_CHANGED")
-		zButtonPetAdjustment:RegisterEvent("LEARNED_SPELL_IN_TAB")
-		zButtonPetAdjustment:SetScript("OnEvent", zButtonPetAdjustment_OnEvent)
+		MTH_ZH_PetAdjust = CreateFrame("Frame", "MTH_ZH_PetAdjust")
+		MTH_ZH_PetAdjust:RegisterEvent("UNIT_HEALTH")
+		MTH_ZH_PetAdjust:RegisterEvent("UNIT_HAPPINESS")
+		MTH_ZH_PetAdjust:RegisterEvent("UNIT_PET")
+		MTH_ZH_PetAdjust:RegisterEvent("PET_BAR_UPDATE")
+		MTH_ZH_PetAdjust:RegisterEvent("PLAYER_ENTERING_WORLD")
+		MTH_ZH_PetAdjust:RegisterEvent("SPELLS_CHANGED")
+		MTH_ZH_PetAdjust:RegisterEvent("LEARNED_SPELL_IN_TAB")
+		MTH_ZH_PetAdjust:SetScript("OnEvent", MTH_ZH_PetAdjust_OnEvent)
 		zButtonPet_SetupSizeAndPosition()
-		zButtonPetAdjustment_OnEvent()
+		MTH_ZH_PetAdjust_OnEvent()
 	end
 end
 
@@ -233,16 +235,16 @@ end
 function zButtonPet_SetupSizeAndPosition()
 	local saved = zButtonPet_GetSaved()
 	if saved["enabled"] == false or saved["enabled"] == 0 then
-		if zButtonPetAdjustment and zButtonPetAdjustment.SetScript then
-			zButtonPetAdjustment:SetScript("OnEvent", nil)
+		if MTH_ZH_PetAdjust and MTH_ZH_PetAdjust.SetScript then
+			MTH_ZH_PetAdjust:SetScript("OnEvent", nil)
 		end
 		if zButtonPet and zButtonPet.Hide then
 			zButtonPet:Hide()
 		end
 		return
 	end
-	if zButtonPetAdjustment and zButtonPetAdjustment.SetScript then
-		zButtonPetAdjustment:SetScript("OnEvent", zButtonPetAdjustment_OnEvent)
+	if MTH_ZH_PetAdjust and MTH_ZH_PetAdjust.SetScript then
+		MTH_ZH_PetAdjust:SetScript("OnEvent", MTH_ZH_PetAdjust_OnEvent)
 	end
 	local displayCount = zButtonPet.found or ZHUNTER_PET_MAX
 	if displayCount < 0 then
@@ -455,7 +457,7 @@ zButtonPet_SetButtons = function(parent, spells)
 	return foundCount
 end
 
-function zButtonPetAdjustment_BeforeClick()
+function MTH_ZH_PetAdjust_BeforeClick()
 	if CursorHasItem() then
 		DropItemOnUnit("pet")
 		return 1
@@ -542,7 +544,7 @@ function zButtonPet_RefreshLiveState(_liveState, _source)
 	zButtonPet_RefreshParentSpell()
 end
 
-function zButtonPetAdjustment_OnEvent()
+function MTH_ZH_PetAdjust_OnEvent()
 	if not zButtonPet or not zButtonPet.count then
 		return
 	end

@@ -1,5 +1,13 @@
 ------------------------------------------------------
 -- MetaHunt Minimap Button
+--
+-- NOTE: The namespace table is MTH_MinimapButton (a plain Lua table).
+-- The actual UI frame is named "MTH_MinimapBtn" to avoid a global
+-- collision — CreateFrame("...", "MTH_MinimapButton", ...) would
+-- OVERWRITE the namespace table with the frame object, orphaning
+-- all methods and .frame/.icon references.  pfUI iterates Minimap
+-- children by name and calls _G[name]:GetHeight(); if the global is
+-- a plain {} table instead of a frame, that call crashes.
 ------------------------------------------------------
 
 if not MTH_MinimapButton then
@@ -84,7 +92,9 @@ function MTH_MinimapButton:Initialize()
 		return
 	end
 
-	local button = CreateFrame("Button", "MTH_MinimapButtonFrame", Minimap)
+	-- Frame name is MTH_MinimapBtn (NOT "MTH_MinimapButton") to avoid
+	-- overwriting the namespace table in _G.
+	local button = CreateFrame("Button", "MTH_MinimapBtn", Minimap)
 	if not button then
 		return
 	end
@@ -114,10 +124,9 @@ function MTH_MinimapButton:Initialize()
 	highlight:SetHeight(31)
 	highlight:SetPoint("CENTER", button, "CENTER", 0, 0)
 
-	button:SetScript("OnEnter", function(self)
-		self = self or this
-		if not self then return end
-		GameTooltip:SetOwner(self, "ANCHOR_LEFT")
+	button:SetScript("OnEnter", function()
+		if not this then return end
+		GameTooltip:SetOwner(this, "ANCHOR_LEFT")
 		GameTooltip:SetText(MTH_MB_L("MINIMAP_TITLE", "MetaHunt"), 1, 0.82, 0)
 		GameTooltip:AddLine(MTH_MB_L("MINIMAP_HINT_LEFT_CLICK", "Left-Click: Open Hunter Book"), 1, 1, 1)
 		GameTooltip:AddLine(MTH_MB_L("MINIMAP_HINT_RIGHT_CLICK", "Right-Click: Open MetaHunt Options"), 1, 1, 1)
@@ -129,25 +138,23 @@ function MTH_MinimapButton:Initialize()
 		GameTooltip:Hide()
 	end)
 
-	button:SetScript("OnDragStart", function(self)
-		self = self or this
-		if not self then return end
-		self.dragging = 1
-		self:SetScript("OnUpdate", function()
+	button:SetScript("OnDragStart", function()
+		if not this then return end
+		this.dragging = 1
+		this:SetScript("OnUpdate", function()
 			MTH_MB_UpdateDragPosition()
 		end)
 	end)
 
-	button:SetScript("OnDragStop", function(self)
-		self = self or this
-		if not self then return end
-		self.dragging = nil
-		self:SetScript("OnUpdate", nil)
+	button:SetScript("OnDragStop", function()
+		if not this then return end
+		this.dragging = nil
+		this:SetScript("OnUpdate", nil)
 		MTH_MB_UpdateDragPosition()
 	end)
 
-	button:SetScript("OnClick", function(_, mouseButton)
-		mouseButton = mouseButton or arg1
+	button:SetScript("OnClick", function()
+		local mouseButton = arg1
 		if mouseButton == "RightButton" then
 			if type(MTH_OpenOptions) == "function" then
 				MTH_OpenOptions("General")
@@ -167,16 +174,12 @@ function MTH_MinimapButton:Initialize()
 	MTH_MB_UpdatePosition()
 end
 
-local loader = CreateFrame("Frame", "MTH_MinimapButtonLoader")
+local loader = CreateFrame("Frame", "MTH_MinimapLoader")
 loader:RegisterEvent("ADDON_LOADED")
-loader:SetScript("OnEvent", function(self, eventName, addonName)
-	eventName = eventName or event
-	addonName = addonName or arg1
-	if eventName == "ADDON_LOADED" and addonName == "MetaHunt" then
+loader:SetScript("OnEvent", function()
+	if event == "ADDON_LOADED" and arg1 == "MetaHunt" then
 		MTH_MinimapButton:Initialize()
-		if self and self.UnregisterAllEvents then
-			self:UnregisterAllEvents()
-			self:SetScript("OnEvent", nil)
-		end
+		this:UnregisterAllEvents()
+		this:SetScript("OnEvent", nil)
 	end
 end)

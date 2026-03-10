@@ -657,28 +657,25 @@ local function MTH_AB_CreateRow(container, subtype, index, xBase, yOffset)
 	row.suffix:SetText("Stacks")
 
 	if row.check then
-		row.check:SetScript("OnClick", function(self)
-			self = self or this
-			if not self or MTH_AB_STATE.syncing then return end
+		row.check:SetScript("OnClick", function()
+			if not this or MTH_AB_STATE.syncing then return end
 			local store = MTH_AB_EnsureConfig()
-			MTH_AB_SetRuleEnabled(store, subtype, index, MTH_AB_IsChecked(self))
+			MTH_AB_SetRuleEnabled(store, subtype, index, MTH_AB_IsChecked(this))
 			MTH_AB_RefreshOptionsUI()
 		end)
 	end
 
-	row.qty:SetScript("OnEnterPressed", function(self)
-		self = self or this
-		if not self then return end
+	row.qty:SetScript("OnEnterPressed", function()
+		if not this then return end
 		local store = MTH_AB_EnsureConfig()
-		MTH_AB_SetRuleStacks(store, subtype, index, self:GetText())
+		MTH_AB_SetRuleStacks(store, subtype, index, this:GetText())
 		MTH_AB_RefreshOptionsUI()
-		self:ClearFocus()
+		this:ClearFocus()
 	end)
-	row.qty:SetScript("OnEditFocusLost", function(self)
-		self = self or this
-		if not self then return end
+	row.qty:SetScript("OnEditFocusLost", function()
+		if not this then return end
 		local store = MTH_AB_EnsureConfig()
-		MTH_AB_SetRuleStacks(store, subtype, index, self:GetText())
+		MTH_AB_SetRuleStacks(store, subtype, index, this:GetText())
 		MTH_AB_RefreshOptionsUI()
 	end)
 
@@ -715,11 +712,10 @@ local function MTH_AB_BuildUI(container)
 
 	controls.moduleEnabled = MTH_CreateCheckbox(container, "MetaHuntOptionsAutoBuyModuleEnabled", "Enable Auto Buy module", -30)
 	if controls.moduleEnabled then
-		controls.moduleEnabled:SetScript("OnClick", function(self)
-			self = self or this
-			if not self or MTH_AB_STATE.syncing then return end
+		controls.moduleEnabled:SetScript("OnClick", function()
+			if not this or MTH_AB_STATE.syncing then return end
 			if MTH and MTH.SetModuleEnabled then
-				local ok, err = MTH:SetModuleEnabled("autobuy", MTH_AB_IsChecked(self))
+				local ok, err = MTH:SetModuleEnabled("autobuy", MTH_AB_IsChecked(this))
 				if not ok and MTH and MTH.Print then
 					MTH:Print("Failed to change Auto Buy state: " .. tostring(err), "error")
 				end
@@ -730,11 +726,10 @@ local function MTH_AB_BuildUI(container)
 
 	controls.projectilesEnabled = MTH_CreateCheckbox(container, "MetaHuntOptionsAutoBuyProjectilesEnabled", "Enable for Projectiles", -74)
 	if controls.projectilesEnabled then
-		controls.projectilesEnabled:SetScript("OnClick", function(self)
-			self = self or this
-			if not self or MTH_AB_STATE.syncing then return end
+		controls.projectilesEnabled:SetScript("OnClick", function()
+			if not this or MTH_AB_STATE.syncing then return end
 			local store = MTH_AB_EnsureConfig()
-			store.projectiles.enabled = MTH_AB_IsChecked(self)
+			store.projectiles.enabled = MTH_AB_IsChecked(this)
 			MTH_AB_RefreshOptionsUI()
 		end)
 	end
@@ -769,11 +764,10 @@ local function MTH_AB_BuildUI(container)
 
 	controls.petFoodEnabled = MTH_CreateCheckbox(container, "MetaHuntOptionsAutoBuyPetFoodEnabled", "Enable for Pet Food", -322, MTH_AB_LAYOUT.LEFT_SECTION_X)
 	if controls.petFoodEnabled then
-		controls.petFoodEnabled:SetScript("OnClick", function(self)
-			self = self or this
-			if not self or MTH_AB_STATE.syncing then return end
+		controls.petFoodEnabled:SetScript("OnClick", function()
+			if not this or MTH_AB_STATE.syncing then return end
 			local store = MTH_AB_EnsureConfig()
-			store.petFood.enabled = MTH_AB_IsChecked(self)
+			store.petFood.enabled = MTH_AB_IsChecked(this)
 			MTH_AB_RefreshOptionsUI()
 		end)
 	end
@@ -791,19 +785,17 @@ local function MTH_AB_BuildUI(container)
 		controls.petFoodQty:SetHeight(20)
 		controls.petFoodQty:SetNumeric(true)
 		controls.petFoodQty:SetAutoFocus(false)
-		controls.petFoodQty:SetScript("OnEnterPressed", function(self)
-			self = self or this
-			if not self then return end
+		controls.petFoodQty:SetScript("OnEnterPressed", function()
+			if not this then return end
 			local store = MTH_AB_EnsureConfig()
-			MTH_AB_SetPetFoodStacks(store, self:GetText())
+			MTH_AB_SetPetFoodStacks(store, this:GetText())
 			MTH_AB_RefreshOptionsUI()
-			self:ClearFocus()
+			this:ClearFocus()
 		end)
-		controls.petFoodQty:SetScript("OnEditFocusLost", function(self)
-			self = self or this
-			if not self then return end
+		controls.petFoodQty:SetScript("OnEditFocusLost", function()
+			if not this then return end
 			local store = MTH_AB_EnsureConfig()
-			MTH_AB_SetPetFoodStacks(store, self:GetText())
+			MTH_AB_SetPetFoodStacks(store, this:GetText())
 			MTH_AB_RefreshOptionsUI()
 		end)
 	end
@@ -816,9 +808,8 @@ local function MTH_AB_BuildUI(container)
 
 	controls.petFoodScopeCurrent = MTH_CreateCheckbox(container, "MetaHuntOptionsAutoBuyPetFoodScopeCurrent", "Buy only for my current pet", -376, MTH_AB_LAYOUT.LEFT_SECTION_X + 28)
 	if controls.petFoodScopeCurrent then
-		controls.petFoodScopeCurrent:SetScript("OnClick", function(self)
-			self = self or this
-			if not self or MTH_AB_STATE.syncing then return end
+		controls.petFoodScopeCurrent:SetScript("OnClick", function()
+			if not this or MTH_AB_STATE.syncing then return end
 			local store = MTH_AB_EnsureConfig()
 			store.petFood.scope = "current"
 			MTH_AB_RefreshOptionsUI()
@@ -827,9 +818,8 @@ local function MTH_AB_BuildUI(container)
 
 	controls.petFoodScopeAll = MTH_CreateCheckbox(container, "MetaHuntOptionsAutoBuyPetFoodScopeAll", "Buy for all my pets", -402, MTH_AB_LAYOUT.LEFT_SECTION_X + 28)
 	if controls.petFoodScopeAll then
-		controls.petFoodScopeAll:SetScript("OnClick", function(self)
-			self = self or this
-			if not self or MTH_AB_STATE.syncing then return end
+		controls.petFoodScopeAll:SetScript("OnClick", function()
+			if not this or MTH_AB_STATE.syncing then return end
 			local store = MTH_AB_EnsureConfig()
 			store.petFood.scope = "all"
 			MTH_AB_RefreshOptionsUI()

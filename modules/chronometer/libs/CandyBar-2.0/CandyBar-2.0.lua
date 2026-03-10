@@ -8,7 +8,6 @@ Documentation: http://web.archive.org/web/20070314234510/http://wowace.com/wiki/
 Description: A timer bars library.
 Dependencies: AceLibrary, AceOO-2.0, PaintChips-2.0
 ]]
-local match = string.match
 local getn,setn,tinsert = table.getn, table.setn,table.insert
 local vmajor, vminor = "CandyBar-2.0", "$Revision: 16011 $" 
 

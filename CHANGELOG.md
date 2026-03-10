@@ -2,6 +2,21 @@
 
 All notable changes to MetaHunt will be documented in this file.
 
+## [1.2.0] - 2026-03-10
+
+### Added
+- Added keybinding text overlay on zButtons: parent and child buttons now display their bound key for the 5 bindable sets (Aspect, Track, Trap, Ammo, Pet). 
+- Added "Expand on Hover" option for zButton children: when enabled, hovering over the parent button automatically expands children (instead of requiring right-click).
+- Added "Auto-Hide Timer" option for zButton children: a configurable 0–10 second timer that automatically collapses expanded children after the mouse leaves the button group. Timer resets while hovering any button in the group.
+
+### Fixed 
+- Fixed SavedVariables data loss on login caused by initialization race condition overwriting persisted data.
+- Fixed SavedVariables bloat by adding a migration that strips redundant default-valued keys on first load.
+- Fixed six performance issues including throttling high-frequency event handlers, caching repeated `getglobal` lookups, and reducing unnecessary table allocations in hot paths.
+- Cleaned up ICU module global variable leaks by properly scoping locals.
+- Standardized all remaining `SetScript` handler patterns to use the WoW 1.12 `this`-based convention consistently.
+
+
 ## [1.1.0] - 2026-03-09
 
 ### Added

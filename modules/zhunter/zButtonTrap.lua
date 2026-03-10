@@ -96,6 +96,8 @@ local function zButtonTrap_ApplyRuntimeSettings()
 	local saved = zButtonTrap_GetSaved()
 	zButtonTrap.tooltip = saved["tooltip"] and true or false
 	zButtonTrap.hideonclick = saved["children"] and saved["children"]["hideonclick"] and true or false
+	zButtonTrap.expandonhover = saved["children"] and saved["children"]["expandonhover"] and true or false
+	zButtonTrap.fadetimer = saved["children"] and tonumber(saved["children"]["fadetimer"]) or 0
 end
 
 
@@ -114,13 +116,13 @@ function zButtonTrap_OnEvent()
 			return
 		end
 		zButtonTrap_CreateButtons()
-		zButtonTrapAdjustment = CreateFrame("Frame", "zButtonTrapAdjustment")
-		zButtonTrapAdjustment:RegisterEvent("PLAYER_REGEN_ENABLED")
-		zButtonTrapAdjustment:RegisterEvent("PLAYER_REGEN_DISABLED")
-		zButtonTrapAdjustment:RegisterEvent("PLAYER_ENTERING_WORLD")
-		zButtonTrapAdjustment:RegisterEvent("SPELLS_CHANGED")
-		zButtonTrapAdjustment:RegisterEvent("CHARACTER_POINTS_CHANGED")
-		zButtonTrapAdjustment:SetScript("OnEvent", zButtonTrapAdjustment_OnEvent)
+		MTH_ZH_TrapAdjust = CreateFrame("Frame", "MTH_ZH_TrapAdjust")
+		MTH_ZH_TrapAdjust:RegisterEvent("PLAYER_REGEN_ENABLED")
+		MTH_ZH_TrapAdjust:RegisterEvent("PLAYER_REGEN_DISABLED")
+		MTH_ZH_TrapAdjust:RegisterEvent("PLAYER_ENTERING_WORLD")
+		MTH_ZH_TrapAdjust:RegisterEvent("SPELLS_CHANGED")
+		MTH_ZH_TrapAdjust:RegisterEvent("CHARACTER_POINTS_CHANGED")
+		MTH_ZH_TrapAdjust:SetScript("OnEvent", MTH_ZH_TrapAdjust_OnEvent)
 		zButtonTrap_SetupSizeAndPosition()
 	end
 end
@@ -152,16 +154,16 @@ function zButtonTrap_SetupSizeAndPosition()
 	zButtonTrap_EnsureConfig()
 	local saved = zButtonTrap_GetSaved()
 	if saved["enabled"] == false or saved["enabled"] == 0 then
-		if zButtonTrapAdjustment and zButtonTrapAdjustment.SetScript then
-			zButtonTrapAdjustment:SetScript("OnEvent", nil)
+		if MTH_ZH_TrapAdjust and MTH_ZH_TrapAdjust.SetScript then
+			MTH_ZH_TrapAdjust:SetScript("OnEvent", nil)
 		end
 		if zButtonTrap and zButtonTrap.Hide then
 			zButtonTrap:Hide()
 		end
 		return
 	end
-	if zButtonTrapAdjustment and zButtonTrapAdjustment.SetScript then
-		zButtonTrapAdjustment:SetScript("OnEvent", zButtonTrapAdjustment_OnEvent)
+	if MTH_ZH_TrapAdjust and MTH_ZH_TrapAdjust.SetScript then
+		MTH_ZH_TrapAdjust:SetScript("OnEvent", MTH_ZH_TrapAdjust_OnEvent)
 	end
 	local displayCount = zButtonTrap.found or ZHUNTER_TRAP_MAX
 	if displayCount < 0 then
@@ -197,7 +199,7 @@ function zButtonTrap_Reset()
 	zButtonTrap_EnsureConfig()
 end
 
-function zButtonTrapAdjustment_OnEvent()
+function MTH_ZH_TrapAdjust_OnEvent()
 	if not zButtonTrap or not zButtonTrap.count then
 		return
 	end

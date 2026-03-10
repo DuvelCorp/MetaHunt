@@ -11,8 +11,8 @@ BINDING_HEADER_ZMountsHeader = "ZMounts Buttons"
 BINDING_HEADER_ZCompanionsHeader = "ZCompanions Buttons"
 BINDING_HEADER_ZToysHeader = "ZToys Buttons"
 
-ZHunterModTooltip = CreateFrame("GameTooltip", "ZHunterModScan", nil, "GameTooltipTemplate")
-ZHunterModTooltipTextLeft1 = getglobal("ZHunterModScanTextLeft1")
+ZHunterModTooltip = CreateFrame("GameTooltip", "MTH_ZH_AbilityProbe", nil, "GameTooltipTemplate")
+ZHunterModTooltipTextLeft1 = getglobal("MTH_ZH_AbilityProbeTextLeft1")
 
 MTH_ZH_TRACE_ENABLED = false
 

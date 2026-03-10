@@ -326,13 +326,12 @@ local function MTH_CHRON_MakeInput(parent, name, x, y, width, height, value, onA
 	edit:SetHeight(height or 20)
 	edit:SetAutoFocus(false)
 	edit:SetText(tostring(value or ""))
-	edit:SetScript("OnEnterPressed", function(self)
-		self = self or this
-		if not self then return end
+	edit:SetScript("OnEnterPressed", function()
+		if not this then return end
 		if type(onAccept) == "function" then
-			onAccept(self:GetText() or "")
+			onAccept(this:GetText() or "")
 		end
-		self:ClearFocus()
+		this:ClearFocus()
 	end)
 	return edit
 end
@@ -385,16 +384,15 @@ local function MTH_CHRON_RenderTimerSection(container, profile, title, items, bu
 		local check = MTH_CreateCheckbox(container, controlName, label, timerY, timerX)
 		if check then
 			check:SetChecked(profile.disabledSpells[bucket][timerName] == nil and true or false)
-			check:SetScript("OnClick", function(self)
-				self = self or this
-				if not self then return end
+			check:SetScript("OnClick", function()
+				if not this then return end
 				local currentlyDisabled = profile.disabledSpells[bucket][timerName] ~= nil
 				if currentlyDisabled then
 					profile.disabledSpells[bucket][timerName] = nil
-					self:SetChecked(true)
+					this:SetChecked(true)
 				else
 					profile.disabledSpells[bucket][timerName] = {}
-					self:SetChecked(nil)
+					this:SetChecked(nil)
 				end
 
 				MTH_CHRON_ApplyLiveProfile(profile)
@@ -470,10 +468,9 @@ function MTH_SetupChronometerOptions(tabKey)
 	if moduleCheck then
 		local module = MTH and MTH:GetModule("chronometer")
 		moduleCheck:SetChecked(module and module.enabled and true or false)
-		moduleCheck:SetScript("OnClick", function(self)
-			self = self or this
-			if not self then return end
-			local enabled = MTH_CHRON_IsChecked(self)
+		moduleCheck:SetScript("OnClick", function()
+			if not this then return end
+			local enabled = MTH_CHRON_IsChecked(this)
 			if MTH and MTH.SetModuleEnabled then
 				MTH:SetModuleEnabled("chronometer", enabled)
 			end
@@ -495,40 +492,36 @@ function MTH_SetupChronometerOptions(tabKey)
 		local killCheck = MTH_CreateCheckbox(container, "MetaHuntOptionsChronometerFadeOnKill", "Fade on kill", -154)
 		if killCheck then
 			killCheck:SetChecked(profile.fadeonkill and true or false)
-			killCheck:SetScript("OnClick", function(self)
-				self = self or this
-				if not self then return end
-				profile.fadeonkill = MTH_CHRON_IsChecked(self)
+			killCheck:SetScript("OnClick", function()
+				if not this then return end
+				profile.fadeonkill = MTH_CHRON_IsChecked(this)
 			end)
 		end
 
 		local fadeCheck = MTH_CreateCheckbox(container, "MetaHuntOptionsChronometerFadeOnFade", "Fade on aura fade", -179)
 		if fadeCheck then
 			fadeCheck:SetChecked(profile.fadeonfade and true or false)
-			fadeCheck:SetScript("OnClick", function(self)
-				self = self or this
-				if not self then return end
-				profile.fadeonfade = MTH_CHRON_IsChecked(self)
+			fadeCheck:SetScript("OnClick", function()
+				if not this then return end
+				profile.fadeonfade = MTH_CHRON_IsChecked(this)
 			end)
 		end
 
 		local selfCheck = MTH_CreateCheckbox(container, "MetaHuntOptionsChronometerSelfBars", "Show self bars", -204)
 		if selfCheck then
 			selfCheck:SetChecked(profile.selfbars and true or false)
-			selfCheck:SetScript("OnClick", function(self)
-				self = self or this
-				if not self then return end
-				profile.selfbars = MTH_CHRON_IsChecked(self)
+			selfCheck:SetScript("OnClick", function()
+				if not this then return end
+				profile.selfbars = MTH_CHRON_IsChecked(this)
 			end)
 		end
 
 		local onlySelfCheck = MTH_CreateCheckbox(container, "MetaHuntOptionsChronometerOnlySelf", "Only self target", -229)
 		if onlySelfCheck then
 			onlySelfCheck:SetChecked(profile.onlyself and true or false)
-			onlySelfCheck:SetScript("OnClick", function(self)
-				self = self or this
-				if not self then return end
-				profile.onlyself = MTH_CHRON_IsChecked(self)
+			onlySelfCheck:SetScript("OnClick", function()
+				if not this then return end
+				profile.onlyself = MTH_CHRON_IsChecked(this)
 			end)
 		end
 	elseif section == "bar" then
@@ -610,10 +603,9 @@ function MTH_SetupChronometerOptions(tabKey)
 		local growCheck = MTH_CreateCheckbox(container, "MetaHuntOptionsChronometerGrowUp", "Grow bars upward", -438)
 		if growCheck then
 			growCheck:SetChecked(profile.growup and true or false)
-			growCheck:SetScript("OnClick", function(self)
-				self = self or this
-				if not self then return end
-				profile.growup = MTH_CHRON_IsChecked(self)
+			growCheck:SetScript("OnClick", function()
+				if not this then return end
+				profile.growup = MTH_CHRON_IsChecked(this)
 				MTH_CHRON_ApplyLiveProfile(profile)
 			end)
 		end
@@ -621,10 +613,9 @@ function MTH_SetupChronometerOptions(tabKey)
 		local reverseCheck = MTH_CreateCheckbox(container, "MetaHuntOptionsChronometerReverse", "Reverse bars", -463)
 		if reverseCheck then
 			reverseCheck:SetChecked(profile.reverse and true or false)
-			reverseCheck:SetScript("OnClick", function(self)
-				self = self or this
-				if not self then return end
-				profile.reverse = MTH_CHRON_IsChecked(self)
+			reverseCheck:SetScript("OnClick", function()
+				if not this then return end
+				profile.reverse = MTH_CHRON_IsChecked(this)
 				MTH_CHRON_ApplyLiveProfile(profile)
 			end)
 		end

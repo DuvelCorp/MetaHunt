@@ -179,7 +179,7 @@ local function MTH_ST_EnsureDiagCopyFrame()
 	if MTH_ST_DiagCopyFrame then
 		return MTH_ST_DiagCopyFrame
 	end
-	local frame = CreateFrame("Frame", "MTHStableDiagCopyFrame", UIParent)
+	local frame = CreateFrame("Frame", "MTH_StableDiagCopy", UIParent)
 	if not frame then
 		return nil
 	end
@@ -219,11 +219,11 @@ local function MTH_ST_EnsureDiagCopyFrame()
 	copyButton:SetHeight(24)
 	copyButton:SetText("Select All")
 
-	local scrollFrame = CreateFrame("ScrollFrame", "MTHStableDiagCopyScroll", frame, "UIPanelScrollFrameTemplate")
+	local scrollFrame = CreateFrame("ScrollFrame", "MTH_StableDiagScroll", frame, "UIPanelScrollFrameTemplate")
 	scrollFrame:SetPoint("TOPLEFT", frame, "TOPLEFT", 16, -48)
 	scrollFrame:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -36, 44)
 
-	local editBox = CreateFrame("EditBox", "MTHStableDiagCopyText", scrollFrame)
+	local editBox = CreateFrame("EditBox", "MTH_StableDiagText", scrollFrame)
 	editBox:SetMultiLine(true)
 	editBox:SetMaxLetters(999999)
 	editBox:SetFont("Fonts\\FRIZQT__.TTF", 11, "")
@@ -255,13 +255,13 @@ local function MTH_ST_EnsureDiagCopyFrame()
 	if UISpecialFrames then
 		local exists = false
 		for i = 1, table.getn(UISpecialFrames) do
-			if UISpecialFrames[i] == "MTHStableDiagCopyFrame" then
+			if UISpecialFrames[i] == "MTH_StableDiagCopy" then
 				exists = true
 				break
 			end
 		end
 		if not exists then
-			table.insert(UISpecialFrames, "MTHStableDiagCopyFrame")
+			table.insert(UISpecialFrames, "MTH_StableDiagCopy")
 		end
 	end
 	return frame
@@ -2494,15 +2494,6 @@ function MTH_PETS_GetRootStore()
 	end
 
 	local pets = MTH_CharSavedVariables.MTH_Pets
-	if pets._betaFreshStoreApplied ~= 1 then
-		pets.petTraining = {}
-		pets.trainScan = {}
-		pets.stableScan = {}
-		pets.currentPet = {}
-		pets.petStore = {}
-		pets._betaFreshStoreApplied = 1
-		pets.updatedAt = time()
-	end
 	if type(pets.petTraining) ~= "table" then
 		pets.petTraining = {}
 	end
@@ -2519,12 +2510,51 @@ function MTH_PETS_GetRootStore()
 	MTH_PETS_EnsureSchema(pets)
 	MTH_PETS_EnsurePetTrainingCompatibility(pets)
 
-	MTH_CharSavedVariables.petTraining = pets.petTraining
-	MTH_CharSavedVariables.trainScan = pets.trainScan
-	MTH_CharSavedVariables.stableScan = pets.stableScan
-	MTH_CharSavedVariables.petStore = pets.petStore
+	-- Migration: remove root-level duplicates that bloated SavedVariables
+	if pets._migrationCleanup ~= 2 then
+		MTH_PETS_RunSavedVarCleanup(pets)
+		pets._migrationCleanup = 2
+	end
 
 	return pets
+end
+
+function MTH_PETS_RunSavedVarCleanup(pets)
+	-- 1. Remove root-level duplicates (data lives inside MTH_Pets only)
+	if MTH_CharSavedVariables then
+		MTH_CharSavedVariables.petTraining = nil
+		MTH_CharSavedVariables.trainScan = nil
+		MTH_CharSavedVariables.stableScan = nil
+		MTH_CharSavedVariables.petStore = nil
+	end
+
+	-- 2. Purge pet-updated events (unbounded bloat)
+	local purged = 0
+	local stores = { pets.petStore and pets.petStore.activeById, pets.petStore and pets.petStore.historyById }
+	for _, index in ipairs(stores) do
+		if type(index) == "table" then
+			for petId, row in pairs(index) do
+				if type(row) == "table" and type(row.events) == "table" then
+					local kept = {}
+					for _, evt in ipairs(row.events) do
+						if type(evt) == "table" and evt.type ~= "pet-updated" then
+							table.insert(kept, evt)
+						else
+							purged = purged + 1
+						end
+					end
+					row.events = kept
+				end
+			end
+		end
+	end
+
+	-- 3. Remove stale _betaFreshStoreApplied flag
+	pets._betaFreshStoreApplied = nil
+
+	if purged > 0 and MTH and MTH.Print then
+		MTH:Print("Cleaned up " .. tostring(purged) .. " stale pet-update records from SavedVariables.", "debug")
+	end
 end
 
 function MTH_PETS_RefreshCurrentPet()
@@ -2624,15 +2654,17 @@ function MTH_PETS_RefreshCurrentPet()
 			row.events = {}
 		end
 
-		local eventType = "pet-updated"
-		if created and (not hadPetBeforeRefresh) then
-			eventType = "pet-acquired"
+		local eventType = "pet-acquired"
+		if not (created and (not hadPetBeforeRefresh)) then
+			if cp.id ~= nil and previousCurrentId ~= nil and cp.id ~= previousCurrentId then
+				eventType = "pet-swapped"
+			else
+				eventType = nil -- routine update, don't record
+			end
 		end
 
-		local shouldRecordLifecycleEvent = (eventType == "pet-acquired")
-			or (cp.id ~= nil and previousCurrentId ~= nil and cp.id ~= previousCurrentId)
 		local eventContext = nil
-		if shouldRecordLifecycleEvent then
+		if eventType then
 			eventContext = MTH_PETS_CaptureContext()
 			table.insert(row.events, {
 				type = eventType,
@@ -3167,7 +3199,7 @@ end
 
 local function MTH_ST_QueueDeferredStableScan(reason, delaySeconds)
 	if not MTH_ST_DeferredStableScanFrame then
-		MTH_ST_DeferredStableScanFrame = CreateFrame("Frame", "MTHDeferredStableScanFrame")
+		MTH_ST_DeferredStableScanFrame = CreateFrame("Frame", "MTH_DeferredStableScan")
 		if not MTH_ST_DeferredStableScanFrame then
 			MTH_ST_TraceRecord("MTH_ST_QueueDeferredStableScan", "scan", "frame-create-failed")
 			return false
@@ -3270,9 +3302,8 @@ local function MTH_PETS_HandleUnitPetTransition(source)
 				row.events = {}
 			end
 			local eventType = (not hadPet) and "pet-acquired" or "pet-updated"
-			if eventType == "pet-updated" and source == "UNIT_PET" and MTH_ST_IsStableFrameOpen() then
-				MTH_ST_PrintStableDiag("swap history-skip reason=stable-open")
-			else
+			-- Only record lifecycle events (acquire, rename, abandon), not routine updates
+			if eventType ~= "pet-updated" then
 				table.insert(row.events, {
 					type = eventType,
 					source = source or transitionSource,
@@ -4120,7 +4151,7 @@ function MTH_ST_InitService()
 		return
 	end
 
-	MTH_PetLifecycleEventFrame = CreateFrame("Frame", "MTHPetLifecycleEventFrame")
+	MTH_PetLifecycleEventFrame = CreateFrame("Frame", "MTH_PetLifecycleEvent")
 	MTH_PetLifecycleEventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 	MTH_PetLifecycleEventFrame:RegisterEvent("UNIT_PET")
 	MTH_PetLifecycleEventFrame:RegisterEvent("PET_BAR_UPDATE")
@@ -4153,29 +4184,26 @@ function MTH_ST_InitBootstrap()
 		return
 	end
 
-	local frame = CreateFrame("Frame", "MTHPetLifecycleBootstrapFrame")
+	local frame = CreateFrame("Frame", "MTH_PetLifecycleBoot")
 	if not frame then
 		return
 	end
 	frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 	frame:RegisterEvent("PET_STABLE_SHOW")
 	frame:RegisterEvent("PET_STABLE_UPDATE")
-	frame:SetScript("OnEvent", function(self, evt)
-		evt = evt or event
-		if evt ~= "PLAYER_ENTERING_WORLD" and evt ~= "PET_STABLE_SHOW" and evt ~= "PET_STABLE_UPDATE" then
+	frame:SetScript("OnEvent", function()
+		if event ~= "PLAYER_ENTERING_WORLD" and event ~= "PET_STABLE_SHOW" and event ~= "PET_STABLE_UPDATE" then
 			return
 		end
-		if evt == "PET_STABLE_SHOW" or evt == "PET_STABLE_UPDATE" then
-			MTH_ST_PrintStableDiag("bootstrap evt=" .. tostring(evt) .. " phase=begin")
+		if event == "PET_STABLE_SHOW" or event == "PET_STABLE_UPDATE" then
+			MTH_ST_PrintStableDiag("bootstrap evt=" .. tostring(event) .. " phase=begin")
 		end
 		MTH_ST_InitService()
-		if evt == "PET_STABLE_SHOW" or evt == "PET_STABLE_UPDATE" then
-			MTH_ST_PrintStableDiag("bootstrap evt=" .. tostring(evt) .. " phase=end action=no-scan")
+		if event == "PET_STABLE_SHOW" or event == "PET_STABLE_UPDATE" then
+			MTH_ST_PrintStableDiag("bootstrap evt=" .. tostring(event) .. " phase=end action=no-scan")
 		end
-		if self and self.UnregisterAllEvents then
-			self:UnregisterAllEvents()
-			self:SetScript("OnEvent", nil)
-		end
+		this:UnregisterAllEvents()
+		this:SetScript("OnEvent", nil)
 		MTH_PetLifecycleBootstrapFrame = nil
 	end)
 	MTH_PetLifecycleBootstrapFrame = frame

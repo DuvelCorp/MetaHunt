@@ -6,7 +6,7 @@
 local MTH_AutoBuy = {
 	name = "autobuy",
 	enabled = false,
-	version = "1.1.0",
+	version = "1.2.0",
 	events = {
 		"VARIABLES_LOADED",
 		"MERCHANT_SHOW",
@@ -33,7 +33,7 @@ local function AB_EnsureBridgeFrame(moduleRef)
 		return MTH_AutoBuy._bridgeFrame
 	end
 
-	local frame = CreateFrame("Frame", "MTH_AutoBuyBridgeFrame")
+	local frame = CreateFrame("Frame", "MTH_AutoBuyBridge")
 	if not frame then
 		AB_Log("failed to create bridge frame", "error")
 		return nil
@@ -42,8 +42,8 @@ local function AB_EnsureBridgeFrame(moduleRef)
 	frame:RegisterEvent("MERCHANT_SHOW")
 	frame:RegisterEvent("MERCHANT_UPDATE")
 	frame:RegisterEvent("MERCHANT_CLOSED")
-	frame:SetScript("OnEvent", function(_, eventName)
-		eventName = eventName or event
+	frame:SetScript("OnEvent", function()
+		local eventName = event
 		local engine = AB_Engine()
 		if not engine then
 			AB_Trace("bridge event=" .. tostring(eventName) .. " engine missing")

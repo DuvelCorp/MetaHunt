@@ -3,7 +3,7 @@ FeedOMatic Runtime Frame Loader (MetaHunt)
 Minimal runtime XML without legacy options window definitions.
 -->
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\..\..\FrameXML\UI.xsd">
-  <Frame name="Frame_GFW_FeedOMatic">
+  <Frame name="MTH_FOM_OnUpdateFrame">
     <Scripts>
       <OnUpdate>
         if (MTH_FOM_OnUpdate) then
@@ -15,7 +15,7 @@ Minimal runtime XML without legacy options window definitions.
     </Scripts>
   </Frame>
 
-  <GameTooltip name="FOMTooltip" frameStrata="TOOLTIP" hidden="true" parent="UIParent" inherits="GameTooltipTemplate">
+  <GameTooltip name="MTH_FOM_Tooltip" frameStrata="TOOLTIP" hidden="true" parent="UIParent" inherits="GameTooltipTemplate">
     <Scripts>
       <OnLoad>
         this:SetOwner(UIParent, "ANCHOR_NONE");

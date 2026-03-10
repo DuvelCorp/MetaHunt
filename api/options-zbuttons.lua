@@ -195,15 +195,15 @@ local function MTH_EnsureAmmoOptionsWatcher()
 	if MTH_AmmoOptionsWatcher then
 		return
 	end
-	MTH_AmmoOptionsWatcher = CreateFrame("Frame", "MTHAmmoOptionsWatcherFrame")
+	MTH_AmmoOptionsWatcher = CreateFrame("Frame", "MTH_AmmoOptionsWatcher")
 	if not MTH_AmmoOptionsWatcher then
 		return
 	end
 	MTH_AmmoOptionsWatcher:RegisterEvent("UNIT_INVENTORY_CHANGED")
 	MTH_AmmoOptionsWatcher:RegisterEvent("BAG_UPDATE")
-	MTH_AmmoOptionsWatcher:SetScript("OnEvent", function(_, eventName, unit)
-		eventName = eventName or event
-		unit = unit or arg1
+	MTH_AmmoOptionsWatcher:SetScript("OnEvent", function()
+		local eventName = event
+		local unit = arg1
 		if eventName == "UNIT_INVENTORY_CHANGED" and unit and unit ~= "player" then
 			return
 		end
@@ -246,6 +246,16 @@ local function MTH_ZB_EnsureButtonOptionDefaults(buttonName)
 		saved["children"]["hideonclick"] = true
 	end
 	saved["children"]["hideonclick"] = saved["children"]["hideonclick"] and true or false
+
+	if saved["children"]["expandonhover"] == nil then
+		saved["children"]["expandonhover"] = false
+	end
+	saved["children"]["expandonhover"] = saved["children"]["expandonhover"] and true or false
+
+	if saved["children"]["fadetimer"] == nil then
+		saved["children"]["fadetimer"] = 0
+	end
+	saved["children"]["fadetimer"] = tonumber(saved["children"]["fadetimer"]) or 0
 
 	if type(saved["parent"]) ~= "table" then
 		saved["parent"] = {}
@@ -333,16 +343,15 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 		enableButton:SetChecked(enabledValue and true or false)
 		enableButton.buttonName = buttonName
 		enableButton.buttonObj = buttonObj
-		enableButton:SetScript("OnClick", function(self)
-			self = self or this
-			if not self then return end
-			local checked = MTH_ZB_IsChecked(self)
-			MTH_SetButtonEnabledState(self.buttonName, self.buttonObj, checked)
+		enableButton:SetScript("OnClick", function()
+			if not this then return end
+			local checked = MTH_ZB_IsChecked(this)
+			MTH_SetButtonEnabledState(this.buttonName, this.buttonObj, checked)
 		end)
 	end
 
 	local parentSection = MTH_ZB_EnsureSection(containerName.."ParentSection", MTH_ZB_L("ZB_SECTION_PARENT_BUTTON", "Parent Button"), -52, 116)
-	local childrenSection = MTH_ZB_EnsureSection(containerName.."ChildrenSection", MTH_ZB_L("ZB_SECTION_CHILDREN_BUTTONS", "Children Buttons"), -184, 235)
+	local childrenSection = MTH_ZB_EnsureSection(containerName.."ChildrenSection", MTH_ZB_L("ZB_SECTION_CHILDREN_BUTTONS", "Children Buttons"), -184, 310)
 
 	local parentYOffset = -18
 	local childrenYOffset = -18
@@ -392,16 +401,15 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 		expandLeft:SetChecked(saved["firstbutton"] == "LEFT")
 		expandLeft.buttonName = buttonName
 		expandLeft.buttonObj = buttonObj
-		expandLeft:SetScript("OnClick", function(self)
-			self = self or this
-			if not self then return end
-			local checked = MTH_ZB_IsChecked(self)
-			local btnName = self.buttonName
+		expandLeft:SetScript("OnClick", function()
+			if not this then return end
+			local checked = MTH_ZB_IsChecked(this)
+			local btnName = this.buttonName
 			if not btnName or not (ZHunterMod_Saved and ZHunterMod_Saved[btnName]) then return end
 			ZHunterMod_Saved[btnName]["firstbutton"] = checked and "LEFT" or "RIGHT"
 			ZHunterMod_Saved[btnName]["horizontal"] = checked and 1 or nil
 			ZHunterMod_Saved[btnName]["vertical"] = checked and 1 or nil
-			MTH_RefreshButtonGeometry(btnName, self.buttonObj)
+			MTH_RefreshButtonGeometry(btnName, this.buttonObj)
 		end)
 	end
 	childrenYOffset = childrenYOffset - 30
@@ -414,16 +422,63 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 		if hideClick.buttonObj then
 			hideClick.buttonObj.hideonclick = saved["children"]["hideonclick"] and true or false
 		end
-		hideClick:SetScript("OnClick", function(self)
-			self = self or this
-			if not self then return end
-			local checked = MTH_ZB_IsChecked(self)
-			ZHunterMod_Saved[self.buttonName]["children"]["hideonclick"] = checked
-			local btnObj = self.buttonObj or getglobal(self.buttonName)
+		hideClick:SetScript("OnClick", function()
+			if not this then return end
+			local checked = MTH_ZB_IsChecked(this)
+			ZHunterMod_Saved[this.buttonName]["children"]["hideonclick"] = checked
+			local btnObj = this.buttonObj or getglobal(this.buttonName)
 			if btnObj then btnObj.hideonclick = checked end
 		end)
 	end
 	childrenYOffset = childrenYOffset - 25
+
+	local expandOnHover = MTH_CreateCheckbox(childrenSection or container, containerName.."ExpandOnHover", MTH_ZB_L("ZB_LABEL_EXPAND_ON_HOVER", "Expand on Hover"), childrenYOffset)
+	if expandOnHover then
+		expandOnHover:SetChecked(saved["children"]["expandonhover"])
+		expandOnHover.buttonName = buttonName
+		expandOnHover.buttonObj = buttonObj
+		expandOnHover:SetScript("OnClick", function()
+			if not this then return end
+			local checked = MTH_ZB_IsChecked(this)
+			local btnName = this.buttonName
+			if not btnName or not (ZHunterMod_Saved and ZHunterMod_Saved[btnName]) then return end
+			if not ZHunterMod_Saved[btnName]["children"] then
+				ZHunterMod_Saved[btnName]["children"] = {}
+			end
+			ZHunterMod_Saved[btnName]["children"]["expandonhover"] = checked
+			local btnObj = this.buttonObj or getglobal(btnName)
+			if btnObj then btnObj.expandonhover = checked end
+		end)
+	end
+	childrenYOffset = childrenYOffset - 40
+
+	local fadeTimer = MTH_CreateSlider(childrenSection or container, containerName.."FadeTimer", MTH_ZB_L("ZB_LABEL_AUTO_HIDE_TIMER", "Auto-Hide Timer (seconds)"), 0, 10, 1, childrenYOffset)
+	if fadeTimer then
+		fadeTimer:SetWidth(leftWidth - 40)
+		fadeTimer:SetValue(saved["children"]["fadetimer"] or 0)
+		fadeTimer.buttonName = buttonName
+		fadeTimer.buttonObj = buttonObj
+		fadeTimer.onChange = function(val, slider)
+			local frame = slider or fadeTimer
+			local btnName = frame and frame.buttonName
+			if not btnName or not (ZHunterMod_Saved and ZHunterMod_Saved[btnName]) then return end
+			if not ZHunterMod_Saved[btnName]["children"] then
+				ZHunterMod_Saved[btnName]["children"] = {}
+			end
+			local secs = math.floor((val or 0) + 0.5)
+			ZHunterMod_Saved[btnName]["children"]["fadetimer"] = secs
+			local btnObj = frame.buttonObj or getglobal(btnName)
+			if btnObj then
+				btnObj.fadetimer = secs
+				if secs <= 0 then
+					ZSpellButton_StopFadeTimer(btnObj)
+				elseif btnObj.children and btnObj.children:IsVisible() then
+					ZSpellButton_StartFadeTimer(btnObj)
+				end
+			end
+		end
+	end
+	childrenYOffset = childrenYOffset - 50
 
 	local showTooltip = MTH_CreateCheckbox(childrenSection or container, containerName.."ShowTooltip", MTH_ZB_L("ZB_LABEL_SHOW_TOOLTIP", "Show Tooltip"), childrenYOffset)
 	if showTooltip then
@@ -433,12 +488,11 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 		if showTooltip.buttonObj then
 			showTooltip.buttonObj.tooltip = saved["tooltip"] and true or false
 		end
-		showTooltip:SetScript("OnClick", function(self)
-			self = self or this
-			if not self then return end
-			local checked = MTH_ZB_IsChecked(self)
-			ZHunterMod_Saved[self.buttonName]["tooltip"] = checked
-			local btnObj = self.buttonObj or getglobal(self.buttonName)
+		showTooltip:SetScript("OnClick", function()
+			if not this then return end
+			local checked = MTH_ZB_IsChecked(this)
+			ZHunterMod_Saved[this.buttonName]["tooltip"] = checked
+			local btnObj = this.buttonObj or getglobal(this.buttonName)
 			if btnObj then btnObj.tooltip = checked end
 		end)
 	end
@@ -451,13 +505,12 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 			showAmmoName.buttonName = buttonName
 			showAmmoName.buttonObj = buttonObj
 			showAmmoName.maxButtons = maxButtons
-			showAmmoName:SetScript("OnClick", function(self)
-				self = self or this
-				if not self then return end
-				local checked = MTH_ZB_IsChecked(self)
-				local btnName = self.buttonName
+			showAmmoName:SetScript("OnClick", function()
+				if not this then return end
+				local checked = MTH_ZB_IsChecked(this)
+				local btnName = this.buttonName
 				ZHunterMod_Saved[btnName]["showammoname"] = checked
-				local btnObj = self.buttonObj or getglobal(btnName)
+				local btnObj = this.buttonObj or getglobal(btnName)
 				if btnObj then
 					for i = 1, (btnObj.count or 0) do
 						local child = getglobal(btnName..i)
@@ -506,13 +559,12 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 		hideButton:SetChecked(saved["parent"]["hide"])
 		hideButton.buttonName = buttonName
 		hideButton.buttonObj = buttonObj
-		hideButton:SetScript("OnClick", function(self)
-			self = self or this
-			if not self then return end
-			local checked = self:GetChecked() == 1
-			ZHunterMod_Saved[self.buttonName]["parent"]["hide"] = checked
-			if self.buttonObj then
-				if checked then self.buttonObj:Hide() else self.buttonObj:Show() end
+		hideButton:SetScript("OnClick", function()
+			if not this then return end
+			local checked = this:GetChecked() == 1
+			ZHunterMod_Saved[this.buttonName]["parent"]["hide"] = checked
+			if this.buttonObj then
+				if checked then this.buttonObj:Hide() else this.buttonObj:Show() end
 			end
 		end)
 	end
@@ -523,13 +575,12 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 		useCircle:SetChecked(saved["parent"]["circle"])
 		useCircle.buttonName = buttonName
 		useCircle.buttonObj = buttonObj
-		useCircle:SetScript("OnClick", function(self)
-			self = self or this
-			if not self then return end
-			local checked = self:GetChecked() == 1
-			ZHunterMod_Saved[self.buttonName]["parent"]["circle"] = checked
-			if self.buttonObj and self.buttonObj.circle then
-				if checked then self.buttonObj.circle:Show() else self.buttonObj.circle:Hide() end
+		useCircle:SetScript("OnClick", function()
+			if not this then return end
+			local checked = this:GetChecked() == 1
+			ZHunterMod_Saved[this.buttonName]["parent"]["circle"] = checked
+			if this.buttonObj and this.buttonObj.circle then
+				if checked then this.buttonObj.circle:Show() else this.buttonObj.circle:Hide() end
 			end
 		end)
 	end
@@ -587,17 +638,16 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 				showText:SetText("")
 			end
 			showToggle:SetChecked(ZHunterMod_Saved[buttonName]["visible"][showToggle.spellIndex] ~= false)
-			showToggle:SetScript("OnClick", function(self)
-				self = self or this
-				if not self then return end
-				local checked = self:GetChecked() == 1
-				local btnName = self.buttonName
-				local visibleIndex = self.spellIndex
+			showToggle:SetScript("OnClick", function()
+				if not this then return end
+				local checked = this:GetChecked() == 1
+				local btnName = this.buttonName
+				local visibleIndex = this.spellIndex
 				if not ZHunterMod_Saved[btnName]["visible"] then
 					ZHunterMod_Saved[btnName]["visible"] = {}
 				end
 				ZHunterMod_Saved[btnName]["visible"][visibleIndex] = checked
-				MTH_RefreshButtonLayout(btnName, self.buttonObj, self.itemList, self.maxButtons)
+				MTH_RefreshButtonLayout(btnName, this.buttonObj, this.itemList, this.maxButtons)
 			end)
 		end
 
@@ -612,18 +662,17 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 		downBtn.buttonObj = buttonObj
 		downBtn.itemList = itemList
 		downBtn.maxButtons = maxButtons
-		downBtn:SetScript("OnClick", function(self)
-			self = self or this
-			if not self then return end
-			local idx = self.spellIndex
-			local btnName = self.buttonName
-			local contName = self.containerName
-			local maxBtns = self.maxButtons
+		downBtn:SetScript("OnClick", function()
+			if not this then return end
+			local idx = this.spellIndex
+			local btnName = this.buttonName
+			local contName = this.containerName
+			local maxBtns = this.maxButtons
 			if idx < maxBtns then
 				local temp = ZHunterMod_Saved[btnName]["spells"][idx+1]
 				ZHunterMod_Saved[btnName]["spells"][idx+1] = ZHunterMod_Saved[btnName]["spells"][idx]
 				ZHunterMod_Saved[btnName]["spells"][idx] = temp
-				MTH_RebuildSpellOrder(btnName, self.buttonObj, self.itemList, self.maxButtons)
+				MTH_RebuildSpellOrder(btnName, this.buttonObj, this.itemList, this.maxButtons)
 				local tabName = gsub(contName, "MetaHuntOptions", "")
 				MTH_ZB_RefreshTab(tabName)
 			end
@@ -640,17 +689,16 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 		upBtn.buttonObj = buttonObj
 		upBtn.itemList = itemList
 		upBtn.maxButtons = maxButtons
-		upBtn:SetScript("OnClick", function(self)
-			self = self or this
-			if not self then return end
-			local idx = self.spellIndex
-			local btnName = self.buttonName
-			local contName = self.containerName
+		upBtn:SetScript("OnClick", function()
+			if not this then return end
+			local idx = this.spellIndex
+			local btnName = this.buttonName
+			local contName = this.containerName
 			if idx > 1 then
 				local temp = ZHunterMod_Saved[btnName]["spells"][idx-1]
 				ZHunterMod_Saved[btnName]["spells"][idx-1] = ZHunterMod_Saved[btnName]["spells"][idx]
 				ZHunterMod_Saved[btnName]["spells"][idx] = temp
-				MTH_RebuildSpellOrder(btnName, self.buttonObj, self.itemList, self.maxButtons)
+				MTH_RebuildSpellOrder(btnName, this.buttonObj, this.itemList, this.maxButtons)
 				local tabName = gsub(contName, "MetaHuntOptions", "")
 				MTH_ZB_RefreshTab(tabName)
 			end
@@ -749,11 +797,10 @@ function MTH_SetupSmartAmmoOptions()
 	end
 	if moduleToggle then
 		moduleToggle:SetChecked(moduleEnabled)
-		moduleToggle:SetScript("OnClick", function(self)
-			self = self or this
-			if not self then return end
+		moduleToggle:SetScript("OnClick", function()
+			if not this then return end
 			if MTH and MTH.SetModuleEnabled then
-				MTH:SetModuleEnabled("smartammo", MTH_ZB_IsChecked(self))
+				MTH:SetModuleEnabled("smartammo", MTH_ZB_IsChecked(this))
 			end
 			MTH_SetupSmartAmmoOptions()
 		end)
@@ -766,11 +813,10 @@ function MTH_SetupSmartAmmoOptions()
 		if not moduleEnabled then
 			smartToggle:Disable()
 		end
-		smartToggle:SetScript("OnClick", function(self)
-			self = self or this
-			if not self then return end
+		smartToggle:SetScript("OnClick", function()
+			if not this then return end
 			if type(MTHSmartAmmo_SetSmartEnabled) == "function" then
-				MTHSmartAmmo_SetSmartEnabled(MTH_ZB_IsChecked(self) and 1 or nil)
+				MTHSmartAmmo_SetSmartEnabled(MTH_ZB_IsChecked(this) and 1 or nil)
 			end
 		end)
 	end
@@ -785,11 +831,10 @@ function MTH_SetupSmartAmmoOptions()
 		if not moduleEnabled then
 			reloadToggle:Disable()
 		end
-		reloadToggle:SetScript("OnClick", function(self)
-			self = self or this
-			if not self then return end
+		reloadToggle:SetScript("OnClick", function()
+			if not this then return end
 			if type(MTHSmartAmmo_SetReloadEnabled) == "function" then
-				MTHSmartAmmo_SetReloadEnabled(MTH_ZB_IsChecked(self) and 1 or nil)
+				MTHSmartAmmo_SetReloadEnabled(MTH_ZB_IsChecked(this) and 1 or nil)
 			end
 		end)
 	end
@@ -825,11 +870,10 @@ function MTH_SetupMessagesOptions()
 	local initModulesToggle = MTH_CreateCheckbox(section, "MetaHuntMessagesInitModules", "Init : modules loaded", -36)
 	if initModulesToggle then
 		initModulesToggle:SetChecked(msgSettings.initModulesLoaded and true or false)
-		initModulesToggle:SetScript("OnClick", function(self)
-			self = self or this
-			if not self then return end
+		initModulesToggle:SetScript("OnClick", function()
+			if not this then return end
 			if MTH and MTH.SetMessageEnabled then
-				MTH:SetMessageEnabled("initModulesLoaded", MTH_ZB_IsChecked(self))
+				MTH:SetMessageEnabled("initModulesLoaded", MTH_ZB_IsChecked(this))
 			end
 		end)
 	end
@@ -837,11 +881,10 @@ function MTH_SetupMessagesOptions()
 	local initWelcomeToggle = MTH_CreateCheckbox(section, "MetaHuntMessagesInitWelcome", "Init : Sarcastic welcome message", -64)
 	if initWelcomeToggle then
 		initWelcomeToggle:SetChecked(msgSettings.initSarcasticWelcome ~= false)
-		initWelcomeToggle:SetScript("OnClick", function(self)
-			self = self or this
-			if not self then return end
+		initWelcomeToggle:SetScript("OnClick", function()
+			if not this then return end
 			if MTH and MTH.SetMessageEnabled then
-				MTH:SetMessageEnabled("initSarcasticWelcome", MTH_ZB_IsChecked(self))
+				MTH:SetMessageEnabled("initSarcasticWelcome", MTH_ZB_IsChecked(this))
 			end
 		end)
 	end
@@ -849,11 +892,10 @@ function MTH_SetupMessagesOptions()
 	local petHungryToggle = MTH_CreateCheckbox(section, "MetaHuntMessagesPetHungry", "Pet is hungry (spam)", -92)
 	if petHungryToggle then
 		petHungryToggle:SetChecked(msgSettings.petHungry and true or false)
-		petHungryToggle:SetScript("OnClick", function(self)
-			self = self or this
-			if not self then return end
+		petHungryToggle:SetScript("OnClick", function()
+			if not this then return end
 			if MTH and MTH.SetMessageEnabled then
-				MTH:SetMessageEnabled("petHungry", MTH_ZB_IsChecked(self))
+				MTH:SetMessageEnabled("petHungry", MTH_ZB_IsChecked(this))
 			end
 		end)
 	end
@@ -861,11 +903,10 @@ function MTH_SetupMessagesOptions()
 	local beastTrainingScanToggle = MTH_CreateCheckbox(section, "MetaHuntMessagesBeastTrainingScan", "Beasttraining scan", -120)
 	if beastTrainingScanToggle then
 		beastTrainingScanToggle:SetChecked(msgSettings.beastTrainingScan ~= false)
-		beastTrainingScanToggle:SetScript("OnClick", function(self)
-			self = self or this
-			if not self then return end
+		beastTrainingScanToggle:SetScript("OnClick", function()
+			if not this then return end
 			if MTH and MTH.SetMessageEnabled then
-				MTH:SetMessageEnabled("beastTrainingScan", MTH_ZB_IsChecked(self))
+				MTH:SetMessageEnabled("beastTrainingScan", MTH_ZB_IsChecked(this))
 			end
 		end)
 	end
@@ -873,11 +914,10 @@ function MTH_SetupMessagesOptions()
 	local spellbookScanToggle = MTH_CreateCheckbox(section, "MetaHuntMessagesSpellbookScan", "Spellbook scan", -148)
 	if spellbookScanToggle then
 		spellbookScanToggle:SetChecked(msgSettings.spellbookScan and true or false)
-		spellbookScanToggle:SetScript("OnClick", function(self)
-			self = self or this
-			if not self then return end
+		spellbookScanToggle:SetScript("OnClick", function()
+			if not this then return end
 			if MTH and MTH.SetMessageEnabled then
-				MTH:SetMessageEnabled("spellbookScan", MTH_ZB_IsChecked(self))
+				MTH:SetMessageEnabled("spellbookScan", MTH_ZB_IsChecked(this))
 			end
 		end)
 	end
@@ -885,11 +925,10 @@ function MTH_SetupMessagesOptions()
 	local petRanAwayToggle = MTH_CreateCheckbox(section, "MetaHuntMessagesPetRanAway", "Pet ran away", -176)
 	if petRanAwayToggle then
 		petRanAwayToggle:SetChecked(msgSettings.petRanAway ~= false)
-		petRanAwayToggle:SetScript("OnClick", function(self)
-			self = self or this
-			if not self then return end
+		petRanAwayToggle:SetScript("OnClick", function()
+			if not this then return end
 			if MTH and MTH.SetMessageEnabled then
-				MTH:SetMessageEnabled("petRanAway", MTH_ZB_IsChecked(self))
+				MTH:SetMessageEnabled("petRanAway", MTH_ZB_IsChecked(this))
 			end
 		end)
 	end
@@ -897,11 +936,10 @@ function MTH_SetupMessagesOptions()
 	local mapMarkersToggle = MTH_CreateCheckbox(section, "MetaHuntMessagesMapMarkers", "Map markers", -204)
 	if mapMarkersToggle then
 		mapMarkersToggle:SetChecked(msgSettings.mapMarkers ~= false)
-		mapMarkersToggle:SetScript("OnClick", function(self)
-			self = self or this
-			if not self then return end
+		mapMarkersToggle:SetScript("OnClick", function()
+			if not this then return end
 			if MTH and MTH.SetMessageEnabled then
-				MTH:SetMessageEnabled("mapMarkers", MTH_ZB_IsChecked(self))
+				MTH:SetMessageEnabled("mapMarkers", MTH_ZB_IsChecked(this))
 			end
 		end)
 	end

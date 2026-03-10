@@ -1,5 +1,5 @@
 MTH = MTH or {
-	version = "1.1.0",
+	version = "1.2.0",
 	name = "MetaHunt",
 	modules = {},
 	config = {},
@@ -44,7 +44,7 @@ local function MTH_ClassGateEnsureAnnounceFrame(self)
 	if not self or self._classGateAnnounceFrame then
 		return
 	end
-	local frame = CreateFrame("Frame", "MTH_ClassGateAnnounceFrame")
+	local frame = CreateFrame("Frame", "MTH_ClassGateAnnounce")
 	if not frame then
 		return
 	end
@@ -55,12 +55,12 @@ local function MTH_ClassGateEnsureAnnounceFrame(self)
 		end
 	end)
 	frame._mthElapsed = 0
-	frame:SetScript("OnUpdate", function(self, elapsed)
-		self._mthElapsed = (self._mthElapsed or 0) + (elapsed or arg1 or 0)
-		if self._mthElapsed < 0.5 then
+	frame:SetScript("OnUpdate", function()
+		this._mthElapsed = (this._mthElapsed or 0) + (arg1 or 0)
+		if this._mthElapsed < 0.5 then
 			return
 		end
-		self._mthElapsed = 0
+		this._mthElapsed = 0
 		if MTH and MTH._classGateAnnouncedChat then
 			MTH_ClassGateClearAnnounceFrame(MTH)
 			return
@@ -192,21 +192,19 @@ end
 MTH:ApplyClassGate("startup")
 
 if not MTH._classGateLifecycleFrame then
-	local classGateFrame = CreateFrame("Frame", "MTH_ClassGateLifecycleFrame")
+	local classGateFrame = CreateFrame("Frame", "MTH_ClassGateLifecycle")
 	if classGateFrame then
 		classGateFrame:RegisterEvent("PLAYER_LOGIN")
 		classGateFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-		classGateFrame:SetScript("OnEvent", function(self, eventName)
-			self = self or this
-			eventName = eventName or event
-			if MTH and eventName == "PLAYER_LOGIN" then
+		classGateFrame:SetScript("OnEvent", function()
+			if MTH and event == "PLAYER_LOGIN" then
 				MTH._classGateAnnouncedChat = nil
 				MTH._classGateAnnounced = nil
 				MTH._classGateAnnouncePending = nil
 			end
-			if MTH and MTH.ApplyClassGate and MTH:ApplyClassGate(eventName) and MTH._classGateAnnouncedChat then
-				self:UnregisterAllEvents()
-				self:SetScript("OnEvent", nil)
+			if MTH and MTH.ApplyClassGate and MTH:ApplyClassGate(event) and MTH._classGateAnnouncedChat then
+				this:UnregisterAllEvents()
+				this:SetScript("OnEvent", nil)
 			end
 		end)
 		MTH._classGateLifecycleFrame = classGateFrame
@@ -565,10 +563,10 @@ function MTH:InitEventRouter()
 		return self._eventRouter.frame
 	end
 
-	local frame = CreateFrame("Frame", "MTH_EventRouterFrame")
-	frame:SetScript("OnEvent", function(self, evt, a1, a2, a3, a4, a5, a6, a7, a8, a9)
+	local frame = CreateFrame("Frame", "MTH_EventRouter")
+	frame:SetScript("OnEvent", function()
 		if MTH and MTH.DispatchEvent then
-			MTH:DispatchEvent(evt, a1, a2, a3, a4, a5, a6, a7, a8, a9)
+			MTH:DispatchEvent(event, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
 		end
 	end)
 
@@ -628,7 +626,7 @@ function MTH:_SetModuleEventSubscriptions(name, enabled)
 	end
 end
 
-function MTH:DispatchEvent(evt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
+function MTH:DispatchEvent(evt, ea1, ea2, ea3, ea4, ea5, ea6, ea7, ea8, ea9)
 	for name, module in pairs(self.modules) do
 		if module.enabled and module.onEvent then
 			local allow = true
@@ -637,11 +635,10 @@ function MTH:DispatchEvent(evt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, 
 			end
 			if allow then
 				local ok, err = pcall(function()
-					module:onEvent(evt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
+					module:onEvent(evt, ea1, ea2, ea3, ea4, ea5, ea6, ea7, ea8, ea9)
 				end)
 				if not ok then
-					self:Print("Module '" .. name .. "' event error on '" .. tostring(evt) .. "': " .. tostring(err))
-					MTH:Print("[MTH] Module event error (" .. name .. ", " .. tostring(evt) .. "): " .. tostring(err), "error")
+					MTH:Print("Module '" .. name .. "' event error on '" .. tostring(evt) .. "': " .. tostring(err), "error")
 				end
 			end
 		end
@@ -1295,24 +1292,22 @@ function MTH:EnsureModuleStateBootstrap()
 		return self._moduleStateBootstrapFrame
 	end
 
-	local frame = CreateFrame("Frame", "MTH_ModuleStateBootstrapFrame")
+	local frame = CreateFrame("Frame", "MTH_ModuleBootstrap")
 	if not frame then
 		return nil
 	end
 
 	frame:RegisterEvent("VARIABLES_LOADED")
-	frame:SetScript("OnEvent", function(self, eventName)
-		self = self or this
-		eventName = eventName or event
-		if eventName ~= "VARIABLES_LOADED" then
+	frame:SetScript("OnEvent", function()
+		if event ~= "VARIABLES_LOADED" then
 			return
 		end
 		if MTH and MTH.ApplyPersistedModuleStates then
 			MTH:ApplyPersistedModuleStates("VARIABLES_LOADED")
 		end
-		if not self then return end
-		self:UnregisterAllEvents()
-		self:SetScript("OnEvent", nil)
+		if not this then return end
+		this:UnregisterAllEvents()
+		this:SetScript("OnEvent", nil)
 	end)
 
 	self._moduleStateBootstrapFrame = frame
@@ -1490,6 +1485,46 @@ function MTH:AnnounceLoadComplete()
 		"Addon synced. Your threat meter just sent a stress signal.",
 		"Loaded cleanly. Reputation with healers currently in freefall.",
 		"Mission start: hit things from far away and deny everything in chat.",
+		"Welcome back. Your pet missed you. Just kidding, it ran away.",
+		"MetaHunt loaded. You're still a Huntard, but now you're an organized one.",
+		"Aspects, traps, tracking... Don't worry, I'll handle the hard parts.",
+		"Oh good, another hunter who needs an addon to remember their own spells.",
+		"MetaHunt ready. Feign Death is not a personality trait.",
+		"Loaded successfully. No, I can't fix your DPS.",
+		"Welcome. Your pet's loyalty is higher than your raid attendance.",
+		"MetaHunt online. Please don't Multishot the sheep.",
+		"Greetings, hunter. I see you've chosen the 'easy' class and still need help.",
+		"All systems go. Try not to pull the entire dungeon this time.",
+		"MetaHunt activated. Reminder: Melee range is not your home.",
+		"Welcome back. Your ammo count is almost as low as your situational awareness.",
+		"Loaded. I'll manage your buttons since you clearly have too many.",
+		"MetaHunt ready. Aspect of the Cheetah in dungeons is a choice, not a strategy.",
+		"Oh look, a hunter that uses addons. There might be hope for you yet.",
+		"Welcome. No, you cannot tame that. Or that. Stop asking.",
+		"MetaHunt standing by. Unlike you during your last Feign Death.",
+		"Initialized. Fun fact: your pet has more utility than you do.",
+		"All buttons configured. Now if only I could configure your aim.",
+		"MetaHunt loaded. Growl is off, right? ...RIGHT?",
+		"MetaHunt loaded. Your Freezing Trap will still break early. That's on you.",
+		"Welcome. Aspect of the Pack is ready. Your group is not.",
+		"Initializing... unlike your pet, I actually come when called.",
+		"MetaHunt online. Remember: Hunter loot is everything. Everything.",
+		"Loaded. Concussive Shot the flag carrier, not the rogue vanishing.",
+		"Welcome back. Eyes of the Beast is not a valid boss strategy.",
+		"Ready. Your Aimed Shot takes longer to cast than this addon took to load.",
+		"MetaHunt armed. Scatter Shot into Freezing Trap — you'll get it right someday.",
+		"Online. Don't worry, I track your cooldowns since you clearly don't.",
+		"Welcome. Wing Clip and run. It's what you do best.",
+		"Loaded. Distracting Shot is for the boss, not for your ego.",
+		"MetaHunt ready. Your quiver is full but your skill bar is empty.",
+		"Initialized. Serpent Sting on every target doesn't make you a DoT class.",
+		"Welcome, hunter. Viper Sting the healer. No, the OTHER healer.",
+		"Ready to hunt. Mend Pet is not optional, it's a lifestyle.",
+		"MetaHunt loaded. Tranquilizing Shot the enrage, not the warrior.",
+		"Online. Rapid Fire is a cooldown, not your approach to pulling.",
+		"Welcome. You have 28 arrows left. Should've checked before the raid.",
+		"Loaded. Bestial Wrath does not make YOU immune. Learned that yet?",
+		"MetaHunt standing by. Dead zone? What dead zone? Oh... that dead zone.",
 	}
 
 	local welcomeIndex = 1
@@ -1520,24 +1555,22 @@ function MTH:EnsureLoadCompleteAnnouncement()
 		return self._loadCompleteFrame
 	end
 
-	local frame = CreateFrame("Frame", "MTH_LoadCompleteAnnounceFrame")
+	local frame = CreateFrame("Frame", "MTH_LoadAnnounce")
 	if not frame then
 		return nil
 	end
 
 	frame:RegisterEvent("PLAYER_ENTERING_WORLD")
-	frame:SetScript("OnEvent", function(self, eventName)
-		self = self or this
-		eventName = eventName or event
-		if eventName ~= "PLAYER_ENTERING_WORLD" then
+	frame:SetScript("OnEvent", function()
+		if event ~= "PLAYER_ENTERING_WORLD" then
 			return
 		end
 		if MTH and MTH.AnnounceLoadComplete then
 			MTH:AnnounceLoadComplete()
 		end
-		if not self then return end
-		self:UnregisterAllEvents()
-		self:SetScript("OnEvent", nil)
+		if not this then return end
+		this:UnregisterAllEvents()
+		this:SetScript("OnEvent", nil)
 	end)
 
 	self._loadCompleteFrame = frame

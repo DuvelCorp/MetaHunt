@@ -93,6 +93,8 @@ local function zButtonToys_ApplyRuntimeSettings()
 	local saved = zButtonToys_GetSaved()
 	zButtonToys.tooltip = saved["tooltip"] and true or false
 	zButtonToys.hideonclick = saved["children"] and saved["children"]["hideonclick"] and true or false
+	zButtonToys.expandonhover = saved["children"] and saved["children"]["expandonhover"] and true or false
+	zButtonToys.fadetimer = saved["children"] and tonumber(saved["children"]["fadetimer"]) or 0
 end
 
 local function zButtonToys_NormalizeTabName(value)
@@ -225,10 +227,10 @@ function zButtonToys_OnEvent()
 			return
 		end
 		zButtonToys_CreateButtons()
-		zButtonToysAdjustment = CreateFrame("Frame", "zButtonToysAdjustment")
-		zButtonToysAdjustment:RegisterEvent("SPELLS_CHANGED")
-		zButtonToysAdjustment:RegisterEvent("PLAYER_ENTERING_WORLD")
-		zButtonToysAdjustment:SetScript("OnEvent", zButtonToysAdjustment_OnEvent)
+		MTH_ZH_ToysAdjust = CreateFrame("Frame", "MTH_ZH_ToysAdjust")
+		MTH_ZH_ToysAdjust:RegisterEvent("SPELLS_CHANGED")
+		MTH_ZH_ToysAdjust:RegisterEvent("PLAYER_ENTERING_WORLD")
+		MTH_ZH_ToysAdjust:SetScript("OnEvent", MTH_ZH_ToysAdjust_OnEvent)
 		zButtonToys_SetupSizeAndPosition()
 	end
 end
@@ -247,16 +249,16 @@ end
 function zButtonToys_SetupSizeAndPosition()
 	local saved = zButtonToys_GetSaved()
 	if saved["enabled"] == false or saved["enabled"] == 0 then
-		if zButtonToysAdjustment and zButtonToysAdjustment.SetScript then
-			zButtonToysAdjustment:SetScript("OnEvent", nil)
+		if MTH_ZH_ToysAdjust and MTH_ZH_ToysAdjust.SetScript then
+			MTH_ZH_ToysAdjust:SetScript("OnEvent", nil)
 		end
 		if zButtonToys and zButtonToys.Hide then
 			zButtonToys:Hide()
 		end
 		return
 	end
-	if zButtonToysAdjustment and zButtonToysAdjustment.SetScript then
-		zButtonToysAdjustment:SetScript("OnEvent", zButtonToysAdjustment_OnEvent)
+	if MTH_ZH_ToysAdjust and MTH_ZH_ToysAdjust.SetScript then
+		MTH_ZH_ToysAdjust:SetScript("OnEvent", MTH_ZH_ToysAdjust_OnEvent)
 	end
 	local displayCount = zButtonToys.found or 0
 	if displayCount < 0 then
@@ -291,7 +293,7 @@ function zButtonToys_Reset()
 	zButtonToys_EnsureConfig()
 end
 
-function zButtonToysAdjustment_OnEvent()
+function MTH_ZH_ToysAdjust_OnEvent()
 	if not zButtonToys then
 		return
 	end

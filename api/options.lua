@@ -68,9 +68,9 @@ function MTH_CreateSlider(parent, name, label, minVal, maxVal, step, yOffset)
 	if lowLabel then lowLabel:Hide() end
 	if highLabel then highLabel:Hide() end
 	
-	slider:SetScript("OnValueChanged", function(self, newValue)
-		local activeSlider = self or this or slider
-		local current = tonumber(newValue)
+	slider:SetScript("OnValueChanged", function()
+		local activeSlider = this or this or slider
+		local current = tonumber(arg1)
 		if not current and activeSlider and activeSlider.GetValue then
 			current = tonumber(activeSlider:GetValue())
 		end

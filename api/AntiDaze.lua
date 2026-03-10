@@ -98,7 +98,7 @@ local function AntiDaze_CancelRelevantAspect(isSelfDazed)
 
 		AntiDazeTooltip:SetOwner(UIParent, "ANCHOR_NONE")
 		AntiDazeTooltip:SetPlayerBuff(i, "HELPFUL")
-		local text = AntiDazeTooltipTextLeft1 and AntiDazeTooltipTextLeft1:GetText()
+		local text = MTH_AntiDazeProbeTextLeft1 and MTH_AntiDazeProbeTextLeft1:GetText()
 		if text == packName or (isSelfDazed and text == cheetahName) then
 			CancelPlayerBuff(i)
 			return 1
@@ -112,8 +112,8 @@ local function AntiDaze_HandleSlash()
 	AntiDaze_SetEnabled(not AntiDaze_IsEnabled())
 end
 
-AntiDazeTooltip = CreateFrame("GameTooltip", "AntiDazeTooltip", nil, "GameTooltipTemplate")
-AntiDazeFrame = CreateFrame("Frame", "AntiDazeFrame")
+AntiDazeTooltip = CreateFrame("GameTooltip", "MTH_AntiDazeProbe", nil, "GameTooltipTemplate")
+AntiDazeFrame = CreateFrame("Frame", "MTH_AntiDazeEvent")
 if AntiDazeFrame then
 	AntiDazeFrame:RegisterEvent("VARIABLES_LOADED")
 	AntiDazeFrame:SetScript("OnEvent", function()

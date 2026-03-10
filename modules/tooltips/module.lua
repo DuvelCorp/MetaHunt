@@ -6,7 +6,7 @@
 local MTH_Tooltips = {
 	name = "tooltips",
 	enabled = true,
-	version = "1.1.0",
+	version = "1.2.0",
 	events = {
 		"UPDATE_MOUSEOVER_UNIT",
 		"UNIT_NAME_UPDATE",
@@ -1545,19 +1545,18 @@ local function MTH_TT_EnsureInjectFrame()
 	if MTH_Tooltips.injectFrame then
 		return MTH_Tooltips.injectFrame
 	end
-	local frame = CreateFrame("Frame", "MTH_TooltipsInjectFrame")
+	local frame = CreateFrame("Frame", "MTH_TooltipsInject")
 	frame.pending = false
-	frame.onUpdate = function(self)
-		self = self or this
-		if not self then
+	frame.onUpdate = function()
+		if not this then
 			return
 		end
-		if not self.pending then
-			self:SetScript("OnUpdate", nil)
+		if not this.pending then
+			this:SetScript("OnUpdate", nil)
 			return
 		end
-		self.pending = false
-		self:SetScript("OnUpdate", nil)
+		this.pending = false
+		this:SetScript("OnUpdate", nil)
 		if MTH_Tooltips and MTH_Tooltips.enabled then
 			MTH_TT_AddTooltip("mouseover")
 		end
@@ -1581,14 +1580,13 @@ local function MTH_TT_EnsurePollFrame()
 		return MTH_Tooltips.pollFrame
 	end
 
-	local frame = CreateFrame("Frame", "MTH_TooltipsPollFrame")
-	frame:SetScript("OnUpdate", function(_, elapsed)
+	local frame = CreateFrame("Frame", "MTH_TooltipsPoll")
+	frame:SetScript("OnUpdate", function()
 		if not (MTH_Tooltips and MTH_Tooltips.enabled) then
 			return
 		end
 
-		elapsed = elapsed or arg1
-		MTH_Tooltips.hintElapsed = (MTH_Tooltips.hintElapsed or 0) + (elapsed or 0)
+		MTH_Tooltips.hintElapsed = (MTH_Tooltips.hintElapsed or 0) + (arg1 or 0)
 		if MTH_Tooltips.hintElapsed >= 0.25 then
 			MTH_Tooltips.hintElapsed = 0
 			if GameTooltip and GameTooltip.IsShown and GameTooltip:IsShown() then
@@ -1648,13 +1646,12 @@ local function MTH_TT_SetRuntimeActive(active)
 	local pollFrame = MTH_Tooltips.pollFrame
 	if pollFrame then
 		if active then
-			pollFrame:SetScript("OnUpdate", pollFrame:GetScript("OnUpdate") or function(_, elapsed)
+			pollFrame:SetScript("OnUpdate", pollFrame:GetScript("OnUpdate") or function()
 				if not (MTH_Tooltips and MTH_Tooltips.enabled) then
 					return
 				end
 
-				elapsed = elapsed or arg1
-				MTH_Tooltips.hintElapsed = (MTH_Tooltips.hintElapsed or 0) + (elapsed or 0)
+				MTH_Tooltips.hintElapsed = (MTH_Tooltips.hintElapsed or 0) + (arg1 or 0)
 				if MTH_Tooltips.hintElapsed >= 0.25 then
 					MTH_Tooltips.hintElapsed = 0
 					if GameTooltip and GameTooltip.IsShown and GameTooltip:IsShown() then

@@ -155,8 +155,8 @@ MTH_SA_List = {}
 
 MTH_SA_LastCheck = 0
 
-MTH_SA_Tooltip = CreateFrame("GameTooltip", "MTH_SA_Scan", nil, "GameTooltipTemplate")
-MTH_SA_TooltipTextLeft1 = getglobal("MTH_SA_ScanTextLeft1")
+MTH_SA_Tooltip = getglobal("MTH_SA_AmmoProbe") or CreateFrame("GameTooltip", "MTH_SA_AmmoProbe", nil, "GameTooltipTemplate")
+MTH_SA_TooltipTextLeft1 = getglobal("MTH_SA_AmmoProbeTextLeft1")
 MTH_SA_Tooltip:Hide()
 
 local _, class = UnitClass("player")
@@ -221,12 +221,18 @@ local function MTHSmartAmmo_ShowFallbackWarning(previousAmmo, newAmmo)
 	end
 end
 
+local MTHSmartAmmo_FallbackCheckFrame = nil
+
 local function MTHSmartAmmo_HandleFallbackResult(previousAmmo)
-	local checkFrame = CreateFrame("Frame")
-	if not checkFrame then
-		return
+	if not MTHSmartAmmo_FallbackCheckFrame then
+		MTHSmartAmmo_FallbackCheckFrame = CreateFrame("Frame", "MTH_SA_FallbackCheck")
+		if not MTHSmartAmmo_FallbackCheckFrame then
+			return
+		end
 	end
+	local checkFrame = MTHSmartAmmo_FallbackCheckFrame
 	checkFrame.elapsed = 0
+	checkFrame._previousAmmo = previousAmmo
 	checkFrame:SetScript("OnUpdate", function()
 		this.elapsed = (this.elapsed or 0) + (arg1 or 0)
 		if this.elapsed < 0.2 then
@@ -239,11 +245,12 @@ local function MTHSmartAmmo_HandleFallbackResult(previousAmmo)
 		end
 
 		MTHSmartAmmo_RefreshAmmoButtonDisplay()
-		MTHSmartAmmo_ShowFallbackWarning(previousAmmo, equippedNow)
+		MTHSmartAmmo_ShowFallbackWarning(this._previousAmmo, equippedNow)
 
 		this:SetScript("OnUpdate", nil)
 		this:Hide()
 	end)
+	checkFrame:Show()
 end
 
 local function MTHSmartAmmo_TryFallbackEquip(reason)
@@ -365,7 +372,7 @@ local function MTHSmartAmmo_HandleWeaponSwapAutoEquip(reason)
 	end
 end
 
-local frame = CreateFrame("Frame")
+local frame = getglobal("MTH_SA_EventFrame") or CreateFrame("Frame", "MTH_SA_EventFrame")
 frame:RegisterEvent("START_AUTOREPEAT_SPELL")
 frame:RegisterEvent("STOP_AUTOREPEAT_SPELL")
 frame:RegisterEvent("SPELLCAST_INTERRUPTED")
@@ -411,14 +418,23 @@ end)
 
 
 
-frame:SetScript("OnUpdate", function(self, elapsed)
-	MTHSmartAmmo_HookEnsureElapsed = MTHSmartAmmo_HookEnsureElapsed + (elapsed or 0)
+local MTH_SA_OnUpdateElapsed = 0
+
+frame:SetScript("OnUpdate", function()
+	local dt = arg1 or 0
+	MTHSmartAmmo_HookEnsureElapsed = MTHSmartAmmo_HookEnsureElapsed + dt
 	if MTHSmartAmmo_HookEnsureElapsed >= 0.5 then
 		MTHSmartAmmo_HookEnsureElapsed = 0
 		if MTH_SA_IsModuleEnabled() then
 			MTHSmartAmmo_InitializeHooks()
 		end
 	end
+
+	MTH_SA_OnUpdateElapsed = MTH_SA_OnUpdateElapsed + dt
+	if MTH_SA_OnUpdateElapsed < 0.10 then
+		return
+	end
+	MTH_SA_OnUpdateElapsed = 0
 	
 	MTH_SA_CountEquippedAmmo()
 	if MTH_SA_Quantity == 0 and not MTH_SA_IsWaitingSwapJunk and not MTH_SA_IsWaitingSwapGood then

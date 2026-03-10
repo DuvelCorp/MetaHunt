@@ -232,6 +232,8 @@ local function zButtonRanged_ApplyRuntimeSettings()
 	local saved = zButtonRanged_GetSaved()
 	zButtonRanged.tooltip = saved["tooltip"] and true or false
 	zButtonRanged.hideonclick = saved["children"] and saved["children"]["hideonclick"] and true or false
+	zButtonRanged.expandonhover = saved["children"] and saved["children"]["expandonhover"] and true or false
+	zButtonRanged.fadetimer = saved["children"] and tonumber(saved["children"]["fadetimer"]) or 0
 end
 
 local function zButtonRanged_UpdateDurabilityText(button)
@@ -602,11 +604,11 @@ function zButtonRanged_OnEvent()
 		zButtonRanged.customUpdateButton = zButtonRanged_UpdateButton
 		zButtonRanged.beforeclick = zButtonRanged_BeforeClick
 		zButtonRanged_CreateButtons()
-		zButtonRangedAdjustment = CreateFrame("Frame", "zButtonRangedAdjustment")
-		zButtonRangedAdjustment:RegisterEvent("UNIT_INVENTORY_CHANGED")
-		zButtonRangedAdjustment:RegisterEvent("BAG_UPDATE")
-		zButtonRangedAdjustment:RegisterEvent("PLAYER_ENTERING_WORLD")
-		zButtonRangedAdjustment:SetScript("OnEvent", zButtonRangedAdjustment_OnEvent)
+		MTH_ZH_RangedAdjust = CreateFrame("Frame", "MTH_ZH_RangedAdjust")
+		MTH_ZH_RangedAdjust:RegisterEvent("UNIT_INVENTORY_CHANGED")
+		MTH_ZH_RangedAdjust:RegisterEvent("BAG_UPDATE")
+		MTH_ZH_RangedAdjust:RegisterEvent("PLAYER_ENTERING_WORLD")
+		MTH_ZH_RangedAdjust:SetScript("OnEvent", MTH_ZH_RangedAdjust_OnEvent)
 		zButtonRanged_SetupSizeAndPosition()
 	end
 end
@@ -635,16 +637,16 @@ end
 function zButtonRanged_SetupSizeAndPosition()
 	local saved = zButtonRanged_GetSaved()
 	if saved["enabled"] == false or saved["enabled"] == 0 then
-		if zButtonRangedAdjustment and zButtonRangedAdjustment.SetScript then
-			zButtonRangedAdjustment:SetScript("OnEvent", nil)
+		if MTH_ZH_RangedAdjust and MTH_ZH_RangedAdjust.SetScript then
+			MTH_ZH_RangedAdjust:SetScript("OnEvent", nil)
 		end
 		if zButtonRanged and zButtonRanged.Hide then
 			zButtonRanged:Hide()
 		end
 		return
 	end
-	if zButtonRangedAdjustment and zButtonRangedAdjustment.SetScript then
-		zButtonRangedAdjustment:SetScript("OnEvent", zButtonRangedAdjustment_OnEvent)
+	if MTH_ZH_RangedAdjust and MTH_ZH_RangedAdjust.SetScript then
+		MTH_ZH_RangedAdjust:SetScript("OnEvent", MTH_ZH_RangedAdjust_OnEvent)
 	end
 	local displayCount = zButtonRanged.found or 0
 	if displayCount < 0 then
@@ -679,7 +681,7 @@ function zButtonRanged_Reset()
 	zButtonRanged_EnsureConfig()
 end
 
-function zButtonRangedAdjustment_OnEvent()
+function MTH_ZH_RangedAdjust_OnEvent()
 	if not zButtonRanged then
 		return
 	end

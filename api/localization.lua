@@ -9,7 +9,6 @@ local MTH_LOCALE_ALIASES = {
 	enGB = "enUS",
 	esMX = "esES",
 	zhTW = "zhCN",
-	frFR = "enUS",
 }
 
 local MTH_SUPPORTED_LOCALES = {

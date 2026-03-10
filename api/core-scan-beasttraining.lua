@@ -802,7 +802,7 @@ function MTH_PT_InitService()
 	if MTH_PetTrainingFrame then
 		return
 	end
-	MTH_PetTrainingFrame = CreateFrame("Frame", "MTHPetTrainingScanFrame")
+	MTH_PetTrainingFrame = CreateFrame("Frame", "MTH_PetTrainingScan")
 	MTH_PetTrainingFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 	MTH_PetTrainingFrame:RegisterEvent("LEARNED_SPELL_IN_TAB")
 	MTH_PetTrainingFrame:RegisterEvent("PET_TRAINING_SHOW")
@@ -813,9 +813,8 @@ function MTH_PT_InitService()
 	MTH_PetTrainingFrame:RegisterEvent("CRAFT_SHOW")
 	MTH_PetTrainingFrame:RegisterEvent("CRAFT_UPDATE")
 	MTH_PetTrainingFrame:SetScript("OnEvent", MTH_PT_OnEvent)
-	MTH_PetTrainingFrame:SetScript("OnUpdate", function(_, elapsed)
-		elapsed = elapsed or arg1
-		MTH_PT_PetBookPollElapsed = (MTH_PT_PetBookPollElapsed or 0) + (elapsed or 0)
+	MTH_PetTrainingFrame:SetScript("OnUpdate", function()
+		MTH_PT_PetBookPollElapsed = (MTH_PT_PetBookPollElapsed or 0) + (arg1 or 0)
 		if MTH_PT_PetBookPollElapsed < 0.20 then
 			return
 		end
@@ -861,19 +860,16 @@ function MTH_PT_InitBootstrap()
 	end
 	frame:RegisterEvent("PET_TRAINING_SHOW")
 	frame:RegisterEvent("CRAFT_SHOW")
-	frame:SetScript("OnEvent", function(self, evt)
-		evt = evt or event
-		if evt ~= "PET_TRAINING_SHOW" and evt ~= "CRAFT_SHOW" then
+	frame:SetScript("OnEvent", function()
+		if event ~= "PET_TRAINING_SHOW" and event ~= "CRAFT_SHOW" then
 			return
 		end
 		MTH_PT_InitService()
 		if type(MTH_PT_OnEvent) == "function" then
-			MTH_PT_OnEvent(MTH_PetTrainingFrame, evt)
+			MTH_PT_OnEvent(MTH_PetTrainingFrame, event)
 		end
-		if self and self.UnregisterAllEvents then
-			self:UnregisterAllEvents()
-			self:SetScript("OnEvent", nil)
-		end
+		this:UnregisterAllEvents()
+		this:SetScript("OnEvent", nil)
 		MTH_PT_BootstrapFrame = nil
 	end)
 	MTH_PT_BootstrapFrame = frame

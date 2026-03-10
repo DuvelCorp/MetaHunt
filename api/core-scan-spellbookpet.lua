@@ -331,7 +331,7 @@ function MTH_PS_InitService()
 		return
 	end
 
-	MTH_PS_Frame = CreateFrame("Frame", "MTHPetSpellbookEventFrame")
+	MTH_PS_Frame = CreateFrame("Frame", "MTH_PetSpellbookEvent")
 	MTH_PS_Frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 	MTH_PS_Frame:RegisterEvent("UNIT_PET")
 	MTH_PS_Frame:RegisterEvent("PET_BAR_UPDATE")
