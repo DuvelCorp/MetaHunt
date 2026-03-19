@@ -67,6 +67,7 @@ Just spam SHIFT-click on the NPC to validate quests Scorpok and Thorium arrows. 
  The Book is the main GUI of MetaHunt, it allows to display the data constantly collected about you and your pet, and browse the addon's data to find anything a Hunter needs.
 
 - Browse the MetaHunt datastores of NPCs (Beast, vendors, masters) and open the map to locate them like in pfQuest 
+- Model viewer of all beasts in the game.
 - Track all info about the pet abilities that you know and don't know yet
 - Track all info about your stabled pets
 - Keep an history of all your pets after you abandon them or if they run away.
