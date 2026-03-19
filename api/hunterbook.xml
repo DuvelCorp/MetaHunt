@@ -74,7 +74,7 @@
       </Frame>
 
       <Frame name="$parentDetailBackdrop">
-        <Size><AbsDimension x="136" y="324"/></Size>
+        <Size><AbsDimension x="136" y="155"/></Size>
         <Anchors>
           <Anchor point="TOPLEFT"><Offset><AbsDimension x="608" y="-166"/></Offset></Anchor>
         </Anchors>
@@ -85,7 +85,7 @@
         </Backdrop>
         <Frames>
           <EditBox name="$parentDetailText" autoFocus="false" multiLine="true" text="Select an entry to view details.">
-            <Size><AbsDimension x="120" y="306"/></Size>
+            <Size><AbsDimension x="120" y="139"/></Size>
             <Anchors>
               <Anchor point="TOPLEFT"><Offset><AbsDimension x="8" y="-8"/></Offset></Anchor>
             </Anchors>
@@ -96,7 +96,7 @@
       <Button name="$parentOpenMapButton" inherits="UIPanelButtonTemplate" text="Open Map" hidden="true">
         <Size><AbsDimension x="136" y="22"/></Size>
         <Anchors>
-          <Anchor point="TOPLEFT"><Offset><AbsDimension x="608" y="-496"/></Offset></Anchor>
+          <Anchor point="TOPLEFT"><Offset><AbsDimension x="608" y="-524"/></Offset></Anchor>
         </Anchors>
       </Button>
 

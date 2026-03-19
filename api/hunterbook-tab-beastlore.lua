@@ -2,17 +2,18 @@ if type(MTH_HUNTERBOOK_TABS) ~= "table" then MTH_HUNTERBOOK_TABS = {} end
 
 MTH_HUNTERBOOK_TABS.pets = {
 	headerLabel = "Beasts",
-	columnLabels = { "ID", "Lvl", "Family", "Name", "Abilities", "Zone", "R", "E", "U" },
+	columnLabels = { "ID", "Lvl", "Fam", "Name", "Abilities", "Zone", "R", "E", "U", "AS" },
 	columnLayout = {
 		{ x = 8, width = 28, align = "LEFT" },
 		{ x = 38, width = 30, align = "LEFT" },
-		{ x = 68, width = 74, align = "LEFT" },
-		{ x = 142, width = 130, align = "LEFT" },
-		{ x = 272, width = 180, align = "LEFT" },
-		{ x = 452, width = 68, align = "LEFT" },
-		{ x = 520, width = 10, align = "CENTER" },
-		{ x = 532, width = 10, align = "CENTER" },
-		{ x = 544, width = 10, align = "CENTER" },
+		{ x = 68, width = 18, align = "LEFT" },
+		{ x = 88, width = 130, align = "LEFT" },
+		{ x = 220, width = 148, align = "LEFT" },
+		{ x = 370, width = 80, align = "LEFT" },
+		{ x = 452, width = 14, align = "CENTER" },
+		{ x = 468, width = 14, align = "CENTER" },
+		{ x = 484, width = 14, align = "CENTER" },
+		{ x = 500, width = 54, align = "LEFT" },
 	},
 }
 

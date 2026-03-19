@@ -137,17 +137,23 @@ end
 
 local function MTHSmartAmmo_ForceHookGlobals()
 	if type(MTHSmartAmmo_CastSpell_Hook) == "function" and CastSpell ~= MTHSmartAmmo_CastSpell_Hook then
-		MTH_SA_CastSpell = CastSpell
-		CastSpell = MTHSmartAmmo_CastSpell_Hook
-	end
-	if type(MTHSmartAmmo_UseAction_Hook) == "function" and UseAction ~= MTHSmartAmmo_UseAction_Hook then
-		MTH_SA_UseAction = UseAction
-		UseAction = MTHSmartAmmo_UseAction_Hook
-	end
-	if type(MTHSmartAmmo_CastSpellByName_Hook) == "function" and CastSpellByName ~= MTHSmartAmmo_CastSpellByName_Hook then
-		MTH_SA_CastSpellByName = CastSpellByName
-		CastSpellByName = MTHSmartAmmo_CastSpellByName_Hook
-	end
+                if CastSpell == MTHSmartAmmo_OriginalCastSpell or MTH_SA_CastSpell == nil then
+                        MTH_SA_CastSpell = CastSpell
+                        CastSpell = MTHSmartAmmo_CastSpell_Hook
+                end
+        end
+        if type(MTHSmartAmmo_UseAction_Hook) == "function" and UseAction ~= MTHSmartAmmo_UseAction_Hook then
+                if UseAction == MTHSmartAmmo_OriginalUseAction or MTH_SA_UseAction == nil then
+                        MTH_SA_UseAction = UseAction
+                        UseAction = MTHSmartAmmo_UseAction_Hook
+                end
+        end
+        if type(MTHSmartAmmo_CastSpellByName_Hook) == "function" and CastSpellByName ~= MTHSmartAmmo_CastSpellByName_Hook then
+                if CastSpellByName == MTHSmartAmmo_OriginalCastSpellByName or MTH_SA_CastSpellByName == nil then
+                        MTH_SA_CastSpellByName = CastSpellByName
+                        CastSpellByName = MTHSmartAmmo_CastSpellByName_Hook
+                end
+        end
 end
 
 MTH_SA = {}
@@ -423,13 +429,6 @@ local MTH_SA_OnUpdateElapsed = 0
 frame:SetScript("OnUpdate", function()
 	local dt = arg1 or 0
 	MTHSmartAmmo_HookEnsureElapsed = MTHSmartAmmo_HookEnsureElapsed + dt
-	if MTHSmartAmmo_HookEnsureElapsed >= 0.5 then
-		MTHSmartAmmo_HookEnsureElapsed = 0
-		if MTH_SA_IsModuleEnabled() then
-			MTHSmartAmmo_InitializeHooks()
-		end
-	end
-
 	MTH_SA_OnUpdateElapsed = MTH_SA_OnUpdateElapsed + dt
 	if MTH_SA_OnUpdateElapsed < 0.10 then
 		return
@@ -463,11 +462,10 @@ function MTH_SA_CountEquippedAmmo()
 	local ammo = GetInventoryItemCount("player", 0)
 	local equippedName = MTH_SA_GetEquippedAmmoName()
 	if equippedName and equippedName ~= "" then
-		MTH_SA_LastKnownEquippedName = equippedName
-	end
-	if not ammo then
-		MTH_SA_Quantity=0
-		return
+                if equippedName ~= MTH_SA_LastKnownEquippedName then
+                        MTH_SA_LastKnownEquippedName = equippedName
+                        MTHSmartAmmo_RefreshAmmoButtonDisplay()
+                end
 	elseif ammo ~= MTH_SA_Quantity then
 		MTH_SA_Quantity = ammo
 	end
@@ -663,12 +661,15 @@ MTHSmartAmmo_UseAction_Hook = function(slot, checkCursor, onSelf)
 	end
 	MTHSmartAmmo_InUseActionHook = true
 
-	if not GetActionText(slot) and MTHSmartAmmo_IsSmartEnabled() then
+	local _actionText = GetActionText(slot)
+	local _smart = MTHSmartAmmo_IsSmartEnabled()
+	if not _actionText and _smart then
 		MTH_SA_Tooltip:SetOwner(UIParent, "ANCHOR_NONE")
 		MTH_SA_Tooltip:SetAction(slot)
 		local name = MTH_SA_TooltipTextLeft1:GetText()
 		MTH_SA_LastSpell = name
-		if name and MTH_AMMO_JUNKSHOT_SET and MTH_AMMO_JUNKSHOT_SET[name] then
+		local _inSet = name and MTH_AMMO_JUNKSHOT_SET and MTH_AMMO_JUNKSHOT_SET[name]
+		if _inSet then
 			if MTH_SA_Check() or MTH_SA_FindAmmo() then
 				MTH_SA_EquipAmmo(1)
 			end
@@ -724,19 +725,29 @@ MTHSmartAmmo_InitializeHooks = function()
 		return
 	end
 
-	if CastSpell ~= MTHSmartAmmo_CastSpell_Hook then
-		MTH_SA_CastSpell = CastSpell
-		CastSpell = MTHSmartAmmo_CastSpell_Hook
-	end
+-- Only install a hook if vanilla is on top (first-time install) or MetaHunt
+        -- is already on top. If another addon (e.g. Quiver) is on top, it has already
+        -- captured MetaHunt's hook as its super — reinstalling would create a double
+        -- invocation and break addons that rely on IsCurrentAction after their super call.
+        if CastSpell ~= MTHSmartAmmo_CastSpell_Hook then
+                if CastSpell == MTHSmartAmmo_OriginalCastSpell or MTH_SA_CastSpell == nil then
+                        MTH_SA_CastSpell = CastSpell
+                        CastSpell = MTHSmartAmmo_CastSpell_Hook
+                end
+        end
 
-	if UseAction ~= MTHSmartAmmo_UseAction_Hook then
-		MTH_SA_UseAction = UseAction
-		UseAction = MTHSmartAmmo_UseAction_Hook
-	end
+        if UseAction ~= MTHSmartAmmo_UseAction_Hook then
+                if UseAction == MTHSmartAmmo_OriginalUseAction or MTH_SA_UseAction == nil then
+                        MTH_SA_UseAction = UseAction
+                        UseAction = MTHSmartAmmo_UseAction_Hook
+                end
+        end
 
-	if CastSpellByName ~= MTHSmartAmmo_CastSpellByName_Hook then
-		MTH_SA_CastSpellByName = CastSpellByName
-		CastSpellByName = MTHSmartAmmo_CastSpellByName_Hook
+        if CastSpellByName ~= MTHSmartAmmo_CastSpellByName_Hook then
+                if CastSpellByName == MTHSmartAmmo_OriginalCastSpellByName or MTH_SA_CastSpellByName == nil then
+                        MTH_SA_CastSpellByName = CastSpellByName
+                        CastSpellByName = MTHSmartAmmo_CastSpellByName_Hook
+                end
 	end
 end
 

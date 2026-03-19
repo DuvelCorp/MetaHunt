@@ -57,7 +57,7 @@ FOM_RealmPlayer = nil;
 FOM_LastPetName = nil;
 FOM_LastFeedAttempt = nil;
 FOM_TRACE_ENABLED = false;
-local FOM_CORE_ATTEMPT_TRACKING_ENABLED = false;
+local FOM_CORE_ATTEMPT_TRACKING_ENABLED = true;
 local FOM_PERF_TRACE_ENABLED = false;
 local FOM_PERF_TRACE_HISTORY_LIMIT = 80;
 local FOM_PERF_TRACE_SPIKE_MS = 12;
@@ -126,7 +126,10 @@ FOM_FamilyToLegacyMap = {
 };
 
 local function FOM_Trace(message)
-	return;
+	if not FOM_TRACE_ENABLED then return; end
+	if type(DEFAULT_CHAT_FRAME) == "table" and DEFAULT_CHAT_FRAME.AddMessage then
+		DEFAULT_CHAT_FRAME:AddMessage("|cffffff00[FOM-Trace]|r " .. tostring(message));
+	end
 end
 
 local function FOM_PerfNowMs()
@@ -1301,6 +1304,7 @@ function FOM_OnUpdate(elapsed)
 				.. " pet='" .. tostring(FOM_LastFeedAttempt.petName or "")
 				.. "' elapsed=" .. string.format("%.2f", elapsedSinceFeed));
 			FOM_LastFeedAttempt = nil;
+			FOM_LastFood = nil;
 		elseif (elapsedSinceFeed >= 2.50) then
 			local failedAttempt = FOM_LastFeedAttempt;
 			if (FOM_LastFeedAttempt.coreAttemptId and type(MTH_FEED_RecordBuffOutcome) == "function") then
@@ -1952,6 +1956,7 @@ function FOM_ChatCommandHandler(msg)
 			if ( cmd == "add" ) then
 				for _, food in inputFoods do
 					local foodID = FOM_IDFromLink(food);
+					FOM_ClearItemBans(foodID);
 					if ( FOM_AddFood(diet, tonumber(foodID)) ) then
 						GFWUtils.Print("Added "..food.." to "..GFWUtils.Hilite(capDiet).." list.");
 					else
@@ -2011,6 +2016,12 @@ function FOM_AddFood(diet, food)
 			return false;
 		end
 	else
+		-- Item is in the base list; clear it from RemovedFoods if present so it isn't banned
+		if (FOM_RemovedFoods and FOM_RemovedFoods[diet] and GFWTable.IndexOf(FOM_RemovedFoods[diet], food) ~= 0) then
+			table.remove( FOM_RemovedFoods[diet], GFWTable.IndexOf(FOM_RemovedFoods[diet], food) );
+			table.sort( FOM_RemovedFoods[diet] );
+			return true;
+		end
 		return false;
 	end
 
@@ -2018,7 +2029,7 @@ end
 
 -- Remove a food from a list
 function FOM_RemoveFood(diet, food)
-	
+
 	if (FOM_Foods[diet] == nil) then
 		GFWUtils.DebugLog("FOM_Foods[diet] == nil");
 	end
@@ -2055,6 +2066,42 @@ function FOM_RemoveFood(diet, food)
 		return false;
 	end
 
+end
+
+-- Clear quarantine, core exception blocks, and RemovedFoods ban for a specific item (called when user explicitly re-adds via /fom add)
+local function FOM_ClearItemBans(itemID)
+	local numericItem = tonumber(itemID);
+	if (numericItem == nil) then return; end
+	-- Clear from RemovedFoods across all diet lists
+	if (type(FOM_RemovedFoods) == "table") then
+		for diet, list in FOM_RemovedFoods do
+			if (type(list) == "table") then
+				local idx = GFWTable.IndexOf(list, numericItem);
+				if (idx ~= 0) then
+					table.remove(list, idx);
+				end
+			end
+		end
+	end
+	-- Clear FOM quarantine (all families)
+	local store = FOM_EnsureQuarantineStore();
+	if (type(store) == "table" and type(store.byFamily) == "table") then
+		for _, byItem in store.byFamily do
+			if (type(byItem) == "table") then
+				byItem[numericItem] = nil;
+			end
+		end
+	end
+	-- Clear core exception/block
+	if (type(MTH_FEED_GetStore) == "function") then
+		local coreStore = MTH_FEED_GetStore();
+		if (coreStore and coreStore.exceptions and type(coreStore.exceptions.byItemId) == "table") then
+			coreStore.exceptions.byItemId[numericItem] = nil;
+			coreStore.exceptions.byItemId[tostring(numericItem)] = nil;
+		end
+	end
+	-- Invalidate precompute cache so next feed re-scans
+	FOM_FEED_SCAN_CACHE = nil;
 end
 
 function FOM_IsBGActive()

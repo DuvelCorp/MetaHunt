@@ -13,6 +13,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 589,
+    ["skinId"]    = 589,
     }
     entry = MTH_DS_Beasts[659]
   end
@@ -43,6 +45,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 613,
+    ["skinId"]    = 599,
     }
     entry = MTH_DS_Beasts[728]
   end
@@ -73,6 +77,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 8472,
+    ["skinId"]    = 675,
     }
     entry = MTH_DS_Beasts[730]
   end
@@ -103,6 +109,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 616,
+    ["skinId"]    = 616,
     }
     entry = MTH_DS_Beasts[731]
   end
@@ -133,6 +141,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 633,
+    ["skinId"]    = 599,
     }
     entry = MTH_DS_Beasts[756]
   end
@@ -162,6 +172,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 815,
+    ["skinId"]    = 807,
     }
     entry = MTH_DS_Beasts[1087]
   end
@@ -191,6 +203,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 699,
+    ["skinId"]    = 342,
     }
     entry = MTH_DS_Beasts[1088]
   end
@@ -220,6 +234,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 837,
+    ["skinId"]    = 792,
     }
     entry = MTH_DS_Beasts[1511]
   end
@@ -249,6 +265,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 840,
+    ["skinId"]    = 840,
     }
     entry = MTH_DS_Beasts[1514]
   end
@@ -278,6 +296,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 839,
+    ["skinId"]    = 809,
     }
     entry = MTH_DS_Beasts[1516]
   end
@@ -307,6 +327,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 8802,
+    ["skinId"]    = 8802,
     }
     entry = MTH_DS_Beasts[1550]
   end
@@ -336,6 +358,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2174,
+    ["skinId"]    = 2174,
     }
     entry = MTH_DS_Beasts[1551]
   end
@@ -365,6 +389,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 12342,
+    ["skinId"]    = 12342,
     }
     entry = MTH_DS_Beasts[1552]
   end
@@ -395,6 +421,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 844,
+    ["skinId"]    = 792,
     }
     entry = MTH_DS_Beasts[1558]
   end
@@ -424,6 +452,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 792,
+    ["skinId"]    = 792,
     }
     entry = MTH_DS_Beasts[1559]
   end
@@ -454,6 +484,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 11452,
+    ["skinId"]    = 599,
     }
     entry = MTH_DS_Beasts[1713]
   end
@@ -483,6 +515,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1105,
+    ["skinId"]    = 388,
     }
     entry = MTH_DS_Beasts[1809]
   end
@@ -512,6 +546,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1082,
+    ["skinId"]    = 1082,
     }
     entry = MTH_DS_Beasts[1815]
   end
@@ -541,6 +577,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1083,
+    ["skinId"]    = 1083,
     }
     entry = MTH_DS_Beasts[1816]
   end
@@ -570,6 +608,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 4124,
+    ["skinId"]    = 4124,
     }
     entry = MTH_DS_Beasts[1817]
   end
@@ -599,6 +639,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1091,
+    ["skinId"]    = 1091,
     }
     entry = MTH_DS_Beasts[1821]
   end
@@ -628,6 +670,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1087,
+    ["skinId"]    = 955,
     }
     entry = MTH_DS_Beasts[1822]
   end
@@ -657,6 +701,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1088,
+    ["skinId"]    = 513,
     }
     entry = MTH_DS_Beasts[1824]
   end
@@ -686,6 +732,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 5027,
+    ["skinId"]    = 5026,
     }
     entry = MTH_DS_Beasts[2505]
   end
@@ -715,6 +763,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 809,
+    ["skinId"]    = 809,
     }
     entry = MTH_DS_Beasts[2521]
   end
@@ -744,6 +794,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 613,
+    ["skinId"]    = 599,
     }
     entry = MTH_DS_Beasts[2522]
   end
@@ -773,6 +825,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 935,
+    ["skinId"]    = 935,
     }
     entry = MTH_DS_Beasts[2658]
   end
@@ -802,6 +856,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1148,
+    ["skinId"]    = 1148,
     }
     entry = MTH_DS_Beasts[2659]
   end
@@ -831,6 +887,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 781,
+    ["skinId"]    = 644,
     }
     entry = MTH_DS_Beasts[2680]
   end
@@ -860,6 +918,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 782,
+    ["skinId"]    = 644,
     }
     entry = MTH_DS_Beasts[2681]
   end
@@ -890,6 +950,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1157,
+    ["skinId"]    = 955,
     }
     entry = MTH_DS_Beasts[2686]
   end
@@ -919,6 +981,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7536,
+    ["skinId"]    = 7536,
     }
     entry = MTH_DS_Beasts[2707]
   end
@@ -950,6 +1014,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 161,
+    ["skinId"]    = 161,
     }
     entry = MTH_DS_Beasts[2730]
   end
@@ -979,6 +1045,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 11413,
+    ["skinId"]    = 9564,
     }
     entry = MTH_DS_Beasts[2923]
   end
@@ -1008,6 +1076,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 11419,
+    ["skinId"]    = 9564,
     }
     entry = MTH_DS_Beasts[2924]
   end
@@ -1037,6 +1107,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 11417,
+    ["skinId"]    = 9564,
     }
     entry = MTH_DS_Beasts[2925]
   end
@@ -1066,6 +1138,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 11418,
+    ["skinId"]    = 9564,
     }
     entry = MTH_DS_Beasts[2926]
   end
@@ -1095,6 +1169,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1210,
+    ["skinId"]    = 490,
     }
     entry = MTH_DS_Beasts[2931]
   end
@@ -1125,6 +1201,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2850,
+    ["skinId"]    = 1609,
     }
     entry = MTH_DS_Beasts[3581]
   end
@@ -1155,6 +1233,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9956,
+    ["skinId"]    = 9956,
     }
     entry = MTH_DS_Beasts[4242]
   end
@@ -1184,6 +1264,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 613,
+    ["skinId"]    = 599,
     }
     entry = MTH_DS_Beasts[4243]
   end
@@ -1214,6 +1296,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2573,
+    ["skinId"]    = 1959,
     }
     entry = MTH_DS_Beasts[4357]
   end
@@ -1243,6 +1327,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2537,
+    ["skinId"]    = 2536,
     }
     entry = MTH_DS_Beasts[4380]
   end
@@ -1273,6 +1359,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2601,
+    ["skinId"]    = 2601,
     }
     entry = MTH_DS_Beasts[4389]
   end
@@ -1302,6 +1390,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 6431,
+    ["skinId"]    = 6431,
     }
     entry = MTH_DS_Beasts[4390]
   end
@@ -1331,6 +1421,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7840,
+    ["skinId"]    = 4829,
     }
     entry = MTH_DS_Beasts[4399]
   end
@@ -1360,6 +1452,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7839,
+    ["skinId"]    = 4829,
     }
     entry = MTH_DS_Beasts[4400]
   end
@@ -1389,6 +1483,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2850,
+    ["skinId"]    = 1609,
     }
     entry = MTH_DS_Beasts[4841]
   end
@@ -1418,6 +1514,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1557,
+    ["skinId"]    = 1557,
     }
     entry = MTH_DS_Beasts[5186]
   end
@@ -1448,6 +1546,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 4767,
+    ["skinId"]    = 4317,
     }
     entry = MTH_DS_Beasts[5224]
   end
@@ -1478,6 +1578,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 4768,
+    ["skinId"]    = 4435,
     }
     entry = MTH_DS_Beasts[5225]
   end
@@ -1508,6 +1610,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7549,
+    ["skinId"]    = 7549,
     }
     entry = MTH_DS_Beasts[5226]
   end
@@ -1538,6 +1642,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 3186,
+    ["skinId"]    = 3186,
     }
     entry = MTH_DS_Beasts[5260]
   end
@@ -1567,6 +1673,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 3188,
+    ["skinId"]    = 3186,
     }
     entry = MTH_DS_Beasts[5262]
   end
@@ -1596,6 +1704,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 3201,
+    ["skinId"]    = 806,
     }
     entry = MTH_DS_Beasts[5268]
   end
@@ -1625,6 +1735,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 8838,
+    ["skinId"]    = 806,
     }
     entry = MTH_DS_Beasts[5272]
   end
@@ -1654,6 +1766,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 3200,
+    ["skinId"]    = 806,
     }
     entry = MTH_DS_Beasts[5274]
   end
@@ -1683,6 +1797,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 3202,
+    ["skinId"]    = 165,
     }
     entry = MTH_DS_Beasts[5287]
   end
@@ -1712,6 +1828,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 3203,
+    ["skinId"]    = 165,
     }
     entry = MTH_DS_Beasts[5288]
   end
@@ -1741,6 +1859,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7569,
+    ["skinId"]    = 2703,
     }
     entry = MTH_DS_Beasts[5291]
   end
@@ -1771,6 +1891,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 3210,
+    ["skinId"]    = 3210,
     }
     entry = MTH_DS_Beasts[5300]
   end
@@ -1800,6 +1922,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10890,
+    ["skinId"]    = 10890,
     }
     entry = MTH_DS_Beasts[5304]
   end
@@ -1829,6 +1953,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 3211,
+    ["skinId"]    = 3211,
     }
     entry = MTH_DS_Beasts[5305]
   end
@@ -1858,6 +1984,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 6756,
+    ["skinId"]    = 6756,
     }
     entry = MTH_DS_Beasts[5306]
   end
@@ -1887,6 +2015,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2699,
+    ["skinId"]    = 2699,
     }
     entry = MTH_DS_Beasts[5307]
   end
@@ -1916,6 +2046,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 3204,
+    ["skinId"]    = 2699,
     }
     entry = MTH_DS_Beasts[5308]
   end
@@ -1945,6 +2077,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10889,
+    ["skinId"]    = 10889,
     }
     entry = MTH_DS_Beasts[5347]
   end
@@ -1975,6 +2109,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7569,
+    ["skinId"]    = 2703,
     }
     entry = MTH_DS_Beasts[5349]
   end
@@ -2005,6 +2141,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 706,
+    ["skinId"]    = 706,
     }
     entry = MTH_DS_Beasts[5352]
   end
@@ -2035,6 +2173,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 780,
+    ["skinId"]    = 644,
     }
     entry = MTH_DS_Beasts[5356]
   end
@@ -2065,6 +2205,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 141,
+    ["skinId"]    = 141,
     }
     entry = MTH_DS_Beasts[5419]
   end
@@ -2094,6 +2236,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7344,
+    ["skinId"]    = 7344,
     }
     entry = MTH_DS_Beasts[5420]
   end
@@ -2123,6 +2267,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 12339,
+    ["skinId"]    = 12339,
     }
     entry = MTH_DS_Beasts[5421]
   end
@@ -2152,6 +2298,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10987,
+    ["skinId"]    = 2414,
     }
     entry = MTH_DS_Beasts[5423]
   end
@@ -2181,6 +2329,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10986,
+    ["skinId"]    = 2414,
     }
     entry = MTH_DS_Beasts[5424]
   end
@@ -2210,6 +2360,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1535,
+    ["skinId"]    = 1534,
     }
     entry = MTH_DS_Beasts[5425]
   end
@@ -2239,6 +2391,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1536,
+    ["skinId"]    = 1536,
     }
     entry = MTH_DS_Beasts[5426]
   end
@@ -2268,6 +2422,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2609,
+    ["skinId"]    = 1534,
     }
     entry = MTH_DS_Beasts[5427]
   end
@@ -2297,6 +2453,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 3248,
+    ["skinId"]    = 490,
     }
     entry = MTH_DS_Beasts[5428]
   end
@@ -2326,6 +2484,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7348,
+    ["skinId"]    = 490,
     }
     entry = MTH_DS_Beasts[5429]
   end
@@ -2355,6 +2515,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10827,
+    ["skinId"]    = 490,
     }
     entry = MTH_DS_Beasts[5430]
   end
@@ -2384,6 +2546,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7114,
+    ["skinId"]    = 5126,
     }
     entry = MTH_DS_Beasts[5431]
   end
@@ -2413,6 +2577,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 5127,
+    ["skinId"]    = 5126,
     }
     entry = MTH_DS_Beasts[5432]
   end
@@ -2443,6 +2609,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 12192,
+    ["skinId"]    = 12192,
     }
     entry = MTH_DS_Beasts[5434]
   end
@@ -2473,6 +2641,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 4065,
+    ["skinId"]    = 2699,
     }
     entry = MTH_DS_Beasts[5708]
   end
@@ -2503,6 +2673,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10933,
+    ["skinId"]    = 10933,
     }
     entry = MTH_DS_Beasts[5833]
   end
@@ -2533,6 +2705,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 4456,
+    ["skinId"]    = 4456,
     }
     entry = MTH_DS_Beasts[5856]
   end
@@ -2562,6 +2736,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 4457,
+    ["skinId"]    = 4457,
     }
     entry = MTH_DS_Beasts[5857]
   end
@@ -2591,6 +2767,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7510,
+    ["skinId"]    = 4457,
     }
     entry = MTH_DS_Beasts[5858]
   end
@@ -2620,6 +2798,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2902,
+    ["skinId"]    = 1244,
     }
     entry = MTH_DS_Beasts[5955]
   end
@@ -2649,6 +2829,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10824,
+    ["skinId"]    = 388,
     }
     entry = MTH_DS_Beasts[5982]
   end
@@ -2678,6 +2860,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1105,
+    ["skinId"]    = 388,
     }
     entry = MTH_DS_Beasts[5983]
   end
@@ -2707,6 +2891,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 8050,
+    ["skinId"]    = 2714,
     }
     entry = MTH_DS_Beasts[5984]
   end
@@ -2736,6 +2922,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2714,
+    ["skinId"]    = 2714,
     }
     entry = MTH_DS_Beasts[5985]
   end
@@ -2765,6 +2953,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 6068,
+    ["skinId"]    = 2488,
     }
     entry = MTH_DS_Beasts[5988]
   end
@@ -2794,6 +2984,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2743,
+    ["skinId"]    = 2743,
     }
     entry = MTH_DS_Beasts[5990]
   end
@@ -2823,6 +3015,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 798,
+    ["skinId"]    = 798,
     }
     entry = MTH_DS_Beasts[5991]
   end
@@ -2852,6 +3046,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 3026,
+    ["skinId"]    = 3026,
     }
     entry = MTH_DS_Beasts[5992]
   end
@@ -2881,6 +3077,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1244,
+    ["skinId"]    = 1244,
     }
     entry = MTH_DS_Beasts[6015]
   end
@@ -2910,6 +3108,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10900,
+    ["skinId"]    = 10900,
     }
     entry = MTH_DS_Beasts[6347]
   end
@@ -2939,6 +3139,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10899,
+    ["skinId"]    = 10899,
     }
     entry = MTH_DS_Beasts[6348]
   end
@@ -2968,6 +3170,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10897,
+    ["skinId"]    = 10897,
     }
     entry = MTH_DS_Beasts[6349]
   end
@@ -2997,6 +3201,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10947,
+    ["skinId"]    = 2307,
     }
     entry = MTH_DS_Beasts[6352]
   end
@@ -3026,6 +3232,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2308,
+    ["skinId"]    = 2307,
     }
     entry = MTH_DS_Beasts[6369]
   end
@@ -3055,6 +3263,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 6757,
+    ["skinId"]    = 6757,
     }
     entry = MTH_DS_Beasts[6375]
   end
@@ -3084,6 +3294,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10894,
+    ["skinId"]    = 10894,
     }
     entry = MTH_DS_Beasts[6377]
   end
@@ -3113,6 +3325,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10893,
+    ["skinId"]    = 10893,
     }
     entry = MTH_DS_Beasts[6378]
   end
@@ -3142,6 +3356,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10892,
+    ["skinId"]    = 10892,
     }
     entry = MTH_DS_Beasts[6379]
   end
@@ -3171,6 +3387,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10891,
+    ["skinId"]    = 10891,
     }
     entry = MTH_DS_Beasts[6380]
   end
@@ -3200,6 +3418,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 5239,
+    ["skinId"]    = 5239,
     }
     entry = MTH_DS_Beasts[6498]
   end
@@ -3230,6 +3450,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 5238,
+    ["skinId"]    = 5238,
     }
     entry = MTH_DS_Beasts[6499]
   end
@@ -3260,6 +3482,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 5240,
+    ["skinId"]    = 5240,
     }
     entry = MTH_DS_Beasts[6500]
   end
@@ -3290,6 +3514,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 5241,
+    ["skinId"]    = 5241,
     }
     entry = MTH_DS_Beasts[6501]
   end
@@ -3320,6 +3546,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 5287,
+    ["skinId"]    = 5287,
     }
     entry = MTH_DS_Beasts[6502]
   end
@@ -3350,6 +3578,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 5288,
+    ["skinId"]    = 5288,
     }
     entry = MTH_DS_Beasts[6503]
   end
@@ -3380,6 +3610,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 5289,
+    ["skinId"]    = 5289,
     }
     entry = MTH_DS_Beasts[6504]
   end
@@ -3410,6 +3642,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 5242,
+    ["skinId"]    = 960,
     }
     entry = MTH_DS_Beasts[6505]
   end
@@ -3439,6 +3673,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 5290,
+    ["skinId"]    = 675,
     }
     entry = MTH_DS_Beasts[6506]
   end
@@ -3468,6 +3704,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 5292,
+    ["skinId"]    = 960,
     }
     entry = MTH_DS_Beasts[6507]
   end
@@ -3497,6 +3735,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 5291,
+    ["skinId"]    = 5291,
     }
     entry = MTH_DS_Beasts[6508]
   end
@@ -3526,6 +3766,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 5294,
+    ["skinId"]    = 792,
     }
     entry = MTH_DS_Beasts[6513]
   end
@@ -3555,6 +3797,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 844,
+    ["skinId"]    = 792,
     }
     entry = MTH_DS_Beasts[6514]
   end
@@ -3584,6 +3828,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 5244,
+    ["skinId"]    = 792,
     }
     entry = MTH_DS_Beasts[6516]
   end
@@ -3613,6 +3859,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 11319,
+    ["skinId"]    = 322,
     }
     entry = MTH_DS_Beasts[6581]
   end
@@ -3643,6 +3891,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10932,
+    ["skinId"]    = 10932,
     }
     entry = MTH_DS_Beasts[6583]
   end
@@ -3673,6 +3923,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 5305,
+    ["skinId"]    = 5305,
     }
     entry = MTH_DS_Beasts[6584]
   end
@@ -3703,6 +3955,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 8129,
+    ["skinId"]    = 840,
     }
     entry = MTH_DS_Beasts[6585]
   end
@@ -3733,6 +3987,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 3212,
+    ["skinId"]    = 3212,
     }
     entry = MTH_DS_Beasts[6648]
   end
@@ -3763,6 +4019,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 741,
+    ["skinId"]    = 246,
     }
     entry = MTH_DS_Beasts[7055]
   end
@@ -3792,6 +4050,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 4877,
+    ["skinId"]    = 4877,
     }
     entry = MTH_DS_Beasts[7097]
   end
@@ -3821,6 +4081,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10831,
+    ["skinId"]    = 4877,
     }
     entry = MTH_DS_Beasts[7098]
   end
@@ -3850,6 +4112,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10829,
+    ["skinId"]    = 4877,
     }
     entry = MTH_DS_Beasts[7099]
   end
@@ -3879,6 +4143,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 5865,
+    ["skinId"]    = 5865,
     }
     entry = MTH_DS_Beasts[7167]
   end
@@ -3909,6 +4175,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 4305,
+    ["skinId"]    = 4305,
     }
     entry = MTH_DS_Beasts[7268]
   end
@@ -3939,6 +4207,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7470,
+    ["skinId"]    = 7469,
     }
     entry = MTH_DS_Beasts[7269]
   end
@@ -3968,6 +4238,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7271,
+    ["skinId"]    = 7271,
     }
     entry = MTH_DS_Beasts[7273]
   end
@@ -3998,6 +4270,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10826,
+    ["skinId"]    = 507,
     }
     entry = MTH_DS_Beasts[7376]
   end
@@ -4027,6 +4301,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 5985,
+    ["skinId"]    = 2489,
     }
     entry = MTH_DS_Beasts[7405]
   end
@@ -4056,6 +4332,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9958,
+    ["skinId"]    = 9958,
     }
     entry = MTH_DS_Beasts[7430]
   end
@@ -4085,6 +4363,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9953,
+    ["skinId"]    = 616,
     }
     entry = MTH_DS_Beasts[7431]
   end
@@ -4114,6 +4394,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 11445,
+    ["skinId"]    = 9958,
     }
     entry = MTH_DS_Beasts[7432]
   end
@@ -4143,6 +4425,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 11444,
+    ["skinId"]    = 9958,
     }
     entry = MTH_DS_Beasts[7433]
   end
@@ -4172,6 +4456,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9954,
+    ["skinId"]    = 9954,
     }
     entry = MTH_DS_Beasts[7434]
   end
@@ -4201,6 +4487,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 8842,
+    ["skinId"]    = 865,
     }
     entry = MTH_DS_Beasts[7443]
   end
@@ -4230,6 +4518,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 865,
+    ["skinId"]    = 865,
     }
     entry = MTH_DS_Beasts[7444]
   end
@@ -4259,6 +4549,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 8837,
+    ["skinId"]    = 865,
     }
     entry = MTH_DS_Beasts[7445]
   end
@@ -4288,6 +4580,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 3200,
+    ["skinId"]    = 806,
     }
     entry = MTH_DS_Beasts[7446]
   end
@@ -4317,6 +4611,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10807,
+    ["skinId"]    = 10807,
     }
     entry = MTH_DS_Beasts[7447]
   end
@@ -4346,6 +4642,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10810,
+    ["skinId"]    = 10810,
     }
     entry = MTH_DS_Beasts[7448]
   end
@@ -4375,6 +4673,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10809,
+    ["skinId"]    = 10809,
     }
     entry = MTH_DS_Beasts[7449]
   end
@@ -4404,6 +4704,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 6212,
+    ["skinId"]    = 6212,
     }
     entry = MTH_DS_Beasts[7455]
   end
@@ -4433,6 +4735,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10833,
+    ["skinId"]    = 6212,
     }
     entry = MTH_DS_Beasts[7456]
   end
@@ -4462,6 +4766,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2414,
+    ["skinId"]    = 2414,
     }
     entry = MTH_DS_Beasts[7803]
   end
@@ -4491,6 +4797,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 12238,
+    ["skinId"]    = 12238,
     }
     entry = MTH_DS_Beasts[7808]
   end
@@ -4520,6 +4828,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7114,
+    ["skinId"]    = 5126,
     }
     entry = MTH_DS_Beasts[7977]
   end
@@ -4550,6 +4860,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7269,
+    ["skinId"]    = 7269,
     }
     entry = MTH_DS_Beasts[8024]
   end
@@ -4579,6 +4891,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7270,
+    ["skinId"]    = 7270,
     }
     entry = MTH_DS_Beasts[8025]
   end
@@ -4608,6 +4922,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7345,
+    ["skinId"]    = 7345,
     }
     entry = MTH_DS_Beasts[8095]
   end
@@ -4638,6 +4954,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7349,
+    ["skinId"]    = 490,
     }
     entry = MTH_DS_Beasts[8207]
   end
@@ -4668,6 +4986,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1534,
+    ["skinId"]    = 1534,
     }
     entry = MTH_DS_Beasts[8208]
   end
@@ -4698,6 +5018,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 11414,
+    ["skinId"]    = 11414,
     }
     entry = MTH_DS_Beasts[8211]
   end
@@ -4728,6 +5050,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7840,
+    ["skinId"]    = 4829,
     }
     entry = MTH_DS_Beasts[8213]
   end
@@ -4758,6 +5082,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 4458,
+    ["skinId"]    = 4457,
     }
     entry = MTH_DS_Beasts[8277]
   end
@@ -4788,6 +5114,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 388,
+    ["skinId"]    = 388,
     }
     entry = MTH_DS_Beasts[8299]
   end
@@ -4818,6 +5146,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10904,
+    ["skinId"]    = 2713,
     }
     entry = MTH_DS_Beasts[8300]
   end
@@ -4848,6 +5178,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10983,
+    ["skinId"]    = 10983,
     }
     entry = MTH_DS_Beasts[8301]
   end
@@ -4878,6 +5210,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2174,
+    ["skinId"]    = 2174,
     }
     entry = MTH_DS_Beasts[8302]
   end
@@ -4908,6 +5242,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 8870,
+    ["skinId"]    = 381,
     }
     entry = MTH_DS_Beasts[8303]
   end
@@ -4938,6 +5274,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7571,
+    ["skinId"]    = 7571,
     }
     entry = MTH_DS_Beasts[8311]
   end
@@ -4967,6 +5305,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1336,
+    ["skinId"]    = 1336,
     }
     entry = MTH_DS_Beasts[8336]
   end
@@ -4997,6 +5337,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7894,
+    ["skinId"]    = 4185,
     }
     entry = MTH_DS_Beasts[8600]
   end
@@ -5026,6 +5368,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7896,
+    ["skinId"]    = 1954,
     }
     entry = MTH_DS_Beasts[8601]
   end
@@ -5055,6 +5399,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7897,
+    ["skinId"]    = 4185,
     }
     entry = MTH_DS_Beasts[8602]
   end
@@ -5084,6 +5430,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7898,
+    ["skinId"]    = 7898,
     }
     entry = MTH_DS_Beasts[8603]
   end
@@ -5113,6 +5461,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7900,
+    ["skinId"]    = 7900,
     }
     entry = MTH_DS_Beasts[8605]
   end
@@ -5142,6 +5492,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7906,
+    ["skinId"]    = 2699,
     }
     entry = MTH_DS_Beasts[8612]
   end
@@ -5171,6 +5523,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10807,
+    ["skinId"]    = 10807,
     }
     entry = MTH_DS_Beasts[8660]
   end
@@ -5201,6 +5555,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 8013,
+    ["skinId"]    = 8013,
     }
     entry = MTH_DS_Beasts[8759]
   end
@@ -5230,6 +5586,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2161,
+    ["skinId"]    = 2161,
     }
     entry = MTH_DS_Beasts[8760]
   end
@@ -5259,6 +5617,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10957,
+    ["skinId"]    = 10957,
     }
     entry = MTH_DS_Beasts[8761]
   end
@@ -5288,6 +5648,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 8014,
+    ["skinId"]    = 520,
     }
     entry = MTH_DS_Beasts[8762]
   end
@@ -5317,6 +5679,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 12682,
+    ["skinId"]    = 12682,
     }
     entry = MTH_DS_Beasts[8763]
   end
@@ -5346,6 +5710,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 4269,
+    ["skinId"]    = 4269,
     }
     entry = MTH_DS_Beasts[8764]
   end
@@ -5375,6 +5741,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 8182,
+    ["skinId"]    = 8182,
     }
     entry = MTH_DS_Beasts[8925]
   end
@@ -5405,6 +5773,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7347,
+    ["skinId"]    = 2489,
     }
     entry = MTH_DS_Beasts[8926]
   end
@@ -5435,6 +5805,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1955,
+    ["skinId"]    = 1954,
     }
     entry = MTH_DS_Beasts[8927]
   end
@@ -5465,6 +5837,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 8184,
+    ["skinId"]    = 8184,
     }
     entry = MTH_DS_Beasts[8928]
   end
@@ -5495,6 +5869,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7470,
+    ["skinId"]    = 7469,
     }
     entry = MTH_DS_Beasts[8932]
   end
@@ -5525,6 +5901,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 8014,
+    ["skinId"]    = 520,
     }
     entry = MTH_DS_Beasts[8933]
   end
@@ -5555,6 +5933,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9276,
+    ["skinId"]    = 1083,
     }
     entry = MTH_DS_Beasts[8956]
   end
@@ -5584,6 +5964,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9277,
+    ["skinId"]    = 1083,
     }
     entry = MTH_DS_Beasts[8957]
   end
@@ -5613,6 +5995,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1083,
+    ["skinId"]    = 1083,
     }
     entry = MTH_DS_Beasts[8958]
   end
@@ -5642,6 +6026,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 4124,
+    ["skinId"]    = 4124,
     }
     entry = MTH_DS_Beasts[8959]
   end
@@ -5671,6 +6057,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9278,
+    ["skinId"]    = 4124,
     }
     entry = MTH_DS_Beasts[8960]
   end
@@ -5700,6 +6088,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9280,
+    ["skinId"]    = 4124,
     }
     entry = MTH_DS_Beasts[8961]
   end
@@ -5729,6 +6119,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 8271,
+    ["skinId"]    = 4456,
     }
     entry = MTH_DS_Beasts[9032]
   end
@@ -5759,6 +6151,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 8510,
+    ["skinId"]    = 8510,
     }
     entry = MTH_DS_Beasts[9162]
   end
@@ -5788,6 +6182,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 8511,
+    ["skinId"]    = 8511,
     }
     entry = MTH_DS_Beasts[9163]
   end
@@ -5817,6 +6213,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 8512,
+    ["skinId"]    = 8512,
     }
     entry = MTH_DS_Beasts[9164]
   end
@@ -5846,6 +6244,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 8410,
+    ["skinId"]    = 8410,
     }
     entry = MTH_DS_Beasts[9165]
   end
@@ -5875,6 +6275,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 8411,
+    ["skinId"]    = 8411,
     }
     entry = MTH_DS_Beasts[9166]
   end
@@ -5904,6 +6306,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 8412,
+    ["skinId"]    = 8412,
     }
     entry = MTH_DS_Beasts[9167]
   end
@@ -5933,6 +6337,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9342,
+    ["skinId"]    = 9342,
     }
     entry = MTH_DS_Beasts[9274]
   end
@@ -5962,6 +6368,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2157,
+    ["skinId"]    = 2157,
     }
     entry = MTH_DS_Beasts[9297]
   end
@@ -5991,6 +6399,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 8509,
+    ["skinId"]    = 8509,
     }
     entry = MTH_DS_Beasts[9318]
   end
@@ -6020,6 +6430,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 11420,
+    ["skinId"]    = 9369,
     }
     entry = MTH_DS_Beasts[9416]
   end
@@ -6050,6 +6462,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9074,
+    ["skinId"]    = 1954,
     }
     entry = MTH_DS_Beasts[9521]
   end
@@ -6080,6 +6494,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1149,
+    ["skinId"]    = 1149,
     }
     entry = MTH_DS_Beasts[9526]
   end
@@ -6109,6 +6525,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 479,
+    ["skinId"]    = 479,
     }
     entry = MTH_DS_Beasts[9527]
   end
@@ -6138,6 +6556,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 8844,
+    ["skinId"]    = 3186,
     }
     entry = MTH_DS_Beasts[9622]
   end
@@ -6167,6 +6587,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 5242,
+    ["skinId"]    = 960,
     }
     entry = MTH_DS_Beasts[9683]
   end
@@ -6196,6 +6618,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 11318,
+    ["skinId"]    = 675,
     }
     entry = MTH_DS_Beasts[9684]
   end
@@ -6225,6 +6649,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9371,
+    ["skinId"]    = 9369,
     }
     entry = MTH_DS_Beasts[9690]
   end
@@ -6254,6 +6680,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 8970,
+    ["skinId"]    = 2487,
     }
     entry = MTH_DS_Beasts[9691]
   end
@@ -6283,6 +6711,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 11420,
+    ["skinId"]    = 9369,
     }
     entry = MTH_DS_Beasts[9694]
   end
@@ -6312,6 +6742,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10984,
+    ["skinId"]    = 2487,
     }
     entry = MTH_DS_Beasts[9695]
   end
@@ -6341,6 +6773,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9562,
+    ["skinId"]    = 246,
     }
     entry = MTH_DS_Beasts[9696]
   end
@@ -6371,6 +6805,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9370,
+    ["skinId"]    = 9369,
     }
     entry = MTH_DS_Beasts[9697]
   end
@@ -6400,6 +6836,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10985,
+    ["skinId"]    = 2487,
     }
     entry = MTH_DS_Beasts[9698]
   end
@@ -6429,6 +6867,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2864,
+    ["skinId"]    = 2488,
     }
     entry = MTH_DS_Beasts[9701]
   end
@@ -6458,6 +6898,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9562,
+    ["skinId"]    = 246,
     }
     entry = MTH_DS_Beasts[10077]
   end
@@ -6488,6 +6930,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9469,
+    ["skinId"]    = 9469,
     }
     entry = MTH_DS_Beasts[10177]
   end
@@ -6517,6 +6961,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10054,
+    ["skinId"]    = 10054,
     }
     entry = MTH_DS_Beasts[10200]
   end
@@ -6547,6 +6993,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9492,
+    ["skinId"]    = 9492,
     }
     entry = MTH_DS_Beasts[10204]
   end
@@ -6577,6 +7025,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9567,
+    ["skinId"]    = 9567,
     }
     entry = MTH_DS_Beasts[10220]
   end
@@ -6607,6 +7057,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9563,
+    ["skinId"]    = 246,
     }
     entry = MTH_DS_Beasts[10221]
   end
@@ -6636,6 +7088,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9564,
+    ["skinId"]    = 9564,
     }
     entry = MTH_DS_Beasts[10268]
   end
@@ -6666,6 +7120,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9755,
+    ["skinId"]    = 4456,
     }
     entry = MTH_DS_Beasts[10374]
   end
@@ -6696,6 +7152,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9756,
+    ["skinId"]    = 4456,
     }
     entry = MTH_DS_Beasts[10375]
   end
@@ -6725,6 +7183,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9755,
+    ["skinId"]    = 4456,
     }
     entry = MTH_DS_Beasts[10376]
   end
@@ -6755,6 +7215,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10193,
+    ["skinId"]    = 10193,
     }
     entry = MTH_DS_Beasts[10430]
   end
@@ -6785,6 +7247,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10005,
+    ["skinId"]    = 10005,
     }
     entry = MTH_DS_Beasts[10577]
   end
@@ -6814,6 +7278,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9929,
+    ["skinId"]    = 4456,
     }
     entry = MTH_DS_Beasts[10596]
   end
@@ -6844,6 +7310,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9954,
+    ["skinId"]    = 9954,
     }
     entry = MTH_DS_Beasts[10619]
   end
@@ -6874,6 +7342,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10046,
+    ["skinId"]    = 10046,
     }
     entry = MTH_DS_Beasts[10717]
   end
@@ -6903,6 +7373,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10113,
+    ["skinId"]    = 10054,
     }
     entry = MTH_DS_Beasts[10737]
   end
@@ -6933,6 +7405,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10114,
+    ["skinId"]    = 1934,
     }
     entry = MTH_DS_Beasts[10741]
   end
@@ -6963,6 +7437,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10618,
+    ["skinId"]    = 865,
     }
     entry = MTH_DS_Beasts[10806]
   end
@@ -6993,6 +7469,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 12683,
+    ["skinId"]    = 12683,
     }
     entry = MTH_DS_Beasts[10807]
   end
@@ -7023,6 +7501,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10244,
+    ["skinId"]    = 10244,
     }
     entry = MTH_DS_Beasts[10942]
   end
@@ -7053,6 +7533,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2709,
+    ["skinId"]    = 2709,
     }
     entry = MTH_DS_Beasts[10979]
   end
@@ -7082,6 +7564,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10278,
+    ["skinId"]    = 720,
     }
     entry = MTH_DS_Beasts[10981]
   end
@@ -7111,6 +7595,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10278,
+    ["skinId"]    = 720,
     }
     entry = MTH_DS_Beasts[10985]
   end
@@ -7140,6 +7626,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10283,
+    ["skinId"]    = 10283,
     }
     entry = MTH_DS_Beasts[10988]
   end
@@ -7169,6 +7657,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 13340,
+    ["skinId"]    = 13340,
     }
     entry = MTH_DS_Beasts[10989]
   end
@@ -7198,6 +7688,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 13340,
+    ["skinId"]    = 13340,
     }
     entry = MTH_DS_Beasts[10990]
   end
@@ -7227,6 +7719,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1030,
+    ["skinId"]    = 720,
     }
     entry = MTH_DS_Beasts[11024]
   end
@@ -7257,6 +7751,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 11452,
+    ["skinId"]    = 599,
     }
     entry = MTH_DS_Beasts[11181]
   end
@@ -7287,6 +7783,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 15275,
+    ["skinId"]    = 2699,
     }
     entry = MTH_DS_Beasts[11357]
   end
@@ -7317,6 +7815,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7829,
+    ["skinId"]    = 3006,
     }
     entry = MTH_DS_Beasts[11359]
   end
@@ -7347,6 +7847,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 15151,
+    ["skinId"]    = 320,
     }
     entry = MTH_DS_Beasts[11360]
   end
@@ -7376,6 +7878,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 11031,
+    ["skinId"]    = 320,
     }
     entry = MTH_DS_Beasts[11361]
   end
@@ -7406,6 +7910,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 633,
+    ["skinId"]    = 599,
     }
     entry = MTH_DS_Beasts[11365]
   end
@@ -7436,6 +7942,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 14562,
+    ["skinId"]    = 3956,
     }
     entry = MTH_DS_Beasts[11368]
   end
@@ -7465,6 +7973,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 963,
+    ["skinId"]    = 963,
     }
     entry = MTH_DS_Beasts[11370]
   end
@@ -7495,6 +8005,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 15182,
+    ["skinId"]    = 15182,
     }
     entry = MTH_DS_Beasts[11371]
   end
@@ -7525,6 +8037,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 15150,
+    ["skinId"]    = 4317,
     }
     entry = MTH_DS_Beasts[11372]
   end
@@ -7555,6 +8069,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 14559,
+    ["skinId"]    = 4305,
     }
     entry = MTH_DS_Beasts[11373]
   end
@@ -7585,6 +8101,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 15101,
+    ["skinId"]    = 15101,
     }
     entry = MTH_DS_Beasts[11374]
   end
@@ -7615,6 +8133,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 12683,
+    ["skinId"]    = 12683,
     }
     entry = MTH_DS_Beasts[11497]
   end
@@ -7645,6 +8165,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 3203,
+    ["skinId"]    = 165,
     }
     entry = MTH_DS_Beasts[11614]
   end
@@ -7674,6 +8196,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 12168,
+    ["skinId"]    = 12168,
     }
     entry = MTH_DS_Beasts[11671]
   end
@@ -7704,6 +8228,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 11997,
+    ["skinId"]    = 11997,
     }
     entry = MTH_DS_Beasts[11672]
   end
@@ -7734,6 +8260,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 12189,
+    ["skinId"]    = 12189,
     }
     entry = MTH_DS_Beasts[11673]
   end
@@ -7764,6 +8292,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2325,
+    ["skinId"]    = 2325,
     }
     entry = MTH_DS_Beasts[11710]
   end
@@ -7793,6 +8323,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 15383,
+    ["skinId"]    = 10983,
     }
     entry = MTH_DS_Beasts[11735]
   end
@@ -7822,6 +8354,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 15384,
+    ["skinId"]    = 2729,
     }
     entry = MTH_DS_Beasts[11736]
   end
@@ -7851,6 +8385,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 15385,
+    ["skinId"]    = 10983,
     }
     entry = MTH_DS_Beasts[11737]
   end
@@ -7880,6 +8416,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 8014,
+    ["skinId"]    = 520,
     }
     entry = MTH_DS_Beasts[11738]
   end
@@ -7909,6 +8447,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 711,
+    ["skinId"]    = 711,
     }
     entry = MTH_DS_Beasts[11739]
   end
@@ -7938,6 +8478,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 15386,
+    ["skinId"]    = 15386,
     }
     entry = MTH_DS_Beasts[11740]
   end
@@ -7967,6 +8509,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 14524,
+    ["skinId"]    = 14524,
     }
     entry = MTH_DS_Beasts[11741]
   end
@@ -7996,6 +8540,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 11713,
+    ["skinId"]    = 11713,
     }
     entry = MTH_DS_Beasts[11785]
   end
@@ -8026,6 +8572,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 12338,
+    ["skinId"]    = 12338,
     }
     entry = MTH_DS_Beasts[11786]
   end
@@ -8056,6 +8604,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 13009,
+    ["skinId"]    = 13009,
     }
     entry = MTH_DS_Beasts[11788]
   end
@@ -8086,6 +8636,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 12333,
+    ["skinId"]    = 12333,
     }
     entry = MTH_DS_Beasts[11789]
   end
@@ -8115,6 +8667,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 782,
+    ["skinId"]    = 644,
     }
     entry = MTH_DS_Beasts[11871]
   end
@@ -8145,6 +8699,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2715,
+    ["skinId"]    = 2714,
     }
     entry = MTH_DS_Beasts[11885]
   end
@@ -8175,6 +8731,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 11828,
+    ["skinId"]    = 11828,
     }
     entry = MTH_DS_Beasts[11896]
   end
@@ -8205,6 +8763,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 11829,
+    ["skinId"]    = 4735,
     }
     entry = MTH_DS_Beasts[11897]
   end
@@ -8235,6 +8795,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 11909,
+    ["skinId"]    = 820,
     }
     entry = MTH_DS_Beasts[11956]
   end
@@ -8264,6 +8826,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 11910,
+    ["skinId"]    = 599,
     }
     entry = MTH_DS_Beasts[11957]
   end
@@ -8293,6 +8857,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10193,
+    ["skinId"]    = 10193,
     }
     entry = MTH_DS_Beasts[11982]
   end
@@ -8323,6 +8889,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10278,
+    ["skinId"]    = 720,
     }
     entry = MTH_DS_Beasts[12121]
   end
@@ -8353,6 +8921,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10278,
+    ["skinId"]    = 720,
     }
     entry = MTH_DS_Beasts[12122]
   end
@@ -8383,6 +8953,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 12203,
+    ["skinId"]    = 12203,
     }
     entry = MTH_DS_Beasts[12124]
   end
@@ -8413,6 +8985,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 12207,
+    ["skinId"]    = 12207,
     }
     entry = MTH_DS_Beasts[12125]
   end
@@ -8443,6 +9017,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 12346,
+    ["skinId"]    = 12346,
     }
     entry = MTH_DS_Beasts[12218]
   end
@@ -8472,6 +9048,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10269,
+    ["skinId"]    = 10269,
     }
     entry = MTH_DS_Beasts[12257]
   end
@@ -8501,6 +9079,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2712,
+    ["skinId"]    = 2710,
     }
     entry = MTH_DS_Beasts[12418]
   end
@@ -8530,6 +9110,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 4269,
+    ["skinId"]    = 4269,
     }
     entry = MTH_DS_Beasts[12800]
   end
@@ -8560,6 +9142,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10810,
+    ["skinId"]    = 10810,
     }
     entry = MTH_DS_Beasts[12801]
   end
@@ -8590,6 +9174,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9560,
+    ["skinId"]    = 9560,
     }
     entry = MTH_DS_Beasts[12802]
   end
@@ -8620,6 +9206,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 12683,
+    ["skinId"]    = 12683,
     }
     entry = MTH_DS_Beasts[12803]
   end
@@ -8650,6 +9238,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 12966,
+    ["skinId"]    = 2710,
     }
     entry = MTH_DS_Beasts[13036]
   end
@@ -8679,6 +9269,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 13096,
+    ["skinId"]    = 7469,
     }
     entry = MTH_DS_Beasts[13160]
   end
@@ -8708,6 +9300,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1149,
+    ["skinId"]    = 1149,
     }
     entry = MTH_DS_Beasts[13161]
   end
@@ -8738,6 +9332,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 11012,
+    ["skinId"]    = 11012,
     }
     entry = MTH_DS_Beasts[13178]
   end
@@ -8768,6 +9364,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10833,
+    ["skinId"]    = 6212,
     }
     entry = MTH_DS_Beasts[13221]
   end
@@ -8798,6 +9396,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 13209,
+    ["skinId"]    = 13209,
     }
     entry = MTH_DS_Beasts[13323]
   end
@@ -8828,6 +9428,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 13609,
+    ["skinId"]    = 13609,
     }
     entry = MTH_DS_Beasts[13533]
   end
@@ -8858,6 +9460,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 13589,
+    ["skinId"]    = 1609,
     }
     entry = MTH_DS_Beasts[13596]
   end
@@ -8888,6 +9492,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 6368,
+    ["skinId"]    = 5126,
     }
     entry = MTH_DS_Beasts[13599]
   end
@@ -8917,6 +9523,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10278,
+    ["skinId"]    = 720,
     }
     entry = MTH_DS_Beasts[13618]
   end
@@ -8946,6 +9554,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 13340,
+    ["skinId"]    = 13340,
     }
     entry = MTH_DS_Beasts[13676]
   end
@@ -8975,6 +9585,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 236,
+    ["skinId"]    = 236,
     }
     entry = MTH_DS_Beasts[13837]
   end
@@ -9004,6 +9616,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7046,
+    ["skinId"]    = 5126,
     }
     entry = MTH_DS_Beasts[13896]
   end
@@ -9034,6 +9648,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7114,
+    ["skinId"]    = 5126,
     }
     entry = MTH_DS_Beasts[14123]
   end
@@ -9063,6 +9679,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2703,
+    ["skinId"]    = 2703,
     }
     entry = MTH_DS_Beasts[14234]
   end
@@ -9093,6 +9711,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 12336,
+    ["skinId"]    = 12336,
     }
     entry = MTH_DS_Beasts[14237]
   end
@@ -9123,6 +9743,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 782,
+    ["skinId"]    = 644,
     }
     entry = MTH_DS_Beasts[14282]
   end
@@ -9152,6 +9774,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10828,
+    ["skinId"]    = 6212,
     }
     entry = MTH_DS_Beasts[14283]
   end
@@ -9181,6 +9805,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9956,
+    ["skinId"]    = 9956,
     }
     entry = MTH_DS_Beasts[14306]
   end
@@ -9210,6 +9836,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1083,
+    ["skinId"]    = 1083,
     }
     entry = MTH_DS_Beasts[14308]
   end
@@ -9240,6 +9868,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 11412,
+    ["skinId"]    = 720,
     }
     entry = MTH_DS_Beasts[14339]
   end
@@ -9270,6 +9900,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 6212,
+    ["skinId"]    = 6212,
     }
     entry = MTH_DS_Beasts[14343]
   end
@@ -9300,6 +9932,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 14315,
+    ["skinId"]    = 822,
     }
     entry = MTH_DS_Beasts[14344]
   end
@@ -9330,6 +9964,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1104,
+    ["skinId"]    = 1091,
     }
     entry = MTH_DS_Beasts[14472]
   end
@@ -9360,6 +9996,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 6068,
+    ["skinId"]    = 2488,
     }
     entry = MTH_DS_Beasts[14476]
   end
@@ -9390,6 +10028,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 14523,
+    ["skinId"]    = 14523,
     }
     entry = MTH_DS_Beasts[14477]
   end
@@ -9420,6 +10060,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 14528,
+    ["skinId"]    = 14528,
     }
     entry = MTH_DS_Beasts[14490]
   end
@@ -9450,6 +10092,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 3186,
+    ["skinId"]    = 3186,
     }
     entry = MTH_DS_Beasts[14491]
   end
@@ -9480,6 +10124,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 14950,
+    ["skinId"]    = 955,
     }
     entry = MTH_DS_Beasts[14532]
   end
@@ -9510,6 +10156,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 14585,
+    ["skinId"]    = 14585,
     }
     entry = MTH_DS_Beasts[14566]
   end
@@ -9539,6 +10187,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 14590,
+    ["skinId"]    = 14590,
     }
     entry = MTH_DS_Beasts[14568]
   end
@@ -9568,6 +10218,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2571,
+    ["skinId"]    = 1959,
     }
     entry = MTH_DS_Beasts[14821]
   end
@@ -9598,6 +10250,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 15072,
+    ["skinId"]    = 711,
     }
     entry = MTH_DS_Beasts[14880]
   end
@@ -9628,6 +10282,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 11012,
+    ["skinId"]    = 11012,
     }
     entry = MTH_DS_Beasts[14943]
   end
@@ -9658,6 +10314,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 11012,
+    ["skinId"]    = 11012,
     }
     entry = MTH_DS_Beasts[14944]
   end
@@ -9688,6 +10346,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 11012,
+    ["skinId"]    = 11012,
     }
     entry = MTH_DS_Beasts[14945]
   end
@@ -9718,6 +10378,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1148,
+    ["skinId"]    = 1148,
     }
     entry = MTH_DS_Beasts[14946]
   end
@@ -9748,6 +10410,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1148,
+    ["skinId"]    = 1148,
     }
     entry = MTH_DS_Beasts[14947]
   end
@@ -9778,6 +10442,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1148,
+    ["skinId"]    = 1148,
     }
     entry = MTH_DS_Beasts[14948]
   end
@@ -9808,6 +10474,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 14562,
+    ["skinId"]    = 3956,
     }
     entry = MTH_DS_Beasts[14965]
   end
@@ -9837,6 +10505,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 15271,
+    ["skinId"]    = 15271,
     }
     entry = MTH_DS_Beasts[14988]
   end
@@ -9867,6 +10537,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 15136,
+    ["skinId"]    = 711,
     }
     entry = MTH_DS_Beasts[15041]
   end
@@ -9896,6 +10568,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 833,
+    ["skinId"]    = 833,
     }
     entry = MTH_DS_Beasts[15043]
   end
@@ -9926,6 +10600,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 14572,
+    ["skinId"]    = 599,
     }
     entry = MTH_DS_Beasts[15067]
   end
@@ -9956,6 +10632,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 11029,
+    ["skinId"]    = 320,
     }
     entry = MTH_DS_Beasts[15068]
   end
@@ -9985,6 +10663,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 613,
+    ["skinId"]    = 599,
     }
     entry = MTH_DS_Beasts[15101]
   end
@@ -10014,6 +10694,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 15288,
+    ["skinId"]    = 15288,
     }
     entry = MTH_DS_Beasts[15114]
   end
@@ -10044,6 +10726,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 15302,
+    ["skinId"]    = 3186,
     }
     entry = MTH_DS_Beasts[15172]
   end
@@ -10074,6 +10758,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 15327,
+    ["skinId"]    = 2489,
     }
     entry = MTH_DS_Beasts[15196]
   end
@@ -10104,6 +10790,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7691,
+    ["skinId"]    = 2703,
     }
     entry = MTH_DS_Beasts[15204]
   end
@@ -10135,6 +10823,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7569,
+    ["skinId"]    = 2703,
     }
     entry = MTH_DS_Beasts[15220]
   end
@@ -10166,6 +10856,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 14528,
+    ["skinId"]    = 14528,
     }
     entry = MTH_DS_Beasts[15505]
   end
@@ -10196,6 +10888,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10133,
+    ["skinId"]    = 840,
     }
     entry = MTH_DS_Beasts[15554]
   end
@@ -10226,6 +10920,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 15555,
+    ["skinId"]    = 15555,
     }
     entry = MTH_DS_Beasts[15571]
   end
@@ -10256,6 +10952,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 15684,
+    ["skinId"]    = 15684,
     }
     entry = MTH_DS_Beasts[15721]
   end
@@ -10285,6 +10983,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 15928,
+    ["skinId"]    = 15928,
     }
     entry = MTH_DS_Beasts[15952]
   end
@@ -10315,6 +11015,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 15937,
+    ["skinId"]    = 15937,
     }
     entry = MTH_DS_Beasts[15974]
   end
@@ -10345,6 +11047,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 15938,
+    ["skinId"]    = 513,
     }
     entry = MTH_DS_Beasts[15975]
   end
@@ -10375,6 +11079,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 15939,
+    ["skinId"]    = 2536,
     }
     entry = MTH_DS_Beasts[15976]
   end
@@ -10405,6 +11111,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 959,
+    ["skinId"]    = 955,
     }
     entry = MTH_DS_Beasts[15977]
   end
@@ -10435,6 +11143,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7896,
+    ["skinId"]    = 1954,
     }
     entry = MTH_DS_Beasts[16036]
   end
@@ -10465,6 +11175,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1954,
+    ["skinId"]    = 1954,
     }
     entry = MTH_DS_Beasts[16037]
   end
@@ -10495,6 +11207,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 15978,
+    ["skinId"]    = 15978,
     }
     entry = MTH_DS_Beasts[16056]
   end
@@ -10525,6 +11239,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 15554,
+    ["skinId"]    = 15554,
     }
     entry = MTH_DS_Beasts[16057]
   end
@@ -10555,6 +11271,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 12966,
+    ["skinId"]    = 2710,
     }
     entry = MTH_DS_Beasts[16095]
   end
@@ -10585,6 +11303,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 12589,
+    ["skinId"]    = 12589,
     }
     entry = MTH_DS_Beasts[16098]
   end
@@ -10615,6 +11335,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 6121,
+    ["skinId"]    = 6121,
     }
     entry = MTH_DS_Beasts[16117]
   end
@@ -10644,6 +11366,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 14546,
+    ["skinId"]    = 14546,
     }
     entry = MTH_DS_Beasts[16232]
   end
@@ -10673,6 +11397,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 15964,
+    ["skinId"]    = 14312,
     }
     entry = MTH_DS_Beasts[16448]
   end
@@ -10703,6 +11429,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 15939,
+    ["skinId"]    = 2536,
     }
     entry = MTH_DS_Beasts[16453]
   end
@@ -10733,6 +11461,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 8469,
+    ["skinId"]    = 8469,
     }
     entry = MTH_DS_Beasts[16509]
   end
@@ -10762,6 +11492,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 13111,
+    ["skinId"]    = 963,
     }
     entry = MTH_DS_Beasts[17055]
   end
@@ -10791,6 +11523,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 17328,
+    ["skinId"]    = 17328,
     }
     entry = MTH_DS_Beasts[17660]
   end
@@ -10820,6 +11554,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1236,
+    ["skinId"]    = 1236,
     }
     entry = MTH_DS_Beasts[29001]
   end
@@ -10849,6 +11585,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 12237,
+    ["skinId"]    = 12237,
     }
     entry = MTH_DS_Beasts[49004]
   end
@@ -10879,6 +11617,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 16361,
+    ["skinId"]    = 16361,
     }
     entry = MTH_DS_Beasts[50060]
   end
@@ -10908,6 +11648,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 11178,
+    ["skinId"]    = 11178,
     }
     entry = MTH_DS_Beasts[51539]
   end
@@ -10937,6 +11679,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 21229,
+    ["skinId"]    = 21229,
     }
     entry = MTH_DS_Beasts[52145]
   end
@@ -10968,6 +11712,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 21230,
+    ["skinId"]    = 21230,
     }
     entry = MTH_DS_Beasts[52146]
   end
@@ -10998,6 +11744,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 21230,
+    ["skinId"]    = 21230,
     }
     entry = MTH_DS_Beasts[52147]
   end
@@ -11028,6 +11776,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 8509,
+    ["skinId"]    = 8509,
     }
     entry = MTH_DS_Beasts[52148]
   end
@@ -11058,6 +11808,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 21229,
+    ["skinId"]    = 21229,
     }
     entry = MTH_DS_Beasts[52149]
   end
@@ -11088,6 +11840,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 21109,
+    ["skinId"]    = 21109,
     }
     entry = MTH_DS_Beasts[59997]
   end
@@ -11118,6 +11872,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 21110,
+    ["skinId"]    = 21110,
     }
     entry = MTH_DS_Beasts[59998]
   end
@@ -11148,6 +11904,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1536,
+    ["skinId"]    = 1536,
     }
     entry = MTH_DS_Beasts[60369]
   end
@@ -11177,6 +11935,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 4124,
+    ["skinId"]    = 4124,
     }
     entry = MTH_DS_Beasts[60491]
   end
@@ -11207,6 +11967,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9276,
+    ["skinId"]    = 1083,
     }
     entry = MTH_DS_Beasts[60492]
   end
@@ -11237,6 +11999,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 30,
+    ["skinId"]    = 30,
     }
     entry = MTH_DS_Beasts[60493]
   end
@@ -11267,6 +12031,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 6082,
+    ["skinId"]    = 1056,
     }
     entry = MTH_DS_Beasts[60494]
   end
@@ -11297,6 +12063,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 11713,
+    ["skinId"]    = 11713,
     }
     entry = MTH_DS_Beasts[60501]
   end
@@ -11326,6 +12094,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 18301,
+    ["skinId"]    = 18301,
     }
     entry = MTH_DS_Beasts[60539]
   end
@@ -11355,6 +12125,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 8842,
+    ["skinId"]    = 865,
     }
     entry = MTH_DS_Beasts[60545]
   end
@@ -11384,6 +12156,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 18247,
+    ["skinId"]    = 18247,
     }
     entry = MTH_DS_Beasts[60604]
   end
@@ -11414,6 +12188,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 981,
+    ["skinId"]    = 981,
     }
     entry = MTH_DS_Beasts[60605]
   end
@@ -11443,6 +12219,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 13589,
+    ["skinId"]    = 1609,
     }
     entry = MTH_DS_Beasts[60632]
   end
@@ -11472,6 +12250,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1244,
+    ["skinId"]    = 1244,
     }
     entry = MTH_DS_Beasts[60679]
   end
@@ -11502,6 +12282,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 347,
+    ["skinId"]    = 347,
     }
     entry = MTH_DS_Beasts[60683]
   end
@@ -11532,6 +12314,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 8050,
+    ["skinId"]    = 2714,
     }
     entry = MTH_DS_Beasts[60697]
   end
@@ -11561,6 +12345,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2488,
+    ["skinId"]    = 2488,
     }
     entry = MTH_DS_Beasts[60755]
   end
@@ -11590,6 +12376,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9562,
+    ["skinId"]    = 246,
     }
     entry = MTH_DS_Beasts[60776]
   end
@@ -11619,6 +12407,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9371,
+    ["skinId"]    = 9369,
     }
     entry = MTH_DS_Beasts[60777]
   end
@@ -11648,6 +12438,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2404,
+    ["skinId"]    = 2404,
     }
     entry = MTH_DS_Beasts[60785]
   end
@@ -11677,6 +12469,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 741,
+    ["skinId"]    = 246,
     }
     entry = MTH_DS_Beasts[60873]
   end
@@ -11706,6 +12500,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 705,
+    ["skinId"]    = 705,
     }
     entry = MTH_DS_Beasts[61072]
   end
@@ -11735,6 +12531,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 838,
+    ["skinId"]    = 838,
     }
     entry = MTH_DS_Beasts[61074]
   end
@@ -11764,6 +12562,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 981,
+    ["skinId"]    = 981,
     }
     entry = MTH_DS_Beasts[61075]
   end
@@ -11793,6 +12593,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 981,
+    ["skinId"]    = 981,
     }
     entry = MTH_DS_Beasts[61076]
   end
@@ -11822,6 +12624,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 18099,
+    ["skinId"]    = 18099,
     }
     entry = MTH_DS_Beasts[61077]
   end
@@ -11851,6 +12655,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 18097,
+    ["skinId"]    = 18097,
     }
     entry = MTH_DS_Beasts[61078]
   end
@@ -11880,6 +12686,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 838,
+    ["skinId"]    = 838,
     }
     entry = MTH_DS_Beasts[61080]
   end
@@ -11909,6 +12717,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 841,
+    ["skinId"]    = 792,
     }
     entry = MTH_DS_Beasts[61082]
   end
@@ -11938,6 +12748,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 14557,
+    ["skinId"]    = 11034,
     }
     entry = MTH_DS_Beasts[61090]
   end
@@ -11967,6 +12779,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 4305,
+    ["skinId"]    = 4305,
     }
     entry = MTH_DS_Beasts[61091]
   end
@@ -11996,6 +12810,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 12341,
+    ["skinId"]    = 12341,
     }
     entry = MTH_DS_Beasts[61092]
   end
@@ -12025,6 +12841,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2705,
+    ["skinId"]    = 2703,
     }
     entry = MTH_DS_Beasts[61095]
   end
@@ -12054,6 +12872,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10991,
+    ["skinId"]    = 2700,
     }
     entry = MTH_DS_Beasts[61096]
   end
@@ -12083,6 +12903,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 12197,
+    ["skinId"]    = 12197,
     }
     entry = MTH_DS_Beasts[61097]
   end
@@ -12112,6 +12934,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 3186,
+    ["skinId"]    = 3186,
     }
     entry = MTH_DS_Beasts[61098]
   end
@@ -12142,6 +12966,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9991,
+    ["skinId"]    = 9991,
     }
     entry = MTH_DS_Beasts[61155]
   end
@@ -12171,6 +12997,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 19113,
+    ["skinId"]    = 19113,
     }
     entry = MTH_DS_Beasts[61170]
   end
@@ -12200,6 +13028,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 19119,
+    ["skinId"]    = 19119,
     }
     entry = MTH_DS_Beasts[61172]
   end
@@ -12229,6 +13059,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 955,
+    ["skinId"]    = 955,
     }
     entry = MTH_DS_Beasts[61206]
   end
@@ -12259,6 +13091,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 368,
+    ["skinId"]    = 30,
     }
     entry = MTH_DS_Beasts[61207]
   end
@@ -12289,6 +13123,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 15939,
+    ["skinId"]    = 2536,
     }
     entry = MTH_DS_Beasts[61208]
   end
@@ -12319,6 +13155,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 15938,
+    ["skinId"]    = 513,
     }
     entry = MTH_DS_Beasts[61209]
   end
@@ -12349,6 +13187,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 15937,
+    ["skinId"]    = 15937,
     }
     entry = MTH_DS_Beasts[61221]
   end
@@ -12379,6 +13219,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9567,
+    ["skinId"]    = 9567,
     }
     entry = MTH_DS_Beasts[61228]
   end
@@ -12408,6 +13250,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9567,
+    ["skinId"]    = 9567,
     }
     entry = MTH_DS_Beasts[61229]
   end
@@ -12437,6 +13281,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7896,
+    ["skinId"]    = 1954,
     }
     entry = MTH_DS_Beasts[61231]
   end
@@ -12466,6 +13312,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1104,
+    ["skinId"]    = 1091,
     }
     entry = MTH_DS_Beasts[61232]
   end
@@ -12495,6 +13343,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 520,
+    ["skinId"]    = 520,
     }
     entry = MTH_DS_Beasts[61233]
   end
@@ -12524,6 +13374,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10957,
+    ["skinId"]    = 10957,
     }
     entry = MTH_DS_Beasts[61332]
   end
@@ -12553,6 +13405,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10957,
+    ["skinId"]    = 10957,
     }
     entry = MTH_DS_Beasts[61333]
   end
@@ -12582,6 +13436,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 4615,
+    ["skinId"]    = 4566,
     }
     entry = MTH_DS_Beasts[61336]
   end
@@ -12611,6 +13467,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 4615,
+    ["skinId"]    = 4566,
     }
     entry = MTH_DS_Beasts[61337]
   end
@@ -12640,6 +13498,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7896,
+    ["skinId"]    = 1954,
     }
     entry = MTH_DS_Beasts[61401]
   end
@@ -12669,6 +13529,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 18386,
+    ["skinId"]    = 18386,
     }
     entry = MTH_DS_Beasts[61480]
   end
@@ -12698,6 +13560,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 6298,
+    ["skinId"]    = 6298,
     }
     entry = MTH_DS_Beasts[61488]
   end
@@ -12728,6 +13592,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 616,
+    ["skinId"]    = 616,
     }
     entry = MTH_DS_Beasts[61490]
   end
@@ -12758,6 +13624,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 837,
+    ["skinId"]    = 792,
     }
     entry = MTH_DS_Beasts[61500]
   end
@@ -12788,6 +13656,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 15234,
+    ["skinId"]    = 15234,
     }
     entry = MTH_DS_Beasts[61515]
   end
@@ -12819,6 +13689,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 11713,
+    ["skinId"]    = 11713,
     }
     entry = MTH_DS_Beasts[61516]
   end
@@ -12849,6 +13721,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 11909,
+    ["skinId"]    = 820,
     }
     entry = MTH_DS_Beasts[61546]
   end
@@ -12879,6 +13753,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9567,
+    ["skinId"]    = 9567,
     }
     entry = MTH_DS_Beasts[61547]
   end
@@ -12909,6 +13785,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 18247,
+    ["skinId"]    = 18247,
     }
     entry = MTH_DS_Beasts[61552]
   end
@@ -12939,6 +13817,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 20410,
+    ["skinId"]    = 20410,
     }
     entry = MTH_DS_Beasts[61586]
   end
@@ -12970,6 +13850,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10810,
+    ["skinId"]    = 10810,
     }
     entry = MTH_DS_Beasts[61589]
   end
@@ -13000,6 +13882,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 20414,
+    ["skinId"]    = 20414,
     }
     entry = MTH_DS_Beasts[61596]
   end
@@ -13029,6 +13913,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 20412,
+    ["skinId"]    = 20412,
     }
     entry = MTH_DS_Beasts[61597]
   end
@@ -13058,6 +13944,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 20437,
+    ["skinId"]    = 20437,
     }
     entry = MTH_DS_Beasts[61599]
   end
@@ -13087,6 +13975,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 785,
+    ["skinId"]    = 776,
     }
     entry = MTH_DS_Beasts[61603]
   end
@@ -13116,6 +14006,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 20424,
+    ["skinId"]    = 20424,
     }
     entry = MTH_DS_Beasts[61604]
   end
@@ -13146,6 +14038,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 4734,
+    ["skinId"]    = 3956,
     }
     entry = MTH_DS_Beasts[61932]
   end
@@ -13176,6 +14070,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 7896,
+    ["skinId"]    = 1954,
     }
     entry = MTH_DS_Beasts[61933]
   end
@@ -13206,6 +14102,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 958,
+    ["skinId"]    = 955,
     }
     entry = MTH_DS_Beasts[61935]
   end
@@ -13236,6 +14134,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 5379,
+    ["skinId"]    = 5379,
     }
     entry = MTH_DS_Beasts[62004]
   end
@@ -13267,6 +14167,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 3030,
+    ["skinId"]    = 3029,
     }
     entry = MTH_DS_Beasts[62112]
   end
@@ -13297,6 +14199,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 8840,
+    ["skinId"]    = 806,
     }
     entry = MTH_DS_Beasts[62249]
   end
@@ -13327,6 +14231,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10986,
+    ["skinId"]    = 2414,
     }
     entry = MTH_DS_Beasts[62499]
   end
@@ -13356,6 +14262,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 12202,
+    ["skinId"]    = 12202,
     }
     entry = MTH_DS_Beasts[62509]
   end
@@ -13386,6 +14294,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 20504,
+    ["skinId"]    = 20504,
     }
     entry = MTH_DS_Beasts[62518]
   end
@@ -13416,6 +14326,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 827,
+    ["skinId"]    = 520,
     }
     entry = MTH_DS_Beasts[62640]
   end
@@ -13446,6 +14358,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1986,
+    ["skinId"]    = 1986,
     }
     entry = MTH_DS_Beasts[65110]
   end
@@ -13475,6 +14389,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 807,
+    ["skinId"]    = 807,
     }
     entry = MTH_DS_Beasts[65111]
   end
@@ -13504,6 +14420,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1104,
+    ["skinId"]    = 1091,
     }
     entry = MTH_DS_Beasts[65112]
   end
@@ -13533,6 +14451,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 262,
+    ["skinId"]    = 262,
     }
     entry = MTH_DS_Beasts[65120]
   end
@@ -13563,6 +14483,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2996,
+    ["skinId"]    = 1609,
     }
     entry = MTH_DS_Beasts[65122]
   end
@@ -13593,6 +14515,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 262,
+    ["skinId"]    = 262,
     }
     entry = MTH_DS_Beasts[66003]
   end
@@ -13623,6 +14547,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 18007,
+    ["skinId"]    = 18007,
     }
     entry = MTH_DS_Beasts[80255]
   end
@@ -13652,6 +14578,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 18004,
+    ["skinId"]    = 18004,
     }
     entry = MTH_DS_Beasts[80259]
   end
@@ -13681,6 +14609,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 18244,
+    ["skinId"]    = 18244,
     }
     entry = MTH_DS_Beasts[80260]
   end
@@ -13711,6 +14641,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2308,
+    ["skinId"]    = 2307,
     }
     entry = MTH_DS_Beasts[80321]
   end
@@ -13741,6 +14673,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 320,
+    ["skinId"]    = 320,
     }
     entry = MTH_DS_Beasts[91819]
   end
@@ -13770,6 +14704,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 614,
+    ["skinId"]    = 320,
     }
     entry = MTH_DS_Beasts[91825]
   end
@@ -13799,6 +14735,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 614,
+    ["skinId"]    = 320,
     }
     entry = MTH_DS_Beasts[91826]
   end
@@ -13828,6 +14766,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 614,
+    ["skinId"]    = 320,
     }
     entry = MTH_DS_Beasts[91827]
   end
@@ -13857,6 +14797,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 614,
+    ["skinId"]    = 320,
     }
     entry = MTH_DS_Beasts[91828]
   end
@@ -13886,6 +14828,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 845,
+    ["skinId"]    = 809,
     }
     entry = MTH_DS_Beasts[91829]
   end
@@ -13915,6 +14859,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 838,
+    ["skinId"]    = 838,
     }
     entry = MTH_DS_Beasts[91830]
   end
@@ -13944,6 +14890,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1307,
+    ["skinId"]    = 1307,
     }
     entry = MTH_DS_Beasts[91831]
   end
@@ -13973,6 +14921,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9573,
+    ["skinId"]    = 979,
     }
     entry = MTH_DS_Beasts[91832]
   end
@@ -14002,6 +14952,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1001,
+    ["skinId"]    = 981,
     }
     entry = MTH_DS_Beasts[91833]
   end
@@ -14031,6 +14983,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 705,
+    ["skinId"]    = 705,
     }
     entry = MTH_DS_Beasts[91837]
   end
@@ -14060,6 +15014,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1244,
+    ["skinId"]    = 1244,
     }
     entry = MTH_DS_Beasts[91838]
   end
@@ -14089,6 +15045,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 12193,
+    ["skinId"]    = 12193,
     }
     entry = MTH_DS_Beasts[91864]
   end
@@ -14118,6 +15076,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 245,
+    ["skinId"]    = 245,
     }
     entry = MTH_DS_Beasts[91914]
   end
@@ -14148,6 +15108,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 15509,
+    ["skinId"]    = 15509,
     }
     entry = MTH_DS_Beasts[91917]
   end
@@ -14178,6 +15140,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2437,
+    ["skinId"]    = 599,
     }
     entry = MTH_DS_Beasts[91960]
   end
@@ -14207,6 +15171,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2437,
+    ["skinId"]    = 599,
     }
     entry = MTH_DS_Beasts[91961]
   end
@@ -14236,6 +15202,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1039,
+    ["skinId"]    = 833,
     }
     entry = MTH_DS_Beasts[91962]
   end
@@ -14265,6 +15233,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 8802,
+    ["skinId"]    = 8802,
     }
     entry = MTH_DS_Beasts[91963]
   end
@@ -14294,6 +15264,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 2174,
+    ["skinId"]    = 2174,
     }
     entry = MTH_DS_Beasts[91964]
   end
@@ -14323,6 +15295,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 10991,
+    ["skinId"]    = 2700,
     }
     entry = MTH_DS_Beasts[91966]
   end
@@ -14352,6 +15326,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1001,
+    ["skinId"]    = 981,
     }
     entry = MTH_DS_Beasts[92146]
   end
@@ -14381,6 +15357,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 1001,
+    ["skinId"]    = 981,
     }
     entry = MTH_DS_Beasts[92147]
   end
@@ -14410,6 +15388,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 4872,
+    ["skinId"]    = 4872,
     }
     entry = MTH_DS_Beasts[92163]
   end
@@ -14440,6 +15420,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 18246,
+    ["skinId"]    = 18246,
     }
     entry = MTH_DS_Beasts[93105]
   end
@@ -14470,6 +15452,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 368,
+    ["skinId"]    = 30,
     }
     entry = MTH_DS_Beasts[161208]
   end
@@ -14500,6 +15484,8 @@ do
       ["abilities"] = "None",
       ["attackSpeed"] = "2.0",
       ["coords"] = {},
+    ["displayId"] = 9829,
+    ["skinId"]    = 513,
     }
     entry = MTH_DS_Beasts[161212]
   end

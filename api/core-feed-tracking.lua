@@ -15,6 +15,7 @@ local MTH_FEED_TrackerFrame = nil
 local MTH_FEED_ActiveCoreAttemptId = nil
 local MTH_FEED_BootstrapFrame = nil
 local MTH_FEED_NameToItemCache = {}
+local MTH_FEED_InvalidateDietMapCache
 
 local MTH_FEED_HARDCODED_LEVEL_RULES = {
 	{ minPetLevel = 1, minFoodLevel = 1 },
@@ -28,7 +29,10 @@ local MTH_FEED_HARDCODED_LEVEL_RULES = {
 MTH_FEED_TRACE = false
 
 local function MTH_FEED_Trace(message)
-	return
+	if not MTH_FEED_TRACE then return end
+	if type(DEFAULT_CHAT_FRAME) == "table" and DEFAULT_CHAT_FRAME.AddMessage then
+		DEFAULT_CHAT_FRAME:AddMessage("|cff88aaff[MTH-FeedTrack]|r " .. tostring(message))
+	end
 end
 
 local function MTH_FEED_Now()
@@ -636,6 +640,7 @@ end
 
 function MTH_FEED_ReinstallCoreTracking()
 	local ok = MTH_FEED_InstallCoreHooks()
+	MTH_FEED_EnsureTrackerFrame()
 	return ok and true or false
 end
 
@@ -852,7 +857,7 @@ end
 
 local MTH_FEED_DietMapCache = nil
 
-local function MTH_FEED_InvalidateDietMapCache()
+MTH_FEED_InvalidateDietMapCache = function()
 	MTH_FEED_DietMapCache = nil
 end
 
@@ -1455,6 +1460,30 @@ function MTH_FEED_GetSessionFeedCount(petId)
 		return 0
 	end
 	return tonumber(MTH_FEED_Runtime.sessionFeedsByPetId[petKey]) or 0
+end
+
+function MTH_FEED_DebugSessionFeeds()
+	local pet = MTH_FEED_GetCurrentPetContext()
+	local petId = pet and pet.petId or "(none)"
+	local count = MTH_FEED_GetSessionFeedCount(petId)
+	local hookOk = MTH_FEED_IsCoreHookInstalled()
+	local frameOk = MTH_FEED_TrackerFrame ~= nil
+	local activeId = tostring(MTH_FEED_ActiveCoreAttemptId or "nil")
+	if type(DEFAULT_CHAT_FRAME) == "table" and DEFAULT_CHAT_FRAME.AddMessage then
+		DEFAULT_CHAT_FRAME:AddMessage("|cff88aaff[MTH-FeedTrack]|r petId=" .. tostring(petId)
+			.. " feeds=" .. tostring(count)
+			.. " hookOk=" .. tostring(hookOk)
+			.. " frameOk=" .. tostring(frameOk)
+			.. " activeAttempt=" .. activeId)
+		local anyFeeds = false
+		for k, v in pairs(MTH_FEED_Runtime.sessionFeedsByPetId) do
+			anyFeeds = true
+			DEFAULT_CHAT_FRAME:AddMessage("|cff88aaff[MTH-FeedTrack]|r  session petId='" .. tostring(k) .. "' count=" .. tostring(v))
+		end
+		if not anyFeeds then
+			DEFAULT_CHAT_FRAME:AddMessage("|cff88aaff[MTH-FeedTrack]|r  (no session feeds recorded)")
+		end
+	end
 end
 
 function MTH_FEED_RecordUnknownFoodCandidate(payload)

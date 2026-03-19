@@ -17,6 +17,8 @@
   <Include file="..\api\options-autobuy.lua"/>
   <Include file="..\api\options-autoquest.lua"/>
   <Include file="..\api\options-icu.lua"/>
+  <Include file="..\api\profile.lua"/>
+  <Include file="..\api\options-profiles.lua"/>
   <Include file="..\api\options-shell.lua"/>
   <Include file="..\api\options-zbuttons.lua"/>
   <Include file="..\api\options-feedomatic.lua"/>
@@ -29,6 +31,7 @@
   <Include file="..\api\hunterbook-tab-npcfinder.lua"/>
   <Include file="..\api\hunterbook-tab-stable.lua"/>
   <Include file="..\api\hunterbook-tab-pethistory.lua"/>
+  <Include file="..\api\hunterbook-model-viewer.lua"/>
   <Include file="..\api\map-markers.lua"/>
   <Include file="..\api\core-framework.lua"/>
   <Include file="..\api\core-scan-stablemaster.lua"/>

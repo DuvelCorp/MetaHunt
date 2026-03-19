@@ -27,7 +27,8 @@ MTH_OPTIONS_CONST = MTH_OPTIONS_CONST or {
 }
 
 MTH_OPTIONS_TABS = MTH_OPTIONS_TABS or {
-	{ key = "General", label = "General", frame = "MetaHuntOptionsGeneral" },
+	{ key = "General",  label = "General",  frame = "MetaHuntOptionsGeneral"  },
+	{ key = "Profiles", label = "Profiles", frame = "MetaHuntOptionsProfiles" },
 	{ key = "Messages", label = "Messages", frame = "MetaHuntOptionsMessages" },
 	{ key = "Pet", label = "ZPet", frame = "MetaHuntOptionsPet" },
 	{ key = "Track", label = "ZTrack", frame = "MetaHuntOptionsTrack" },
@@ -52,7 +53,8 @@ MTH_OPTIONS_TABS = MTH_OPTIONS_TABS or {
 }
 
 MTH_OPTIONS_TREE = MTH_OPTIONS_TREE or {
-	{ label = "General", key = "General" },
+	{ label = "General",  key = "General"  },
+	{ label = "Profiles", key = "Profiles" },
 	{ label = "Messages", key = "Messages" },
 	{ label = "Auto Buy", key = "AutoBuy" },
 	{ label = "Auto Quest", key = "AutoQuest" },

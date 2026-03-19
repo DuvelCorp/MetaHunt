@@ -373,9 +373,6 @@ eventFrame:SetScript("OnEvent", function()
 		end
 		MTH_DF_InstallHooks()
 		MTH_DebugFrame:Initialize()
-		if MTH and MTH.Print then
-			local mode = MTH_DF_IsGlobalCaptureEnabled() and "legacy-global" or "safe-local"
-			MTH:Print("=== MetaHunt Debug Frame Initialized (" .. mode .. ") ===", "debug")
-		end
+
 	end
 end)

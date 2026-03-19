@@ -2,6 +2,29 @@
 
 All notable changes to MetaHunt will be documented in this file.
 
+## [1.3.0] - 2026-03-19
+
+
+### Added
+- Added a **3D Model Viewer** to the Hunter Book Beast Lore inspector panel. Clicking a beast in the list shows its in-game model.
+- Added a standalone **3D Model Viewer** that is shown when cliking the model of a beast in the Beast lore. The model is rotatable with the mouse, and you can browse all models of the same pet family and shows all other beasts that share the same skin, with one-click to jump to any of them in the Beast Lore.
+- Added a **Family icon** column to the Beast Lore list, replacing the text family name with the pet family icon for a more compact view.
+- Added an **Attack Speed (AS)** column to the Beast Lore list.
+- Added `displayId` and `skinId` fields to **all ~1000 beasts** in the MetaHunt datastore. `displayId` was scraped from the Turtle WoW DB, and `skinId` derived from it following an extraction on MPQ game files. This is what powers the model viewer and skin-grouping.
+- Added per-family icons to all 19 pet families in the family data table.
+- Added missing food types (`raw meat`, `raw fish`) to all pet families that accept `meat` or `fish` respectively (sourced from MPQ data). 
+- Added **Profile Management** panel (Options → Profiles): save the current addon configuration as a named profile and instantly load it on any character. Profiles cover all module settings (ICU, Chronometer, AutoBuy, AutoQuest, SmartAmmo, Feed-O-Matic, zButtons layout) and per-character module enabled/disabled states.
+- Added automatic per-character **config snapshots** saved on every logout (`CharName-RealmName`), visible in the "Copy from Character" section — import any character's snapshot as a loadable profile in one click.
+
+
+### Fixed
+- Fixed the pet feeding counter never incrementing: `MTH_FEED_Trace` was a no-op stub and `FOM_CORE_ATTEMPT_TRACKING_ENABLED` was `false`; both are now active.
+- Fixed `FOM_AddFood` not clearing a food from `FOM_RemovedFoods` when the item belongs to the base diet list, which permanently banned it even after an explicit `/fom add`.
+- Wired `FOM_ClearItemBans` into the `/fom add` command path: explicitly re-adding a food now clears it from `FOM_RemovedFoods`, FOM quarantine, and core exceptions in one step.
+- Removed debug messages forgotten when releasing 1.2. 
+- Fixed SmartAmmo + **Quiver castbar conflict**: Quiver's castbar was disappearing when both addons were active. Root cause: MetaHunt SmartAmmo was re-installing its hooks every 0.5 seconds, constantly bumping Quiver off the top of the hook chain. Fixed by removing the repeated re-hook and adding a guard that only installs once (or when no other addon is on top).
+
+
 ## [1.2.0] - 2026-03-10
 
 ### Added

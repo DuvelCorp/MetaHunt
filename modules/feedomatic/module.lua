@@ -6,7 +6,7 @@
 local MTH_FeedOMatic = {
 	name = "feedomatic",
 	enabled = false,
-	version = "1.2.0",
+	version = "1.3.0",
 	events = {
 		"VARIABLES_LOADED",
 			"MERCHANT_SHOW",

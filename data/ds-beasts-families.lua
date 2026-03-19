@@ -6,6 +6,7 @@ if not MTH_DS then MTH_DS = {} end
 
 MTH_DS_Families = {
   ["Bats"] = {
+    ["icon"] = "Ability_Hunter_Pet_Bat",
     ["named"] = 20,
     ["coords"] = 18,
     ["food"] = {
@@ -21,6 +22,7 @@ MTH_DS_Families = {
     },
   },
   ["Bears"] = {
+    ["icon"] = "Ability_Hunter_Pet_Bear",
     ["named"] = 45,
     ["coords"] = 45,
     ["food"] = {
@@ -30,6 +32,8 @@ MTH_DS_Families = {
       "cheese",
       "fruit",
       "fungus",
+      "raw meat",
+      "raw fish",
     },
     ["abilities"] = {
       "Bite",
@@ -40,6 +44,7 @@ MTH_DS_Families = {
     },
   },
   ["Boars"] = {
+    ["icon"] = "Ability_Hunter_Pet_Boar",
     ["named"] = 45,
     ["coords"] = 87,
     ["food"] = {
@@ -49,6 +54,8 @@ MTH_DS_Families = {
       "cheese",
       "fruit",
       "fungus",
+      "raw meat",
+      "raw fish",
     },
     ["abilities"] = {
       "Bite",
@@ -59,10 +66,12 @@ MTH_DS_Families = {
     },
   },
   ["Carrion Birds"] = {
+    ["icon"] = "Ability_Hunter_Pet_Vulture",
     ["named"] = 36,
     ["coords"] = 101,
     ["food"] = {
       "meat",
+      "raw meat",
     },
     ["abilities"] = {
       "Bite",
@@ -74,11 +83,14 @@ MTH_DS_Families = {
     },
   },
   ["Cats"] = {
+    ["icon"] = "Ability_Hunter_Pet_Cat",
     ["named"] = 85,
     ["coords"] = 88,
     ["food"] = {
       "meat",
       "fish",
+      "raw meat",
+      "raw fish",
     },
     ["abilities"] = {
       "Bite",
@@ -90,6 +102,7 @@ MTH_DS_Families = {
     },
   },
   ["Crabs"] = {
+    ["icon"] = "Ability_Hunter_Pet_Crab",
     ["named"] = 32,
     ["coords"] = 74,
     ["food"] = {
@@ -97,6 +110,7 @@ MTH_DS_Families = {
       "fish",
       "fungus",
       "bread",
+      "raw fish",
     },
     ["abilities"] = {
       "Bubble Barrier",
@@ -106,11 +120,14 @@ MTH_DS_Families = {
     },
   },
   ["Crocolisks"] = {
+    ["icon"] = "Ability_Hunter_Pet_Crocolisk",
     ["named"] = 27,
     ["coords"] = 71,
     ["food"] = {
       "meat",
       "fish",
+      "raw meat",
+      "raw fish",
     },
     ["abilities"] = {
       "Bite",
@@ -120,11 +137,13 @@ MTH_DS_Families = {
     },
   },
   ["Foxes"] = {
+    ["icon"] = "ability_hunter_aspectofthefox",
     ["named"] = 9,
     ["coords"] = 51,
     ["food"] = {
       "meat",
       "fruit",
+      "raw meat",
     },
     ["abilities"] = {
       "Bite",
@@ -135,6 +154,7 @@ MTH_DS_Families = {
     },
   },
   ["Gorillas"] = {
+    ["icon"] = "Ability_Hunter_Pet_Gorilla",
     ["named"] = 24,
     ["coords"] = 117,
     ["food"] = {
@@ -149,11 +169,13 @@ MTH_DS_Families = {
     },
   },
   ["Hyenas"] = {
+    ["icon"] = "Ability_Hunter_Pet_Hyena",
     ["named"] = 26,
     ["coords"] = 36,
     ["food"] = {
       "meat",
       "fruit",
+      "raw meat",
     },
     ["abilities"] = {
       "Bite",
@@ -164,10 +186,12 @@ MTH_DS_Families = {
     },
   },
   ["Owls"] = {
+    ["icon"] = "Ability_Hunter_Pet_Owl",
     ["named"] = 16,
     ["coords"] = 59,
     ["food"] = {
       "meat",
+      "raw meat",
     },
     ["abilities"] = {
       "Claw",
@@ -178,10 +202,12 @@ MTH_DS_Families = {
     },
   },
   ["Raptors"] = {
+    ["icon"] = "Ability_Hunter_Pet_Raptor",
     ["named"] = 51,
     ["coords"] = 115,
     ["food"] = {
       "meat",
+      "raw meat",
     },
     ["abilities"] = {
       "Bite",
@@ -193,10 +219,12 @@ MTH_DS_Families = {
     },
   },
   ["Scorpids"] = {
+    ["icon"] = "Ability_Hunter_Pet_Scorpid",
     ["named"] = 38,
     ["coords"] = 36,
     ["food"] = {
       "meat",
+      "raw meat",
     },
     ["abilities"] = {
       "Claw",
@@ -206,11 +234,14 @@ MTH_DS_Families = {
     },
   },
   ["Serpents (Cobra)"] = {
+    ["icon"] = "Ability_Hunter_Pet_Serpent1",
     ["named"] = 10,
     ["coords"] = 13,
     ["food"] = {
       "meat",
       "fish",
+      "raw meat",
+      "raw fish",
     },
     ["abilities"] = {
       "Bite",
@@ -220,10 +251,12 @@ MTH_DS_Families = {
     },
   },
   ["Spiders"] = {
+    ["icon"] = "Ability_Hunter_Pet_Spider",
     ["named"] = 91,
     ["coords"] = 213,
     ["food"] = {
       "meat",
+      "raw meat",
     },
     ["abilities"] = {
       "Bite",
@@ -233,6 +266,7 @@ MTH_DS_Families = {
     },
   },
   ["Tallstriders"] = {
+    ["icon"] = "Ability_Hunter_Pet_TallStrider",
     ["named"] = 15,
     ["coords"] = 112,
     ["food"] = {
@@ -249,12 +283,14 @@ MTH_DS_Families = {
     },
   },
   ["Turtles"] = {
+    ["icon"] = "Ability_Hunter_Pet_Turtle",
     ["named"] = 25,
     ["coords"] = 42,
     ["food"] = {
       "fruit",
       "fish",
       "fungus",
+      "raw fish",
     },
     ["abilities"] = {
       "Bite",
@@ -264,12 +300,14 @@ MTH_DS_Families = {
     },
   },
   ["Wind Serpents"] = {
+    ["icon"] = "Ability_Hunter_Pet_WindSerpent",
     ["named"] = 27,
     ["coords"] = 42,
     ["food"] = {
       "fish",
       "cheese",
       "bread",
+      "raw fish",
     },
     ["abilities"] = {
       "Bite",
@@ -280,10 +318,12 @@ MTH_DS_Families = {
     },
   },
   ["Wolves"] = {
+    ["icon"] = "Ability_Hunter_Pet_Wolf",
     ["named"] = 81,
     ["coords"] = 99,
     ["food"] = {
       "meat",
+      "raw meat",
     },
     ["abilities"] = {
       "Bite",
