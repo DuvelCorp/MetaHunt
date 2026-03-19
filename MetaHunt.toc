@@ -1,5 +1,5 @@
 ## Interface: 11200
-## Version: 1.2.0
+## Version: 1.3.0
 ## Title: MetaHunt - |cff00ff00Hunter
 ## Author: Metasploit and his Copilot ;)
 ## Notes: Unified addon suite for huntards making old addons compatible with TurtleWoW, and adding an arsenal of never seen Hunter's utilities.
@@ -35,6 +35,8 @@ data\ds-minimap-sizes.lua
 data\ds-unit-coords.lua
 data\ds-creature-coords.lua
 data\ds-beasts-families.lua
+data\ds-beasts-families-dbc.lua
+data\ds-beasts-skins.lua
 data\ds-pet-spells.lua
 data\ds-pet-spells-trainer.lua
 data\ds-racial.lua

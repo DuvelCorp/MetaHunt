@@ -8,7 +8,7 @@ MTH_ZH_MANAGED_HOOKS = true
 local MTH_ZHunter = {
 	name = "zhunter",
 	enabled = true,
-	version = "1.2.0",
+	version = "1.3.0",
 	events = {
 		"VARIABLES_LOADED",
 		-- PLAYER_ENTERING_WORLD handled by bootstrap frame + adjustment frames

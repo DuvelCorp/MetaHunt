@@ -6,7 +6,7 @@
 local MTH_AutoBuy = {
 	name = "autobuy",
 	enabled = false,
-	version = "1.2.0",
+	version = "1.3.0",
 	events = {
 		"VARIABLES_LOADED",
 		"MERCHANT_SHOW",
@@ -140,12 +140,9 @@ function MTH_AutoBuy:onEvent(event)
 		return
 	end
 
-	AB_Log("onEvent event=" .. tostring(event) .. " module.enabled=" .. tostring(self.enabled), "debug")
-
 	if event == "VARIABLES_LOADED" then
 		engine:Init()
 		AB_SetBridgeActive(self.enabled and true or false)
-		AB_Log("onEvent VARIABLES_LOADED -> engine init", "debug")
 		local store = engine:EnsureDefaults()
 		AB_Trace("VARIABLES_LOADED module.enabled=" .. tostring(self.enabled)
 			.. " store.enabled=" .. tostring(store and store.enabled)

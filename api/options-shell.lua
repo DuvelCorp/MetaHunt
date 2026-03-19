@@ -117,6 +117,11 @@ function MTH_SelectOptionsTab(tabKey)
 			MTH_SetupGeneralOptions()
 			MTH_OPTIONS_SETUP["General"] = true
 		end
+	elseif tabKey == "Profiles" then
+		if type(MTH_SetupProfilesOptions) == "function" then
+			MTH_SetupProfilesOptions()
+			MTH_OPTIONS_SETUP["Profiles"] = true
+		end
 	elseif tabKey == "Messages" then
 		if not MTH_OPTIONS_SETUP["Messages"] then
 			if type(MTH_SetupMessagesOptions) == "function" then

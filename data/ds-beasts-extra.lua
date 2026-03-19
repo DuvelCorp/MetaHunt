@@ -19,6 +19,8 @@ if not MTH_DS_Beasts[521] then
       {32.6, 25.8, 10},
       {64.3, 24, 10},
     },
+    ["displayId"] = 11412,
+    ["skinId"]    = 720,
   }
 end
 
@@ -37,6 +39,8 @@ if not MTH_DS_Beasts[728] then
     ["coords"] = {
       {49.6, 24, 33},
     },
+    ["displayId"] = 613,
+    ["skinId"]    = 599,
   }
 end
 
@@ -54,6 +58,8 @@ if not MTH_DS_Beasts[729] then
     ["coords"] = {
       {32.2, 17.4, 33},
     },
+    ["displayId"] = 471,
+    ["skinId"]    = 320,
   }
 end
 
@@ -85,6 +91,8 @@ if not MTH_DS_Beasts[1199] then
       {42.4, 57.9, 1},
       {43, 56.5, 1},
     },
+    ["displayId"] = 748,
+    ["skinId"]    = 748,
   }
 end
 
@@ -104,6 +112,8 @@ if not MTH_DS_Beasts[1225] then
       {42.5, 64.7, 38},
       {20.3, 77.4, 5602},
     },
+    ["displayId"] = 706,
+    ["skinId"]    = 706,
   }
 end
 
@@ -119,6 +129,8 @@ if not MTH_DS_Beasts[1516] then
     ["coords"] = {
       {36.3, 63.9, 33},
     },
+    ["displayId"] = 839,
+    ["skinId"]    = 809,
   }
 end
 
@@ -133,6 +145,8 @@ if not MTH_DS_Beasts[2275] then
     ["unique"] = true,
     ["coords"] = {
     },
+    ["displayId"] = 11411,
+    ["skinId"]    = 246,
   }
 end
 
@@ -247,6 +261,8 @@ if not MTH_DS_Beasts[2321] then
       {45.9, 22.2, 148},
       {29.5, 31.1, 361},
     },
+    ["displayId"] = 1042,
+    ["skinId"]    = 178,
   }
 end
 
@@ -327,6 +343,8 @@ if not MTH_DS_Beasts[2560] then
       {37.1, 29.9, 45},
       {39.9, 29.9, 45},
     },
+    ["displayId"] = 180,
+    ["skinId"]    = 180,
   }
 end
 
@@ -457,6 +475,8 @@ if not MTH_DS_Beasts[2563] then
       {80.7, 83.8, 267},
       {79.9, 81, 267},
     },
+    ["displayId"] = 1103,
+    ["skinId"]    = 1091,
   }
 end
 
@@ -491,6 +511,8 @@ if not MTH_DS_Beasts[2578] then
       {26.7, 24.8, 45},
       {29.1, 19.8, 45},
     },
+    ["displayId"] = 10824,
+    ["skinId"]    = 388,
   }
 end
 
@@ -510,6 +532,8 @@ if not MTH_DS_Beasts[2931] then
     ["coords"] = {
       {56.1, 61.7, 3},
     },
+    ["displayId"] = 1210,
+    ["skinId"]    = 490,
   }
 end
 
@@ -525,6 +549,8 @@ if not MTH_DS_Beasts[3257] then
     ["coords"] = {
       {59.7, 30.3, 17},
     },
+    ["displayId"] = 2571,
+    ["skinId"]    = 1959,
   }
 end
 
@@ -540,6 +566,8 @@ if not MTH_DS_Beasts[3475] then
     ["coords"] = {
       {56.1, 17.4, 17},
     },
+    ["displayId"] = 1934,
+    ["skinId"]    = 1934,
   }
 end
 
@@ -558,6 +586,8 @@ if not MTH_DS_Beasts[3503] then
     ["coords"] = {
       {45.5, 72.5, 17},
     },
+    ["displayId"] = 1307,
+    ["skinId"]    = 1307,
   }
 end
 
@@ -572,6 +602,8 @@ if not MTH_DS_Beasts[3619] then
     ["unique"] = true,
     ["coords"] = {
     },
+    ["displayId"] = 4472,
+    ["skinId"]    = 748,
   }
 end
 
@@ -631,6 +663,8 @@ if not MTH_DS_Beasts[3812] then
       {9.5, 13.7, 331},
       {6.7, 13, 331},
     },
+    ["displayId"] = 9566,
+    ["skinId"]    = 979,
   }
 end
 
@@ -662,6 +696,8 @@ if not MTH_DS_Beasts[4118] then
       {26.4, 25.6, 400},
       {22.7, 23.7, 400},
     },
+    ["displayId"] = 10991,
+    ["skinId"]    = 2700,
   }
 end
 
@@ -679,6 +715,8 @@ if not MTH_DS_Beasts[4250] then
     ["coords"] = {
       {25.1, 37.2, 400},
     },
+    ["displayId"] = 2726,
+    ["skinId"]    = 2726,
   }
 end
 
@@ -698,6 +736,8 @@ if not MTH_DS_Beasts[4425] then
     ["coords"] = {
       {11, 30.3, 491},
     },
+    ["displayId"] = 4735,
+    ["skinId"]    = 4735,
   }
 end
 
@@ -730,6 +770,8 @@ if not MTH_DS_Beasts[4511] then
       {50.6, 37.4, 491},
       {48.5, 37.2, 491},
     },
+    ["displayId"] = 4713,
+    ["skinId"]    = 4713,
   }
 end
 
@@ -750,6 +792,8 @@ if not MTH_DS_Beasts[4512] then
       {54.1, 57.3, 491},
       {48.5, 57.1, 491},
     },
+    ["displayId"] = 4714,
+    ["skinId"]    = 4714,
   }
 end
 
@@ -782,6 +826,8 @@ if not MTH_DS_Beasts[4514] then
       {52.3, 40.7, 491},
       {45.7, 40.1, 491},
     },
+    ["displayId"] = 2453,
+    ["skinId"]    = 2450,
   }
 end
 
@@ -796,6 +842,8 @@ if not MTH_DS_Beasts[4660] then
     ["unique"] = true,
     ["coords"] = {
     },
+    ["displayId"] = 2710,
+    ["skinId"]    = 2710,
   }
 end
 
@@ -862,6 +910,8 @@ if not MTH_DS_Beasts[4693] then
       {73.8, 11.2, 405},
       {50.4, 82.9, 406},
     },
+    ["displayId"] = 10273,
+    ["skinId"]    = 507,
   }
 end
 
@@ -885,6 +935,8 @@ if not MTH_DS_Beasts[4824] then
       {20.6, 38.3, 719},
       {23, 38, 719},
     },
+    ["displayId"] = 1244,
+    ["skinId"]    = 1244,
   }
 end
 
@@ -909,6 +961,8 @@ if not MTH_DS_Beasts[4825] then
       {60.3, 85.5, 719},
       {57.3, 85.3, 719},
     },
+    ["displayId"] = 5026,
+    ["skinId"]    = 5026,
   }
 end
 
@@ -930,6 +984,8 @@ if not MTH_DS_Beasts[5224] then
       {73.8, 42.6, 8},
       {72, 41.9, 8},
     },
+    ["displayId"] = 4767,
+    ["skinId"]    = 4317,
   }
 end
 
@@ -972,6 +1028,8 @@ if not MTH_DS_Beasts[5260] then
       {68.3, 52.1, 357},
       {74.7, 51.4, 357},
     },
+    ["displayId"] = 3186,
+    ["skinId"]    = 3186,
   }
 end
 
@@ -989,6 +1047,8 @@ if not MTH_DS_Beasts[5432] then
     ["coords"] = {
       {60.2, 81.6, 440},
     },
+    ["displayId"] = 5127,
+    ["skinId"]    = 5126,
   }
 end
 
@@ -1008,6 +1068,8 @@ if not MTH_DS_Beasts[5842] then
     ["coords"] = {
       {59.6, 8.3, 17},
     },
+    ["displayId"] = 1337,
+    ["skinId"]    = 1337,
   }
 end
 
@@ -1032,6 +1094,8 @@ if not MTH_DS_Beasts[5984] then
       {48.3, 17.8, 4},
       {56, 17.6, 4},
     },
+    ["displayId"] = 8050,
+    ["skinId"]    = 2714,
   }
 end
 
@@ -1074,6 +1138,8 @@ if not MTH_DS_Beasts[6513] then
       {67.7, 13.8, 490},
       {68.3, 13.1, 490},
     },
+    ["displayId"] = 5294,
+    ["skinId"]    = 792,
   }
 end
 
@@ -1116,6 +1182,8 @@ if not MTH_DS_Beasts[6514] then
       {67.7, 13.8, 490},
       {68.3, 13.1, 490},
     },
+    ["displayId"] = 844,
+    ["skinId"]    = 792,
   }
 end
 
@@ -1152,6 +1220,8 @@ if not MTH_DS_Beasts[6516] then
       {67.7, 13.8, 490},
       {68.3, 13.1, 490},
     },
+    ["displayId"] = 5244,
+    ["skinId"]    = 792,
   }
 end
 
@@ -1170,6 +1240,8 @@ if not MTH_DS_Beasts[6585] then
     ["coords"] = {
       {68.5, 12.7, 490},
     },
+    ["displayId"] = 8129,
+    ["skinId"]    = 840,
   }
 end
 
@@ -1230,6 +1302,8 @@ if not MTH_DS_Beasts[7455] then
       {63.3, 27.2, 618},
       {65.5, 27, 618},
     },
+    ["displayId"] = 6212,
+    ["skinId"]    = 6212,
   }
 end
 
@@ -1244,6 +1318,8 @@ if not MTH_DS_Beasts[7803] then
     ["unique"] = true,
     ["coords"] = {
     },
+    ["displayId"] = 2414,
+    ["skinId"]    = 2414,
   }
 end
 
@@ -1262,6 +1338,8 @@ if not MTH_DS_Beasts[8277] then
     ["coords"] = {
       {61.9, 73.2, 51},
     },
+    ["displayId"] = 4458,
+    ["skinId"]    = 4457,
   }
 end
 
@@ -1275,6 +1353,8 @@ if not MTH_DS_Beasts[8926] then
     ["attackSpeed"] = "2.0",
     ["coords"] = {
     },
+    ["displayId"] = 7347,
+    ["skinId"]    = 2489,
   }
 end
 
@@ -1288,6 +1368,8 @@ if not MTH_DS_Beasts[8927] then
     ["attackSpeed"] = "2.0",
     ["coords"] = {
     },
+    ["displayId"] = 1955,
+    ["skinId"]    = 1954,
   }
 end
 
@@ -1305,6 +1387,8 @@ if not MTH_DS_Beasts[9622] then
     ["coords"] = {
       {68.1, 12.6, 490},
     },
+    ["displayId"] = 8844,
+    ["skinId"]    = 3186,
   }
 end
 
@@ -1322,6 +1406,8 @@ if not MTH_DS_Beasts[9683] then
     ["coords"] = {
       {66.3, 63.9, 490},
     },
+    ["displayId"] = 5242,
+    ["skinId"]    = 960,
   }
 end
 
@@ -1337,6 +1423,8 @@ if not MTH_DS_Beasts[9684] then
       {31.7, 28.7, 440},
       {79.4, 49.9, 490},
     },
+    ["displayId"] = 11318,
+    ["skinId"]    = 675,
   }
 end
 
@@ -1355,6 +1443,8 @@ if not MTH_DS_Beasts[10200] then
     ["coords"] = {
       {51.1, 10.7, 618},
     },
+    ["displayId"] = 10054,
+    ["skinId"]    = 10054,
   }
 end
 
@@ -1373,6 +1463,8 @@ if not MTH_DS_Beasts[10356] then
     ["coords"] = {
       {45.6, 47.5, 85},
     },
+    ["displayId"] = 7892,
+    ["skinId"]    = 7890,
   }
 end
 
@@ -1391,6 +1483,8 @@ if not MTH_DS_Beasts[10359] then
     ["coords"] = {
       {88.2, 51.4, 85},
     },
+    ["displayId"] = 418,
+    ["skinId"]    = 30,
   }
 end
 
@@ -1406,6 +1500,8 @@ if not MTH_DS_Beasts[10741] then
     ["unique"] = true,
     ["coords"] = {
     },
+    ["displayId"] = 10114,
+    ["skinId"]    = 1934,
   }
 end
 
@@ -1421,6 +1517,8 @@ if not MTH_DS_Beasts[10882] then
     ["unique"] = true,
     ["coords"] = {
     },
+    ["displayId"] = 10183,
+    ["skinId"]    = 2699,
   }
 end
 
@@ -1456,6 +1554,8 @@ if not MTH_DS_Beasts[10981] then
       {45.2, 53.5, 2597},
       {44.9, 51.9, 2597},
     },
+    ["displayId"] = 10278,
+    ["skinId"]    = 720,
   }
 end
 
@@ -1474,6 +1574,8 @@ if not MTH_DS_Beasts[12037] then
     ["coords"] = {
       {83.4, 48.5, 331},
     },
+    ["displayId"] = 706,
+    ["skinId"]    = 706,
   }
 end
 
@@ -1497,6 +1599,8 @@ if not MTH_DS_Beasts[14222] then
       {36, 23.7, 267},
       {35.3, 11.5, 267},
     },
+    ["displayId"] = 1933,
+    ["skinId"]    = 1933,
   }
 end
 
@@ -1521,6 +1625,8 @@ if not MTH_DS_Beasts[14223] then
       {77.5, 38, 130},
       {82, 33.4, 130},
     },
+    ["displayId"] = 5026,
+    ["skinId"]    = 5026,
   }
 end
 
@@ -1539,6 +1645,8 @@ if not MTH_DS_Beasts[14234] then
     ["coords"] = {
       {52, 62.9, 15},
     },
+    ["displayId"] = 2703,
+    ["skinId"]    = 2703,
   }
 end
 
@@ -1552,48 +1660,8 @@ if not MTH_DS_Beasts[15041] then
     ["attackSpeed"] = "1.4",
     ["coords"] = {
     },
-  }
-end
-
-if not MTH_DS_Beasts[36507] then
-  MTH_DS_Beasts[36507] = {
-    ["name"] = "Spot",
-    ["family"] = "Wolves",
-    ["lvl"] = "1",
-    ["fac"] = "AH",
-    ["abilities"] = "Dash 1",
-    ["attackSpeed"] = "2.0",
-    ["coords"] = {
-      {68, 46.8, 15},
-    },
-  }
-end
-
-if not MTH_DS_Beasts[36514] then
-  MTH_DS_Beasts[36514] = {
-    ["name"] = "Frostsaber Cub",
-    ["family"] = "Cats",
-    ["lvl"] = "1",
-    ["fac"] = "AH",
-    ["abilities"] = "Cower 6",
-    ["attackSpeed"] = "1.5",
-    ["coords"] = {
-      {48.9, 19, 618},
-    },
-  }
-end
-
-if not MTH_DS_Beasts[37007] then
-  MTH_DS_Beasts[37007] = {
-    ["name"] = "Black Widow Hatchling",
-    ["family"] = "Spiders",
-    ["lvl"] = "1",
-    ["fac"] = "AH",
-    ["abilities"] = "None",
-    ["attackSpeed"] = "2.0",
-    ["coords"] = {
-      {80.7, 62.8, 10},
-    },
+    ["displayId"] = 15136,
+    ["skinId"]    = 711,
   }
 end
 
@@ -1608,6 +1676,8 @@ if not MTH_DS_Beasts[50624] then
     ["coords"] = {
       {26.5, 30.9, 15},
     },
+    ["displayId"] = 11107,
+    ["skinId"]    = 11107,
   }
 end
 
@@ -1622,6 +1692,8 @@ if not MTH_DS_Beasts[50627] then
     ["coords"] = {
       {26.5, 30.9, 15},
     },
+    ["displayId"] = 11107,
+    ["skinId"]    = 11107,
   }
 end
 
@@ -1636,6 +1708,8 @@ if not MTH_DS_Beasts[50630] then
     ["coords"] = {
       {26.5, 30.9, 15},
     },
+    ["displayId"] = 11107,
+    ["skinId"]    = 11107,
   }
 end
 
@@ -1658,6 +1732,8 @@ if not MTH_DS_Beasts[60697] then
       {93.7, 57.2, 46},
       {97.1, 51.2, 46},
     },
+    ["displayId"] = 8050,
+    ["skinId"]    = 2714,
   }
 end
 
@@ -1692,6 +1768,8 @@ if not MTH_DS_Beasts[61096] then
       {47.3, 18.8, 5121},
       {49.4, 18.2, 5121},
     },
+    ["displayId"] = 10991,
+    ["skinId"]    = 2700,
   }
 end
 
@@ -1710,6 +1788,8 @@ if not MTH_DS_Beasts[61500] then
     ["coords"] = {
       {56.7, 48.3, 5121},
     },
+    ["displayId"] = 837,
+    ["skinId"]    = 792,
   }
 end
 
@@ -1728,6 +1808,8 @@ if not MTH_DS_Beasts[61552] then
     ["coords"] = {
       {45.6, 78, 5179},
     },
+    ["displayId"] = 18247,
+    ["skinId"]    = 18247,
   }
 end
 
@@ -1747,6 +1829,8 @@ if not MTH_DS_Beasts[61554] then
       {47.4, 92.2, 130},
       {48.9, 22.7, 5179},
     },
+    ["displayId"] = 9568,
+    ["skinId"]    = 9568,
   }
 end
 
@@ -1765,6 +1849,8 @@ if not MTH_DS_Beasts[61699] then
       {20.6, 8.9, 139},
       {64.2, 67, 5225},
     },
+    ["displayId"] = 18430,
+    ["skinId"]    = 18430,
   }
 end
 
@@ -1794,13 +1880,15 @@ if not MTH_DS_Beasts[61975] then
       {20.1, 52.3, 45},
       {20.8, 52.2, 45},
     },
+    ["displayId"] = 20504,
+    ["skinId"]    = 20504,
   }
 end
 
 if not MTH_DS_Beasts[62066] then
   MTH_DS_Beasts[62066] = {
     ["name"] = "Cavernweb Broodmother",
-    ["family"] = "Spider",
+    ["family"] = "Spiders",
     ["lvl"] = "27",
     ["fac"] = "Unknown",
     ["abilities"] = "None",
@@ -1811,13 +1899,15 @@ if not MTH_DS_Beasts[62066] then
     ["coords"] = {
       {33.6, 44.3, 5601},
     },
+    ["displayId"] = 959,
+    ["skinId"]    = 955,
   }
 end
 
 if not MTH_DS_Beasts[62073] then
   MTH_DS_Beasts[62073] = {
     ["name"] = "Cavernweb Spider",
-    ["family"] = "Spider",
+    ["family"] = "Spiders",
     ["lvl"] = "26-27",
     ["fac"] = "Unknown",
     ["abilities"] = "None",
@@ -1835,13 +1925,15 @@ if not MTH_DS_Beasts[62073] then
       {31.9, 50.2, 5601},
       {35.3, 47.3, 5601},
     },
+    ["displayId"] = 959,
+    ["skinId"]    = 955,
   }
 end
 
 if not MTH_DS_Beasts[62074] then
   MTH_DS_Beasts[62074] = {
     ["name"] = "Cavernweb Creeper",
-    ["family"] = "Spider",
+    ["family"] = "Spiders",
     ["lvl"] = "26-27",
     ["fac"] = "Unknown",
     ["abilities"] = "Web",
@@ -1857,13 +1949,15 @@ if not MTH_DS_Beasts[62074] then
       {30.3, 48.6, 5601},
       {33.2, 47, 5601},
     },
+    ["displayId"] = 959,
+    ["skinId"]    = 955,
   }
 end
 
 if not MTH_DS_Beasts[62075] then
   MTH_DS_Beasts[62075] = {
     ["name"] = "Cavernweb Venomspitter",
-    ["family"] = "Spider",
+    ["family"] = "Spiders",
     ["lvl"] = "27-28",
     ["fac"] = "Unknown",
     ["abilities"] = "None",
@@ -1876,6 +1970,8 @@ if not MTH_DS_Beasts[62075] then
       {30.3, 50.6, 5601},
       {36.3, 48.3, 5601},
     },
+    ["displayId"] = 711,
+    ["skinId"]    = 711,
   }
 end
 
@@ -1937,6 +2033,8 @@ if not MTH_DS_Beasts[62345] then
       {40.9, 22.5, 5561},
       {41.5, 21.8, 5561},
     },
+    ["displayId"] = 833,
+    ["skinId"]    = 833,
   }
 end
 
@@ -1951,6 +2049,8 @@ if not MTH_DS_Beasts[80250] then
     ["coords"] = {
       {9.7, 16.2, 139},
     },
+    ["displayId"] = 18027,
+    ["skinId"]    = 18027,
   }
 end
 
@@ -2009,6 +2109,8 @@ if not MTH_DS_Beasts[80257] then
       {15.2, 59.1, 5602},
       {16.7, 58.6, 5602},
     },
+    ["displayId"] = 18008,
+    ["skinId"]    = 18008,
   }
 end
 
@@ -2028,6 +2130,8 @@ if not MTH_DS_Beasts[80259] then
       {50, 77.8, 41},
       {52.4, 36.6, 41},
     },
+    ["displayId"] = 18004,
+    ["skinId"]    = 18004,
   }
 end
 
@@ -2046,50 +2150,8 @@ if not MTH_DS_Beasts[80260] then
     ["coords"] = {
       {63.6, 15.8, 618},
     },
-  }
-end
-
-if not MTH_DS_Beasts[80920] then
-  MTH_DS_Beasts[80920] = {
-    ["name"] = "Amani Eagle",
-    ["family"] = "Owls",
-    ["lvl"] = "1",
-    ["fac"] = "AH",
-    ["abilities"] = "Screech 1, Claw 2",
-    ["attackSpeed"] = "2.0",
-    ["coords"] = {
-      {36.4, 18.3, 406},
-    },
-  }
-end
-
-if not MTH_DS_Beasts[90980] then
-  MTH_DS_Beasts[90980] = {
-    ["name"] = "Zulian Panther",
-    ["family"] = "Cats",
-    ["lvl"] = "1",
-    ["fac"] = "AH",
-    ["abilities"] = "Dash 3",
-    ["attackSpeed"] = "2.0",
-    ["elite"] = true,
-    ["coords"] = {
-      {50.3, 28.9, 1977},
-    },
-  }
-end
-
-if not MTH_DS_Beasts[90981] then
-  MTH_DS_Beasts[90981] = {
-    ["name"] = "Zulian Panther",
-    ["family"] = "Cats",
-    ["lvl"] = "1",
-    ["fac"] = "AH",
-    ["abilities"] = "Dash 3",
-    ["attackSpeed"] = "2.0",
-    ["elite"] = true,
-    ["coords"] = {
-      {50.3, 28.9, 1977},
-    },
+    ["displayId"] = 18244,
+    ["skinId"]    = 18244,
   }
 end
 
@@ -2097,5 +2159,5 @@ MTH_DS_BeastsExtraMeta = {
   generated = "2026-02-15",
   baseBeasts = 627,
   knownBeastNames = 710,
-  addedIDs = 80,
+  addedIDs = 74,
 }

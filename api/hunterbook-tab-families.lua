@@ -13,7 +13,6 @@ MTH_HUNTERBOOK_TABS.families = {
 }
 
 local function MTH_BOOKTAB_FamiliesTrace(message)
-	return
 end
 
 local function MTH_BOOKTAB_FamiliesSafeLower(value)
@@ -83,6 +82,7 @@ function MTH_BOOKTAB_BuildFamiliesRows()
 
 	for familyName, familyRow in pairs(families) do
 		if type(familyRow) == "table" then
+			MTH_BOOKTAB_FamiliesTrace("BUILD " .. tostring(familyName) .. " icon=" .. tostring(familyRow.icon))
 			local abilities = {}
 			local seen = {}
 
@@ -191,6 +191,7 @@ function MTH_BOOKTAB_BuildFamiliesRows()
 
 			table.insert(results, {
 				family = tostring(familyName),
+				icon = familyRow.icon or nil,
 				named = tonumber(familyRow.named) or 0,
 				coords = tonumber(familyRow.coords) or 0,
 				abilities = abilities,
@@ -289,9 +290,15 @@ function MTH_BOOKTAB_EnsureFamiliesUI()
 			row:SetPoint("TOPRIGHT", ui.rows[i - 1], "BOTTOMRIGHT", 0, -1)
 		end
 
+		row.familyIcon = row:CreateTexture(nil, "ARTWORK")
+		row.familyIcon:SetPoint("LEFT", row, "LEFT", 4, 0)
+		row.familyIcon:SetWidth(16)
+		row.familyIcon:SetHeight(16)
+		row.familyIcon:Hide()
+
 		row.family = row:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-		row.family:SetPoint("LEFT", row, "LEFT", 4, 0)
-		row.family:SetWidth(106)
+		row.family:SetPoint("LEFT", row, "LEFT", 24, 0)
+		row.family:SetWidth(88)
 		row.family:SetJustifyH("LEFT")
 
 		row.named = row:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
@@ -393,6 +400,14 @@ function MTH_BOOKTAB_RenderFamiliesList()
 		if row then
 			rowFrame:Show()
 			rowFrame.family:SetText(tostring(row.family or "-"))
+			local familyIconPath = row.icon and MTH_BOOK_ResolveIconPath and MTH_BOOK_ResolveIconPath(row.icon) or nil
+			MTH_BOOKTAB_FamiliesTrace("RENDER " .. tostring(row.family) .. " icon=" .. tostring(row.icon) .. " path=" .. tostring(familyIconPath))
+			if familyIconPath then
+				rowFrame.familyIcon:SetTexture(familyIconPath)
+				rowFrame.familyIcon:Show()
+			else
+				rowFrame.familyIcon:Hide()
+			end
 			rowFrame.named:SetText(tostring(row.named or 0))
 			rowFrame.coords:SetText(tostring(row.coords or 0))
 			rowFrame.diet:SetText(tostring(row.dietText or "-"))

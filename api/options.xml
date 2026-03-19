@@ -66,6 +66,7 @@
 
 			<!-- Content Areas -->
 			<Frame name="$parentGeneral" hidden="true" enableMouse="true"/>
+			<Frame name="$parentProfiles" hidden="true" enableMouse="true"/>
 			<Frame name="$parentMessages" hidden="true" enableMouse="true"/>
 			<Frame name="$parentPet" hidden="true" enableMouse="true"/>
 			<Frame name="$parentTrack" hidden="true" enableMouse="true"/>

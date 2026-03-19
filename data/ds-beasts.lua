@@ -17,6 +17,8 @@ MTH_DS_Beasts = {
     ["respawnSamples"] = 41,
     ["coords"] = {
     },
+    ["displayId"] = 382,
+    ["skinId"]    = 366,
   },
   [43] = {
     ["name"] = "Mine Spider",
@@ -31,6 +33,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {60.0, 48.7, 12},
     },
+    ["displayId"] = 368,
+    ["skinId"]    = 30,
   },
   [69] = {
     ["name"] = "Timber Wolf",
@@ -45,6 +49,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {49.5, 49.3, 12},
     },
+    ["displayId"] = 604,
+    ["skinId"]    = 165,
   },
   [113] = {
     ["name"] = "Stonetusk Boar",
@@ -59,6 +65,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {40.9, 91.9, 12},
     },
+    ["displayId"] = 503,
+    ["skinId"]    = 193,
   },
   [118] = {
     ["name"] = "Prowler",
@@ -73,6 +81,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {83.0, 85.5, 12},
     },
+    ["displayId"] = 11415,
+    ["skinId"]    = 9564,
   },
   [119] = {
     ["name"] = "Longsnout",
@@ -87,6 +97,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {24.6, 88.5, 12},
     },
+    ["displayId"] = 381,
+    ["skinId"]    = 381,
   },
   [154] = {
     ["name"] = "Greater Fleshripper",
@@ -101,6 +113,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {58.8, 64.2, 40},
     },
+    ["displayId"] = 1105,
+    ["skinId"]    = 388,
   },
   [157] = {
     ["name"] = "Goretusk",
@@ -115,6 +129,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {35.7, 80.8, 40},
     },
+    ["displayId"] = 3027,
+    ["skinId"]    = 3026,
   },
   [199] = {
     ["name"] = "Young Fleshripper",
@@ -127,8 +143,19 @@ MTH_DS_Beasts = {
     ["respawnMaxSeconds"] = 300,
     ["respawnSamples"] = 74,
     ["coords"] = {
-      {16.6, 77.1, 12},
+      {36.28, 26.44, 40}, {38.1, 32.1, 40}, {38.19, 19.89, 40},
+      {42.96, 25.11, 40}, {42.99, 33.73, 40}, {43.59, 18.77, 40},
+      {44.65, 20.06, 40}, {45.85, 29.36, 40}, {47.82, 18.21, 40},
+      {48.82, 30.9, 40}, {48.93, 35.83, 40}, {49.42, 37.2, 40},
+      {49.53, 24.69, 40}, {51.39, 42.21, 40}, {51.88, 27.69, 40},
+      {52.45, 18.69, 40}, {52.76, 35.66, 40}, {53.7, 43.89, 40},
+      {54.19, 39.77, 40}, {55.22, 17.61, 40}, {56.22, 24.56, 40},
+      {57.16, 39.69, 40}, {58.85, 13.84, 40}, {59.85, 32.31, 40},
+      {60.05, 39.77, 40}, {60.13, 24.17, 40}, {60.93, 27.94, 40},
+      {62.85, 27.81, 40},
     },
+    ["displayId"] = 410,
+    ["skinId"]    = 410,
   },
   [213] = {
     ["name"] = "Starving Dire Wolf",
@@ -143,6 +170,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {12.6, 66.8, 10},
     },
+    ["displayId"] = 801,
+    ["skinId"]    = 776,
   },
   [217] = {
     ["name"] = "Venom Web Spider",
@@ -157,6 +186,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {15.7, 72.6, 10},
     },
+    ["displayId"] = 955,
+    ["skinId"]    = 955,
   },
   [299] = {
     ["name"] = "Young Wolf",
@@ -171,6 +202,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {42.6, 61.0, 12},
     },
+    ["displayId"] = 447,
+    ["skinId"]    = 165,
   },
   [330] = {
     ["name"] = "Princess",
@@ -185,6 +218,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {69.7, 79.3, 12},
     },
+    ["displayId"] = 8871,
+    ["skinId"]    = 8869,
   },
   [345] = {
     ["name"] = "Bellygrub",
@@ -199,6 +234,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {15.7, 49.3, 44},
     },
+    ["displayId"] = 703,
+    ["skinId"]    = 377,
   },
   [390] = {
     ["name"] = "Porcine Entourage",
@@ -213,6 +250,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {69.7, 79.2, 12},
     },
+    ["displayId"] = 377,
+    ["skinId"]    = 377,
   },
   [428] = {
     ["name"] = "Dire Condor",
@@ -227,6 +266,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {60.8, 78.3, 44},
     },
+    ["displayId"] = 490,
+    ["skinId"]    = 490,
   },
   [442] = {
     ["name"] = "Tarantula",
@@ -241,6 +282,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {98.2, 11.6, 10},
     },
+    ["displayId"] = 366,
+    ["skinId"]    = 366,
   },
   [454] = {
     ["name"] = "Young Goretusk",
@@ -255,6 +298,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {20.8, 86.9, 12},
     },
+    ["displayId"] = 8871,
+    ["skinId"]    = 8869,
   },
   [462] = {
     ["name"] = "Vultros",
@@ -270,6 +315,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {62.0, 75.5, 40},
     },
+    ["displayId"] = 507,
+    ["skinId"]    = 507,
   },
   [471] = {
     ["name"] = "Mother Fang",
@@ -285,6 +332,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {62.1, 48.1, 12},
     },
+    ["displayId"] = 2541,
+    ["skinId"]    = 283,
   },
   [505] = {
     ["name"] = "Greater Tarantula",
@@ -299,6 +348,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {67.2, 76.6, 44},
     },
+    ["displayId"] = 520,
+    ["skinId"]    = 520,
   },
   [524] = {
     ["name"] = "Rockhide Boar",
@@ -313,6 +364,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {45.0, 89.6, 12},
     },
+    ["displayId"] = 389,
+    ["skinId"]    = 193,
   },
   [525] = {
     ["name"] = "Mangy Wolf",
@@ -327,6 +380,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {23.6, 77.0, 12},
     },
+    ["displayId"] = 903,
+    ["skinId"]    = 165,
   },
   [539] = {
     ["name"] = "Pygmy Venom Web Spider",
@@ -341,6 +396,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {13.2, 70.3, 10},
     },
+    ["displayId"] = 958,
+    ["skinId"]    = 955,
   },
   [547] = {
     ["name"] = "Great Goretusk",
@@ -355,6 +412,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {67.5, 70.9, 40},
     },
+    ["displayId"] = 3035,
+    ["skinId"]    = 3026,
   },
   [565] = {
     ["name"] = "Rabid Dire Wolf",
@@ -369,6 +428,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {12.9, 69.2, 10},
     },
+    ["displayId"] = 802,
+    ["skinId"]    = 776,
   },
   [569] = {
     ["name"] = "Green Recluse",
@@ -383,6 +444,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {16.5, 69.5, 10},
     },
+    ["displayId"] = 2541,
+    ["skinId"]    = 283,
   },
   [574] = {
     ["name"] = "Naraxis",
@@ -398,6 +461,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {86.4, 47.6, 10},
     },
+    ["displayId"] = 963,
+    ["skinId"]    = 963,
   },
   [616] = {
     ["name"] = "Chatter",
@@ -413,6 +478,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {53.1, 37.1, 44},
     },
+    ["displayId"] = 821,
+    ["skinId"]    = 520,
   },
   [628] = {
     ["name"] = "Black Ravager",
@@ -427,6 +494,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {52.7, 63.2, 10},
     },
+    ["displayId"] = 741,
+    ["skinId"]    = 246,
   },
   [681] = {
     ["name"] = "Young Stranglethorn Tiger",
@@ -441,6 +510,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {34.7, 17.5, 33},
     },
+    ["displayId"] = 598,
+    ["skinId"]    = 320,
   },
   [682] = {
     ["name"] = "Stranglethorn Tiger",
@@ -455,6 +526,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {47.2, 18.5, 33},
     },
+    ["displayId"] = 320,
+    ["skinId"]    = 320,
   },
   [683] = {
     ["name"] = "Young Panther",
@@ -469,6 +542,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {35.1, 15.1, 33},
     },
+    ["displayId"] = 2437,
+    ["skinId"]    = 599,
   },
   [684] = {
     ["name"] = "Shadowmaw Panther",
@@ -483,6 +558,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {39.3, 45.5, 33},
     },
+    ["displayId"] = 633,
+    ["skinId"]    = 599,
   },
   [685] = {
     ["name"] = "Stranglethorn Raptor",
@@ -497,6 +574,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {27.5, 17.7, 33},
     },
+    ["displayId"] = 788,
+    ["skinId"]    = 180,
   },
   [686] = {
     ["name"] = "Lashtail Raptor",
@@ -511,6 +590,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {37.6, 27.9, 33},
     },
+    ["displayId"] = 788,
+    ["skinId"]    = 180,
   },
   [687] = {
     ["name"] = "Jungle Stalker",
@@ -525,6 +606,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {23.2, 51.5, 33},
     },
+    ["displayId"] = 11317,
+    ["skinId"]    = 960,
   },
   [704] = {
     ["name"] = "Ragged Timber Wolf",
@@ -539,6 +622,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {24.0, 79.7, 1},
     },
+    ["displayId"] = 11416,
+    ["skinId"]    = 776,
   },
   [705] = {
     ["name"] = "Ragged Young Wolf",
@@ -553,6 +638,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {22.6, 78.2, 1},
     },
+    ["displayId"] = 855,
+    ["skinId"]    = 776,
   },
   [708] = {
     ["name"] = "Small Crag Boar",
@@ -567,6 +654,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {24.7, 79.3, 1},
     },
+    ["displayId"] = 607,
+    ["skinId"]    = 381,
   },
   [730] = {
     ["name"] = "Tethis",
@@ -582,6 +671,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {28.7, 44.8, 33},
     },
+    ["displayId"] = 8472,
+    ["skinId"]    = 675,
   },
   [731] = {
     ["name"] = "King Bangalash",
@@ -597,6 +688,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {38.2, 35.6, 33},
     },
+    ["displayId"] = 616,
+    ["skinId"]    = 616,
   },
   [736] = {
     ["name"] = "Panther",
@@ -611,6 +704,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {28.2, 16.6, 33},
     },
+    ["displayId"] = 599,
+    ["skinId"]    = 599,
   },
   [767] = {
     ["name"] = "Swamp Jaguar",
@@ -625,6 +720,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {27.2, 64.0, 8},
     },
+    ["displayId"] = 632,
+    ["skinId"]    = 632,
   },
   [768] = {
     ["name"] = "Shadow Panther",
@@ -639,6 +736,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {65.4, 67.9, 8},
     },
+    ["displayId"] = 633,
+    ["skinId"]    = 599,
   },
   [769] = {
     ["name"] = "Deathstrike Tarantula",
@@ -653,6 +752,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {81.1, 89.1, 8},
     },
+    ["displayId"] = 336,
+    ["skinId"]    = 336,
   },
   [772] = {
     ["name"] = "Stranglethorn Tigress",
@@ -667,6 +768,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {39.5, 41.7, 33},
     },
+    ["displayId"] = 614,
+    ["skinId"]    = 320,
   },
   [822] = {
     ["name"] = "Young Forest Bear",
@@ -681,6 +784,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {25.5, 90.7, 12},
     },
+    ["displayId"] = 1006,
+    ["skinId"]    = 822,
   },
   [830] = {
     ["name"] = "Sand Crawler",
@@ -695,6 +800,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {39.6, 12.9, 40},
     },
+    ["displayId"] = 342,
+    ["skinId"]    = 342,
   },
   [831] = {
     ["name"] = "Sea Crawler",
@@ -709,6 +816,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {31.1, 24.2, 40},
     },
+    ["displayId"] = 979,
+    ["skinId"]    = 979,
   },
   [833] = {
     ["name"] = "Coyote Packleader",
@@ -723,6 +832,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {35.2, 42.7, 40},
     },
+    ["displayId"] = 161,
+    ["skinId"]    = 161,
   },
   [834] = {
     ["name"] = "Coyote",
@@ -737,6 +848,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {19.7, 84.0, 12},
     },
+    ["displayId"] = 643,
+    ["skinId"]    = 161,
   },
   [854] = {
     ["name"] = "Young Jungle Stalker",
@@ -751,6 +864,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {31.3, 44.7, 33},
     },
+    ["displayId"] = 615,
+    ["skinId"]    = 322,
   },
   [855] = {
     ["name"] = "Young Stranglethorn Raptor",
@@ -765,6 +880,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {24.2, 16.3, 33},
     },
+    ["displayId"] = 180,
+    ["skinId"]    = 180,
   },
   [856] = {
     ["name"] = "Young Lashtail Raptor",
@@ -779,6 +896,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {30.6, 23.5, 33},
     },
+    ["displayId"] = 2571,
+    ["skinId"]    = 1959,
   },
   [858] = {
     ["name"] = "Sorrow Spinner",
@@ -793,6 +912,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {24.9, 64.0, 8},
     },
+    ["displayId"] = 2543,
+    ["skinId"]    = 366,
   },
   [922] = {
     ["name"] = "Silt Crawler",
@@ -807,6 +928,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {80.5, 93.9, 8},
     },
+    ["displayId"] = 9571,
+    ["skinId"]    = 342,
   },
   [923] = {
     ["name"] = "Young Black Ravager",
@@ -821,6 +944,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {22.0, 78.3, 10},
     },
+    ["displayId"] = 246,
+    ["skinId"]    = 246,
   },
   [930] = {
     ["name"] = "Black Widow Hatchling",
@@ -835,6 +960,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {80.7, 62.8, 10},
     },
+    ["displayId"] = 368,
+    ["skinId"]    = 30,
   },
   [949] = {
     ["name"] = "Carrion Recluse",
@@ -849,6 +976,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {21.5, 46.3, 10},
     },
+    ["displayId"] = 545,
+    ["skinId"]    = 283,
   },
   [976] = {
     ["name"] = "Kurzen War Tiger",
@@ -863,6 +992,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {45.9, 10.0, 33},
     },
+    ["displayId"] = 320,
+    ["skinId"]    = 320,
   },
   [977] = {
     ["name"] = "Kurzen War Panther",
@@ -877,6 +1008,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {45.7, 9.7, 33},
     },
+    ["displayId"] = 599,
+    ["skinId"]    = 599,
   },
   [1015] = {
     ["name"] = "Highland Raptor",
@@ -891,6 +1024,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {57.8, 37.6, 11},
     },
+    ["displayId"] = 670,
+    ["skinId"]    = 180,
   },
   [1016] = {
     ["name"] = "Highland Lashtail",
@@ -905,6 +1040,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {57.8, 35.4, 11},
     },
+    ["displayId"] = 673,
+    ["skinId"]    = 180,
   },
   [1017] = {
     ["name"] = "Highland Scytheclaw",
@@ -919,6 +1056,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {56.4, 31.4, 11},
     },
+    ["displayId"] = 649,
+    ["skinId"]    = 180,
   },
   [1018] = {
     ["name"] = "Highland Razormaw",
@@ -933,6 +1072,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {72.0, 39.9, 11},
     },
+    ["displayId"] = 180,
+    ["skinId"]    = 180,
   },
   [1019] = {
     ["name"] = "Elder Razormaw",
@@ -947,6 +1088,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {69.3, 32.9, 11},
     },
+    ["displayId"] = 788,
+    ["skinId"]    = 180,
   },
   [1020] = {
     ["name"] = "Mottled Raptor",
@@ -961,6 +1104,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {23.0, 59.8, 11},
     },
+    ["displayId"] = 960,
+    ["skinId"]    = 960,
   },
   [1021] = {
     ["name"] = "Mottled Screecher",
@@ -975,6 +1120,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {23.7, 60.4, 11},
     },
+    ["displayId"] = 677,
+    ["skinId"]    = 675,
   },
   [1022] = {
     ["name"] = "Mottled Scytheclaw",
@@ -989,6 +1136,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {35.6, 51.9, 11},
     },
+    ["displayId"] = 648,
+    ["skinId"]    = 322,
   },
   [1023] = {
     ["name"] = "Mottled Razormaw",
@@ -1003,6 +1152,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {33.7, 49.8, 11},
     },
+    ["displayId"] = 949,
+    ["skinId"]    = 675,
   },
   [1082] = {
     ["name"] = "Sawtooth Crocolisk",
@@ -1017,6 +1168,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {56.1, 56.8, 8},
     },
+    ["displayId"] = 807,
+    ["skinId"]    = 807,
   },
   [1084] = {
     ["name"] = "Young Sawtooth Crocolisk",
@@ -1031,6 +1184,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {28.6, 56.0, 8},
     },
+    ["displayId"] = 814,
+    ["skinId"]    = 807,
   },
   [1087] = {
     ["name"] = "Sawtooth Snapper",
@@ -1045,6 +1200,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {82.6, 99.5, 8},
     },
+    ["displayId"] = 815,
+    ["skinId"]    = 807,
   },
   [1088] = {
     ["name"] = "Monstrous Crawler",
@@ -1059,6 +1216,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {78.9, 98.1, 8},
     },
+    ["displayId"] = 699,
+    ["skinId"]    = 342,
   },
   [1108] = {
     ["name"] = "Mistvale Gorilla",
@@ -1073,6 +1232,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {36.7, 18.3, 33},
     },
+    ["displayId"] = 843,
+    ["skinId"]    = 838,
   },
   [1109] = {
     ["name"] = "Fleshripper",
@@ -1087,6 +1248,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {37.0, 69.1, 40},
     },
+    ["displayId"] = 2305,
+    ["skinId"]    = 410,
   },
   [1111] = {
     ["name"] = "Leech Stalker",
@@ -1101,6 +1264,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {56.1, 67.9, 11},
     },
+    ["displayId"] = 711,
+    ["skinId"]    = 711,
   },
   [1112] = {
     ["name"] = "Leech Widow",
@@ -1116,6 +1281,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {47.3, 59.2, 11},
     },
+    ["displayId"] = 955,
+    ["skinId"]    = 955,
   },
   [1114] = {
     ["name"] = "Jungle Thunderer",
@@ -1130,6 +1297,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {47.7, 38.0, 33},
     },
+    ["displayId"] = 845,
+    ["skinId"]    = 809,
   },
   [1125] = {
     ["name"] = "Crag Boar",
@@ -1144,6 +1313,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {42.2, 67.6, 1},
     },
+    ["displayId"] = 607,
+    ["skinId"]    = 381,
   },
   [1126] = {
     ["name"] = "Large Crag Boar",
@@ -1158,6 +1329,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {47.3, 63.9, 1},
     },
+    ["displayId"] = 381,
+    ["skinId"]    = 381,
   },
   [1127] = {
     ["name"] = "Elder Crag Boar",
@@ -1172,6 +1345,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {70.7, 61.6, 1},
     },
+    ["displayId"] = 744,
+    ["skinId"]    = 381,
   },
   [1128] = {
     ["name"] = "Young Black Bear",
@@ -1186,6 +1361,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {41.9, 66.8, 1},
     },
+    ["displayId"] = 8843,
+    ["skinId"]    = 706,
   },
   [1129] = {
     ["name"] = "Black Bear",
@@ -1196,6 +1373,8 @@ MTH_DS_Beasts = {
     ["attackSpeed"] = "2.5",
     ["coords"] = {
     },
+    ["displayId"] = 719,
+    ["skinId"]    = 706,
   },
   [1130] = {
     ["name"] = "Bjarn",
@@ -1211,6 +1390,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {55.6, 58.5, 1},
     },
+    ["displayId"] = 913,
+    ["skinId"]    = 865,
   },
   [1131] = {
     ["name"] = "Winter Wolf",
@@ -1225,6 +1406,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {50.7, 52.5, 1},
     },
+    ["displayId"] = 785,
+    ["skinId"]    = 776,
   },
   [1132] = {
     ["name"] = "Timber",
@@ -1240,6 +1423,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {34.2, 41.8, 1},
     },
+    ["displayId"] = 11422,
+    ["skinId"]    = 720,
   },
   [1133] = {
     ["name"] = "Starving Winter Wolf",
@@ -1254,6 +1439,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {34.2, 41.9, 1},
     },
+    ["displayId"] = 11416,
+    ["skinId"]    = 776,
   },
   [1138] = {
     ["name"] = "Snow Tracker Wolf",
@@ -1268,6 +1455,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {44.6, 47.1, 1},
     },
+    ["displayId"] = 604,
+    ["skinId"]    = 165,
   },
   [1140] = {
     ["name"] = "Razormaw Matriarch",
@@ -1283,6 +1472,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {69.9, 29.2, 11},
     },
+    ["displayId"] = 11316,
+    ["skinId"]    = 787,
   },
   [1150] = {
     ["name"] = "River Crocolisk",
@@ -1297,6 +1488,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {39.9, 14.4, 33},
     },
+    ["displayId"] = 1039,
+    ["skinId"]    = 833,
   },
   [1152] = {
     ["name"] = "Snapjaw Crocolisk",
@@ -1311,6 +1504,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {37.9, 32.6, 33},
     },
+    ["displayId"] = 833,
+    ["skinId"]    = 833,
   },
   [1184] = {
     ["name"] = "Cliff Lurker",
@@ -1325,6 +1520,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {55.3, 78.3, 38},
     },
+    ["displayId"] = 827,
+    ["skinId"]    = 520,
   },
   [1185] = {
     ["name"] = "Wood Lurker",
@@ -1339,6 +1536,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {78.9, 40.9, 38},
     },
+    ["displayId"] = 520,
+    ["skinId"]    = 520,
   },
   [1186] = {
     ["name"] = "Elder Black Bear",
@@ -1353,6 +1552,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {20.7, 77.4, 38},
     },
+    ["displayId"] = 707,
+    ["skinId"]    = 706,
   },
   [1188] = {
     ["name"] = "Grizzled Black Bear",
@@ -1367,6 +1568,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {63.2, 80.2, 38},
     },
+    ["displayId"] = 762,
+    ["skinId"]    = 706,
   },
   [1189] = {
     ["name"] = "Black Bear Patriarch",
@@ -1381,6 +1584,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {37.9, 63.4, 38},
     },
+    ["displayId"] = 762,
+    ["skinId"]    = 706,
   },
   [1190] = {
     ["name"] = "Mountain Boar",
@@ -1395,6 +1600,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {29.9, 46.8, 38},
     },
+    ["displayId"] = 704,
+    ["skinId"]    = 377,
   },
   [1191] = {
     ["name"] = "Mangy Mountain Boar",
@@ -1409,6 +1616,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {52.5, 74.7, 38},
     },
+    ["displayId"] = 3027,
+    ["skinId"]    = 3026,
   },
   [1192] = {
     ["name"] = "Elder Mountain Boar",
@@ -1423,6 +1632,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {74.8, 50.7, 38},
     },
+    ["displayId"] = 1208,
+    ["skinId"]    = 377,
   },
   [1194] = {
     ["name"] = "Mountain Buzzard",
@@ -1437,6 +1648,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {78.7, 70.3, 38},
     },
+    ["displayId"] = 410,
+    ["skinId"]    = 410,
   },
   [1195] = {
     ["name"] = "Forest Lurker",
@@ -1451,6 +1664,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {19.3, 83.5, 38},
     },
+    ["displayId"] = 827,
+    ["skinId"]    = 520,
   },
   [1196] = {
     ["name"] = "Ice Claw Bear",
@@ -1465,6 +1680,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {46.3, 63.3, 1},
     },
+    ["displayId"] = 8840,
+    ["skinId"]    = 806,
   },
   [1201] = {
     ["name"] = "Snow Leopard",
@@ -1479,6 +1696,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {47.3, 63.3, 1},
     },
+    ["displayId"] = 954,
+    ["skinId"]    = 748,
   },
   [1216] = {
     ["name"] = "Shore Crawler",
@@ -1493,6 +1712,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {36.7, 88.4, 40},
     },
+    ["displayId"] = 9570,
+    ["skinId"]    = 342,
   },
   [1258] = {
     ["name"] = "Black Ravager Mastiff",
@@ -1507,6 +1728,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {50.8, 60.5, 10},
     },
+    ["displayId"] = 9562,
+    ["skinId"]    = 246,
   },
   [1400] = {
     ["name"] = "Wetlands Crocolisk",
@@ -1521,6 +1744,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {19.3, 58.2, 11},
     },
+    ["displayId"] = 1036,
+    ["skinId"]    = 925,
   },
   [1417] = {
     ["name"] = "Young Wetlands Crocolisk",
@@ -1535,6 +1760,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {63.4, 75.3, 11},
     },
+    ["displayId"] = 1035,
+    ["skinId"]    = 925,
   },
   [1504] = {
     ["name"] = "Young Night Web Spider",
@@ -1549,6 +1776,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {27.9, 60.5, 85},
     },
+    ["displayId"] = 513,
+    ["skinId"]    = 513,
   },
   [1505] = {
     ["name"] = "Night Web Spider",
@@ -1563,6 +1792,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {24.5, 60.6, 85},
     },
+    ["displayId"] = 30,
+    ["skinId"]    = 30,
   },
   [1508] = {
     ["name"] = "Young Scavenger",
@@ -1577,6 +1808,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {33.6, 68.6, 85},
     },
+    ["displayId"] = 447,
+    ["skinId"]    = 165,
   },
   [1509] = {
     ["name"] = "Ragged Scavenger",
@@ -1591,6 +1824,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {35.6, 65.8, 85},
     },
+    ["displayId"] = 604,
+    ["skinId"]    = 165,
   },
   [1511] = {
     ["name"] = "Enraged Silverback Gorilla",
@@ -1601,6 +1836,8 @@ MTH_DS_Beasts = {
     ["attackSpeed"] = "2.0",
     ["coords"] = {
     },
+    ["displayId"] = 837,
+    ["skinId"]    = 792,
   },
   [1512] = {
     ["name"] = "Duskbat",
@@ -1615,6 +1852,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {31.5, 72.5, 85},
     },
+    ["displayId"] = 4732,
+    ["skinId"]    = 3956,
   },
   [1513] = {
     ["name"] = "Mangy Duskbat",
@@ -1629,6 +1868,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {34.9, 66.8, 85},
     },
+    ["displayId"] = 9535,
+    ["skinId"]    = 3956,
   },
   [1547] = {
     ["name"] = "Decrepit Darkhound",
@@ -1643,6 +1884,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {70.6, 65.1, 85},
     },
+    ["displayId"] = 9021,
+    ["skinId"]    = 3916,
   },
   [1548] = {
     ["name"] = "Cursed Darkhound",
@@ -1657,6 +1900,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {20.3, 61.2, 28},
     },
+    ["displayId"] = 9020,
+    ["skinId"]    = 3916,
   },
   [1549] = {
     ["name"] = "Ravenous Darkhound",
@@ -1671,6 +1916,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {32.5, 30.8, 28},
     },
+    ["displayId"] = 3916,
+    ["skinId"]    = 3916,
   },
   [1553] = {
     ["name"] = "Greater Duskbat",
@@ -1685,6 +1932,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {54.2, 65.9, 85},
     },
+    ["displayId"] = 4734,
+    ["skinId"]    = 3956,
   },
   [1554] = {
     ["name"] = "Vampiric Duskbat",
@@ -1699,6 +1948,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {25.3, 61.6, 28},
     },
+    ["displayId"] = 8808,
+    ["skinId"]    = 4185,
   },
   [1555] = {
     ["name"] = "Vicious Night Web Spider",
@@ -1713,6 +1964,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {86.8, 57.0, 85},
     },
+    ["displayId"] = 368,
+    ["skinId"]    = 30,
   },
   [1557] = {
     ["name"] = "Elder Mistvale Gorilla",
@@ -1727,6 +1980,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {32.3, 68.4, 33},
     },
+    ["displayId"] = 838,
+    ["skinId"]    = 838,
   },
   [1558] = {
     ["name"] = "Silverback Patriarch",
@@ -1741,6 +1996,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {36.3, 63.9, 33},
     },
+    ["displayId"] = 844,
+    ["skinId"]    = 792,
   },
   [1688] = {
     ["name"] = "Night Web Matriarch",
@@ -1755,6 +2012,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {24.0, 58.2, 85},
     },
+    ["displayId"] = 368,
+    ["skinId"]    = 30,
   },
   [1689] = {
     ["name"] = "Scarred Crag Boar",
@@ -1769,6 +2028,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {70.9, 61.3, 1},
     },
+    ["displayId"] = 193,
+    ["skinId"]    = 193,
   },
   [1693] = {
     ["name"] = "Loch Crocolisk",
@@ -1783,6 +2044,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {58.8, 57.6, 38},
     },
+    ["displayId"] = 1034,
+    ["skinId"]    = 807,
   },
   [1713] = {
     ["name"] = "Elder Shadowmaw Panther",
@@ -1797,6 +2060,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {31.2, 58.5, 33},
     },
+    ["displayId"] = 11452,
+    ["skinId"]    = 599,
   },
   [1765] = {
     ["name"] = "Worg",
@@ -1811,6 +2076,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {51.8, 77.2, 85},
     },
+    ["displayId"] = 11421,
+    ["skinId"]    = 246,
   },
   [1766] = {
     ["name"] = "Mottled Worg",
@@ -1825,6 +2092,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {44.5, 26.8, 130},
     },
+    ["displayId"] = 246,
+    ["skinId"]    = 246,
   },
   [1778] = {
     ["name"] = "Ferocious Grizzled Bear",
@@ -1839,6 +2108,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {44.1, 52.0, 130},
     },
+    ["displayId"] = 902,
+    ["skinId"]    = 822,
   },
   [1780] = {
     ["name"] = "Moss Stalker",
@@ -1853,6 +2124,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {34.2, 17.3, 130},
     },
+    ["displayId"] = 827,
+    ["skinId"]    = 520,
   },
   [1781] = {
     ["name"] = "Mist Creeper",
@@ -1867,6 +2140,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {23.6, 81.4, 85},
     },
+    ["displayId"] = 760,
+    ["skinId"]    = 336,
   },
   [1797] = {
     ["name"] = "Giant Grizzled Bear",
@@ -1881,6 +2156,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {55.5, 71.0, 130},
     },
+    ["displayId"] = 820,
+    ["skinId"]    = 820,
   },
   [1809] = {
     ["name"] = "Carrion Vulture",
@@ -1895,6 +2172,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {32.3, 62.4, 28},
     },
+    ["displayId"] = 1105,
+    ["skinId"]    = 388,
   },
   [1815] = {
     ["name"] = "Diseased Black Bear",
@@ -1909,6 +2188,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {36.3, 68.0, 28},
     },
+    ["displayId"] = 1082,
+    ["skinId"]    = 1082,
   },
   [1816] = {
     ["name"] = "Diseased Grizzly",
@@ -1923,6 +2204,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {55.2, 64.5, 28},
     },
+    ["displayId"] = 1083,
+    ["skinId"]    = 1083,
   },
   [1817] = {
     ["name"] = "Diseased Wolf",
@@ -1937,6 +2220,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {52.5, 70.4, 28},
     },
+    ["displayId"] = 4124,
+    ["skinId"]    = 4124,
   },
   [1822] = {
     ["name"] = "Venom Mist Lurker",
@@ -1951,6 +2236,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {35.5, 66.8, 28},
     },
+    ["displayId"] = 1087,
+    ["skinId"]    = 955,
   },
   [1824] = {
     ["name"] = "Plague Lurker",
@@ -1965,6 +2252,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {54.9, 62.2, 28},
     },
+    ["displayId"] = 1088,
+    ["skinId"]    = 513,
   },
   [1922] = {
     ["name"] = "Gray Forest Wolf",
@@ -1979,6 +2268,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {60.4, 71.3, 12},
     },
+    ["displayId"] = 380,
+    ["skinId"]    = 165,
   },
   [1923] = {
     ["name"] = "Bloodsnout Worg",
@@ -1993,6 +2284,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {50.2, 84.9, 130},
     },
+    ["displayId"] = 741,
+    ["skinId"]    = 246,
   },
   [1961] = {
     ["name"] = "Mangeclaw",
@@ -2007,6 +2300,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {78.3, 37.8, 1},
     },
+    ["displayId"] = 913,
+    ["skinId"]    = 865,
   },
   [1984] = {
     ["name"] = "Young Thistle Boar",
@@ -2021,6 +2316,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {60.6, 46.3, 141},
     },
+    ["displayId"] = 8869,
+    ["skinId"]    = 8869,
   },
   [1985] = {
     ["name"] = "Thistle Boar",
@@ -2035,6 +2332,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {55.5, 39.4, 141},
     },
+    ["displayId"] = 6807,
+    ["skinId"]    = 3026,
   },
   [1986] = {
     ["name"] = "Webwood Spider",
@@ -2049,6 +2348,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {56.9, 34.5, 141},
     },
+    ["displayId"] = 709,
+    ["skinId"]    = 336,
   },
   [1994] = {
     ["name"] = "Githyiss the Vile",
@@ -2063,6 +2364,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {56.6, 26.3, 141},
     },
+    ["displayId"] = 759,
+    ["skinId"]    = 336,
   },
   [1995] = {
     ["name"] = "Strigid Owl",
@@ -2077,6 +2380,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {55.4, 66.0, 141},
     },
+    ["displayId"] = 10832,
+    ["skinId"]    = 4877,
   },
   [1996] = {
     ["name"] = "Strigid Screecher",
@@ -2091,6 +2396,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {53.1, 77.9, 141},
     },
+    ["displayId"] = 4877,
+    ["skinId"]    = 4877,
   },
   [1997] = {
     ["name"] = "Strigid Hunter",
@@ -2105,6 +2412,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {38.5, 47.8, 141},
     },
+    ["displayId"] = 10830,
+    ["skinId"]    = 4877,
   },
   [1998] = {
     ["name"] = "Webwood Lurker",
@@ -2119,6 +2428,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {52.6, 67.4, 141},
     },
+    ["displayId"] = 760,
+    ["skinId"]    = 336,
   },
   [1999] = {
     ["name"] = "Webwood Venomfang",
@@ -2133,6 +2444,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {45.8, 78.9, 141},
     },
+    ["displayId"] = 759,
+    ["skinId"]    = 336,
   },
   [2000] = {
     ["name"] = "Webwood Silkspinner",
@@ -2147,6 +2460,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {43.7, 47.3, 141},
     },
+    ["displayId"] = 1989,
+    ["skinId"]    = 336,
   },
   [2001] = {
     ["name"] = "Giant Webwood Spider",
@@ -2161,6 +2476,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {41.2, 28.9, 141},
     },
+    ["displayId"] = 6808,
+    ["skinId"]    = 336,
   },
   [2031] = {
     ["name"] = "Young Nightsaber",
@@ -2175,6 +2492,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {58.4, 46.7, 141},
     },
+    ["displayId"] = 11454,
+    ["skinId"]    = 3029,
   },
   [2032] = {
     ["name"] = "Mangy Nightsaber",
@@ -2189,6 +2508,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {61.2, 39.1, 141},
     },
+    ["displayId"] = 11448,
+    ["skinId"]    = 11448,
   },
   [2033] = {
     ["name"] = "Elder Nightsaber",
@@ -2203,6 +2524,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {46.9, 45.6, 141},
     },
+    ["displayId"] = 3030,
+    ["skinId"]    = 3029,
   },
   [2034] = {
     ["name"] = "Feral Nightsaber",
@@ -2217,6 +2540,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {38.0, 29.3, 141},
     },
+    ["displayId"] = 3030,
+    ["skinId"]    = 3029,
   },
   [2042] = {
     ["name"] = "Nightsaber",
@@ -2231,6 +2556,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {54.8, 65.1, 141},
     },
+    ["displayId"] = 6805,
+    ["skinId"]    = 3029,
   },
   [2043] = {
     ["name"] = "Nightsaber Stalker",
@@ -2245,6 +2572,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {50.0, 79.2, 141},
     },
+    ["displayId"] = 14318,
+    ["skinId"]    = 11448,
   },
   [2069] = {
     ["name"] = "Moonstalker",
@@ -2259,6 +2588,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {37.5, 79.0, 148},
     },
+    ["displayId"] = 321,
+    ["skinId"]    = 321,
   },
   [2070] = {
     ["name"] = "Moonstalker Runt",
@@ -2273,6 +2604,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {37.5, 93.0, 148},
     },
+    ["displayId"] = 11449,
+    ["skinId"]    = 321,
   },
   [2071] = {
     ["name"] = "Moonstalker Matriarch",
@@ -2287,6 +2620,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {37.2, 93.4, 148},
     },
+    ["displayId"] = 3031,
+    ["skinId"]    = 3029,
   },
   [2089] = {
     ["name"] = "Giant Wetlands Crocolisk",
@@ -2301,6 +2636,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {15.3, 29.2, 11},
     },
+    ["displayId"] = 925,
+    ["skinId"]    = 925,
   },
   [2163] = {
     ["name"] = "Thistle Bear",
@@ -2315,6 +2652,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {44.7, 60.2, 148},
     },
+    ["displayId"] = 1006,
+    ["skinId"]    = 822,
   },
   [2165] = {
     ["name"] = "Grizzled Thistle Bear",
@@ -2329,6 +2668,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {43.0, 82.4, 148},
     },
+    ["displayId"] = 14316,
+    ["skinId"]    = 822,
   },
   [2172] = {
     ["name"] = "Strider Clutchmother",
@@ -2344,6 +2685,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {34.8, 87.3, 148},
     },
+    ["displayId"] = 38,
+    ["skinId"]    = 38,
   },
   [2175] = {
     ["name"] = "Shadowclaw",
@@ -2359,6 +2702,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {40.3, 40.5, 148},
     },
+    ["displayId"] = 3030,
+    ["skinId"]    = 3029,
   },
   [2231] = {
     ["name"] = "Pygmy Tide Crawler",
@@ -2373,6 +2718,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {35.4, 51.2, 148},
     },
+    ["displayId"] = 1000,
+    ["skinId"]    = 979,
   },
   [2232] = {
     ["name"] = "Tide Crawler",
@@ -2387,6 +2734,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {36.6, 69.8, 148},
     },
+    ["displayId"] = 979,
+    ["skinId"]    = 979,
   },
   [2233] = {
     ["name"] = "Encrusted Tide Crawler",
@@ -2401,6 +2750,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {32.3, 83.7, 148},
     },
+    ["displayId"] = 9566,
+    ["skinId"]    = 979,
   },
   [2234] = {
     ["name"] = "Young Reef Crawler",
@@ -2415,6 +2766,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {35.1, 56.1, 148},
     },
+    ["displayId"] = 999,
+    ["skinId"]    = 981,
   },
   [2235] = {
     ["name"] = "Reef Crawler",
@@ -2429,6 +2782,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {35.5, 77.5, 148},
     },
+    ["displayId"] = 981,
+    ["skinId"]    = 981,
   },
   [2236] = {
     ["name"] = "Raging Reef Crawler",
@@ -2443,6 +2798,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {29.8, 91.1, 148},
     },
+    ["displayId"] = 1001,
+    ["skinId"]    = 981,
   },
   [2237] = {
     ["name"] = "Moonstalker Sire",
@@ -2457,6 +2814,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {39.3, 94.5, 148},
     },
+    ["displayId"] = 11450,
+    ["skinId"]    = 321,
   },
   [2322] = {
     ["name"] = "Foreststrider",
@@ -2471,6 +2830,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {37.6, 78.8, 148},
     },
+    ["displayId"] = 178,
+    ["skinId"]    = 178,
   },
   [2323] = {
     ["name"] = "Giant Foreststrider",
@@ -2485,6 +2846,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {37.1, 95.6, 148},
     },
+    ["displayId"] = 1283,
+    ["skinId"]    = 178,
   },
   [2348] = {
     ["name"] = "Elder Moss Creeper",
@@ -2499,6 +2862,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {12.2, 40.3, 45},
     },
+    ["displayId"] = 8014,
+    ["skinId"]    = 520,
   },
   [2349] = {
     ["name"] = "Giant Moss Creeper",
@@ -2513,6 +2878,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {19.7, 99.2, 36},
     },
+    ["displayId"] = 6808,
+    ["skinId"]    = 336,
   },
   [2350] = {
     ["name"] = "Forest Moss Creeper",
@@ -2527,6 +2894,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {57.3, 99.3, 36},
     },
+    ["displayId"] = 1989,
+    ["skinId"]    = 336,
   },
   [2351] = {
     ["name"] = "Gray Bear",
@@ -2541,6 +2910,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {65.8, 98.1, 36},
     },
+    ["displayId"] = 806,
+    ["skinId"]    = 806,
   },
   [2354] = {
     ["name"] = "Vicious Gray Bear",
@@ -2555,6 +2926,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {71.1, 98.8, 36},
     },
+    ["displayId"] = 1007,
+    ["skinId"]    = 806,
   },
   [2356] = {
     ["name"] = "Elder Gray Bear",
@@ -2569,6 +2942,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {20.7, 98.1, 36},
     },
+    ["displayId"] = 3201,
+    ["skinId"]    = 806,
   },
   [2384] = {
     ["name"] = "Starving Mountain Lion",
@@ -2583,6 +2958,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {39.0, 99.4, 36},
     },
+    ["displayId"] = 1059,
+    ["skinId"]    = 1056,
   },
   [2385] = {
     ["name"] = "Feral Mountain Lion",
@@ -2597,6 +2974,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {6.7, 49.7, 45},
     },
+    ["displayId"] = 1056,
+    ["skinId"]    = 1056,
   },
   [2406] = {
     ["name"] = "Mountain Lion",
@@ -2611,6 +2990,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {41.4, 98.5, 28},
     },
+    ["displayId"] = 1058,
+    ["skinId"]    = 1056,
   },
   [2407] = {
     ["name"] = "Hulking Mountain Lion",
@@ -2625,6 +3006,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {42.5, 99.6, 28},
     },
+    ["displayId"] = 2300,
+    ["skinId"]    = 1056,
   },
   [2408] = {
     ["name"] = "Snapjaw",
@@ -2639,6 +3022,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {45.5, 99.3, 28},
     },
+    ["displayId"] = 1244,
+    ["skinId"]    = 1244,
   },
   [2476] = {
     ["name"] = "Large Loch Crocolisk",
@@ -2654,6 +3039,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {58.9, 31.1, 38},
     },
+    ["displayId"] = 831,
+    ["skinId"]    = 807,
   },
   [2505] = {
     ["name"] = "Saltwater Snapjaw",
@@ -2668,6 +3055,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {77.4, 86.5, 47},
     },
+    ["displayId"] = 5027,
+    ["skinId"]    = 5026,
   },
   [2521] = {
     ["name"] = "Skymane Gorilla",
@@ -2682,6 +3071,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {39.1, 86.6, 33},
     },
+    ["displayId"] = 809,
+    ["skinId"]    = 809,
   },
   [2522] = {
     ["name"] = "Jaguero Stalker",
@@ -2696,6 +3087,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {38.6, 86.6, 33},
     },
+    ["displayId"] = 613,
+    ["skinId"]    = 599,
   },
   [2544] = {
     ["name"] = "Southern Sand Crawler",
@@ -2710,6 +3103,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {31.2, 88.1, 33},
     },
+    ["displayId"] = 9573,
+    ["skinId"]    = 979,
   },
   [2559] = {
     ["name"] = "Highland Strider",
@@ -2724,6 +3119,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {42.8, 79.6, 45},
     },
+    ["displayId"] = 11316,
+    ["skinId"]    = 787,
   },
   [2561] = {
     ["name"] = "Highland Fleshstalker",
@@ -2738,6 +3135,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {48.0, 82.4, 45},
     },
+    ["displayId"] = 961,
+    ["skinId"]    = 787,
   },
   [2565] = {
     ["name"] = "Giant Plains Creeper",
@@ -2752,6 +3151,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {47.8, 77.2, 45},
     },
+    ["displayId"] = 1104,
+    ["skinId"]    = 1091,
   },
   [2579] = {
     ["name"] = "Mesa Buzzard",
@@ -2766,6 +3167,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {57.2, 71.7, 45},
     },
+    ["displayId"] = 1105,
+    ["skinId"]    = 388,
   },
   [2580] = {
     ["name"] = "Elder Mesa Buzzard",
@@ -2780,6 +3183,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {49.1, 82.5, 45},
     },
+    ["displayId"] = 388,
+    ["skinId"]    = 388,
   },
   [2635] = {
     ["name"] = "Elder Saltwater Crocolisk",
@@ -2795,6 +3200,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {33.4, 32.5, 33},
     },
+    ["displayId"] = 1038,
+    ["skinId"]    = 925,
   },
   [2680] = {
     ["name"] = "Vilebranch Wolf Pup",
@@ -2809,6 +3216,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {66.7, 72.4, 47},
     },
+    ["displayId"] = 781,
+    ["skinId"]    = 644,
   },
   [2681] = {
     ["name"] = "Vilebranch Raiding Wolf",
@@ -2824,6 +3233,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {86.0, 22.2, 45},
     },
+    ["displayId"] = 782,
+    ["skinId"]    = 644,
   },
   [2686] = {
     ["name"] = "Witherbark Broodguard",
@@ -2838,6 +3249,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {53.2, 12.6, 45},
     },
+    ["displayId"] = 1157,
+    ["skinId"]    = 955,
   },
   [2727] = {
     ["name"] = "Crag Coyote",
@@ -2852,6 +3265,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {53.2, 52.0, 3},
     },
+    ["displayId"] = 161,
+    ["skinId"]    = 161,
   },
   [2728] = {
     ["name"] = "Feral Crag Coyote",
@@ -2866,6 +3281,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {48.6, 76.2, 3},
     },
+    ["displayId"] = 557,
+    ["skinId"]    = 161,
   },
   [2729] = {
     ["name"] = "Elder Crag Coyote",
@@ -2880,6 +3297,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {93.1, 85.3, 1},
     },
+    ["displayId"] = 1164,
+    ["skinId"]    = 161,
   },
   [2730] = {
     ["name"] = "Rabid Crag Coyote",
@@ -2894,6 +3313,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {69.4, 36.2, 3},
     },
+    ["displayId"] = 161,
+    ["skinId"]    = 161,
   },
   [2731] = {
     ["name"] = "Ridge Stalker",
@@ -2908,6 +3329,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {38.1, 46.5, 3},
     },
+    ["displayId"] = 632,
+    ["skinId"]    = 632,
   },
   [2732] = {
     ["name"] = "Ridge Huntress",
@@ -2922,6 +3345,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {46.9, 76.7, 3},
     },
+    ["displayId"] = 1055,
+    ["skinId"]    = 632,
   },
   [2734] = {
     ["name"] = "Ridge Stalker Patriarch",
@@ -2936,6 +3361,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {25.4, 79.3, 3},
     },
+    ["displayId"] = 917,
+    ["skinId"]    = 632,
   },
   [2753] = {
     ["name"] = "Barnabus",
@@ -2951,6 +3378,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {46.3, 74.3, 3},
     },
+    ["displayId"] = 9372,
+    ["skinId"]    = 9369,
   },
   [2829] = {
     ["name"] = "Starving Buzzard",
@@ -2965,6 +3394,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {63.9, 46.0, 3},
     },
+    ["displayId"] = 10824,
+    ["skinId"]    = 388,
   },
   [2830] = {
     ["name"] = "Buzzard",
@@ -2979,6 +3410,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {67.2, 86.3, 3},
     },
+    ["displayId"] = 1105,
+    ["skinId"]    = 388,
   },
   [2831] = {
     ["name"] = "Giant Buzzard",
@@ -2993,6 +3426,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {25.4, 78.8, 3},
     },
+    ["displayId"] = 1106,
+    ["skinId"]    = 388,
   },
   [2850] = {
     ["name"] = "Broken Tooth",
@@ -3008,6 +3443,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {44.0, 38.4, 3},
     },
+    ["displayId"] = 6082,
+    ["skinId"]    = 1056,
   },
   [2923] = {
     ["name"] = "Mangy Silvermane",
@@ -3022,6 +3459,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {20.3, 57.2, 47},
     },
+    ["displayId"] = 11413,
+    ["skinId"]    = 9564,
   },
   [2924] = {
     ["name"] = "Silvermane Wolf",
@@ -3036,6 +3475,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {27.9, 69.4, 47},
     },
+    ["displayId"] = 11419,
+    ["skinId"]    = 9564,
   },
   [2925] = {
     ["name"] = "Silvermane Howler",
@@ -3050,6 +3491,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {41.3, 67.1, 47},
     },
+    ["displayId"] = 11417,
+    ["skinId"]    = 9564,
   },
   [2926] = {
     ["name"] = "Silvermane Stalker",
@@ -3064,6 +3507,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {72.0, 63.0, 47},
     },
+    ["displayId"] = 11418,
+    ["skinId"]    = 9564,
   },
   [2954] = {
     ["name"] = "Bristleback Battleboar",
@@ -3078,6 +3523,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {61.0, 86.5, 215},
     },
+    ["displayId"] = 6807,
+    ["skinId"]    = 3026,
   },
   [2955] = {
     ["name"] = "Plainstrider",
@@ -3092,6 +3539,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {53.1, 88.9, 215},
     },
+    ["displayId"] = 1219,
+    ["skinId"]    = 178,
   },
   [2956] = {
     ["name"] = "Adult Plainstrider",
@@ -3106,6 +3555,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {37.4, 55.7, 17},
     },
+    ["displayId"] = 1220,
+    ["skinId"]    = 1220,
   },
   [2957] = {
     ["name"] = "Elder Plainstrider",
@@ -3120,6 +3571,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {39.3, 58.7, 17},
     },
+    ["displayId"] = 1221,
+    ["skinId"]    = 1221,
   },
   [2958] = {
     ["name"] = "Prairie Wolf",
@@ -3134,6 +3587,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {34.1, 79.3, 215},
     },
+    ["displayId"] = 1100,
+    ["skinId"]    = 161,
   },
   [2959] = {
     ["name"] = "Prairie Stalker",
@@ -3148,6 +3603,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {36.6, 56.3, 17},
     },
+    ["displayId"] = 643,
+    ["skinId"]    = 161,
   },
   [2960] = {
     ["name"] = "Prairie Wolf Alpha",
@@ -3162,6 +3619,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {38.5, 62.3, 17},
     },
+    ["displayId"] = 161,
+    ["skinId"]    = 161,
   },
   [2961] = {
     ["name"] = "Mountain Cougar",
@@ -3176,6 +3635,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {56.1, 94.7, 215},
     },
+    ["displayId"] = 11451,
+    ["skinId"]    = 1056,
   },
   [2966] = {
     ["name"] = "Battleboar",
@@ -3190,6 +3651,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {59.5, 90.5, 215},
     },
+    ["displayId"] = 8869,
+    ["skinId"]    = 8869,
   },
   [2969] = {
     ["name"] = "Wiry Swoop",
@@ -3204,6 +3667,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {34.2, 78.3, 215},
     },
+    ["displayId"] = 1228,
+    ["skinId"]    = 388,
   },
   [2970] = {
     ["name"] = "Swoop",
@@ -3218,6 +3683,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {57.7, 68.4, 215},
     },
+    ["displayId"] = 1229,
+    ["skinId"]    = 388,
   },
   [2971] = {
     ["name"] = "Taloned Swoop",
@@ -3232,6 +3699,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {38.6, 58.1, 17},
     },
+    ["displayId"] = 10824,
+    ["skinId"]    = 388,
   },
   [3035] = {
     ["name"] = "Flatland Cougar",
@@ -3246,6 +3715,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {37.5, 54.1, 17},
     },
+    ["displayId"] = 1059,
+    ["skinId"]    = 1056,
   },
   [3068] = {
     ["name"] = "Mazzranache",
@@ -3261,6 +3732,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {50.4, 42.6, 215},
     },
+    ["displayId"] = 1961,
+    ["skinId"]    = 1961,
   },
   [3098] = {
     ["name"] = "Mottled Boar",
@@ -3275,6 +3748,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {42.7, 72.7, 14},
     },
+    ["displayId"] = 503,
+    ["skinId"]    = 193,
   },
   [3099] = {
     ["name"] = "Dire Mottled Boar",
@@ -3289,6 +3764,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {51.8, 78.1, 14},
     },
+    ["displayId"] = 381,
+    ["skinId"]    = 381,
   },
   [3100] = {
     ["name"] = "Elder Mottled Boar",
@@ -3303,6 +3780,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {37.8, 55.8, 14},
     },
+    ["displayId"] = 193,
+    ["skinId"]    = 193,
   },
   [3106] = {
     ["name"] = "Pygmy Surf Crawler",
@@ -3317,6 +3796,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {51.5, 84.0, 14},
     },
+    ["displayId"] = 1307,
+    ["skinId"]    = 1307,
   },
   [3107] = {
     ["name"] = "Surf Crawler",
@@ -3331,6 +3812,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {64.6, 98.2, 14},
     },
+    ["displayId"] = 1938,
+    ["skinId"]    = 1307,
   },
   [3108] = {
     ["name"] = "Encrusted Surf Crawler",
@@ -3345,6 +3828,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {57.8, 96.6, 14},
     },
+    ["displayId"] = 999,
+    ["skinId"]    = 981,
   },
   [3110] = {
     ["name"] = "Dreadmaw Crocolisk",
@@ -3359,6 +3844,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {38.5, 71.5, 14},
     },
+    ["displayId"] = 1250,
+    ["skinId"]    = 833,
   },
   [3121] = {
     ["name"] = "Durotar Tiger",
@@ -3373,6 +3860,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {64.0, 97.3, 14},
     },
+    ["displayId"] = 598,
+    ["skinId"]    = 320,
   },
   [3122] = {
     ["name"] = "Bloodtalon Taillasher",
@@ -3387,6 +3876,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {63.1, 94.4, 14},
     },
+    ["displayId"] = 1960,
+    ["skinId"]    = 1959,
   },
   [3123] = {
     ["name"] = "Bloodtalon Scythemaw",
@@ -3401,6 +3892,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {37.2, 54.9, 14},
     },
+    ["displayId"] = 1959,
+    ["skinId"]    = 1959,
   },
   [3124] = {
     ["name"] = "Scorpid Worker",
@@ -3415,6 +3908,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {44.0, 73.7, 14},
     },
+    ["displayId"] = 2485,
+    ["skinId"]    = 2485,
   },
   [3125] = {
     ["name"] = "Clattering Scorpid",
@@ -3429,6 +3924,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {54.8, 80.3, 14},
     },
+    ["displayId"] = 2486,
+    ["skinId"]    = 2485,
   },
   [3126] = {
     ["name"] = "Armored Scorpid",
@@ -3443,6 +3940,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {41.1, 51.7, 14},
     },
+    ["displayId"] = 2487,
+    ["skinId"]    = 2487,
   },
   [3127] = {
     ["name"] = "Venomtail Scorpid",
@@ -3457,6 +3956,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {35.9, 56.6, 14},
     },
+    ["displayId"] = 2732,
+    ["skinId"]    = 2487,
   },
   [3225] = {
     ["name"] = "Corrupted Mottled Boar",
@@ -3471,6 +3972,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {36.9, 40.1, 14},
     },
+    ["displayId"] = 744,
+    ["skinId"]    = 381,
   },
   [3226] = {
     ["name"] = "Corrupted Scorpid",
@@ -3485,6 +3988,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {36.4, 48.4, 14},
     },
+    ["displayId"] = 2488,
+    ["skinId"]    = 2488,
   },
   [3227] = {
     ["name"] = "Corrupted Bloodtalon Scythemaw",
@@ -3499,6 +4004,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {37.6, 56.1, 14},
     },
+    ["displayId"] = 787,
+    ["skinId"]    = 787,
   },
   [3228] = {
     ["name"] = "Corrupted Surf Crawler",
@@ -3513,6 +4020,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {60.4, 21.8, 14},
     },
+    ["displayId"] = 1000,
+    ["skinId"]    = 979,
   },
   [3231] = {
     ["name"] = "Corrupted Dreadmaw Crocolisk",
@@ -3527,6 +4036,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {34.3, 52.7, 14},
     },
+    ["displayId"] = 1034,
+    ["skinId"]    = 807,
   },
   [3241] = {
     ["name"] = "Savannah Patriarch",
@@ -3541,6 +4052,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {61.6, 32.7, 17},
     },
+    ["displayId"] = 1977,
+    ["skinId"]    = 1057,
   },
   [3243] = {
     ["name"] = "Savannah Highmane",
@@ -3555,6 +4068,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {54.9, 30.5, 17},
     },
+    ["displayId"] = 1973,
+    ["skinId"]    = 1057,
   },
   [3244] = {
     ["name"] = "Greater Plainstrider",
@@ -3569,6 +4084,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {52.9, 33.6, 17},
     },
+    ["displayId"] = 178,
+    ["skinId"]    = 178,
   },
   [3245] = {
     ["name"] = "Ornery Plainstrider",
@@ -3583,6 +4100,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {59.6, 53.4, 17},
     },
+    ["displayId"] = 6076,
+    ["skinId"]    = 1220,
   },
   [3246] = {
     ["name"] = "Fleeting Plainstrider",
@@ -3597,6 +4116,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {35.8, 63.2, 14},
     },
+    ["displayId"] = 1284,
+    ["skinId"]    = 1221,
   },
   [3247] = {
     ["name"] = "Thunderhawk Hatchling",
@@ -3611,6 +4132,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {48.5, 56.7, 17},
     },
+    ["displayId"] = 1742,
+    ["skinId"]    = 1336,
   },
   [3249] = {
     ["name"] = "Greater Thunderhawk",
@@ -3625,6 +4148,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {45.5, 81.2, 17},
     },
+    ["displayId"] = 1974,
+    ["skinId"]    = 1336,
   },
   [3250] = {
     ["name"] = "Silithid Creeper",
@@ -3639,6 +4164,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {26.9, 29.7, 15},
     },
+    ["displayId"] = 2730,
+    ["skinId"]    = 2730,
   },
   [3252] = {
     ["name"] = "Silithid Swarmer",
@@ -3653,6 +4180,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {26.5, 30.9, 15},
     },
+    ["displayId"] = 2731,
+    ["skinId"]    = 2730,
   },
   [3254] = {
     ["name"] = "Sunscale Lashtail",
@@ -3667,6 +4196,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {52.9, 33.0, 17},
     },
+    ["displayId"] = 1744,
+    ["skinId"]    = 960,
   },
   [3255] = {
     ["name"] = "Sunscale Screecher",
@@ -3681,6 +4212,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {60.3, 47.1, 17},
     },
+    ["displayId"] = 1747,
+    ["skinId"]    = 960,
   },
   [3256] = {
     ["name"] = "Sunscale Scytheclaw",
@@ -3695,6 +4228,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {57.0, 54.5, 17},
     },
+    ["displayId"] = 4442,
+    ["skinId"]    = 960,
   },
   [3281] = {
     ["name"] = "Sarkoth",
@@ -3709,6 +4244,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {40.5, 66.8, 14},
     },
+    ["displayId"] = 2864,
+    ["skinId"]    = 2488,
   },
   [3415] = {
     ["name"] = "Savannah Huntress",
@@ -3723,6 +4260,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {50.0, 31.8, 17},
     },
+    ["displayId"] = 1056,
+    ["skinId"]    = 1056,
   },
   [3416] = {
     ["name"] = "Savannah Matriarch",
@@ -3737,6 +4276,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {58.8, 35.7, 17},
     },
+    ["displayId"] = 1058,
+    ["skinId"]    = 1056,
   },
   [3424] = {
     ["name"] = "Thunderhawk Cloudscraper",
@@ -3751,6 +4292,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {45.5, 67.0, 17},
     },
+    ["displayId"] = 1975,
+    ["skinId"]    = 1336,
   },
   [3425] = {
     ["name"] = "Savannah Prowler",
@@ -3765,6 +4308,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {59.2, 41.0, 17},
     },
+    ["displayId"] = 1973,
+    ["skinId"]    = 1057,
   },
   [3461] = {
     ["name"] = "Oasis Snapjaw",
@@ -3779,6 +4324,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {55.6, 43.6, 17},
     },
+    ["displayId"] = 6368,
+    ["skinId"]    = 5126,
   },
   [3472] = {
     ["name"] = "Washte Pawne",
@@ -3793,6 +4340,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {43.2, 80.9, 17},
     },
+    ["displayId"] = 2699,
+    ["skinId"]    = 2699,
   },
   [3566] = {
     ["name"] = "Flatland Prowler",
@@ -3807,6 +4356,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {37.5, 57.5, 17},
     },
+    ["displayId"] = 1056,
+    ["skinId"]    = 1056,
   },
   [3581] = {
     ["name"] = "Sewer Beast",
@@ -3822,6 +4373,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {71.1, 68.0, 1519},
     },
+    ["displayId"] = 2850,
+    ["skinId"]    = 1609,
   },
   [3630] = {
     ["name"] = "Deviate Coiler",
@@ -3837,6 +4390,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {46.1, 35.3, 17},
     },
+    ["displayId"] = 1742,
+    ["skinId"]    = 1336,
   },
   [3631] = {
     ["name"] = "Deviate Stinglash",
@@ -3852,6 +4407,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {48.5, 34.5, 17},
     },
+    ["displayId"] = 4091,
+    ["skinId"]    = 2700,
   },
   [3632] = {
     ["name"] = "Deviate Creeper",
@@ -3867,6 +4424,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {45.9, 35.6, 17},
     },
+    ["displayId"] = 1744,
+    ["skinId"]    = 960,
   },
   [3633] = {
     ["name"] = "Deviate Slayer",
@@ -3882,6 +4441,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {48.3, 34.3, 17},
     },
+    ["displayId"] = 949,
+    ["skinId"]    = 675,
   },
   [3634] = {
     ["name"] = "Deviate Stalker",
@@ -3897,6 +4458,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {46.5, 35.0, 17},
     },
+    ["displayId"] = 1746,
+    ["skinId"]    = 1337,
   },
   [3636] = {
     ["name"] = "Deviate Ravager",
@@ -3912,6 +4475,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {47.0, 41.0, 718},
     },
+    ["displayId"] = 1747,
+    ["skinId"]    = 960,
   },
   [3637] = {
     ["name"] = "Deviate Guardian",
@@ -3927,6 +4492,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {52.0, 40.2, 718},
     },
+    ["displayId"] = 755,
+    ["skinId"]    = 675,
   },
   [3653] = {
     ["name"] = "Kresh",
@@ -3942,6 +4509,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {40.2, 35.6, 718},
     },
+    ["displayId"] = 5126,
+    ["skinId"]    = 5126,
   },
   [3809] = {
     ["name"] = "Ashenvale Bear",
@@ -3956,6 +4525,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {66.8, 87.7, 331},
     },
+    ["displayId"] = 820,
+    ["skinId"]    = 820,
   },
   [3810] = {
     ["name"] = "Elder Ashenvale Bear",
@@ -3970,6 +4541,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {63.2, 68.3, 331},
     },
+    ["displayId"] = 982,
+    ["skinId"]    = 822,
   },
   [3811] = {
     ["name"] = "Giant Ashenvale Bear",
@@ -3984,6 +4557,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {82.9, 48.4, 331},
     },
+    ["displayId"] = 14315,
+    ["skinId"]    = 822,
   },
   [3814] = {
     ["name"] = "Spined Crawler",
@@ -3998,6 +4573,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {32.1, 99.7, 148},
     },
+    ["displayId"] = 1001,
+    ["skinId"]    = 981,
   },
   [3819] = {
     ["name"] = "Wildthorn Stalker",
@@ -4012,6 +4589,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {64.2, 86.6, 331},
     },
+    ["displayId"] = 1103,
+    ["skinId"]    = 1091,
   },
   [3820] = {
     ["name"] = "Wildthorn Venomspitter",
@@ -4026,6 +4605,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {57.2, 78.5, 331},
     },
+    ["displayId"] = 336,
+    ["skinId"]    = 336,
   },
   [3821] = {
     ["name"] = "Wildthorn Lurker",
@@ -4040,6 +4621,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {88.7, 68.3, 331},
     },
+    ["displayId"] = 1104,
+    ["skinId"]    = 1091,
   },
   [3823] = {
     ["name"] = "Ghostpaw Runner",
@@ -4054,6 +4637,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {41.7, 97.8, 148},
     },
+    ["displayId"] = 802,
+    ["skinId"]    = 776,
   },
   [3824] = {
     ["name"] = "Ghostpaw Howler",
@@ -4068,6 +4653,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {57.5, 78.5, 331},
     },
+    ["displayId"] = 1207,
+    ["skinId"]    = 776,
   },
   [3825] = {
     ["name"] = "Ghostpaw Alpha",
@@ -4082,6 +4669,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {66.6, 70.1, 331},
     },
+    ["displayId"] = 776,
+    ["skinId"]    = 776,
   },
   [3861] = {
     ["name"] = "Bleak Worg",
@@ -4097,6 +4686,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {82.6, 77.9, 209},
     },
+    ["displayId"] = 801,
+    ["skinId"]    = 776,
   },
   [3862] = {
     ["name"] = "Slavering Worg",
@@ -4112,6 +4703,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {70.9, 67.3, 209},
     },
+    ["displayId"] = 11421,
+    ["skinId"]    = 246,
   },
   [3866] = {
     ["name"] = "Vile Bat",
@@ -4127,6 +4720,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {81.1, 71.7, 209},
     },
+    ["displayId"] = 8808,
+    ["skinId"]    = 4185,
   },
   [3868] = {
     ["name"] = "Blood Seeker",
@@ -4142,6 +4737,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {82.2, 73.9, 209},
     },
+    ["displayId"] = 1955,
+    ["skinId"]    = 1954,
   },
   [4005] = {
     ["name"] = "Deepmoss Creeper",
@@ -4156,6 +4753,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {63.8, 89.0, 406},
     },
+    ["displayId"] = 760,
+    ["skinId"]    = 336,
   },
   [4006] = {
     ["name"] = "Deepmoss Webspinner",
@@ -4170,6 +4769,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {55.9, 71.5, 406},
     },
+    ["displayId"] = 1989,
+    ["skinId"]    = 336,
   },
   [4007] = {
     ["name"] = "Deepmoss Venomspitter",
@@ -4184,6 +4785,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {54.5, 74.4, 406},
     },
+    ["displayId"] = 759,
+    ["skinId"]    = 336,
   },
   [4040] = {
     ["name"] = "Cave Stalker",
@@ -4198,6 +4801,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {46.7, 63.8, 11},
     },
+    ["displayId"] = 959,
+    ["skinId"]    = 955,
   },
   [4067] = {
     ["name"] = "Twilight Runner",
@@ -4212,6 +4817,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {43.8, 27.5, 406},
     },
+    ["displayId"] = 11453,
+    ["skinId"]    = 11448,
   },
   [4117] = {
     ["name"] = "Cloud Serpent",
@@ -4226,6 +4833,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {45.4, 94.6, 17},
     },
+    ["displayId"] = 2705,
+    ["skinId"]    = 2703,
   },
   [4119] = {
     ["name"] = "Elder Cloud Serpent",
@@ -4240,6 +4849,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {55.5, 51.9, 400},
     },
+    ["displayId"] = 2703,
+    ["skinId"]    = 2703,
   },
   [4124] = {
     ["name"] = "Needles Cougar",
@@ -4254,6 +4865,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {41.0, 95.5, 17},
     },
+    ["displayId"] = 1056,
+    ["skinId"]    = 1056,
   },
   [4126] = {
     ["name"] = "Crag Stalker",
@@ -4268,6 +4881,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {44.5, 97.4, 17},
     },
+    ["displayId"] = 1043,
+    ["skinId"]    = 632,
   },
   [4127] = {
     ["name"] = "Hecklefang Hyena",
@@ -4282,6 +4897,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {36.0, 14.4, 14},
     },
+    ["displayId"] = 2710,
+    ["skinId"]    = 2710,
   },
   [4128] = {
     ["name"] = "Hecklefang Stalker",
@@ -4296,6 +4913,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {28.2, 48.7, 15},
     },
+    ["displayId"] = 2712,
+    ["skinId"]    = 2710,
   },
   [4129] = {
     ["name"] = "Hecklefang Snarler",
@@ -4310,6 +4929,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {50.4, 59.1, 17},
     },
+    ["displayId"] = 2711,
+    ["skinId"]    = 2710,
   },
   [4139] = {
     ["name"] = "Scorpid Terror",
@@ -4324,6 +4945,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {73.5, 89.8, 400},
     },
+    ["displayId"] = 2491,
+    ["skinId"]    = 2488,
   },
   [4140] = {
     ["name"] = "Scorpid Reaver",
@@ -4338,6 +4961,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {71.8, 73.7, 400},
     },
+    ["displayId"] = 3247,
+    ["skinId"]    = 2489,
   },
   [4142] = {
     ["name"] = "Sparkleshell Tortoise",
@@ -4352,6 +4977,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {72.7, 68.6, 400},
     },
+    ["displayId"] = 5052,
+    ["skinId"]    = 2307,
   },
   [4143] = {
     ["name"] = "Sparkleshell Snapper",
@@ -4366,6 +4993,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {88.3, 79.1, 400},
     },
+    ["displayId"] = 2308,
+    ["skinId"]    = 2307,
   },
   [4144] = {
     ["name"] = "Sparkleshell Borer",
@@ -4380,6 +5009,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {81.7, 89.2, 400},
     },
+    ["displayId"] = 2307,
+    ["skinId"]    = 2307,
   },
   [4154] = {
     ["name"] = "Salt Flats Scavenger",
@@ -4394,6 +5025,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {71.2, 90.0, 400},
     },
+    ["displayId"] = 2305,
+    ["skinId"]    = 410,
   },
   [4158] = {
     ["name"] = "Salt Flats Vulture",
@@ -4408,6 +5041,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {78.0, 89.8, 400},
     },
+    ["displayId"] = 10825,
+    ["skinId"]    = 410,
   },
   [4248] = {
     ["name"] = "Pesterhide Hyena",
@@ -4422,6 +5057,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {46.8, 97.2, 17},
     },
+    ["displayId"] = 2713,
+    ["skinId"]    = 2713,
   },
   [4249] = {
     ["name"] = "Pesterhide Snarler",
@@ -4436,6 +5073,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {37.9, 91.3, 17},
     },
+    ["displayId"] = 10903,
+    ["skinId"]    = 2713,
   },
   [4263] = {
     ["name"] = "Deepmoss Hatchling",
@@ -4446,6 +5085,8 @@ MTH_DS_Beasts = {
     ["attackSpeed"] = "2.0",
     ["coords"] = {
     },
+    ["displayId"] = 957,
+    ["skinId"]    = 283,
   },
   [4264] = {
     ["name"] = "Deepmoss Matriarch",
@@ -4456,6 +5097,8 @@ MTH_DS_Beasts = {
     ["attackSpeed"] = "2.0",
     ["coords"] = {
     },
+    ["displayId"] = 336,
+    ["skinId"]    = 336,
   },
   [4304] = {
     ["name"] = "Scarlet Tracking Hound",
@@ -4471,6 +5114,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {29.8, 87.3, 5135},
     },
+    ["displayId"] = 2709,
+    ["skinId"]    = 2709,
   },
   [4316] = {
     ["name"] = "Kolkar Packhound",
@@ -4485,6 +5130,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {55.3, 46.5, 17},
     },
+    ["displayId"] = 1535,
+    ["skinId"]    = 1534,
   },
   [4341] = {
     ["name"] = "Drywallow Crocolisk",
@@ -4499,6 +5146,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {59.5, 35.1, 15},
     },
+    ["displayId"] = 1080,
+    ["skinId"]    = 807,
   },
   [4342] = {
     ["name"] = "Drywallow Vicejaw",
@@ -4513,6 +5162,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {41.9, 45.5, 15},
     },
+    ["displayId"] = 925,
+    ["skinId"]    = 925,
   },
   [4343] = {
     ["name"] = "Drywallow Snapper",
@@ -4527,6 +5178,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {48.9, 65.6, 15},
     },
+    ["displayId"] = 814,
+    ["skinId"]    = 807,
   },
   [4344] = {
     ["name"] = "Mottled Drywallow Crocolisk",
@@ -4541,6 +5194,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {41.1, 60.6, 15},
     },
+    ["displayId"] = 2548,
+    ["skinId"]    = 925,
   },
   [4345] = {
     ["name"] = "Drywallow Daggermaw",
@@ -4555,6 +5210,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {50.5, 80.9, 15},
     },
+    ["displayId"] = 807,
+    ["skinId"]    = 807,
   },
   [4351] = {
     ["name"] = "Bloodfen Raptor",
@@ -4569,6 +5226,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {63.6, 40.2, 15},
     },
+    ["displayId"] = 2571,
+    ["skinId"]    = 1959,
   },
   [4352] = {
     ["name"] = "Bloodfen Screecher",
@@ -4583,6 +5242,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {51.6, 22.0, 15},
     },
+    ["displayId"] = 1962,
+    ["skinId"]    = 1959,
   },
   [4355] = {
     ["name"] = "Bloodfen Scytheclaw",
@@ -4597,6 +5258,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {49.5, 63.7, 15},
     },
+    ["displayId"] = 2574,
+    ["skinId"]    = 1959,
   },
   [4356] = {
     ["name"] = "Bloodfen Razormaw",
@@ -4611,6 +5274,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {34.2, 73.2, 15},
     },
+    ["displayId"] = 11315,
+    ["skinId"]    = 1959,
   },
   [4357] = {
     ["name"] = "Bloodfen Lashtail",
@@ -4625,6 +5290,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {36.4, 66.1, 15},
     },
+    ["displayId"] = 2573,
+    ["skinId"]    = 1959,
   },
   [4376] = {
     ["name"] = "Darkmist Spider",
@@ -4639,6 +5306,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {34.6, 25.3, 15},
     },
+    ["displayId"] = 545,
+    ["skinId"]    = 283,
   },
   [4377] = {
     ["name"] = "Darkmist Lurker",
@@ -4653,6 +5322,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {33.0, 22.8, 15},
     },
+    ["displayId"] = 2539,
+    ["skinId"]    = 2536,
   },
   [4378] = {
     ["name"] = "Darkmist Recluse",
@@ -4667,6 +5338,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {34.9, 23.1, 15},
     },
+    ["displayId"] = 2538,
+    ["skinId"]    = 2536,
   },
   [4379] = {
     ["name"] = "Darkmist Silkspinner",
@@ -4681,6 +5354,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {34.8, 22.8, 15},
     },
+    ["displayId"] = 2541,
+    ["skinId"]    = 283,
   },
   [4380] = {
     ["name"] = "Darkmist Widow",
@@ -4696,6 +5371,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {31.2, 20.4, 15},
     },
+    ["displayId"] = 2537,
+    ["skinId"]    = 2536,
   },
   [4396] = {
     ["name"] = "Mudrock Tortoise",
@@ -4710,6 +5387,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {64.8, 40.8, 15},
     },
+    ["displayId"] = 4829,
+    ["skinId"]    = 4829,
   },
   [4397] = {
     ["name"] = "Mudrock Spikeshell",
@@ -4724,6 +5403,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {65.0, 42.2, 15},
     },
+    ["displayId"] = 7836,
+    ["skinId"]    = 4829,
   },
   [4398] = {
     ["name"] = "Mudrock Burrower",
@@ -4738,6 +5419,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {58.9, 51.5, 15},
     },
+    ["displayId"] = 7837,
+    ["skinId"]    = 4829,
   },
   [4399] = {
     ["name"] = "Mudrock Borer",
@@ -4752,6 +5435,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {60.9, 65.6, 15},
     },
+    ["displayId"] = 7840,
+    ["skinId"]    = 4829,
   },
   [4400] = {
     ["name"] = "Mudrock Snapjaw",
@@ -4766,6 +5451,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {57.0, 62.0, 15},
     },
+    ["displayId"] = 7839,
+    ["skinId"]    = 4829,
   },
   [4411] = {
     ["name"] = "Darkfang Lurker",
@@ -4780,6 +5467,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {34.0, 46.0, 15},
     },
+    ["displayId"] = 2424,
+    ["skinId"]    = 366,
   },
   [4412] = {
     ["name"] = "Darkfang Creeper",
@@ -4794,6 +5483,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {44.4, 53.5, 15},
     },
+    ["displayId"] = 2546,
+    ["skinId"]    = 366,
   },
   [4413] = {
     ["name"] = "Darkfang Spider",
@@ -4808,6 +5499,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {57.3, 37.7, 15},
     },
+    ["displayId"] = 2543,
+    ["skinId"]    = 366,
   },
   [4414] = {
     ["name"] = "Darkfang Venomspitter",
@@ -4822,6 +5515,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {46.7, 42.6, 15},
     },
+    ["displayId"] = 2542,
+    ["skinId"]    = 366,
   },
   [4415] = {
     ["name"] = "Giant Darkfang Spider",
@@ -4836,6 +5531,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {52.6, 67.2, 15},
     },
+    ["displayId"] = 11348,
+    ["skinId"]    = 366,
   },
   [4538] = {
     ["name"] = "Kraul Bat",
@@ -4851,6 +5548,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {18.8, 59.7, 491},
     },
+    ["displayId"] = 1955,
+    ["skinId"]    = 1954,
   },
   [4539] = {
     ["name"] = "Greater Kraul Bat",
@@ -4866,6 +5565,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {10.5, 55.5, 491},
     },
+    ["displayId"] = 1954,
+    ["skinId"]    = 1954,
   },
   [4548] = {
     ["name"] = "Steelsnap",
@@ -4880,6 +5581,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {37.9, 91.2, 17},
     },
+    ["displayId"] = 2609,
+    ["skinId"]    = 1534,
   },
   [4662] = {
     ["name"] = "Magram Bonepaw",
@@ -4894,6 +5597,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {65.4, 80.7, 405},
     },
+    ["displayId"] = 2716,
+    ["skinId"]    = 2714,
   },
   [4688] = {
     ["name"] = "Bonepaw Hyena",
@@ -4908,6 +5613,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {37.0, 72.7, 405},
     },
+    ["displayId"] = 10902,
+    ["skinId"]    = 2726,
   },
   [4689] = {
     ["name"] = "Starving Bonepaw",
@@ -4922,6 +5629,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {71.2, 34.8, 405},
     },
+    ["displayId"] = 2726,
+    ["skinId"]    = 2726,
   },
   [4690] = {
     ["name"] = "Rabid Bonepaw",
@@ -4936,6 +5645,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {43.1, 50.3, 405},
     },
+    ["displayId"] = 10271,
+    ["skinId"]    = 2726,
   },
   [4692] = {
     ["name"] = "Dread Swoop",
@@ -4950,6 +5661,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {38.5, 75.7, 405},
     },
+    ["displayId"] = 1192,
+    ["skinId"]    = 507,
   },
   [4694] = {
     ["name"] = "Dread Ripper",
@@ -4964,6 +5677,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {55.2, 85.7, 405},
     },
+    ["displayId"] = 14319,
+    ["skinId"]    = 507,
   },
   [4695] = {
     ["name"] = "Carrion Horror",
@@ -4978,6 +5693,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {53.6, 63.6, 405},
     },
+    ["displayId"] = 10825,
+    ["skinId"]    = 410,
   },
   [4696] = {
     ["name"] = "Scorpashi Snapper",
@@ -4992,6 +5709,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {53.1, 68.9, 405},
     },
+    ["displayId"] = 2729,
+    ["skinId"]    = 2729,
   },
   [4697] = {
     ["name"] = "Scorpashi Lasher",
@@ -5006,6 +5725,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {38.0, 74.5, 405},
     },
+    ["displayId"] = 2765,
+    ["skinId"]    = 2729,
   },
   [4699] = {
     ["name"] = "Scorpashi Venomlash",
@@ -5020,6 +5741,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {50.7, 92.4, 405},
     },
+    ["displayId"] = 2766,
+    ["skinId"]    = 2729,
   },
   [4821] = {
     ["name"] = "Skittering Crustacean",
@@ -5035,6 +5758,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {35.6, 32.9, 719},
     },
+    ["displayId"] = 981,
+    ["skinId"]    = 981,
   },
   [4822] = {
     ["name"] = "Snapping Crustacean",
@@ -5050,6 +5775,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {20.2, 57.1, 719},
     },
+    ["displayId"] = 1001,
+    ["skinId"]    = 981,
   },
   [4823] = {
     ["name"] = "Barbed Crustacean",
@@ -5065,6 +5792,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {45.5, 91.3, 719},
     },
+    ["displayId"] = 9565,
+    ["skinId"]    = 981,
   },
   [4841] = {
     ["name"] = "Deadmire",
@@ -5079,6 +5808,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {48.8, 56.7, 15},
     },
+    ["displayId"] = 2850,
+    ["skinId"]    = 1609,
   },
   [4861] = {
     ["name"] = "Shrike Bat",
@@ -5094,6 +5825,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {40.3, 65.5, 1337},
     },
+    ["displayId"] = 1954,
+    ["skinId"]    = 1954,
   },
   [4887] = {
     ["name"] = "Ghamoo-Ra",
@@ -5109,6 +5842,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {22.4, 41.5, 719},
     },
+    ["displayId"] = 5027,
+    ["skinId"]    = 5026,
   },
   [4950] = {
     ["name"] = "Spot",
@@ -5123,6 +5858,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {68.0, 46.8, 15},
     },
+    ["displayId"] = 1100,
+    ["skinId"]    = 161,
   },
   [5048] = {
     ["name"] = "Deviate Adder",
@@ -5137,6 +5874,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {32.3, 43.1, 718},
     },
+    ["displayId"] = 4317,
+    ["skinId"]    = 4317,
   },
   [5053] = {
     ["name"] = "Deviate Crocolisk",
@@ -5151,6 +5890,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {85.8, 83.0, 718},
     },
+    ["displayId"] = 2996,
+    ["skinId"]    = 1609,
   },
   [5056] = {
     ["name"] = "Deviate Dreadfang",
@@ -5166,6 +5907,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {85.5, 81.0, 718},
     },
+    ["displayId"] = 3006,
+    ["skinId"]    = 3006,
   },
   [5225] = {
     ["name"] = "Murk Spitter",
@@ -5180,6 +5923,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {76.7, 46.2, 8},
     },
+    ["displayId"] = 4768,
+    ["skinId"]    = 4435,
   },
   [5262] = {
     ["name"] = "Groddoc Thunderer",
@@ -5194,6 +5939,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {48.8, 35.4, 357},
     },
+    ["displayId"] = 3188,
+    ["skinId"]    = 3186,
   },
   [5268] = {
     ["name"] = "Ironfur Bear",
@@ -5208,6 +5955,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {61.3, 61.6, 357},
     },
+    ["displayId"] = 3201,
+    ["skinId"]    = 806,
   },
   [5272] = {
     ["name"] = "Grizzled Ironfur Bear",
@@ -5222,6 +5971,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {70.7, 63.8, 357},
     },
+    ["displayId"] = 8838,
+    ["skinId"]    = 806,
   },
   [5274] = {
     ["name"] = "Ironfur Patriarch",
@@ -5236,6 +5987,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {48.9, 37.5, 357},
     },
+    ["displayId"] = 3200,
+    ["skinId"]    = 806,
   },
   [5286] = {
     ["name"] = "Longtooth Runner",
@@ -5250,6 +6003,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {30.7, 52.6, 357},
     },
+    ["displayId"] = 165,
+    ["skinId"]    = 165,
   },
   [5287] = {
     ["name"] = "Longtooth Howler",
@@ -5264,6 +6019,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {69.6, 63.5, 357},
     },
+    ["displayId"] = 3202,
+    ["skinId"]    = 165,
   },
   [5288] = {
     ["name"] = "Rabid Longtooth",
@@ -5278,6 +6035,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {48.8, 37.1, 357},
     },
+    ["displayId"] = 3203,
+    ["skinId"]    = 165,
   },
   [5291] = {
     ["name"] = "Hakkari Frostwing",
@@ -5293,6 +6052,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {24.8, 64.8, 1477},
     },
+    ["displayId"] = 7569,
+    ["skinId"]    = 2703,
   },
   [5307] = {
     ["name"] = "Vale Screecher",
@@ -5307,6 +6068,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {60.0, 61.3, 357},
     },
+    ["displayId"] = 2699,
+    ["skinId"]    = 2699,
   },
   [5308] = {
     ["name"] = "Rogue Vale Screecher",
@@ -5321,6 +6084,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {47.9, 59.2, 357},
     },
+    ["displayId"] = 3204,
+    ["skinId"]    = 2699,
   },
   [5349] = {
     ["name"] = "Arash-ethis",
@@ -5336,6 +6101,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {44.8, 25.0, 357},
     },
+    ["displayId"] = 7569,
+    ["skinId"]    = 2703,
   },
   [5352] = {
     ["name"] = "Old Grizzlegut",
@@ -5351,6 +6118,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {59.5, 59.4, 357},
     },
+    ["displayId"] = 706,
+    ["skinId"]    = 706,
   },
   [5356] = {
     ["name"] = "Snarler",
@@ -5366,6 +6135,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {80.2, 39.6, 357},
     },
+    ["displayId"] = 780,
+    ["skinId"]    = 644,
   },
   [5422] = {
     ["name"] = "Scorpid Hunter",
@@ -5380,6 +6151,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {78.3, 99.7, 400},
     },
+    ["displayId"] = 2414,
+    ["skinId"]    = 2414,
   },
   [5423] = {
     ["name"] = "Scorpid Tail Lasher",
@@ -5394,6 +6167,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {54.1, 54.3, 440},
     },
+    ["displayId"] = 10987,
+    ["skinId"]    = 2414,
   },
   [5424] = {
     ["name"] = "Scorpid Dunestalker",
@@ -5408,6 +6183,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {49.3, 76.3, 440},
     },
+    ["displayId"] = 10986,
+    ["skinId"]    = 2414,
   },
   [5425] = {
     ["name"] = "Starving Blisterpaw",
@@ -5422,6 +6199,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {54.5, 38.7, 440},
     },
+    ["displayId"] = 1535,
+    ["skinId"]    = 1534,
   },
   [5426] = {
     ["name"] = "Blisterpaw Hyena",
@@ -5436,6 +6215,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {51.2, 63.4, 440},
     },
+    ["displayId"] = 1536,
+    ["skinId"]    = 1536,
   },
   [5427] = {
     ["name"] = "Rabid Blisterpaw",
@@ -5450,6 +6231,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {32.9, 79.1, 440},
     },
+    ["displayId"] = 2609,
+    ["skinId"]    = 1534,
   },
   [5428] = {
     ["name"] = "Roc",
@@ -5464,6 +6247,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {49.2, 37.1, 440},
     },
+    ["displayId"] = 3248,
+    ["skinId"]    = 490,
   },
   [5429] = {
     ["name"] = "Fire Roc",
@@ -5478,6 +6263,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {49.8, 53.7, 440},
     },
+    ["displayId"] = 7348,
+    ["skinId"]    = 490,
   },
   [5430] = {
     ["name"] = "Searing Roc",
@@ -5492,6 +6279,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {32.0, 74.9, 440},
     },
+    ["displayId"] = 10827,
+    ["skinId"]    = 490,
   },
   [5431] = {
     ["name"] = "Surf Glider",
@@ -5506,6 +6295,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {53.1, 97.9, 440},
     },
+    ["displayId"] = 7114,
+    ["skinId"]    = 5126,
   },
   [5708] = {
     ["name"] = "Spawn of Hakkar",
@@ -5521,6 +6312,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {60.3, 59.5, 1477},
     },
+    ["displayId"] = 4065,
+    ["skinId"]    = 2699,
   },
   [5755] = {
     ["name"] = "Deviate Viper",
@@ -5535,6 +6328,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {28.8, 40.3, 718},
     },
+    ["displayId"] = 4312,
+    ["skinId"]    = 4312,
   },
   [5756] = {
     ["name"] = "Deviate Venomwing",
@@ -5550,6 +6345,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {86.9, 81.3, 718},
     },
+    ["displayId"] = 2706,
+    ["skinId"]    = 2700,
   },
   [5762] = {
     ["name"] = "Deviate Moccasin",
@@ -5560,6 +6357,8 @@ MTH_DS_Beasts = {
     ["attackSpeed"] = "2.0",
     ["coords"] = {
     },
+    ["displayId"] = 4305,
+    ["skinId"]    = 4305,
   },
   [5766] = {
     ["name"] = "Savannah Cub",
@@ -5574,6 +6373,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {58.9, 35.7, 17},
     },
+    ["displayId"] = 2278,
+    ["skinId"]    = 1056,
   },
   [5807] = {
     ["name"] = "The Rake",
@@ -5589,6 +6390,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {53.4, 17.0, 215},
     },
+    ["displayId"] = 1973,
+    ["skinId"]    = 1057,
   },
   [5823] = {
     ["name"] = "Death Flayer",
@@ -5604,6 +6407,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {38.2, 51.1, 14},
     },
+    ["displayId"] = 2491,
+    ["skinId"]    = 2488,
   },
   [5828] = {
     ["name"] = "Humar the Pridelord",
@@ -5619,6 +6424,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {62.1, 33.3, 17},
     },
+    ["displayId"] = 4424,
+    ["skinId"]    = 4424,
   },
   [5829] = {
     ["name"] = "Snort the Heckler",
@@ -5634,6 +6441,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {41.2, 22.2, 17},
     },
+    ["displayId"] = 2713,
+    ["skinId"]    = 2713,
   },
   [5834] = {
     ["name"] = "Azzere the Skyblade",
@@ -5649,6 +6458,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {45.0, 63.6, 17},
     },
+    ["displayId"] = 2702,
+    ["skinId"]    = 2699,
   },
   [5856] = {
     ["name"] = "Glassweb Spider",
@@ -5663,6 +6474,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {64.6, 75.3, 51},
     },
+    ["displayId"] = 4456,
+    ["skinId"]    = 4456,
   },
   [5857] = {
     ["name"] = "Searing Lava Spider",
@@ -5677,6 +6490,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {57.6, 83.9, 51},
     },
+    ["displayId"] = 4457,
+    ["skinId"]    = 4457,
   },
   [5858] = {
     ["name"] = "Greater Lava Spider",
@@ -5691,6 +6506,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {12.7, 17.9, 46},
     },
+    ["displayId"] = 7510,
+    ["skinId"]    = 4457,
   },
   [5865] = {
     ["name"] = "Dishu",
@@ -5706,6 +6523,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {50.9, 18.2, 17},
     },
+    ["displayId"] = 1043,
+    ["skinId"]    = 632,
   },
   [5937] = {
     ["name"] = "Vile Sting",
@@ -5721,6 +6540,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {71.5, 63.6, 400},
     },
+    ["displayId"] = 10988,
+    ["skinId"]    = 10983,
   },
   [5982] = {
     ["name"] = "Black Slayer",
@@ -5735,6 +6556,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {54.9, 44.6, 4},
     },
+    ["displayId"] = 10824,
+    ["skinId"]    = 388,
   },
   [5985] = {
     ["name"] = "Snickerfang Hyena",
@@ -5749,6 +6572,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {52.4, 57.2, 4},
     },
+    ["displayId"] = 2714,
+    ["skinId"]    = 2714,
   },
   [5988] = {
     ["name"] = "Scorpok Stinger",
@@ -5763,6 +6588,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {58.6, 41.0, 4},
     },
+    ["displayId"] = 6068,
+    ["skinId"]    = 2488,
   },
   [5992] = {
     ["name"] = "Ashmane Boar",
@@ -5777,6 +6604,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {64.3, 54.7, 4},
     },
+    ["displayId"] = 3026,
+    ["skinId"]    = 3026,
   },
   [6013] = {
     ["name"] = "Wayward Buzzard",
@@ -5787,6 +6616,8 @@ MTH_DS_Beasts = {
     ["attackSpeed"] = "2.0",
     ["coords"] = {
     },
+    ["displayId"] = 1105,
+    ["skinId"]    = 388,
   },
   [6352] = {
     ["name"] = "Coralshell Lurker",
@@ -5801,6 +6632,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {65.8, 97.0, 16},
     },
+    ["displayId"] = 10947,
+    ["skinId"]    = 2307,
   },
   [6369] = {
     ["name"] = "Coralshell Tortoise",
@@ -5815,6 +6648,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {87.5, 16.5, 16},
     },
+    ["displayId"] = 2308,
+    ["skinId"]    = 2307,
   },
   [6505] = {
     ["name"] = "Ravasaur",
@@ -5829,6 +6664,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {61.9, 83.2, 490},
     },
+    ["displayId"] = 5242,
+    ["skinId"]    = 960,
   },
   [6506] = {
     ["name"] = "Ravasaur Runner",
@@ -5843,6 +6680,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {61.9, 83.2, 490},
     },
+    ["displayId"] = 5290,
+    ["skinId"]    = 675,
   },
   [6507] = {
     ["name"] = "Ravasaur Hunter",
@@ -5857,6 +6696,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {71.6, 61.5, 490},
     },
+    ["displayId"] = 5292,
+    ["skinId"]    = 960,
   },
   [6508] = {
     ["name"] = "Venomhide Ravasaur",
@@ -5871,6 +6712,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {71.6, 61.5, 490},
     },
+    ["displayId"] = 5291,
+    ["skinId"]    = 5291,
   },
   [6581] = {
     ["name"] = "Ravasaur Matriarch",
@@ -5886,6 +6729,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {62.3, 65.9, 490},
     },
+    ["displayId"] = 11319,
+    ["skinId"]    = 322,
   },
   [6788] = {
     ["name"] = "Den Mother",
@@ -5900,6 +6745,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {51.5, 38.3, 148},
     },
+    ["displayId"] = 1007,
+    ["skinId"]    = 806,
   },
   [6789] = {
     ["name"] = "Thistle Cub",
@@ -5914,6 +6761,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {51.4, 38.3, 148},
     },
+    ["displayId"] = 5510,
+    ["skinId"]    = 822,
   },
   [7022] = {
     ["name"] = "Venomlash Scorpid",
@@ -5929,6 +6778,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {36.5, 60.5, 1337},
     },
+    ["displayId"] = 2488,
+    ["skinId"]    = 2488,
   },
   [7055] = {
     ["name"] = "Blackrock Worg",
@@ -5943,6 +6794,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {49.2, 58.5, 46},
     },
+    ["displayId"] = 741,
+    ["skinId"]    = 246,
   },
   [7078] = {
     ["name"] = "Cleft Scorpid",
@@ -5957,6 +6810,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {39.4, 63.6, 1337},
     },
+    ["displayId"] = 5985,
+    ["skinId"]    = 2489,
   },
   [7097] = {
     ["name"] = "Ironbeak Owl",
@@ -5971,6 +6826,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {54.8, 88.1, 148},
     },
+    ["displayId"] = 4877,
+    ["skinId"]    = 4877,
   },
   [7098] = {
     ["name"] = "Ironbeak Screecher",
@@ -5985,6 +6842,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {53.7, 27.0, 361},
     },
+    ["displayId"] = 10831,
+    ["skinId"]    = 4877,
   },
   [7099] = {
     ["name"] = "Ironbeak Hunter",
@@ -5999,6 +6858,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {44.9, 69.9, 361},
     },
+    ["displayId"] = 10829,
+    ["skinId"]    = 4877,
   },
   [7268] = {
     ["name"] = "Sandfury Guardian",
@@ -6013,6 +6874,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {22.1, 47.3, 1176},
     },
+    ["displayId"] = 4305,
+    ["skinId"]    = 4305,
   },
   [7319] = {
     ["name"] = "Lady Sathrah",
@@ -6027,6 +6890,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {48.1, 25.1, 141},
     },
+    ["displayId"] = 6214,
+    ["skinId"]    = 1091,
   },
   [7405] = {
     ["name"] = "Deadly Cleft Scorpid",
@@ -6041,6 +6906,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {34.8, 38.4, 1337},
     },
+    ["displayId"] = 5985,
+    ["skinId"]    = 2489,
   },
   [7430] = {
     ["name"] = "Frostsaber Cub",
@@ -6055,6 +6922,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {48.9, 19.0, 618},
     },
+    ["displayId"] = 9958,
+    ["skinId"]    = 9958,
   },
   [7431] = {
     ["name"] = "Frostsaber",
@@ -6069,6 +6938,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {51.1, 22.3, 618},
     },
+    ["displayId"] = 9953,
+    ["skinId"]    = 616,
   },
   [7432] = {
     ["name"] = "Frostsaber Stalker",
@@ -6083,6 +6954,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {51.5, 21.5, 618},
     },
+    ["displayId"] = 11445,
+    ["skinId"]    = 9958,
   },
   [7433] = {
     ["name"] = "Frostsaber Huntress",
@@ -6097,6 +6970,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {50.4, 16.6, 618},
     },
+    ["displayId"] = 11444,
+    ["skinId"]    = 9958,
   },
   [7434] = {
     ["name"] = "Frostsaber Pride Watcher",
@@ -6111,6 +6986,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {49.3, 12.3, 618},
     },
+    ["displayId"] = 9954,
+    ["skinId"]    = 9954,
   },
   [7443] = {
     ["name"] = "Shardtooth Mauler",
@@ -6125,6 +7002,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {66.7, 54.4, 618},
     },
+    ["displayId"] = 8842,
+    ["skinId"]    = 865,
   },
   [7444] = {
     ["name"] = "Shardtooth Bear",
@@ -6139,6 +7018,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {30.2, 47.2, 618},
     },
+    ["displayId"] = 865,
+    ["skinId"]    = 865,
   },
   [7445] = {
     ["name"] = "Elder Shardtooth",
@@ -6153,6 +7034,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {60.8, 64.0, 618},
     },
+    ["displayId"] = 8837,
+    ["skinId"]    = 865,
   },
   [7446] = {
     ["name"] = "Rabid Shardtooth",
@@ -6167,6 +7050,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {63.4, 74.4, 618},
     },
+    ["displayId"] = 3200,
+    ["skinId"]    = 806,
   },
   [7456] = {
     ["name"] = "Winterspring Screecher",
@@ -6181,6 +7066,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {60.3, 64.5, 618},
     },
+    ["displayId"] = 10833,
+    ["skinId"]    = 6212,
   },
   [8207] = {
     ["name"] = "Greater Firebird",
@@ -6196,6 +7083,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {54.2, 39.9, 440},
     },
+    ["displayId"] = 7349,
+    ["skinId"]    = 490,
   },
   [8208] = {
     ["name"] = "Murderous Blisterpaw",
@@ -6211,6 +7100,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {47.4, 25.0, 440},
     },
+    ["displayId"] = 1534,
+    ["skinId"]    = 1534,
   },
   [8211] = {
     ["name"] = "Old Cliff Jumper",
@@ -6226,6 +7117,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {11.9, 53.7, 47},
     },
+    ["displayId"] = 11414,
+    ["skinId"]    = 11414,
   },
   [8213] = {
     ["name"] = "Ironback",
@@ -6241,6 +7134,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {81.5, 49.2, 47},
     },
+    ["displayId"] = 7840,
+    ["skinId"]    = 4829,
   },
   [8299] = {
     ["name"] = "Spiteflayer",
@@ -6256,6 +7151,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {61.1, 35.4, 4},
     },
+    ["displayId"] = 388,
+    ["skinId"]    = 388,
   },
   [8300] = {
     ["name"] = "Ravage",
@@ -6271,6 +7168,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {61.1, 36.6, 4},
     },
+    ["displayId"] = 10904,
+    ["skinId"]    = 2713,
   },
   [8301] = {
     ["name"] = "Clack the Reaver",
@@ -6286,6 +7185,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {48.3, 38.7, 4},
     },
+    ["displayId"] = 10983,
+    ["skinId"]    = 10983,
   },
   [8303] = {
     ["name"] = "Grunter",
@@ -6301,6 +7202,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {56.1, 31.1, 4},
     },
+    ["displayId"] = 8870,
+    ["skinId"]    = 381,
   },
   [8336] = {
     ["name"] = "Hakkari Sapper",
@@ -6316,6 +7219,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {24.8, 64.8, 1477},
     },
+    ["displayId"] = 1336,
+    ["skinId"]    = 1336,
   },
   [8600] = {
     ["name"] = "Plaguebat",
@@ -6330,6 +7235,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {84.1, 69.0, 28},
     },
+    ["displayId"] = 7894,
+    ["skinId"]    = 4185,
   },
   [8601] = {
     ["name"] = "Noxious Plaguebat",
@@ -6344,6 +7251,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {72.2, 72.8, 139},
     },
+    ["displayId"] = 7896,
+    ["skinId"]    = 1954,
   },
   [8602] = {
     ["name"] = "Monstrous Plaguebat",
@@ -6358,6 +7267,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {67.7, 50.9, 139},
     },
+    ["displayId"] = 7897,
+    ["skinId"]    = 4185,
   },
   [8762] = {
     ["name"] = "Timberweb Recluse",
@@ -6372,6 +7283,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {24.4, 49.8, 16},
     },
+    ["displayId"] = 8014,
+    ["skinId"]    = 520,
   },
   [8933] = {
     ["name"] = "Cave Creeper",
@@ -6382,6 +7295,8 @@ MTH_DS_Beasts = {
     ["attackSpeed"] = "2.0",
     ["coords"] = {
     },
+    ["displayId"] = 8014,
+    ["skinId"]    = 520,
   },
   [8956] = {
     ["name"] = "Angerclaw Bear",
@@ -6396,6 +7311,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {57.4, 25.5, 331},
     },
+    ["displayId"] = 9276,
+    ["skinId"]    = 1083,
   },
   [8958] = {
     ["name"] = "Angerclaw Mauler",
@@ -6410,6 +7327,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {43.8, 67.6, 361},
     },
+    ["displayId"] = 1083,
+    ["skinId"]    = 1083,
   },
   [8959] = {
     ["name"] = "Felpaw Wolf",
@@ -6424,6 +7343,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {57.2, 27.5, 331},
     },
+    ["displayId"] = 4124,
+    ["skinId"]    = 4124,
   },
   [8960] = {
     ["name"] = "Felpaw Scavenger",
@@ -6438,6 +7359,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {52.3, 62.0, 148},
     },
+    ["displayId"] = 9278,
+    ["skinId"]    = 4124,
   },
   [8961] = {
     ["name"] = "Felpaw Ravager",
@@ -6452,6 +7375,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {53.8, 27.7, 361},
     },
+    ["displayId"] = 9280,
+    ["skinId"]    = 4124,
   },
   [9416] = {
     ["name"] = "Scarshield Worg",
@@ -6466,6 +7391,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {62.7, 62.1, 1583},
     },
+    ["displayId"] = 11420,
+    ["skinId"]    = 9369,
   },
   [9690] = {
     ["name"] = "Ember Worg",
@@ -6480,6 +7407,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {84.1, 60.6, 46},
     },
+    ["displayId"] = 9371,
+    ["skinId"]    = 9369,
   },
   [9691] = {
     ["name"] = "Venomtip Scorpid",
@@ -6494,6 +7423,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {86.8, 59.7, 46},
     },
+    ["displayId"] = 8970,
+    ["skinId"]    = 2487,
   },
   [9694] = {
     ["name"] = "Slavering Ember Worg",
@@ -6508,6 +7439,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {58.4, 63.9, 46},
     },
+    ["displayId"] = 11420,
+    ["skinId"]    = 9369,
   },
   [9695] = {
     ["name"] = "Deathlash Scorpid",
@@ -6522,6 +7455,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {54.2, 67.0, 46},
     },
+    ["displayId"] = 10984,
+    ["skinId"]    = 2487,
   },
   [9696] = {
     ["name"] = "Bloodaxe Worg",
@@ -6536,6 +7471,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {53.3, 79.7, 1583},
     },
+    ["displayId"] = 9562,
+    ["skinId"]    = 246,
   },
   [9697] = {
     ["name"] = "Giant Ember Worg",
@@ -6550,6 +7487,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {24.5, 69.2, 46},
     },
+    ["displayId"] = 9370,
+    ["skinId"]    = 9369,
   },
   [9698] = {
     ["name"] = "Firetail Scorpid",
@@ -6564,6 +7503,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {25.6, 60.9, 46},
     },
+    ["displayId"] = 10985,
+    ["skinId"]    = 2487,
   },
   [10077] = {
     ["name"] = "Deathmaw",
@@ -6579,6 +7520,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {86.6, 49.6, 46},
     },
+    ["displayId"] = 9562,
+    ["skinId"]    = 246,
   },
   [10221] = {
     ["name"] = "Bloodaxe Worg Pup",
@@ -6593,6 +7536,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {37.4, 84.6, 1583},
     },
+    ["displayId"] = 9563,
+    ["skinId"]    = 246,
   },
   [10357] = {
     ["name"] = "Ressan the Needler",
@@ -6608,6 +7553,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {42.9, 67.6, 85},
     },
+    ["displayId"] = 9750,
+    ["skinId"]    = 4735,
   },
   [10375] = {
     ["name"] = "Spire Spiderling",
@@ -6622,6 +7569,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {62.6, 76.4, 1583},
     },
+    ["displayId"] = 9756,
+    ["skinId"]    = 4456,
   },
   [10644] = {
     ["name"] = "Mist Howler",
@@ -6637,6 +7586,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {20.9, 36.9, 331},
     },
+    ["displayId"] = 165,
+    ["skinId"]    = 165,
   },
   [10737] = {
     ["name"] = "Shy-Rotam",
@@ -6649,6 +7600,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {49.5, 9.7, 618},
     },
+    ["displayId"] = 10113,
+    ["skinId"]    = 10054,
   },
   [10806] = {
     ["name"] = "Ursius",
@@ -6664,6 +7617,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {64.0, 24.1, 618},
     },
+    ["displayId"] = 10618,
+    ["skinId"]    = 865,
   },
   [11357] = {
     ["name"] = "Son of Hakkar",
@@ -6679,6 +7634,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {45.5, 45.3, 1977},
     },
+    ["displayId"] = 15275,
+    ["skinId"]    = 2699,
   },
   [11360] = {
     ["name"] = "Zulian Cub",
@@ -6693,6 +7650,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {59.7, 41.8, 1977},
     },
+    ["displayId"] = 15151,
+    ["skinId"]    = 320,
   },
   [11361] = {
     ["name"] = "Zulian Tiger",
@@ -6708,6 +7667,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {54.3, 50.6, 1977},
     },
+    ["displayId"] = 11031,
+    ["skinId"]    = 320,
   },
   [11365] = {
     ["name"] = "Zulian Panther",
@@ -6723,6 +7684,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {50.3, 28.9, 1977},
     },
+    ["displayId"] = 633,
+    ["skinId"]    = 599,
   },
   [11368] = {
     ["name"] = "Bloodseeker Bat",
@@ -6737,6 +7700,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {34.9, 77.4, 1977},
     },
+    ["displayId"] = 14562,
+    ["skinId"]    = 3956,
   },
   [11370] = {
     ["name"] = "Razzashi Broodwidow",
@@ -6752,6 +7717,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {47.2, 80.5, 1977},
     },
+    ["displayId"] = 963,
+    ["skinId"]    = 963,
   },
   [11371] = {
     ["name"] = "Razzashi Serpent",
@@ -6766,6 +7733,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {51.0, 60.7, 1977},
     },
+    ["displayId"] = 15182,
+    ["skinId"]    = 15182,
   },
   [11372] = {
     ["name"] = "Razzashi Adder",
@@ -6780,6 +7749,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {50.8, 60.3, 1977},
     },
+    ["displayId"] = 15150,
+    ["skinId"]    = 4317,
   },
   [11735] = {
     ["name"] = "Stonelash Scorpid",
@@ -6794,6 +7765,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {10.4, 42.7, 490},
     },
+    ["displayId"] = 15383,
+    ["skinId"]    = 10983,
   },
   [11736] = {
     ["name"] = "Stonelash Pincer",
@@ -6808,6 +7781,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {7.5, 57.7, 490},
     },
+    ["displayId"] = 15384,
+    ["skinId"]    = 2729,
   },
   [11737] = {
     ["name"] = "Stonelash Flayer",
@@ -6822,6 +7797,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {9.7, 73.4, 490},
     },
+    ["displayId"] = 15385,
+    ["skinId"]    = 10983,
   },
   [11738] = {
     ["name"] = "Sand Skitterer",
@@ -6836,6 +7813,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {9.3, 42.6, 490},
     },
+    ["displayId"] = 8014,
+    ["skinId"]    = 520,
   },
   [11739] = {
     ["name"] = "Rock Stalker",
@@ -6850,6 +7829,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {35.3, 91.1, 1377},
     },
+    ["displayId"] = 711,
+    ["skinId"]    = 711,
   },
   [11921] = {
     ["name"] = "Besseleth",
@@ -6865,6 +7846,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {53.8, 73.0, 406},
     },
+    ["displayId"] = 11348,
+    ["skinId"]    = 366,
   },
   [12431] = {
     ["name"] = "Gorefang",
@@ -6880,6 +7863,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {59.5, 7.6, 130},
     },
+    ["displayId"] = 11413,
+    ["skinId"]    = 9564,
   },
   [12432] = {
     ["name"] = "Old Vicejaw",
@@ -6895,6 +7880,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {53.8, 51.9, 130},
     },
+    ["displayId"] = 982,
+    ["skinId"]    = 822,
   },
   [12433] = {
     ["name"] = "Krethis Shadowspinner",
@@ -6910,6 +7897,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {24.0, 79.7, 85},
     },
+    ["displayId"] = 368,
+    ["skinId"]    = 30,
   },
   [13599] = {
     ["name"] = "Stolid Snapjaw",
@@ -6924,6 +7913,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {20.2, 88.2, 2100},
     },
+    ["displayId"] = 6368,
+    ["skinId"]    = 5126,
   },
   [14123] = {
     ["name"] = "Steeljaw Snapper",
@@ -6938,6 +7929,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {73.3, 43.0, 440},
     },
+    ["displayId"] = 7114,
+    ["skinId"]    = 5126,
   },
   [14228] = {
     ["name"] = "Giggler",
@@ -6953,6 +7946,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {61.3, 28.9, 405},
     },
+    ["displayId"] = 2714,
+    ["skinId"]    = 2714,
   },
   [14232] = {
     ["name"] = "Dart",
@@ -6968,6 +7963,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {48.1, 16.0, 15},
     },
+    ["displayId"] = 788,
+    ["skinId"]    = 180,
   },
   [14233] = {
     ["name"] = "Ripscale",
@@ -6983,6 +7980,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {49.2, 57.4, 15},
     },
+    ["displayId"] = 2549,
+    ["skinId"]    = 925,
   },
   [14266] = {
     ["name"] = "Shanda the Spinner",
@@ -6998,6 +7997,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {78.1, 52.4, 38},
     },
+    ["displayId"] = 1103,
+    ["skinId"]    = 1091,
   },
   [14268] = {
     ["name"] = "Lord Condar",
@@ -7013,6 +8014,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {68.6, 76.4, 38},
     },
+    ["displayId"] = 14313,
+    ["skinId"]    = 490,
   },
   [14279] = {
     ["name"] = "Creepthess",
@@ -7028,6 +8031,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {38.6, 58.4, 267},
     },
+    ["displayId"] = 1091,
+    ["skinId"]    = 1091,
   },
   [14280] = {
     ["name"] = "Big Samras",
@@ -7043,6 +8048,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {86.0, 39.9, 267},
     },
+    ["displayId"] = 706,
+    ["skinId"]    = 706,
   },
   [14283] = {
     ["name"] = "Stormpike Owl",
@@ -7057,6 +8064,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {49.7, 42.2, 2597},
     },
+    ["displayId"] = 10828,
+    ["skinId"]    = 6212,
   },
   [14339] = {
     ["name"] = "Death Howl",
@@ -7072,6 +8081,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {50.0, 77.1, 361},
     },
+    ["displayId"] = 11412,
+    ["skinId"]    = 720,
   },
   [14343] = {
     ["name"] = "Olm the Wise",
@@ -7086,6 +8097,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {50.2, 32.8, 361},
     },
+    ["displayId"] = 6212,
+    ["skinId"]    = 6212,
   },
   [14344] = {
     ["name"] = "Mongress",
@@ -7101,6 +8114,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {42.1, 75.2, 361},
     },
+    ["displayId"] = 14315,
+    ["skinId"]    = 822,
   },
   [14472] = {
     ["name"] = "Gretheer",
@@ -7116,6 +8131,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {39.3, 55.4, 1377},
     },
+    ["displayId"] = 1104,
+    ["skinId"]    = 1091,
   },
   [14476] = {
     ["name"] = "Krellack",
@@ -7131,6 +8148,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {63.2, 16.7, 1377},
     },
+    ["displayId"] = 6068,
+    ["skinId"]    = 2488,
   },
   [14491] = {
     ["name"] = "Kurmokk",
@@ -7146,6 +8165,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {35.4, 56.6, 33},
     },
+    ["displayId"] = 3186,
+    ["skinId"]    = 3186,
   },
   [14532] = {
     ["name"] = "Razzashi Venombrood",
@@ -7161,6 +8182,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {49.5, 81.6, 1977},
     },
+    ["displayId"] = 14950,
+    ["skinId"]    = 955,
   },
   [14821] = {
     ["name"] = "Razzashi Raptor",
@@ -7176,6 +8199,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {57.4, 83.2, 1977},
     },
+    ["displayId"] = 2571,
+    ["skinId"]    = 1959,
   },
   [14965] = {
     ["name"] = "Frenzied Bloodseeker Bat",
@@ -7186,6 +8211,8 @@ MTH_DS_Beasts = {
     ["attackSpeed"] = "1.0",
     ["coords"] = {
     },
+    ["displayId"] = 14562,
+    ["skinId"]    = 3956,
   },
   [15043] = {
     ["name"] = "Zulian Crocolisk",
@@ -7201,6 +8228,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {41.6, 48.6, 1977},
     },
+    ["displayId"] = 833,
+    ["skinId"]    = 833,
   },
   [15101] = {
     ["name"] = "Zulian Prowler",
@@ -7211,6 +8240,8 @@ MTH_DS_Beasts = {
     ["attackSpeed"] = "1.6",
     ["coords"] = {
     },
+    ["displayId"] = 613,
+    ["skinId"]    = 599,
   },
   [16117] = {
     ["name"] = "Plagued Swine",
@@ -7225,6 +8256,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {18.1, 35.3, 139},
     },
+    ["displayId"] = 6121,
+    ["skinId"]    = 6121,
   },
   [40000] = {
     ["name"] = "Red Fox",
@@ -7235,6 +8268,8 @@ MTH_DS_Beasts = {
     ["attackSpeed"] = "2.0",
     ["coords"] = {
     },
+    ["displayId"] = 18177,
+    ["skinId"]    = 18008,
   },
   [60494] = {
     ["name"] = "Sorrowclaw",
@@ -7249,6 +8284,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {70.6, 31.4, 8},
     },
+    ["displayId"] = 6082,
+    ["skinId"]    = 1056,
   },
   [60848] = {
     ["name"] = "Bristleback Boar",
@@ -7263,6 +8300,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {38.0, 35.7, 17},
     },
+    ["displayId"] = 3027,
+    ["skinId"]    = 3026,
   },
   [61074] = {
     ["name"] = "Highvale Gorilla",
@@ -7277,6 +8316,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {49.7, 58.0, 5121},
     },
+    ["displayId"] = 838,
+    ["skinId"]    = 838,
   },
   [61075] = {
     ["name"] = "Rockshell Crawler",
@@ -7291,6 +8332,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {36.9, 53.5, 5121},
     },
+    ["displayId"] = 981,
+    ["skinId"]    = 981,
   },
   [61076] = {
     ["name"] = "Sandshell Crawler",
@@ -7305,6 +8348,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {46.9, 89.9, 5121},
     },
+    ["displayId"] = 981,
+    ["skinId"]    = 981,
   },
   [61077] = {
     ["name"] = "Highvale Chimpanzee",
@@ -7319,6 +8364,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {51.9, 58.2, 5121},
     },
+    ["displayId"] = 18099,
+    ["skinId"]    = 18099,
   },
   [61078] = {
     ["name"] = "Highvale Monkey",
@@ -7333,6 +8380,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {51.3, 85.8, 5121},
     },
+    ["displayId"] = 18097,
+    ["skinId"]    = 18097,
   },
   [61080] = {
     ["name"] = "Elder Highvale Gorilla",
@@ -7347,6 +8396,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {53.3, 58.6, 5121},
     },
+    ["displayId"] = 838,
+    ["skinId"]    = 838,
   },
   [61082] = {
     ["name"] = "Highvale Thunderer",
@@ -7361,6 +8412,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {55.2, 58.2, 5121},
     },
+    ["displayId"] = 841,
+    ["skinId"]    = 792,
   },
   [61090] = {
     ["name"] = "Brushtail Cobra",
@@ -7375,6 +8428,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {55.9, 69.3, 5121},
     },
+    ["displayId"] = 14557,
+    ["skinId"]    = 11034,
   },
   [61091] = {
     ["name"] = "Brushtail Adder",
@@ -7389,6 +8444,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {49.4, 86.4, 5121},
     },
+    ["displayId"] = 4305,
+    ["skinId"]    = 4305,
   },
   [61095] = {
     ["name"] = "Venomflayer Screecher",
@@ -7403,6 +8460,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {47.3, 87.3, 5121},
     },
+    ["displayId"] = 2705,
+    ["skinId"]    = 2703,
   },
   [61098] = {
     ["name"] = "King Morogo Thunderfoot",
@@ -7417,6 +8476,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {53.9, 48.6, 5121},
     },
+    ["displayId"] = 3186,
+    ["skinId"]    = 3186,
   },
   [61206] = {
     ["name"] = "Skitterweb Crawler",
@@ -7432,6 +8493,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {65.3, 66.4, 3457},
     },
+    ["displayId"] = 955,
+    ["skinId"]    = 955,
   },
   [61218] = {
     ["name"] = "Deviate Coiler Hatchling",
@@ -7447,6 +8510,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {45.9, 36.2, 17},
     },
+    ["displayId"] = 1742,
+    ["skinId"]    = 1336,
   },
   [61227] = {
     ["name"] = "Duskpelt Prowler",
@@ -7461,6 +8526,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {47.0, 91.4, 130},
     },
+    ["displayId"] = 9567,
+    ["skinId"]    = 9567,
   },
   [61228] = {
     ["name"] = "Duskpelt Stalker",
@@ -7475,6 +8542,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {56.5, 76.1, 5179},
     },
+    ["displayId"] = 9567,
+    ["skinId"]    = 9567,
   },
   [61229] = {
     ["name"] = "Starving Duskpelt",
@@ -7489,6 +8558,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {26.4, 74.1, 5179},
     },
+    ["displayId"] = 9567,
+    ["skinId"]    = 9567,
   },
   [61230] = {
     ["name"] = "Vilewing Batling",
@@ -7503,6 +8574,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {44.3, 90.1, 130},
     },
+    ["displayId"] = 7896,
+    ["skinId"]    = 1954,
   },
   [61231] = {
     ["name"] = "Vilewing Bat",
@@ -7517,6 +8590,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {40.3, 65.4, 5179},
     },
+    ["displayId"] = 7896,
+    ["skinId"]    = 1954,
   },
   [61232] = {
     ["name"] = "Hollow Web Spider",
@@ -7531,6 +8606,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {46.7, 78.2, 5179},
     },
+    ["displayId"] = 1104,
+    ["skinId"]    = 1091,
   },
   [61233] = {
     ["name"] = "Hollow Web Venomspitter",
@@ -7545,6 +8622,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {43.4, 77.8, 5179},
     },
+    ["displayId"] = 520,
+    ["skinId"]    = 520,
   },
   [61336] = {
     ["name"] = "Greathorn Owl",
@@ -7559,6 +8638,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {63.0, 87.6, 616},
     },
+    ["displayId"] = 4615,
+    ["skinId"]    = 4566,
   },
   [61337] = {
     ["name"] = "Greathorn Hunter",
@@ -7573,6 +8654,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {71.2, 48.7, 616},
     },
+    ["displayId"] = 4615,
+    ["skinId"]    = 4566,
   },
   [61401] = {
     ["name"] = "Greater Vilewing Bat",
@@ -7587,6 +8670,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {54.0, 89.8, 5179},
     },
+    ["displayId"] = 7896,
+    ["skinId"]    = 1954,
   },
   [61488] = {
     ["name"] = "Azurebeak",
@@ -7602,6 +8687,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {23.0, 37.1, 616},
     },
+    ["displayId"] = 6298,
+    ["skinId"]    = 6298,
   },
   [61599] = {
     ["name"] = "Darksaber",
@@ -7616,6 +8703,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {84.0, 38.4, 357},
     },
+    ["displayId"] = 20437,
+    ["skinId"]    = 20437,
   },
   [61656] = {
     ["name"] = "Ashfeather Buzzard",
@@ -7630,6 +8719,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {99.9, 53.5, 14},
     },
+    ["displayId"] = 1192,
+    ["skinId"]    = 507,
   },
   [61657] = {
     ["name"] = "Ashfeather Swooper",
@@ -7644,6 +8735,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {57.0, 72.7, 5536},
     },
+    ["displayId"] = 1192,
+    ["skinId"]    = 507,
   },
   [61658] = {
     ["name"] = "Ashpaw Hyena",
@@ -7658,6 +8751,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {45.1, 46.4, 5536},
     },
+    ["displayId"] = 8050,
+    ["skinId"]    = 2714,
   },
   [61659] = {
     ["name"] = "Ashpaw Hunter",
@@ -7672,6 +8767,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {59.8, 52.4, 5536},
     },
+    ["displayId"] = 8050,
+    ["skinId"]    = 2714,
   },
   [61660] = {
     ["name"] = "Stonetail Scorpid",
@@ -7686,6 +8783,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {99.4, 53.0, 14},
     },
+    ["displayId"] = 2485,
+    ["skinId"]    = 2485,
   },
   [61661] = {
     ["name"] = "Stonetail Lasher",
@@ -7700,6 +8799,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {46.9, 76.6, 5536},
     },
+    ["displayId"] = 2485,
+    ["skinId"]    = 2485,
   },
   [61662] = {
     ["name"] = "Blackvenom Scorpid",
@@ -7714,6 +8815,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {55.9, 75.6, 5536},
     },
+    ["displayId"] = 2488,
+    ["skinId"]    = 2488,
   },
   [61680] = {
     ["name"] = "Muckreef Crawler",
@@ -7728,6 +8831,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {98.8, 37.9, 14},
     },
+    ["displayId"] = 981,
+    ["skinId"]    = 981,
   },
   [61681] = {
     ["name"] = "Young Muckreef Crawler",
@@ -7742,6 +8847,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {95.8, 67.9, 14},
     },
+    ["displayId"] = 981,
+    ["skinId"]    = 981,
   },
   [61686] = {
     ["name"] = "Ashfeather Scavenger",
@@ -7756,6 +8863,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {99.4, 65.2, 14},
     },
+    ["displayId"] = 10825,
+    ["skinId"]    = 410,
   },
   [61689] = {
     ["name"] = "Young Thalassian Boar",
@@ -7770,6 +8879,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {6.0, 27.9, 139},
     },
+    ["displayId"] = 20504,
+    ["skinId"]    = 20504,
   },
   [61690] = {
     ["name"] = "Young Crimson Lynx",
@@ -7784,6 +8895,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {8.9, 27.7, 139},
     },
+    ["displayId"] = 18027,
+    ["skinId"]    = 18027,
   },
   [61691] = {
     ["name"] = "Forest Hawkstrider",
@@ -7798,6 +8911,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {10.7, 18.5, 139},
     },
+    ["displayId"] = 20511,
+    ["skinId"]    = 20511,
   },
   [61692] = {
     ["name"] = "Thalassian Boar",
@@ -7812,6 +8927,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {48.7, 76.0, 5225},
     },
+    ["displayId"] = 20504,
+    ["skinId"]    = 20504,
   },
   [61693] = {
     ["name"] = "Crimson Lynx",
@@ -7826,6 +8943,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {9.7, 16.2, 139},
     },
+    ["displayId"] = 18027,
+    ["skinId"]    = 18027,
   },
   [61695] = {
     ["name"] = "Ivory Hawkstrider",
@@ -7840,6 +8959,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {16.9, 12.5, 139},
     },
+    ["displayId"] = 20510,
+    ["skinId"]    = 20510,
   },
   [61696] = {
     ["name"] = "Elder Thalassian Boar",
@@ -7854,6 +8975,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {13.5, 12.9, 139},
     },
+    ["displayId"] = 20504,
+    ["skinId"]    = 20504,
   },
   [61697] = {
     ["name"] = "Bright Lynx",
@@ -7868,6 +8991,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {18.9, 12.2, 139},
     },
+    ["displayId"] = 18028,
+    ["skinId"]    = 18028,
   },
   [61698] = {
     ["name"] = "Bright Lynx Matriarch",
@@ -7882,6 +9007,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {18.2, 11.5, 139},
     },
+    ["displayId"] = 18028,
+    ["skinId"]    = 18028,
   },
   [61700] = {
     ["name"] = "Elder Crimson Lynx",
@@ -7896,6 +9023,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {35.2, 98.1, 2040},
     },
+    ["displayId"] = 18027,
+    ["skinId"]    = 18027,
   },
   [61704] = {
     ["name"] = "Farstride Crawler",
@@ -7910,6 +9039,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {17.7, 86.9, 2040},
     },
+    ["displayId"] = 999,
+    ["skinId"]    = 981,
   },
   [61716] = {
     ["name"] = "Crimson Hawkstrider",
@@ -7924,6 +9055,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {0.5, 88.8, 2040},
     },
+    ["displayId"] = 20512,
+    ["skinId"]    = 20512,
   },
   [61717] = {
     ["name"] = "Thalassian Fox",
@@ -7938,6 +9071,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {0.2, 64.3, 2040},
     },
+    ["displayId"] = 18008,
+    ["skinId"]    = 18008,
   },
   [61774] = {
     ["name"] = "Brilliant Mana Wyrm",
@@ -7952,6 +9087,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {11.0, 97.4, 2040},
     },
+    ["displayId"] = 20519,
+    ["skinId"]    = 20519,
   },
   [61775] = {
     ["name"] = "Emerald Mana Wyrm",
@@ -7966,6 +9103,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {1.3, 95.4, 2040},
     },
+    ["displayId"] = 20515,
+    ["skinId"]    = 20515,
   },
   [61776] = {
     ["name"] = "Lavender Mana Wyrm",
@@ -7980,6 +9119,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {35.7, 76.6, 5225},
     },
+    ["displayId"] = 20516,
+    ["skinId"]    = 20516,
   },
   [61789] = {
     ["name"] = "Moonfeather",
@@ -7994,6 +9135,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {26.5, 58.4, 5225},
     },
+    ["displayId"] = 20512,
+    ["skinId"]    = 20512,
   },
   [62121] = {
     ["name"] = "Goldbristle Boar",
@@ -8008,6 +9151,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {40.5, 71.7, 5581},
     },
+    ["displayId"] = 20504,
+    ["skinId"]    = 20504,
   },
   [62122] = {
     ["name"] = "Burly Goldbristle Boar",
@@ -8022,6 +9167,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {23.9, 93.4, 1},
     },
+    ["displayId"] = 20504,
+    ["skinId"]    = 20504,
   },
   [62123] = {
     ["name"] = "Goldpelt Bear",
@@ -8036,6 +9183,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {41.7, 72.5, 5581},
     },
+    ["displayId"] = 1006,
+    ["skinId"]    = 822,
   },
   [62124] = {
     ["name"] = "Goldpelt Grizzly",
@@ -8050,6 +9199,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {56.0, 75.9, 5581},
     },
+    ["displayId"] = 1006,
+    ["skinId"]    = 822,
   },
   [62125] = {
     ["name"] = "Elder Timber Wolf",
@@ -8064,6 +9215,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {57.7, 72.1, 5581},
     },
+    ["displayId"] = 11420,
+    ["skinId"]    = 9369,
   },
   [62126] = {
     ["name"] = "Timber Wolf Alpha",
@@ -8078,6 +9231,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {58.9, 76.3, 5581},
     },
+    ["displayId"] = 11420,
+    ["skinId"]    = 9369,
   },
   [62223] = {
     ["name"] = "Grimscale Raptor",
@@ -8092,6 +9247,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {49.8, 67.5, 5602},
     },
+    ["displayId"] = 677,
+    ["skinId"]    = 675,
   },
   [62224] = {
     ["name"] = "Grimscale Screecher",
@@ -8106,6 +9263,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {49.4, 66.9, 5602},
     },
+    ["displayId"] = 677,
+    ["skinId"]    = 675,
   },
   [62225] = {
     ["name"] = "Grimscale Thrasher",
@@ -8120,6 +9279,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {55.1, 37.7, 5602},
     },
+    ["displayId"] = 1337,
+    ["skinId"]    = 1337,
   },
   [62226] = {
     ["name"] = "Stonehide Boar",
@@ -8134,6 +9295,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {95.4, 68.5, 11},
     },
+    ["displayId"] = 389,
+    ["skinId"]    = 193,
   },
   [62227] = {
     ["name"] = "Elder Stonehide Boar",
@@ -8148,6 +9311,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {63.2, 77.0, 5602},
     },
+    ["displayId"] = 389,
+    ["skinId"]    = 193,
   },
   [62247] = {
     ["name"] = "Brown Recluse",
@@ -8162,6 +9327,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {54.6, 66.0, 5602},
     },
+    ["displayId"] = 827,
+    ["skinId"]    = 520,
   },
   [62248] = {
     ["name"] = "Greater Brown Recluse",
@@ -8176,6 +9343,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {46.6, 93.9, 5602},
     },
+    ["displayId"] = 827,
+    ["skinId"]    = 520,
   },
   [62256] = {
     ["name"] = "Clearwater Snapjaw",
@@ -8190,6 +9359,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {58.4, 53.2, 5602},
     },
+    ["displayId"] = 1244,
+    ["skinId"]    = 1244,
   },
   [62257] = {
     ["name"] = "Sickly Clearwater Snapjaw",
@@ -8204,6 +9375,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {46.2, 91.7, 5602},
     },
+    ["displayId"] = 4829,
+    ["skinId"]    = 4829,
   },
   [62258] = {
     ["name"] = "Razortooth Crocolisk",
@@ -8218,6 +9391,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {59.4, 51.5, 5602},
     },
+    ["displayId"] = 1034,
+    ["skinId"]    = 807,
   },
   [62259] = {
     ["name"] = "Giant Razortooth Crocolisk",
@@ -8232,6 +9407,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {50.7, 87.8, 5602},
     },
+    ["displayId"] = 1034,
+    ["skinId"]    = 807,
   },
   [62260] = {
     ["name"] = "Forest Boar",
@@ -8246,6 +9423,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {63.4, 99.3, 36},
     },
+    ["displayId"] = 389,
+    ["skinId"]    = 193,
   },
   [62261] = {
     ["name"] = "Elder Forest Boar",
@@ -8260,6 +9439,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {7.5, 52.2, 45},
     },
+    ["displayId"] = 389,
+    ["skinId"]    = 193,
   },
   [62262] = {
     ["name"] = "Mesa Boar",
@@ -8274,6 +9455,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {42.5, 94.8, 17},
     },
+    ["displayId"] = 6807,
+    ["skinId"]    = 3026,
   },
   [62271] = {
     ["name"] = "Young Goldbristle Boar",
@@ -8288,6 +9471,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {60.1, 14.4, 1519},
     },
+    ["displayId"] = 20504,
+    ["skinId"]    = 20504,
   },
   [62272] = {
     ["name"] = "Young Timber Wolf",
@@ -8302,6 +9487,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {64.1, 11.4, 1519},
     },
+    ["displayId"] = 11420,
+    ["skinId"]    = 9369,
   },
   [62338] = {
     ["name"] = "Stormwing Buzzard",
@@ -8316,6 +9503,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {33.3, 79.0, 5561},
     },
+    ["displayId"] = 18390,
+    ["skinId"]    = 18390,
   },
   [62339] = {
     ["name"] = "Stormwing Vulture",
@@ -8330,6 +9519,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {29.1, 60.9, 5561},
     },
+    ["displayId"] = 18390,
+    ["skinId"]    = 18390,
   },
   [62340] = {
     ["name"] = "Ragged Crag Coyote",
@@ -8344,6 +9535,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {47.2, 91.2, 5561},
     },
+    ["displayId"] = 903,
+    ["skinId"]    = 165,
   },
   [62341] = {
     ["name"] = "Slavering Crag Coyote",
@@ -8358,6 +9551,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {0.7, 1.8, 40},
     },
+    ["displayId"] = 903,
+    ["skinId"]    = 165,
   },
   [62342] = {
     ["name"] = "Mistbark Spider",
@@ -8372,6 +9567,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {31.8, 56.0, 5561},
     },
+    ["displayId"] = 545,
+    ["skinId"]    = 283,
   },
   [62343] = {
     ["name"] = "Mistbark Webweaver",
@@ -8386,6 +9583,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {30.6, 54.7, 5561},
     },
+    ["displayId"] = 545,
+    ["skinId"]    = 283,
   },
   [62344] = {
     ["name"] = "Mother Mistbark",
@@ -8400,6 +9599,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {31.2, 53.2, 5561},
     },
+    ["displayId"] = 709,
+    ["skinId"]    = 336,
   },
   [62642] = {
     ["name"] = "Razorscale",
@@ -8415,6 +9616,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {49.1, 67.2, 5602},
     },
+    ["displayId"] = 676,
+    ["skinId"]    = 322,
   },
   [80252] = {
     ["name"] = "Young Arctic Fox",
@@ -8429,6 +9632,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {75.7, 60.2, 1},
     },
+    ["displayId"] = 18005,
+    ["skinId"]    = 18005,
   },
   [80254] = {
     ["name"] = "Young Brown Fox",
@@ -8443,6 +9648,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {21.6, 88.9, 12},
     },
+    ["displayId"] = 18007,
+    ["skinId"]    = 18007,
   },
   [80256] = {
     ["name"] = "Silver Fox",
@@ -8457,6 +9664,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {44.1, 76.7, 10},
     },
+    ["displayId"] = 18006,
+    ["skinId"]    = 18006,
   },
   [80258] = {
     ["name"] = "Young Mist Fox",
@@ -8471,6 +9680,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {39.1, 29.9, 85},
     },
+    ["displayId"] = 18004,
+    ["skinId"]    = 18004,
   },
   [80466] = {
     ["name"] = "Tirisfal Plagued Bear",
@@ -8485,6 +9696,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {62.6, 58.9, 85},
     },
+    ["displayId"] = 1082,
+    ["skinId"]    = 1082,
   },
   [80815] = {
     ["name"] = "Amani Eagle",
@@ -8499,6 +9712,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {36.4, 18.3, 406},
     },
+    ["displayId"] = 18338,
+    ["skinId"]    = 18338,
   },
   [80816] = {
     ["name"] = "Hinterlands Eagle",
@@ -8513,6 +9728,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {21.2, 56.8, 47},
     },
+    ["displayId"] = 18339,
+    ["skinId"]    = 18339,
   },
   [91819] = {
     ["name"] = "Hazzuri Tiger",
@@ -8527,6 +9744,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {30.0, 6.0, 408},
     },
+    ["displayId"] = 320,
+    ["skinId"]    = 320,
   },
   [91825] = {
     ["name"] = "Young Bengal Tiger",
@@ -8541,6 +9760,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {59.6, 68.5, 409},
     },
+    ["displayId"] = 614,
+    ["skinId"]    = 320,
   },
   [91826] = {
     ["name"] = "Bengal Matriarch",
@@ -8555,6 +9776,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {39.6, 56.6, 409},
     },
+    ["displayId"] = 614,
+    ["skinId"]    = 320,
   },
   [91827] = {
     ["name"] = "Bengal Tiger",
@@ -8569,6 +9792,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {59.7, 71.8, 409},
     },
+    ["displayId"] = 614,
+    ["skinId"]    = 320,
   },
   [91828] = {
     ["name"] = "Bengal Alpha",
@@ -8583,6 +9808,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {41.4, 59.9, 409},
     },
+    ["displayId"] = 614,
+    ["skinId"]    = 320,
   },
   [91829] = {
     ["name"] = "Jungleback Stomper",
@@ -8597,6 +9824,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {62.0, 64.9, 409},
     },
+    ["displayId"] = 845,
+    ["skinId"]    = 809,
   },
   [91830] = {
     ["name"] = "Jungleback Thrasher",
@@ -8611,6 +9840,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {40.4, 63.7, 409},
     },
+    ["displayId"] = 838,
+    ["skinId"]    = 838,
   },
   [91831] = {
     ["name"] = "Bright Crawler",
@@ -8625,6 +9856,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {29.6, 70.3, 409},
     },
+    ["displayId"] = 1307,
+    ["skinId"]    = 1307,
   },
   [91832] = {
     ["name"] = "Island Pincer",
@@ -8639,6 +9872,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {62.1, 17.8, 409},
     },
+    ["displayId"] = 9573,
+    ["skinId"]    = 979,
   },
   [91833] = {
     ["name"] = "Rock Crawler",
@@ -8653,6 +9888,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {3.9, 97.0, 40},
     },
+    ["displayId"] = 1001,
+    ["skinId"]    = 981,
   },
   [91838] = {
     ["name"] = "Deepshell Snapper",
@@ -8667,6 +9904,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {41.8, 89.3, 408},
     },
+    ["displayId"] = 1244,
+    ["skinId"]    = 1244,
   },
   [91960] = {
     ["name"] = "Junglepaw Panther",
@@ -8681,6 +9920,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {66.1, 63.4, 408},
     },
+    ["displayId"] = 2437,
+    ["skinId"]    = 599,
   },
   [91961] = {
     ["name"] = "Junglepaw Shadow Panther",
@@ -8695,6 +9936,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {52.9, 78.4, 408},
     },
+    ["displayId"] = 2437,
+    ["skinId"]    = 599,
   },
   [91962] = {
     ["name"] = "Saltsnap Crocolisk",
@@ -8709,6 +9952,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {72.6, 67.4, 408},
     },
+    ["displayId"] = 1039,
+    ["skinId"]    = 833,
   },
   [91966] = {
     ["name"] = "Venomous Jungle Serpent",
@@ -8723,6 +9968,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {56.7, 57.4, 408},
     },
+    ["displayId"] = 10991,
+    ["skinId"]    = 2700,
   },
   [91984] = {
     ["name"] = "Tirisclaw Bear",
@@ -8737,6 +9984,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {23.6, 68.0, 85},
     },
+    ["displayId"] = 1006,
+    ["skinId"]    = 822,
   },
   [91985] = {
     ["name"] = "Tirisclaw Cub",
@@ -8751,6 +10000,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {23.7, 68.1, 85},
     },
+    ["displayId"] = 1006,
+    ["skinId"]    = 822,
   },
   [91987] = {
     ["name"] = "Cragtusk Boar",
@@ -8765,6 +10016,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {23.9, 79.6, 85},
     },
+    ["displayId"] = 503,
+    ["skinId"]    = 193,
   },
   [91989] = {
     ["name"] = "Graypaw Wolf",
@@ -8779,6 +10032,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {19.9, 76.4, 85},
     },
+    ["displayId"] = 903,
+    ["skinId"]    = 165,
   },
   [91990] = {
     ["name"] = "Graypaw Alpha",
@@ -8794,6 +10049,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {27.0, 58.4, 85},
     },
+    ["displayId"] = 903,
+    ["skinId"]    = 165,
   },
   [92115] = {
     ["name"] = "Enraged Sharpclaw",
@@ -8808,6 +10065,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {47.0, 48.9, 5077},
     },
+    ["displayId"] = 820,
+    ["skinId"]    = 820,
   },
   [92146] = {
     ["name"] = "Strand Crawler",
@@ -8822,6 +10081,8 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {0.9, 66.3, 33},
     },
+    ["displayId"] = 1001,
+    ["skinId"]    = 981,
   },
   [92147] = {
     ["name"] = "Silver Coast Crawler",
@@ -8836,5 +10097,7 @@ MTH_DS_Beasts = {
     ["coords"] = {
       {42.5, 85.6, 408},
     },
+    ["displayId"] = 1001,
+    ["skinId"]    = 981,
   },
 }

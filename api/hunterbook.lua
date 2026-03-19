@@ -150,7 +150,7 @@ local function MTH_HB_RequireOpenDeps()
 	return true
 end
 
-local MTH_BOOK_MAX_COLS = 9
+local MTH_BOOK_MAX_COLS = 10
 local MTH_BOOK_MAX_ROWS = 20
 
 local MTH_BOOK_PetFamilyOptions = {
@@ -222,7 +222,8 @@ local MTH_BOOK_CONTENT_LAYOUT_DEFAULT = {
 	detailX = 608,
 	detailY = -166,
 	detailW = 136,
-	detailH = 324,
+	detailH = 208,
+	detailTextH = 192,  -- inspector text only; model viewer sits below in its own frame
 }
 
 local MTH_BOOK_CONTENT_LAYOUT_ITEMS = {
@@ -328,7 +329,7 @@ local function MTH_BOOK_ApplyContentLayoutForMode()
 		detailText:ClearAllPoints()
 		detailText:SetPoint("TOPLEFT", detailParent, "TOPLEFT", 6, -6)
 		detailText:SetWidth(layout.detailW - 12)
-		detailText:SetHeight(layout.detailH - 12)
+		detailText:SetHeight(layout.detailTextH or (layout.detailH - 12))
 	end
 
 	local sliderHeight = layout.listH - 32
@@ -1281,6 +1282,7 @@ local function MTH_BOOK_GetSortKey(entry, col)
 		if col == 7 then return traits.rare and 1 or 0 end
 		if col == 8 then return traits.elite and 1 or 0 end
 		if col == 9 then return traits.unique and 1 or 0 end
+		if col == 10 then return tonumber(beast.attackSpeed) or 0 end
 	end
 
 	if MTH_BOOK_STATE.mode == "abilities" then
@@ -2994,9 +2996,14 @@ end
 function MTH_BOOK_UpdateDetail()
 	local detail = getglobal("MTH_BOOK_DetailBackdropDetailText")
 	if not detail then return end
+	-- Hide model skin preview when not in a beast-list mode
+	if MTH_BOOK_STATE.mode ~= "pets" and MTH_BOOK_STATE.mode ~= "abilities" then
+		if MTH_BOOK_ModelViewer_Clear then MTH_BOOK_ModelViewer_Clear() end
+	end
 	local petTop = MTH_BOOK_STATE.petUI and MTH_BOOK_STATE.petUI.detailTop
 	local petBottom = MTH_BOOK_STATE.petUI and MTH_BOOK_STATE.petUI.detailBottom
 	if not MTH_BOOK_STATE.selectedEntry then
+		if MTH_BOOK_ModelViewer_Clear then MTH_BOOK_ModelViewer_Clear() end
 		if MTH_BOOK_STATE.mode == "petabilities" then
 			if petTop and petBottom then
 				MTH_BOOK_SetDetailText(petTop, "|cFFFFD100Baseline|r\n\nSelect a spell baseline from the left list.")
@@ -3090,26 +3097,7 @@ function MTH_BOOK_UpdateDetail()
 		MTH_BOOK_AddDetailKV(lines, "Rare", beast.rare and "Yes" or "No")
 		MTH_BOOK_AddDetailKV(lines, "Abilities", beast.abilities or "None")
 
-		local fam = MTH_DS_Families and beast.family and MTH_DS_Families[beast.family]
-		if fam and fam.abilities and table.getn(fam.abilities) > 0 then
-			MTH_BOOK_AddDetailSection(lines, "Family Pool")
-			table.insert(lines, "  " .. table.concat(fam.abilities, ", "))
-		end
-
-		if beast.coords and table.getn(beast.coords) > 0 then
-			MTH_BOOK_AddDetailSection(lines, "Locations")
-			for i = 1, table.getn(beast.coords) do
-				local c = beast.coords[i]
-				if c then
-					local x = tonumber(c[1] or 0) or 0
-					local y = tonumber(c[2] or 0) or 0
-					local zoneId = c[3]
-					table.insert(lines, string.format("  - %s (%.1f, %.1f)", MTH_BOOK_GetZoneName(zoneId), x, y))
-				end
-				if i >= 8 then break end
-			end
-		end
-
+		if MTH_BOOK_ModelViewer_SetFamily then MTH_BOOK_ModelViewer_SetFamily(beast.family, beast.skinId) end
 		MTH_BOOK_SetDetailText(detail, table.concat(lines, "\n"))
 		MTH_BOOK_UpdateOpenMapButton()
 		return
@@ -3145,20 +3133,7 @@ function MTH_BOOK_UpdateDetail()
 		end
 		MTH_BOOK_AddDetailKV(lines, "Rare", beast.rare and "Yes" or "No")
 
-		if beast.coords and table.getn(beast.coords) > 0 then
-			MTH_BOOK_AddDetailSection(lines, "Locations")
-			for i = 1, table.getn(beast.coords) do
-				local c = beast.coords[i]
-				if c then
-					local x = tonumber(c[1] or 0) or 0
-					local y = tonumber(c[2] or 0) or 0
-					local zoneId = c[3]
-					table.insert(lines, string.format("  - %s (%.1f, %.1f)", MTH_BOOK_GetZoneName(zoneId), x, y))
-				end
-				if i >= 8 then break end
-			end
-		end
-
+		if MTH_BOOK_ModelViewer_SetFamily then MTH_BOOK_ModelViewer_SetFamily(beast.family, beast.skinId) end
 		MTH_BOOK_SetDetailText(detail, table.concat(lines, "\n"))
 		MTH_BOOK_UpdateOpenMapButton()
 		return
@@ -3467,7 +3442,7 @@ local function MTH_BOOK_GetColumnLabels()
 		return tabDef.columnLabels
 	end
 	if MTH_BOOK_STATE.mode == "pets" then
-		return { "ID", "Lvl", "Family", "Name", "Abilities", "Zone", "R", "E", "U" }
+		return { "ID", "Lvl", "Fam", "Name", "Abilities", "Zone", "R", "E", "U", "AS" }
 	elseif MTH_BOOK_STATE.mode == "petabilities" then
 		return { "Ability Name", "Ranks", "Families" }
 	elseif MTH_BOOK_STATE.mode == "stable" then
@@ -3493,13 +3468,14 @@ local function MTH_BOOK_GetColumnLayout()
 		return {
 			{ x = 8, width = 28, align = "LEFT" },
 			{ x = 38, width = 30, align = "LEFT" },
-			{ x = 68, width = 74, align = "LEFT" },
-			{ x = 142, width = 130, align = "LEFT" },
-			{ x = 272, width = 180, align = "LEFT" },
-			{ x = 452, width = 68, align = "LEFT" },
-			{ x = 520, width = 10, align = "CENTER" },
-			{ x = 532, width = 10, align = "CENTER" },
-			{ x = 544, width = 10, align = "CENTER" },
+			{ x = 68, width = 18, align = "LEFT" },
+			{ x = 88, width = 130, align = "LEFT" },
+			{ x = 220, width = 148, align = "LEFT" },
+			{ x = 370, width = 80, align = "LEFT" },
+			{ x = 452, width = 14, align = "CENTER" },
+			{ x = 468, width = 14, align = "CENTER" },
+			{ x = 484, width = 14, align = "CENTER" },
+			{ x = 500, width = 54, align = "LEFT" },
 		}
 	elseif MTH_BOOK_STATE.mode == "petabilities" then
 		return {
@@ -3660,6 +3636,19 @@ local function MTH_BOOK_ApplyColumnLayout(parent)
 						btn.cols[itemNameColumn]:SetPoint("LEFT", btn, "LEFT", itemNameLayout.x + 12, 0)
 						btn.cols[itemNameColumn]:SetWidth(itemNameLayout.width - 16)
 					end
+				elseif MTH_BOOK_STATE.mode == "families" and layout[1] then
+					local familyCol = layout[1]
+					btn.itemIcon:ClearAllPoints()
+					btn.itemIcon:SetPoint("LEFT", btn, "LEFT", familyCol.x, 0)
+					if btn.cols and btn.cols[1] then
+						btn.cols[1]:ClearAllPoints()
+						btn.cols[1]:SetPoint("LEFT", btn, "LEFT", familyCol.x + 18, 0)
+						btn.cols[1]:SetWidth(familyCol.width - 18)
+					end
+				elseif MTH_BOOK_STATE.mode == "pets" and layout[3] then
+					local famCol = layout[3]
+					btn.itemIcon:ClearAllPoints()
+					btn.itemIcon:SetPoint("LEFT", btn, "LEFT", famCol.x, 0)
 				else
 					btn.itemIcon:Hide()
 				end
@@ -3671,7 +3660,7 @@ end
 local function MTH_BOOK_GetRowValues(entry)
 	if MTH_BOOK_STATE.mode == "pets" then
 		local beast = MTH_DS_Beasts and MTH_DS_Beasts[entry]
-		if not beast then return { "", "", "", "", "", "", "", "", "" } end
+		if not beast then return { "", "", "", "", "", "", "", "", "", "" } end
 		local beastDisplayName = (MTH and MTH.GetLocalizedBeastName and MTH:GetLocalizedBeastName(entry, beast.name)) or beast.name
 		local traits = MTH_BOOK_ParseBeastTraits(beast)
 		local abilities = MTH_BOOK_GetBeastAbilitiesSummary(beast)
@@ -3679,13 +3668,14 @@ local function MTH_BOOK_GetRowValues(entry)
 		return {
 			"|cFF33CCFF" .. tostring(entry) .. "|r",
 			tostring(beast.lvl or "?"),
-			tostring(beast.family or "?"),
+			"",  -- family icon rendered separately
 			tostring(beastDisplayName or "Unknown"),
 			abilities,
 			zone,
 			(traits.rare and "R" or ""),
 			(traits.elite and "E" or ""),
 			(traits.unique and "U" or ""),
+			tostring(beast.attackSpeed or ""),
 		}
 	end
 
@@ -4086,6 +4076,31 @@ MTH_BOOK_UpdateResults = function()
 								btn.itemIcon:SetTexture("Interface\\Icons\\" .. tostring(item.icon))
 							end
 							btn.itemIcon:Show()
+						else
+							btn.itemIcon:SetTexture(nil)
+							btn.itemIcon:Hide()
+						end
+					elseif MTH_BOOK_STATE.mode == "families" and type(entry) == "table" and entry.icon then
+						local iconPath = MTH_BOOK_ResolveIconPath(entry.icon)
+						if iconPath then
+							btn.itemIcon:SetTexture(iconPath)
+							btn.itemIcon:Show()
+						else
+							btn.itemIcon:SetTexture(nil)
+							btn.itemIcon:Hide()
+						end
+					elseif MTH_BOOK_STATE.mode == "pets" then
+						local beast = MTH_DS_Beasts and MTH_DS_Beasts[entry]
+						local famData = beast and beast.family and MTH_DS_Families and MTH_DS_Families[beast.family]
+						if famData and famData.icon and famData.icon ~= "" then
+							local iconPath = MTH_BOOK_ResolveIconPath(famData.icon)
+							if iconPath then
+								btn.itemIcon:SetTexture(iconPath)
+								btn.itemIcon:Show()
+							else
+								btn.itemIcon:SetTexture(nil)
+								btn.itemIcon:Hide()
+							end
 						else
 							btn.itemIcon:SetTexture(nil)
 							btn.itemIcon:Hide()
@@ -4614,6 +4629,8 @@ function MTH_BOOK_JumpToBeastById(beastId)
 	MTH_BOOK_STATE.mode = "pets"
 	local widgets = MTH_BOOK_GetFilterWidgets()
 	MTH_BOOK_ResetStateForMode("pets")
+	MTH_BOOK_STATE.petHideNoAbilities = false
+	MTH_BOOK_STATE.petHideUnknown = false
 	MTH_BOOK_STATE.search = tostring(id)
 	MTH_BOOK_STATE.forcedBeastId = id
 	MTH_BOOK_ApplyStateToWidgets(widgets)
