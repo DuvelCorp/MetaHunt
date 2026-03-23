@@ -44,6 +44,7 @@ MTH_OPTIONS_TABS = MTH_OPTIONS_TABS or {
 	{ key = "AutoBuy", label = "Auto Buy", frame = "MetaHuntOptionsAutoBuy" },
 	{ key = "AutoQuest", label = "Auto Quest", frame = "MetaHuntOptionsAutoQuest" },
 	{ key = "ICU", label = "ICU", frame = "MetaHuntOptionsICU" },
+	{ key = "ExpAmmo", label = "MM Widget", frame = "MetaHuntOptionsExpAmmo" },
 	{ key = "ChronometerGeneral", label = "General", frame = "MetaHuntOptionsChronometer" },
 	{ key = "ChronometerBar", label = "Bar", frame = "MetaHuntOptionsChronometer" },
 	{ key = "ChronometerClassSpells", label = "Hunter Spells", frame = "MetaHuntOptionsChronometer" },
@@ -60,6 +61,7 @@ MTH_OPTIONS_TREE = MTH_OPTIONS_TREE or {
 	{ label = "Auto Quest", key = "AutoQuest" },
 	{ label = "Feed-O-Matic", key = "FeedOMatic" },
 	{ label = "ICU", key = "ICU" },
+	{ label = "MM Widget", key = "ExpAmmo" },
 	{
 		label = "zButtons",
 		node = "zButtons",

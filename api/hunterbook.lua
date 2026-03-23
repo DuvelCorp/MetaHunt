@@ -69,6 +69,8 @@ local MTH_BOOK_STATE = {
 	petOnlyMyLevel = true,
 	itemOnlyMyLevel = false,
 	petInZoneOnly = false,
+	petContinent = "all",
+	petZoneFilter = "all",
 	itemSubtype = "all",
 	npcFunction = "all",
 	npcZone = "all",
@@ -274,7 +276,7 @@ local MTH_BOOK_CONTENT_LAYOUT_FAMILIES = {
 	listX = 16,
 	listY = -74,
 	listW = 728,
-	listH = 376,
+	listH = 456,
 	detailX = 748,
 	detailY = -74,
 	detailW = 1,
@@ -364,7 +366,7 @@ local function MTH_BOOK_UpdateCheckboxLayoutByMode()
 		getglobal("MTH_BOOK_HideNoAbilities"),
 		getglobal("MTH_BOOK_HideUnknown"),
 	}
-	local xOffsets = { 18, 86, 154, 232, 372 }
+	local xOffsets = { 18, 86, 154, 232, 345 }
 	local yOffset = -140
 	if MTH_BOOK_STATE.mode == "npcs" then
 		yOffset = -116
@@ -754,12 +756,15 @@ local function MTH_BOOK_ShowAllFilteredBeastsOnMap()
 	end
 
 	local nodes = {}
-	local firstZoneId = nil
 	for i = 1, table.getn(MTH_BOOK_STATE.results or {}) do
 		local beastId = tonumber(MTH_BOOK_STATE.results[i])
 		local beast = beastId and MTH_DS_Beasts and MTH_DS_Beasts[beastId]
 		if beast and beast.coords then
 			local beastDisplayName = (MTH and MTH.GetLocalizedBeastName and MTH:GetLocalizedBeastName(beastId, beast.name)) or beast.name or "Unknown"
+			local cr, cg, cb = 0.95, 0.82, 0.10
+			if MTH_Map and MTH_Map.GetFamilyColor then
+				cr, cg, cb = MTH_Map:GetFamilyColor(beast.family)
+			end
 			for j = 1, table.getn(beast.coords) do
 				local c = beast.coords[j]
 				if c and c[1] and c[2] and c[3] then
@@ -767,9 +772,6 @@ local function MTH_BOOK_ShowAllFilteredBeastsOnMap()
 					local y = tonumber(c[2])
 					local zoneId = tonumber(c[3])
 					if x and y and zoneId then
-						if not firstZoneId then
-							firstZoneId = zoneId
-						end
 						local details = string.format("Family: %s\nLevel: %s\nAbilities: %s", beast.family or "?", beast.lvl or "?", beast.abilities or "None")
 						table.insert(nodes, {
 							zoneId = zoneId,
@@ -778,7 +780,7 @@ local function MTH_BOOK_ShowAllFilteredBeastsOnMap()
 							title = string.format("%s (%d)", beastDisplayName, beastId),
 							detail = details,
 							beastId = beastId,
-							color = { 0.95, 0.82, 0.10 },
+							color = { cr, cg, cb },
 						})
 					end
 				end
@@ -794,8 +796,11 @@ local function MTH_BOOK_ShowAllFilteredBeastsOnMap()
 	if not MTH_Map:SetSource("focus") then
 		return
 	end
-	if firstZoneId and MTH_Map.OpenWorldMapForZone then
-		MTH_Map:OpenWorldMapForZone(firstZoneId)
+	-- Navigate to the player's current (filter) zone, not the first coord's zone ID
+	-- which may point to a different zone due to multi-zone beast spawn data.
+	local navZoneId = MTH_BOOK_STATE._cachedZoneId
+	if navZoneId and MTH_Map.OpenWorldMapForZone then
+		MTH_Map:OpenWorldMapForZone(navZoneId)
 	end
 	MTH_Map:UpdateWorldMap()
 	MTH_Map:UpdateMinimap()
@@ -1076,11 +1081,17 @@ end
 MTH_BOOK_GetZoneName = function(zoneId)
 	local normalizedId = tonumber(zoneId) or zoneId
 	if not normalizedId then return "Zone " .. tostring(zoneId or "?") end
-	if MTH_DS_ZoneNamesFallback and MTH_DS_ZoneNamesFallback[normalizedId] then
-		return MTH_DS_ZoneNamesFallback[normalizedId]
+	-- Beast coords use WMA IDs. Always translate WMA→pfQ first so that e.g.
+	-- WMA 4 → pfQ 14 (Durotar) instead of hitting pfQ 4 (Blasted Lands) by accident.
+	local pfqId = normalizedId
+	if type(MTH_MAP_WMA_TO_PFQ) == "table" then
+		pfqId = MTH_MAP_WMA_TO_PFQ[normalizedId] or normalizedId
 	end
-	if not MTH_DS_Zones then return "Zone " .. tostring(zoneId or "?") end
-	local row = MTH_DS_Zones[normalizedId] or MTH_DS_Zones[tostring(normalizedId)]
+	if MTH_DS_ZoneNamesFallback and MTH_DS_ZoneNamesFallback[pfqId] then
+		return MTH_DS_ZoneNamesFallback[pfqId]
+	end
+	if not MTH_DS_Zones then return "Zone " .. tostring(normalizedId) end
+	local row = MTH_DS_Zones[pfqId] or MTH_DS_Zones[tostring(pfqId)]
 	if not row then return "Zone " .. tostring(normalizedId) end
 	local names = row.names
 	if not names then return "Zone " .. tostring(normalizedId) end
@@ -1109,7 +1120,12 @@ function MTH_BOOK_GetCurrentZoneId()
 	if MTH_Map and type(MTH_Map.GetMapIDByName) == "function" then
 		local mapId = MTH_Map:GetMapIDByName(zoneName)
 		if mapId then
-			return tonumber(mapId) or mapId
+			-- Translate pfQ → WMA so zone IDs match coord tuples in MTH_DS_Beasts.
+			local pfqId = tonumber(mapId)
+			if pfqId and type(MTH_MAP_PFQ_TO_WMA) == "table" then
+				return MTH_MAP_PFQ_TO_WMA[pfqId] or pfqId
+			end
+			return pfqId or mapId
 		end
 	end
 
@@ -1123,7 +1139,11 @@ function MTH_BOOK_GetCurrentZoneId()
 			if row and row.names then
 				for _, value in pairs(row.names) do
 					if MTH_BOOK_NormalizeZoneLookupName(value) == normalized then
-						return tonumber(zoneId) or zoneId
+						local pfqId = tonumber(zoneId) or zoneId
+						if type(pfqId) == "number" and type(MTH_MAP_PFQ_TO_WMA) == "table" then
+							return MTH_MAP_PFQ_TO_WMA[pfqId] or pfqId
+						end
+						return pfqId
 					end
 				end
 			end
@@ -1432,12 +1452,25 @@ local function MTH_BOOK_BuildResults()
 	local results = {}
 
 	if MTH_BOOK_STATE.mode == "pets" then
-		if not MTH_DS_Beasts then return results end
-		for beastId, beast in pairs(MTH_DS_Beasts) do
-			if MTH_BOOK_BeastMatches(beastId, beast) then
-				table.insert(results, beastId)
+		-- Cache zone info once for this build pass (avoids calling GetCurrentZoneId
+		-- once per beast, which is expensive and causes freezes on large datasets).
+		if MTH_BOOK_STATE.petInZoneOnly then
+			MTH_BOOK_STATE._cachedZoneId   = MTH_BOOK_GetCurrentZoneId()
+			MTH_BOOK_STATE._cachedZoneName = (type(GetRealZoneText) == "function" and GetRealZoneText())
+				or (type(GetZoneText) == "function" and GetZoneText()) or nil
+		else
+			MTH_BOOK_STATE._cachedZoneId   = nil
+			MTH_BOOK_STATE._cachedZoneName = nil
+		end
+
+		if MTH_DS_Beasts then
+			for beastId, beast in pairs(MTH_DS_Beasts) do
+				if MTH_BOOK_BeastMatches(beastId, beast) then
+					table.insert(results, beastId)
+				end
 			end
 		end
+
 		table.sort(results, MTH_BOOK_BeastSort)
 		MTH_BOOK_ApplyActiveSort(results)
 		return results
@@ -2054,6 +2087,77 @@ local function MTH_BOOK_UpdatePetLearnSourceDropdownText()
 	MTH_BOOK_DropdownSetText(sourceDropdown, MTH_BOOK_GetPetLearnSourceLabel(MTH_BOOK_STATE.petLearnSource))
 end
 
+local MTH_BOOK_BeastContinentOptions = {
+	{ value = "all", label = "" },
+	{ value = 1,     label = "Kalimdor" },
+	{ value = 0,     label = "E. Kingdoms" },
+}
+
+local MTH_BOOK_BeastZoneOptions = {
+	{ value = "all", label = "All Zones" },
+}
+
+local function MTH_BOOK_BuildBeastZoneOptions(continentMapId)
+	local seen = {}
+	local rows = {}
+	if MTH_DS_Beasts and MTH_DS_WMAZones then
+		for _, beast in pairs(MTH_DS_Beasts) do
+			if beast and beast.coords then
+				for i = 1, table.getn(beast.coords) do
+					local c = beast.coords[i]
+					if c and c[3] and not seen[c[3]] then
+						local wmaEntry = MTH_DS_WMAZones[c[3]]
+						if wmaEntry and wmaEntry.mapId == continentMapId then
+							seen[c[3]] = true
+							local zoneName = MTH_BOOK_GetZoneName and MTH_BOOK_GetZoneName(c[3])
+							if zoneName and string.sub(zoneName, 1, 5) ~= "Zone " then
+								table.insert(rows, { value = c[3], label = zoneName })
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+	table.sort(rows, function(a, b)
+		return MTH_BOOK_SafeLower(a.label) < MTH_BOOK_SafeLower(b.label)
+	end)
+	MTH_BOOK_BeastZoneOptions = { { value = "all", label = "All Zones" } }
+	for i = 1, table.getn(rows) do
+		table.insert(MTH_BOOK_BeastZoneOptions, rows[i])
+	end
+end
+
+local function MTH_BOOK_GetBeastContinentLabel(value)
+	for i = 1, table.getn(MTH_BOOK_BeastContinentOptions) do
+		if MTH_BOOK_BeastContinentOptions[i].value == value then
+			return MTH_BOOK_BeastContinentOptions[i].label
+		end
+	end
+	return ""
+end
+
+local function MTH_BOOK_GetBeastZoneLabel(value)
+	for i = 1, table.getn(MTH_BOOK_BeastZoneOptions) do
+		if MTH_BOOK_BeastZoneOptions[i].value == value then
+			return MTH_BOOK_BeastZoneOptions[i].label
+		end
+	end
+	return "All Zones"
+end
+
+local function MTH_BOOK_UpdateBeastContinentDropdownText()
+	local dd = getglobal("MTH_BOOK_BeastContinentDropdown")
+	if not dd then return end
+	MTH_BOOK_DropdownSetText(dd, MTH_BOOK_GetBeastContinentLabel(MTH_BOOK_STATE.petContinent))
+end
+
+local function MTH_BOOK_UpdateBeastZoneDropdownText()
+	local dd = getglobal("MTH_BOOK_BeastZoneDropdown")
+	if not dd then return end
+	MTH_BOOK_DropdownSetText(dd, MTH_BOOK_GetBeastZoneLabel(MTH_BOOK_STATE.petZoneFilter))
+end
+
 local function MTH_BOOK_GetItemSubtypeLabelByValue(value)
 	local options = MTH_BOOK_GetItemSubtypeOptions()
 	for i = 1, table.getn(options) do
@@ -2089,7 +2193,7 @@ local function MTH_BOOK_UpdateQuickFilterControls()
 	if MTH_BOOK_IsItemMode() then
 		MTH_BOOK_STATE.pageSize = 18
 	elseif MTH_BOOK_STATE.mode == "families" then
-		MTH_BOOK_STATE.pageSize = 16
+		MTH_BOOK_STATE.pageSize = MTH_BOOK_MAX_ROWS
 	elseif MTH_BOOK_STATE.mode == "stable" then
 		MTH_BOOK_STATE.pageSize = 5
 	elseif MTH_BOOK_STATE.mode == "pethistory" then
@@ -2102,6 +2206,9 @@ local function MTH_BOOK_UpdateQuickFilterControls()
 	local abilityDropdown = getglobal("MTH_BOOK_AbilityDropdown")
 	local rankDropdown = getglobal("MTH_BOOK_RankDropdown")
 	local petLearnSourceDropdown = getglobal("MTH_BOOK_PetLearnSourceDropdown")
+	local beastContinentDropdown = getglobal("MTH_BOOK_BeastContinentDropdown")
+	local beastZoneDropdown = getglobal("MTH_BOOK_BeastZoneDropdown")
+	local beastZoneLabel = getglobal("MTH_BOOK_BeastZoneLabel")
 	local itemSubtypeDropdown = getglobal("MTH_BOOK_ItemSubtypeDropdown")
 	local npcFunctionDropdown = getglobal("MTH_BOOK_NPCFunctionDropdown")
 	local npcZoneDropdown = getglobal("MTH_BOOK_NPCZoneDropdown")
@@ -2222,6 +2329,19 @@ local function MTH_BOOK_UpdateQuickFilterControls()
 			end
 		end
 		if petLearnSourceDropdown then petLearnSourceDropdown:Hide() end
+		if beastZoneLabel then beastZoneLabel:Show() end
+		if beastContinentDropdown then
+			beastContinentDropdown:Show()
+			MTH_BOOK_UpdateBeastContinentDropdownText()
+		end
+		if beastZoneDropdown then
+			if MTH_BOOK_STATE.petContinent ~= "all" then
+				beastZoneDropdown:Show()
+				MTH_BOOK_UpdateBeastZoneDropdownText()
+			else
+				beastZoneDropdown:Hide()
+			end
+		end
 		if itemSubtypeDropdown then itemSubtypeDropdown:Hide() end
 		if npcFunctionDropdown then npcFunctionDropdown:Hide() end
 		if npcZoneDropdown then npcZoneDropdown:Hide() end
@@ -2257,6 +2377,9 @@ local function MTH_BOOK_UpdateQuickFilterControls()
 			petLearnSourceDropdown:Show()
 			MTH_BOOK_UpdatePetLearnSourceDropdownText()
 		end
+		if beastZoneLabel then beastZoneLabel:Hide() end
+		if beastContinentDropdown then beastContinentDropdown:Hide() end
+		if beastZoneDropdown then beastZoneDropdown:Hide() end
 		if itemSubtypeDropdown then itemSubtypeDropdown:Hide() end
 		if petOnlyMyLevel then
 			petOnlyMyLevel:ClearAllPoints()
@@ -2313,6 +2436,9 @@ local function MTH_BOOK_UpdateQuickFilterControls()
 		if abilityDropdown then abilityDropdown:Hide() end
 		if rankDropdown then rankDropdown:Hide() end
 		if petLearnSourceDropdown then petLearnSourceDropdown:Hide() end
+		if beastZoneLabel then beastZoneLabel:Hide() end
+		if beastContinentDropdown then beastContinentDropdown:Hide() end
+		if beastZoneDropdown then beastZoneDropdown:Hide() end
 		if itemSubtypeDropdown then itemSubtypeDropdown:Hide() end
 		if npcFunctionDropdown then npcFunctionDropdown:Show() end
 		if npcZoneDropdown then npcZoneDropdown:Hide() end
@@ -2367,6 +2493,9 @@ local function MTH_BOOK_UpdateQuickFilterControls()
 		if abilityDropdown then abilityDropdown:Hide() end
 		if rankDropdown then rankDropdown:Hide() end
 		if petLearnSourceDropdown then petLearnSourceDropdown:Hide() end
+		if beastZoneLabel then beastZoneLabel:Hide() end
+		if beastContinentDropdown then beastContinentDropdown:Hide() end
+		if beastZoneDropdown then beastZoneDropdown:Hide() end
 		if itemSubtypeDropdown then
 			itemSubtypeDropdown:ClearAllPoints()
 			itemSubtypeDropdown:SetPoint("TOPLEFT", itemSubtypeDropdown:GetParent(), "TOPLEFT", 238, -80)
@@ -2504,6 +2633,15 @@ local function MTH_BOOK_UpdateQuickFilterControls()
 	if MTH_BOOK_STATE.mode ~= "pets" and petInZoneOnly then
 		petInZoneOnly:Hide()
 	end
+	if MTH_BOOK_STATE.mode ~= "pets" and beastContinentDropdown then
+		beastContinentDropdown:Hide()
+	end
+	if MTH_BOOK_STATE.mode ~= "pets" and beastZoneDropdown then
+		beastZoneDropdown:Hide()
+	end
+	if MTH_BOOK_STATE.mode ~= "pets" and beastZoneLabel then
+		beastZoneLabel:Hide()
+	end
 	if MTH_BOOK_STATE.mode ~= "npcs" and npcInZoneOnly then
 		npcInZoneOnly:Hide()
 	end
@@ -2609,6 +2747,7 @@ local function MTH_BOOK_InitRankDropdown()
 	MTH_BOOK_UpdateRankDropdownText()
 end
 
+
 local function MTH_BOOK_InitPetLearnSourceDropdown()
 	local sourceDropdown = getglobal("MTH_BOOK_PetLearnSourceDropdown")
 	if not sourceDropdown then return end
@@ -2701,6 +2840,56 @@ end
 
 local function MTH_BOOK_AddStableStyleKV(lines, label, value)
 	table.insert(lines, "|cff9a9a9a" .. tostring(label or "") .. ":|r |cffffffff" .. tostring(value or "-") .. "|r")
+end
+
+local function MTH_BOOK_GetOrCreateDetailTitleLabel()
+	local lbl = getglobal("MTH_BOOK_DetailTitleLabel")
+	if lbl then return lbl end
+	local parent = getglobal("MTH_BOOK_DetailBackdrop")
+	if not parent then return nil end
+	lbl = parent:CreateFontString("MTH_BOOK_DetailTitleLabel", "OVERLAY")
+	lbl:SetFontObject(GameFontNormal)
+	lbl:SetJustifyH("LEFT")
+	lbl:SetJustifyV("TOP")
+	lbl:SetPoint("TOPLEFT", parent, "TOPLEFT", 8, -8)
+	lbl:SetWidth(120)
+	lbl:Hide()
+	return lbl
+end
+
+local function MTH_BOOK_ShowDetailTitle(text)
+	local lbl = MTH_BOOK_GetOrCreateDetailTitleLabel()
+	if lbl then
+		lbl:SetText(tostring(text or ""))
+		lbl:Show()
+	end
+	local editBox = getglobal("MTH_BOOK_DetailBackdropDetailText")
+	local parent = getglobal("MTH_BOOK_DetailBackdrop")
+	if editBox and parent then
+		editBox:ClearAllPoints()
+		editBox:SetPoint("TOPLEFT", parent, "TOPLEFT", 6, -28)
+	end
+end
+
+local function MTH_BOOK_HideDetailTitle()
+	local lbl = getglobal("MTH_BOOK_DetailTitleLabel")
+	if lbl then lbl:Hide() end
+	local editBox = getglobal("MTH_BOOK_DetailBackdropDetailText")
+	local parent = getglobal("MTH_BOOK_DetailBackdrop")
+	if editBox and parent then
+		editBox:ClearAllPoints()
+		editBox:SetPoint("TOPLEFT", parent, "TOPLEFT", 6, -6)
+	end
+end
+
+local function MTH_BOOK_FormatBeastReact(reactA, reactH)
+	local function reactColor(r)
+		local rl = r and string.lower(r) or ""
+		if rl == "friendly" then return "|cFF44DD44" end
+		if rl == "neutral"  then return "|cFFFFCC00" end
+		return "|cFFDD4444"
+	end
+	return reactColor(reactA) .. "A|r " .. reactColor(reactH) .. "H|r"
 end
 
 local function MTH_BOOK_FormatDateTimeValue(value)
@@ -2943,7 +3132,7 @@ end
 function MTH_BOOK_SetDetailText(detail, text)
 	if not detail then return end
 	local wrapped = tostring(text or "")
-	if MTH_BOOK_STATE.mode ~= "pethistory" then
+	if MTH_BOOK_STATE.mode ~= "pethistory" and MTH_BOOK_STATE.mode ~= "pets" and MTH_BOOK_STATE.mode ~= "abilities" then
 		wrapped = MTH_BOOK_WrapDetailText(wrapped)
 	end
 	detail._mthLocking = true
@@ -2996,6 +3185,7 @@ end
 function MTH_BOOK_UpdateDetail()
 	local detail = getglobal("MTH_BOOK_DetailBackdropDetailText")
 	if not detail then return end
+	MTH_BOOK_HideDetailTitle()
 	-- Hide model skin preview when not in a beast-list mode
 	if MTH_BOOK_STATE.mode ~= "pets" and MTH_BOOK_STATE.mode ~= "abilities" then
 		if MTH_BOOK_ModelViewer_Clear then MTH_BOOK_ModelViewer_Clear() end
@@ -3074,28 +3264,50 @@ function MTH_BOOK_UpdateDetail()
 			return
 		end
 		local beastId = selected.beastId
+
 		local beast = MTH_DS_Beasts and MTH_DS_Beasts[beastId]
 		if not beast then
 			MTH_BOOK_SetDetailText(detail, "|cFFFFD100Inspector|r\n\nSelect an entry from the list to view identity, stats, sources and locations.")
 			MTH_BOOK_UpdateOpenMapButton()
 			return
 		end
-		local lines = {}
 		local beastDisplayName = (MTH and MTH.GetLocalizedBeastName and MTH:GetLocalizedBeastName(beastId, beast.name)) or beast.name
-		table.insert(lines, "|cFFFFFF00" .. (beastDisplayName or "Unknown") .. "|r")
-		MTH_BOOK_AddDetailSection(lines, "Identity")
-		MTH_BOOK_AddDetailKV(lines, "ID", beastId)
-		MTH_BOOK_AddDetailKV(lines, "Family", beast.family or "?")
+		MTH_BOOK_ShowDetailTitle("|cFFFFFF00" .. (beastDisplayName or "Unknown") .. "|r")
 
-		MTH_BOOK_AddDetailSection(lines, "Stats")
-		MTH_BOOK_AddDetailKV(lines, "Level", beast.lvl or "?")
-		MTH_BOOK_AddDetailKV(lines, "Attack Speed", beast.attackSpeed or "?")
-		local respawnWindow = MTH_BOOK_FormatRespawnWindow(beast)
-		if respawnWindow then
-			MTH_BOOK_AddDetailKV(lines, "Respawn", respawnWindow)
+		local lines = {}
+		-- Identity block
+		MTH_BOOK_AddStableStyleKV(lines, "ID", beastId)
+		MTH_BOOK_AddStableStyleKV(lines, "Family", beast.family or "?")
+		local rankLabel = beast.rank
+		if rankLabel == "normal" or rankLabel == nil or rankLabel == "" then rankLabel = nil end
+		if rankLabel then MTH_BOOK_AddStableStyleKV(lines, "Rank", rankLabel) end
+		local spawnCount = (beast.coords and table.getn(beast.coords)) or 0
+		MTH_BOOK_AddStableStyleKV(lines, "Spawns", spawnCount > 0 and tostring(spawnCount) or "?")
+		if beast.reactA or beast.reactH then
+			table.insert(lines, "|cff9a9a9aReaction:|r " .. MTH_BOOK_FormatBeastReact(beast.reactA, beast.reactH))
 		end
-		MTH_BOOK_AddDetailKV(lines, "Rare", beast.rare and "Yes" or "No")
-		MTH_BOOK_AddDetailKV(lines, "Abilities", beast.abilities or "None")
+
+		-- Stats block
+		MTH_BOOK_AddStableStyleKV(lines, "Level", beast.lvl or "?")
+		MTH_BOOK_AddStableStyleKV(lines, "Atk Speed", beast.attackSpeed or "?")
+		local respawnWindow = MTH_BOOK_FormatRespawnWindow(beast)
+		if respawnWindow then MTH_BOOK_AddStableStyleKV(lines, "Respawn", respawnWindow) end
+		if beast.health then MTH_BOOK_AddStableStyleKV(lines, "Health", beast.health) end
+		if beast.armor then MTH_BOOK_AddStableStyleKV(lines, "Armor", beast.armor) end
+		if beast.dmgMin and beast.dmgMax then
+			MTH_BOOK_AddStableStyleKV(lines, "Damage", string.format("%.1f - %.1f", tonumber(beast.dmgMin) or 0, tonumber(beast.dmgMax) or 0))
+		end
+		if beast.abilities and beast.abilities ~= "" and beast.abilities ~= "None" then
+			MTH_BOOK_AddStableStyleKV(lines, "Abilities", beast.abilities)
+		end
+		local beastZone = MTH_BOOK_GetBeastZoneSummary and MTH_BOOK_GetBeastZoneSummary(beast)
+		if beastZone and beastZone ~= "-" then
+			MTH_BOOK_AddStableStyleKV(lines, "Zone", beastZone)
+		end
+		local subzone = MTH_BOOK_GetBeastSubZoneSummary and MTH_BOOK_GetBeastSubZoneSummary(beast)
+		if subzone then
+			MTH_BOOK_AddStableStyleKV(lines, "Subzone", subzone)
+		end
 
 		if MTH_BOOK_ModelViewer_SetFamily then MTH_BOOK_ModelViewer_SetFamily(beast.family, beast.skinId) end
 		MTH_BOOK_SetDetailText(detail, table.concat(lines, "\n"))
@@ -3116,22 +3328,36 @@ function MTH_BOOK_UpdateDetail()
 			MTH_BOOK_UpdateOpenMapButton()
 			return
 		end
+		MTH_BOOK_ShowDetailTitle("|cFFFFFF00" .. tostring(entry.abilityToken) .. "|r")
+
 		local lines = {}
-		table.insert(lines, "|cFFFFFF00" .. tostring(entry.abilityToken) .. "|r")
 		local beastDisplayName = (MTH and MTH.GetLocalizedBeastName and MTH:GetLocalizedBeastName(entry.beastId, beast.name)) or beast.name
+		MTH_BOOK_AddStableStyleKV(lines, "Beast", tostring(beastDisplayName or "Unknown") .. " (#" .. tostring(entry.beastId) .. ")")
+		MTH_BOOK_AddStableStyleKV(lines, "Family", beast.family or "?")
+		local rankLabel = beast.rank
+		if rankLabel == "normal" or rankLabel == nil or rankLabel == "" then rankLabel = nil end
+		if rankLabel then MTH_BOOK_AddStableStyleKV(lines, "Rank", rankLabel) end
 
-		MTH_BOOK_AddDetailSection(lines, "Identity")
-		MTH_BOOK_AddDetailKV(lines, "Beast", tostring(beastDisplayName or "Unknown") .. " (ID " .. tostring(entry.beastId) .. ")")
-		MTH_BOOK_AddDetailKV(lines, "Family", beast.family or "?")
-
-		MTH_BOOK_AddDetailSection(lines, "Stats")
-		MTH_BOOK_AddDetailKV(lines, "Level", beast.lvl or "?")
-		MTH_BOOK_AddDetailKV(lines, "Attack Speed", beast.attackSpeed or "?")
+		MTH_BOOK_AddStableStyleKV(lines, "Level", beast.lvl or "?")
+		MTH_BOOK_AddStableStyleKV(lines, "Atk Speed", beast.attackSpeed or "?")
 		local respawnWindow = MTH_BOOK_FormatRespawnWindow(beast)
-		if respawnWindow then
-			MTH_BOOK_AddDetailKV(lines, "Respawn", respawnWindow)
+		if respawnWindow then MTH_BOOK_AddStableStyleKV(lines, "Respawn", respawnWindow) end
+		if beast.health then MTH_BOOK_AddStableStyleKV(lines, "Health", beast.health) end
+		if beast.armor then MTH_BOOK_AddStableStyleKV(lines, "Armor", beast.armor) end
+		if beast.dmgMin and beast.dmgMax then
+			MTH_BOOK_AddStableStyleKV(lines, "Damage", string.format("%.1f - %.1f", tonumber(beast.dmgMin) or 0, tonumber(beast.dmgMax) or 0))
 		end
-		MTH_BOOK_AddDetailKV(lines, "Rare", beast.rare and "Yes" or "No")
+		if beast.reactA or beast.reactH then
+			table.insert(lines, "|cff9a9a9aReaction:|r " .. MTH_BOOK_FormatBeastReact(beast.reactA, beast.reactH))
+		end
+		local beastZone = MTH_BOOK_GetBeastZoneSummary and MTH_BOOK_GetBeastZoneSummary(beast)
+		if beastZone and beastZone ~= "-" then
+			MTH_BOOK_AddStableStyleKV(lines, "Zone", beastZone)
+		end
+		local subzone = MTH_BOOK_GetBeastSubZoneSummary and MTH_BOOK_GetBeastSubZoneSummary(beast)
+		if subzone then
+			MTH_BOOK_AddStableStyleKV(lines, "Subzone", subzone)
+		end
 
 		if MTH_BOOK_ModelViewer_SetFamily then MTH_BOOK_ModelViewer_SetFamily(beast.family, beast.skinId) end
 		MTH_BOOK_SetDetailText(detail, table.concat(lines, "\n"))
@@ -3659,6 +3885,7 @@ end
 
 local function MTH_BOOK_GetRowValues(entry)
 	if MTH_BOOK_STATE.mode == "pets" then
+		-- MetaHunt DB entry
 		local beast = MTH_DS_Beasts and MTH_DS_Beasts[entry]
 		if not beast then return { "", "", "", "", "", "", "", "", "", "" } end
 		local beastDisplayName = (MTH and MTH.GetLocalizedBeastName and MTH:GetLocalizedBeastName(entry, beast.name)) or beast.name
@@ -4507,6 +4734,8 @@ local function MTH_BOOK_GetFilterWidgets()
 		npcFunctionDropdown = getglobal("MTH_BOOK_NPCFunctionDropdown"),
 		npcZoneDropdown = getglobal("MTH_BOOK_NPCZoneDropdown"),
 		petLearnSourceDropdown = getglobal("MTH_BOOK_PetLearnSourceDropdown"),
+		beastContinentDropdown = getglobal("MTH_BOOK_BeastContinentDropdown"),
+		beastZoneDropdown = getglobal("MTH_BOOK_BeastZoneDropdown"),
 		itemSubtypeDropdown = getglobal("MTH_BOOK_ItemSubtypeDropdown"),
 		petOnlyMyLevel = getglobal("MTH_BOOK_PetOnlyMyLevel"),
 		petInZoneOnly = getglobal("MTH_BOOK_PetInZoneOnly"),
@@ -4528,6 +4757,8 @@ local function MTH_BOOK_ResetStateForMode(mode)
 	MTH_BOOK_STATE.petOnlyMyLevel = false
 	MTH_BOOK_STATE.itemOnlyMyLevel = false
 	MTH_BOOK_STATE.petInZoneOnly = false
+	MTH_BOOK_STATE.petContinent = "all"
+	MTH_BOOK_STATE.petZoneFilter = "all"
 	MTH_BOOK_STATE.itemSubtype = "all"
 	MTH_BOOK_STATE.npcFunction = "all"
 	MTH_BOOK_STATE.npcZone = "all"
@@ -4591,6 +4822,8 @@ local function MTH_BOOK_ApplyStateToWidgets(widgets)
 	if widgets.petInZoneOnly then
 		widgets.petInZoneOnly:SetChecked(MTH_BOOK_STATE.mode == "pets" and MTH_BOOK_STATE.petInZoneOnly and 1 or nil)
 	end
+	if widgets.beastContinentDropdown then MTH_BOOK_UpdateBeastContinentDropdownText() end
+	if widgets.beastZoneDropdown then MTH_BOOK_UpdateBeastZoneDropdownText() end
 	if widgets.npcInZoneOnly then
 		widgets.npcInZoneOnly:SetChecked(MTH_BOOK_STATE.mode == "npcs" and MTH_BOOK_STATE.npcInZoneOnly and 1 or nil)
 	end
@@ -4840,11 +5073,78 @@ local function MTH_BOOK_ResetAllFiltersAndRefresh()
 	if widgets.abilityDropdown then MTH_BOOK_UpdateAbilityDropdownText() end
 	if widgets.rankDropdown then MTH_BOOK_UpdateRankDropdownText() end
 	if widgets.petLearnSourceDropdown then MTH_BOOK_UpdatePetLearnSourceDropdownText() end
+	if widgets.beastContinentDropdown then MTH_BOOK_UpdateBeastContinentDropdownText() end
+	if widgets.beastZoneDropdown then MTH_BOOK_UpdateBeastZoneDropdownText() end
 	if widgets.itemSubtypeDropdown then MTH_BOOK_UpdateItemSubtypeDropdownText() end
 	if widgets.npcFunctionDropdown or widgets.npcZoneDropdown then MTH_BOOK_UpdateNPCDropdownTexts() end
 
 	MTH_BOOK_UpdateModeLabels()
 	MTH_BOOK_RefreshFilter()
+end
+
+local function MTH_BOOK_WireBeastDropdowns()
+	local continentDD = getglobal("MTH_BOOK_BeastContinentDropdown")
+	if continentDD then
+		UIDropDownMenu_Initialize(continentDD, function()
+			for i = 1, table.getn(MTH_BOOK_BeastContinentOptions) do
+				local option = MTH_BOOK_BeastContinentOptions[i]
+				local info = MTH_BOOK_DropdownCreateInfo()
+				info.text = (option.label ~= "") and option.label or "(any)"
+				info.func = function()
+					MTH_BOOK_STATE.petContinent = option.value
+					MTH_BOOK_STATE.petZoneFilter = "all"
+					MTH_BOOK_STATE.page = 1
+					MTH_BOOK_STATE.selectedEntry = nil
+					MTH_BOOK_DropdownSetText(continentDD, info.text)
+					if option.value ~= "all" then
+						MTH_BOOK_BuildBeastZoneOptions(option.value)
+						local zoneDD = getglobal("MTH_BOOK_BeastZoneDropdown")
+						if zoneDD then
+							UIDropDownMenu_Initialize(zoneDD, MTH_BOOK_STATE._beastZoneInitFunc)
+							zoneDD:Show()
+							MTH_BOOK_UpdateBeastZoneDropdownText()
+						end
+					else
+						local zoneDD = getglobal("MTH_BOOK_BeastZoneDropdown")
+						if zoneDD then zoneDD:Hide() end
+					end
+					MTH_BOOK_RefreshFilter()
+				end
+				info.checked = (MTH_BOOK_STATE.petContinent == option.value)
+				UIDropDownMenu_AddButton(info)
+			end
+		end)
+		UIDropDownMenu_SetWidth(80, continentDD)
+		UIDropDownMenu_JustifyText("LEFT", continentDD)
+		MTH_BOOK_UpdateBeastContinentDropdownText()
+	end
+
+	local zoneInitFunc = function()
+		local zoneDD = getglobal("MTH_BOOK_BeastZoneDropdown")
+		for i = 1, table.getn(MTH_BOOK_BeastZoneOptions) do
+			local option = MTH_BOOK_BeastZoneOptions[i]
+			local info = MTH_BOOK_DropdownCreateInfo()
+			info.text = option.label
+			info.func = function()
+				MTH_BOOK_STATE.petZoneFilter = option.value
+				MTH_BOOK_STATE.page = 1
+				MTH_BOOK_STATE.selectedEntry = nil
+				if zoneDD then MTH_BOOK_DropdownSetText(zoneDD, option.label) end
+				MTH_BOOK_RefreshFilter()
+			end
+			info.checked = (MTH_BOOK_STATE.petZoneFilter == option.value)
+			UIDropDownMenu_AddButton(info)
+		end
+	end
+	MTH_BOOK_STATE._beastZoneInitFunc = zoneInitFunc
+
+	local zoneDD = getglobal("MTH_BOOK_BeastZoneDropdown")
+	if zoneDD then
+		UIDropDownMenu_Initialize(zoneDD, zoneInitFunc)
+		UIDropDownMenu_SetWidth(120, zoneDD)
+		UIDropDownMenu_JustifyText("LEFT", zoneDD)
+		MTH_BOOK_UpdateBeastZoneDropdownText()
+	end
 end
 
 local function MTH_BOOK_WireUI(frame)
@@ -4868,12 +5168,6 @@ local function MTH_BOOK_WireUI(frame)
 	local requireVendor = getglobal("MTH_BOOK_RequireVendor")
 	local requireDrop = getglobal("MTH_BOOK_RequireDrop")
 	local requireObject = getglobal("MTH_BOOK_RequireObject")
-	local abilityDropdown = getglobal("MTH_BOOK_AbilityDropdown")
-	local rankDropdown = getglobal("MTH_BOOK_RankDropdown")
-	local petLearnSourceDropdown = getglobal("MTH_BOOK_PetLearnSourceDropdown")
-	local itemSubtypeDropdown = getglobal("MTH_BOOK_ItemSubtypeDropdown")
-	local npcFunctionDropdown = getglobal("MTH_BOOK_NPCFunctionDropdown")
-	local npcZoneDropdown = getglobal("MTH_BOOK_NPCZoneDropdown")
 	local petBookScanButton = getglobal("MTH_BOOK_PetBookScanButton")
 	local hideNoAbilities = getglobal("MTH_BOOK_HideNoAbilities")
 	local hideUnknown = getglobal("MTH_BOOK_HideUnknown")
@@ -4934,6 +5228,7 @@ local function MTH_BOOK_WireUI(frame)
 	MTH_BOOK_InitFamilyDropdown()
 	MTH_BOOK_InitAbilityDropdown()
 	MTH_BOOK_InitRankDropdown()
+	MTH_BOOK_WireBeastDropdowns()
 	MTH_BOOK_InitPetLearnSourceDropdown()
 	MTH_BOOK_InitItemSubtypeDropdown()
 	MTH_BOOK_InitNPCFunctionDropdown()

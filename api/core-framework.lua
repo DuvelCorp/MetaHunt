@@ -1,5 +1,5 @@
 MTH = MTH or {
-	version = "1.3.0",
+	version = "1.4.0",
 	name = "MetaHunt",
 	modules = {},
 	config = {},
@@ -266,15 +266,6 @@ if type(MTH_CharSavedVariables.modules) ~= "table" then
 	MTH_CharSavedVariables.modules = {}
 end
 
-local function MTH_ModuleStateDebug(message)
-	local text = "[MODULE STATE] " .. tostring(message or "")
-	if MTH and MTH.debug and MTH.Log then
-		MTH:Log(text, "debug")
-	elseif MTH and MTH.debug and MTH.Print then
-		MTH:Print(text, "debug")
-	end
-end
-
 local function MTH_IsPetUiFrameName(frameName)
 	local name = tostring(frameName or "")
 	if name == "" then
@@ -423,7 +414,6 @@ end
 
 local function MTH_GetPersistedModuleEnabled(name, defaultEnabled)
 	if type(name) ~= "string" or name == "" then
-		MTH_ModuleStateDebug("read <invalid-name> fallback-default=" .. tostring(defaultEnabled and true or false))
 		return defaultEnabled and true or false
 	end
 
@@ -461,7 +451,6 @@ local function MTH_GetPersistedModuleEnabled(name, defaultEnabled)
 			local resolved = hardDefault and true or false
 			MTH_CharSavedVariables.moduleStates[resolvedName] = resolved
 			MTH_CharSavedVariables.modules[resolvedName].enabled = resolved
-			MTH_ModuleStateDebug("read " .. tostring(name) .. " seeded char default=" .. tostring(resolved))
 			return resolved
 		end
 	end
@@ -472,7 +461,6 @@ local function MTH_GetPersistedModuleEnabled(name, defaultEnabled)
 			local key = candidates[i]
 			if MTH_CharSavedVariables.moduleStates[key] ~= nil then
 				local resolved = MTH_CharSavedVariables.moduleStates[key] and true or false
-				MTH_ModuleStateDebug("read " .. tostring(name) .. " from char.moduleStates." .. tostring(key) .. "=" .. tostring(resolved))
 				MTH_CharSavedVariables.moduleStates[resolvedName] = resolved
 				return resolved
 			end
@@ -484,7 +472,6 @@ local function MTH_GetPersistedModuleEnabled(name, defaultEnabled)
 			local key = candidates[i]
 			if MTH_SavedVariables.moduleStates[key] ~= nil then
 				local resolved = MTH_SavedVariables.moduleStates[key] and true or false
-				MTH_ModuleStateDebug("read " .. tostring(name) .. " from moduleStates." .. tostring(key) .. "=" .. tostring(resolved))
 				MTH_CharSavedVariables.moduleStates[resolvedName] = resolved
 				if type(MTH_CharSavedVariables.modules[resolvedName]) ~= "table" then
 					MTH_CharSavedVariables.modules[resolvedName] = {}
@@ -500,7 +487,6 @@ local function MTH_GetPersistedModuleEnabled(name, defaultEnabled)
 			local key = candidates[i]
 			if type(MTH_SavedVariables.modules[key]) == "table" and MTH_SavedVariables.modules[key].enabled ~= nil then
 				local resolved = MTH_SavedVariables.modules[key].enabled and true or false
-				MTH_ModuleStateDebug("read " .. tostring(name) .. " from modules." .. tostring(key) .. ".enabled=" .. tostring(resolved))
 				MTH_CharSavedVariables.moduleStates[resolvedName] = resolved
 				if type(MTH_CharSavedVariables.modules[resolvedName]) ~= "table" then
 					MTH_CharSavedVariables.modules[resolvedName] = {}
@@ -515,7 +501,6 @@ local function MTH_GetPersistedModuleEnabled(name, defaultEnabled)
 		local key = candidates[i]
 		if type(MTH_SavedVariables[key]) == "table" and MTH_SavedVariables[key].enabled ~= nil then
 			local resolved = MTH_SavedVariables[key].enabled and true or false
-			MTH_ModuleStateDebug("read " .. tostring(name) .. " from legacy-top-level." .. tostring(key) .. ".enabled=" .. tostring(resolved))
 			MTH_CharSavedVariables.moduleStates[resolvedName] = resolved
 			if type(MTH_CharSavedVariables.modules[resolvedName]) ~= "table" then
 				MTH_CharSavedVariables.modules[resolvedName] = {}
@@ -525,7 +510,6 @@ local function MTH_GetPersistedModuleEnabled(name, defaultEnabled)
 		end
 	end
 
-	MTH_ModuleStateDebug("read " .. tostring(name) .. " no-persisted-value fallback-default=" .. tostring(defaultEnabled and true or false))
 	return defaultEnabled and true or false
 end
 
@@ -555,7 +539,6 @@ local function MTH_SetPersistedModuleEnabled(name, enabled)
 	enabled = enabled and true or false
 	MTH_CharSavedVariables.moduleStates[name] = enabled
 	MTH_CharSavedVariables.modules[name].enabled = enabled
-	MTH_ModuleStateDebug("write " .. tostring(name) .. " enabled=" .. tostring(enabled))
 end
 
 function MTH:InitEventRouter()
@@ -669,7 +652,6 @@ function MTH:RegisterModule(name, module)
 	end
 
 	if self.modules[name] then
-		if self.debug then print("|cFFFFAA00MetaHunt|r: Module '" .. name .. "' already registered") end
 		return false
 	end
 
@@ -684,8 +666,6 @@ function MTH:RegisterModule(name, module)
 
 	local initialEnabled = MTH_GetPersistedModuleEnabled(name, defaultEnabled)
 	module.enabled = initialEnabled and true or false
-	MTH_ModuleStateDebug("register " .. tostring(name) .. " default=" .. tostring(defaultEnabled) .. " initial=" .. tostring(module.enabled))
-
 	self.modules[name] = module
 	self:RegisterModuleEvents(name, module.events)
 
@@ -709,7 +689,6 @@ function MTH:RegisterModule(name, module)
 		self:_SetModuleEventSubscriptions(name, true)
 	end
 
-	if self.debug then print("|cFF00AA00MetaHunt|r: Module '" .. name .. "' registered") end
 	return true
 end
 
@@ -774,7 +753,6 @@ function MTH:SetModuleEnabled(name, enabled)
 		if self.SetConfig then
 			self:SetConfig(name, "enabled", enabled)
 		end
-		MTH_ModuleStateDebug("request " .. tostring(name) .. " no-op runtime=" .. tostring(module.enabled) .. " persisted-synced")
 		return true
 	end
 
@@ -796,7 +774,6 @@ function MTH:SetModuleEnabled(name, enabled)
 	if self.SetConfig then
 		self:SetConfig(name, "enabled", enabled)
 	end
-	MTH_ModuleStateDebug("request " .. tostring(name) .. " applied runtime=" .. tostring(module.enabled))
 
 	return true
 end
@@ -1035,6 +1012,12 @@ function MTH:Log(msg, severity)
 	return chatText
 end
 
+function MTH:DebugPrint(msg)
+	if self.debug then
+		self:Print("[DEBUG] " .. tostring(msg), "debug")
+	end
+end
+
 function MTH:Print(msg, severity)
 	return self:Log(msg, severity)
 end
@@ -1081,12 +1064,6 @@ function MTH:SetMessageEnabled(key, enabled)
 	end
 	settings[key] = enabled and true or false
 	return true
-end
-
-function MTH:DebugPrint(msg)
-	if self.debug then
-		self:Print("[DEBUG] " .. tostring(msg), "debug")
-	end
 end
 
 function MTH_Log(message, severity)
@@ -1270,12 +1247,10 @@ function MTH:ApplyPersistedModuleStates(source)
 		end
 
 		local persistedEnabled = MTH_GetPersistedModuleEnabled(name, defaultEnabled)
-		MTH_ModuleStateDebug("bootstrap " .. tostring(source or "") .. " " .. tostring(name) .. " persisted=" .. tostring(persistedEnabled) .. " runtime=" .. tostring(module.enabled and true or false))
 
 		if module.enabled ~= persistedEnabled then
 			local ok, err = self:SetModuleEnabled(name, persistedEnabled)
 			if not ok then
-				MTH_ModuleStateDebug("bootstrap apply failed " .. tostring(name) .. ": " .. tostring(err))
 			end
 		else
 			MTH_SetPersistedModuleEnabled(name, persistedEnabled)

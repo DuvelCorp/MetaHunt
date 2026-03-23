@@ -29,13 +29,31 @@ function MTH_BOOK_GetBeastZoneSummary(beast)
 		return "-"
 	end
 
-	local seen = {}
-	local zoneNames = {}
+	-- Count coords per WMA zone ID to find the dominant zone.
+	local coordCount = {}
 	for i = 1, table.getn(beast.coords) do
 		local c = beast.coords[i]
-		if c and c[3] and not seen[c[3]] then
-			seen[c[3]] = true
-			table.insert(zoneNames, MTH_BOOK_GetZoneName(c[3]))
+		if c and c[3] then
+			local zid = c[3]
+			coordCount[zid] = (coordCount[zid] or 0) + 1
+		end
+	end
+	local zids = {}
+	for zid, _ in pairs(coordCount) do
+		table.insert(zids, zid)
+	end
+	-- Sort by frequency descending so the zone with most spawns is listed first.
+	table.sort(zids, function(a, b)
+		return (coordCount[a] or 0) > (coordCount[b] or 0)
+	end)
+	-- Resolve to zone names, deduplicating by name (multiple WMA IDs can resolve to the same zone).
+	local seenNames = {}
+	local zoneNames = {}
+	for i = 1, table.getn(zids) do
+		local name = MTH_BOOK_GetZoneName(zids[i])
+		if name and not seenNames[name] then
+			seenNames[name] = true
+			table.insert(zoneNames, name)
 		end
 	end
 
@@ -66,6 +84,69 @@ function MTH_BOOK_SplitAbilities(text)
 		end
 	end
 	return out
+end
+
+local _subzoneChildCache = nil
+
+local function MTH_BOOK_EnsureSubzoneCache()
+	if _subzoneChildCache then return end
+	_subzoneChildCache = {}
+	if not MTH_DS_Zones then return end
+	for zid, row in pairs(MTH_DS_Zones) do
+		local parent = row.parent
+		local x1 = row.x1
+		local y1 = row.y1
+		local w = row.width
+		local h = row.height
+		if parent and x1 and y1 and w and h then
+			local names = row.names
+			local name = names and (names.enUS or names[GetLocale and GetLocale() or "enUS"] or names.deDE)
+			if name then
+				if not _subzoneChildCache[parent] then
+					_subzoneChildCache[parent] = {}
+				end
+				table.insert(_subzoneChildCache[parent], { x1, y1, x1 + w, y1 + h, name })
+			end
+		end
+	end
+end
+
+function MTH_BOOK_GetBeastSubZoneSummary(beast)
+	if not beast or not beast.coords or table.getn(beast.coords) == 0 then return nil end
+	MTH_BOOK_EnsureSubzoneCache()
+	if not _subzoneChildCache then return nil end
+
+	local counts = {}
+	for i = 1, table.getn(beast.coords) do
+		local c = beast.coords[i]
+		if c then
+			local cx, cy, wmaId = c[1], c[2], c[3]
+			if cx and cy and wmaId then
+				local pfqId = wmaId
+				if type(MTH_MAP_WMA_TO_PFQ) == "table" then
+					pfqId = MTH_MAP_WMA_TO_PFQ[wmaId] or wmaId
+				end
+				local children = _subzoneChildCache[pfqId]
+				if children then
+					for _, sub in ipairs(children) do
+						if cx >= sub[1] and cx <= sub[3] and cy >= sub[2] and cy <= sub[4] then
+							counts[sub[5]] = (counts[sub[5]] or 0) + 1
+							break
+						end
+					end
+				end
+			end
+		end
+	end
+
+	local bestName, bestCount = nil, 0
+	for name, count in pairs(counts) do
+		if count > bestCount then
+			bestName = name
+			bestCount = count
+		end
+	end
+	return bestName
 end
 
 function MTH_BOOK_HasUsableAbilities(beast)
@@ -232,8 +313,11 @@ function MTH_BOOK_BeastMatches(beastId, beast)
 	end
 
 	if MTH_BOOK_STATE.petInZoneOnly then
-		local currentZoneId = MTH_BOOK_GetCurrentZoneId()
-		if currentZoneId and not MTH_BOOK_BeastHasZoneId(beast, currentZoneId) then
+		-- Use the zone ID cached once per BuildResults call (avoids N calls to
+		-- GetCurrentZoneId which is expensive). If zone ID is nil (new/unknown
+		-- zone like Moonwhisper Coast), no DB entry can match — exclude all.
+		local currentZoneId = MTH_BOOK_STATE._cachedZoneId
+		if not currentZoneId or not MTH_BOOK_BeastHasZoneId(beast, currentZoneId) then
 			return false
 		end
 	end
@@ -251,6 +335,12 @@ function MTH_BOOK_BeastMatches(beastId, beast)
 		end
 	end
 
+	if MTH_BOOK_STATE.petZoneFilter and MTH_BOOK_STATE.petZoneFilter ~= "all" then
+		if not MTH_BOOK_BeastHasZoneId(beast, MTH_BOOK_STATE.petZoneFilter) then
+			return false
+		end
+	end
+
 	return true
 end
 
@@ -258,7 +348,7 @@ function MTH_BOOK_BeastSort(a, b)
 	local beasts = MTH_DS_Beasts
 	local ba = beasts and beasts[a]
 	local bb = beasts and beasts[b]
-	if not ba or not bb then return a < b end
+	if not ba or not bb then return tostring(a) < tostring(b) end
 	local la = MTH_BOOK_ParseLevel(ba.lvl) or 0
 	local lb = MTH_BOOK_ParseLevel(bb.lvl) or 0
 	if la ~= lb then return la < lb end

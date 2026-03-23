@@ -9,3 +9,7 @@
 tools/
 LOC*.md
 LOCALIZATION*.md
+
+# Dev tooling — Python generators, data processing scripts, scratch files
+# Not part of the addon, never ship this
+.tools/

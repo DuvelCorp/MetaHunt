@@ -8,7 +8,7 @@ It provides a bunch useful tools for all huntards, wheter they are still levelli
 
 MetaHunt ships with large up-to-date datastores for all Turtle WOW data a hunter needs :
 
-- All beasts, their location, and the abilities they can learn you
+- 100% accurate beasts' data, their locations, and the abilities they can learn you
 - All Pet families, their abilities and their diet
 - All pet abilities ranks
 - All Ammo (Arrows and Bullets)
@@ -21,6 +21,8 @@ MetaHunt ships with large up-to-date datastores for all Turtle WOW data a hunter
 - Auto equip another ammo instantly during combat whenever you get out of your current ammo.
 - Auto equip the right ammo when you swap from a box/xbow to a gun and the other way around.
 
+## MM Widget
+ Lets Make MM great again. Tracks the new 3-state of Experimental ammo cycle (Fire → Nature → Arcane), the Lock&Load procs, and has a dynamic cell that shows either Aimed Shot availability or the right shot to use following the current Experimental ammo proc if any.
 
  ## Tooltips
  
@@ -73,7 +75,3 @@ Just spam SHIFT-click on the NPC to validate quests Scorpok and Thorium arrows. 
 - Keep an history of all your pets after you abandon them or if they run away.
 
 
- ## What it will never do.
-
-The goal of MetaHunt is to offer hunter's features that are not covered by existing Twow addons, and in others https://github.com/SabineWren/Quiver .
-There's no point to reinvent the wheel, except is the wheel is broken. Nothing will work better than Quiver for auto-shot, castbar and tranqshot mgt. MetaHunt is build to work alongside of Quiver and is complementary to it, and it will remain like this unless Quiver turns to be not upgraded anymore.

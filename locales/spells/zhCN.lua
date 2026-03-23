@@ -2,6 +2,11 @@ MTH_LocaleData = MTH_LocaleData or {}
 MTH_LocaleData.spells = MTH_LocaleData.spells or {}
 
 MTH_LocaleData.spells.zhCN = {
+  ["Aimed Shot"] = "瞄准射击",
+  ["Aspect of the Viper"] = "毒蛇图腾",
+  ["Kill Command"] = "猎杀命令",
+  ["Lock and Load"] = "Lock and Load",
+  ["Scent of Blood"] = "血腥气息",
   ["Banish"] = "放逐术",
   ["Bestial Wrath"] = "狂野怒火",
   ["Concussive Shot"] = "震荡射击",

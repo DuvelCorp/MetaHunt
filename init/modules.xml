@@ -26,4 +26,7 @@ MetaHunt Module Loader
 
   <!-- ICU Module - ENABLED (runtime default: disabled) -->
   <Include file="..\modules\icu\loader.xml"/>
+
+  <!-- Experimental Ammunition Module - ENABLED -->
+  <Include file="..\modules\expammo\loader.xml"/>
 </Ui>

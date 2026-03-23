@@ -121,9 +121,13 @@ local zButtonAmmo_ShortArrowLabels = {
 	[ARROWS_ROUGH] = "Rough",
 	[ARROWS_SHARP] = "Sharp",
 	[ARROWS_RAZOR] = "Razor",
+	[ARROWS_BRIGHT] = "Bright",
 	[ARROWS_JAGGED] = "Jagged",
+	[ARROWS_SHADE] = "Shade",
 	[ARROWS_ICETHREADED] = "Ice",
+	[ARROWS_SMOOTH] = "Smooth",
 	[ARROWS_THORIUM] = "Thorium",
+	[ARROWS_STAR] = "Star",
 	[ARROWS_DOOMSHOT] = "Doom",
 }
 
@@ -143,6 +147,7 @@ local zButtonAmmo_ShortBulletLabels = {
 	[BULLETS_ACCURATE] = "Accur",
 	[BULLETS_GYROSHOT] = "Gyro",
 	[BULLETS_THORIUM] = "Thorium",
+	[BULLETS_CRAFTEDTHORIUM] = "Ench",
 	[BULLETS_ICETHREADED] = "Ice",
 }
 

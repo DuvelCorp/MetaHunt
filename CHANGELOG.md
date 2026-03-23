@@ -2,6 +2,52 @@
 
 All notable changes to MetaHunt will be documented in this file.
 
+## [1.4.0] - 2026-03-23
+
+### TWoW 1.18.1 "Nightmares of Ursol" support
+
+- **Complete beast database overhaul**: The MTH beast datastore was reconstructed from scratch, based on a full (beasts) 1.18.1 extract from live DB, gladly provided by Twow staff (thanks @Haaxor!). The beast data should now be 100% accurate, and notably all spawn coordinates, respawn times and pet abilities learnable on all beasts in the world.
+
+- The **Beast Lore** page of the Book now allows to filter the list by Zone. Additionaly, the beast inspector has been reformated and all meaningful beast's data is displayed nicely.
+
+- All new and missing **Beasts Models** have been (re)scanned from MPQ game files and are viewable in the Beast Lore page, and browsable in the Family Model viewer. 
+
+- Added **MM widget** module: tracks the new 3-state of Experimental ammo cycle (Fire → Nature → Arcane), the Lock and Load procs, and has adynamic cell that shows either Aimed Shot availability or the right shot to use following the current Experimental ammo proc if any. Lets Make MM great again.
+
+- Added new **Moth** pet family.
+
+- Added new **Pollen Burst** pet ability.
+
+- Added new **Aspect of the Viper** in zAspect.
+
+- Added new **Chronometer** timer entries for 1.18.1 spells:
+  - Aimed Shot cooldown tracker
+  - Kill Command cooldown tracker
+  - Lock and Load proc timer
+  - Scent of Blood proc timer
+
+- Added new **Chronometer** target debuff entries for the Experimental Ammo states:
+  - Poisonous Ammunition: 15s armor-reduction debuff (triggered when Serpent Sting consumes the Poisonous state)
+  - Enchanted Ammunition: 6s magic-resist debuff (triggered when Arcane Shot consumes the Enchanted state)
+
+- Added the **5 new craftable ammo** to the Projectiles book's page, SmartAmmo and zAmmo button:
+  - **Bright Wood Arrows** (Survival: Journeyman, req. 30) — 10.5 DPS
+  - **Shade Wood Arrows** (Survival: Expert, req. 40) — 14.5 DPS
+  - **Smooth Ironfeather Arrows** (Survival: Artisan, req. 50) — 17.5 DPS
+  - **Starfeather Arrows** (Survival: Artisan, req. 55) — 19 DPS 
+  - **Enchanted Thorium Shells** (Engineering: Artisan, req. 55) — 19 DPS 
+
+- Added new hunter-friends NPC of **Moonwhisper Coast** to the NPC Finder Book's page:
+  - **Hula Swiftmane** — Horde Stable Master (66.1, 39.1)
+  - **Ornala** — Horde Ammo Vendor (67.3, 37.1) — sells Arrows and Slugs
+  - **Badel Wildlance** — Alliance Stable Master (59.0, 24.9)
+  - **Elendon Truebough** — Alliance Ammo Vendor (58.8, 24.5) — sells Arrows
+
+### Fixed
+
+- Fixed **Chronometer** bars appearing from nearby players' combat events (e.g. another hunter's traps or DoTs triggering your own bars).
+- Fixed the list in Families Book's page, that wasnt tall enough to display all famillies (wolves were hidden).
+
 ## [1.3.0] - 2026-03-19
 
 

@@ -53,16 +53,6 @@ function GFWUtils_temp_PrintOnce(message, interval, r, g, b)
 	GFWUtils.PrintOnceCache[message] = GetTime();
 end
 
--- Prints a message to the chat frame only if Debug is set
-function GFWUtils_temp_DebugLog(message)
-	if (GFWUtils.Debug) then
-		if MTH and MTH.Print then
-			MTH:Print(message, "debug")
-		else
-			DEFAULT_CHAT_FRAME:AddMessage(message, GFW_DEBUG_COLOR.r, GFW_DEBUG_COLOR.g, GFW_DEBUG_COLOR.b);
-		end
-	end
-end
 
 -- Prints a message in yellow to the floating messages frame
 function GFWUtils_temp_Note(message)
@@ -177,8 +167,6 @@ if (G.Version == nil or (tonumber(G.Version) ~= nil and G.Version < GFWUTILS_THI
 
 	-- Constants
 	GFW_FONT_COLOR = {r=0.25, g=1.0, b=1.0};
-	GFW_DEBUG_COLOR = {r=1.0, g=0.75, b=0.25};
-	G.Debug = false;
 
 	-- Functions
 	G.Hilite = GFWUtils_temp_HiliteText;
@@ -187,7 +175,6 @@ if (G.Version == nil or (tonumber(G.Version) ~= nil and G.Version < GFWUTILS_THI
 	G.LtY = GFWUtils_temp_LightYellowText;
 	G.Print = GFWUtils_temp_Print;
 	G.PrintOnce = GFWUtils_temp_PrintOnce;
-	G.DebugLog = GFWUtils_temp_DebugLog;
 	G.Note = GFWUtils_temp_Note;
 	G.FormatToPattern = GFWUtils_temp_FormatToPattern;
 	G.Split = GFWUtils_temp_Split;

@@ -80,7 +80,7 @@ FOM_Emotes = {
 	["Foxes"] = {
 		"Clever fox, clever snack choice.",
 	},
-	["Serpents (Cobra)"] = {
+	["Serpents"] = {
 		"No hissing with your mouth full.",
 	},
 };

@@ -25,8 +25,8 @@ if not MTH_DS_Vendors[3534] then
       ["vendor"] = 'AH',
     },
     ["coords"] = {
-      {46.5, 86.5, 130},
-      {47.9, 16.2, 5179},
+      {46.5, 86.5, 21},
+      {47.9, 16.2, 510},
     },
   }
 end
@@ -40,7 +40,7 @@ if not MTH_DS_Vendors[5814] then
       ["vendor"] = 'H',
     },
     ["coords"] = {
-      {31.5, 29.8, 33},
+      {31.5, 29.8, 37},
     },
   }
 end
@@ -80,7 +80,7 @@ if not MTH_DS_Vendors[14753] then
       ["vendor"] = 'A',
     },
     ["coords"] = {
-      {61.5, 83.9, 331},
+      {61.5, 83.9, 43},
     },
   }
 end
@@ -94,7 +94,7 @@ if not MTH_DS_Vendors[14754] then
       ["vendor"] = 'H',
     },
     ["coords"] = {
-      {46.7, 8.4, 17},
+      {46.7, 8.4, 11},
     },
   }
 end
@@ -108,8 +108,8 @@ if not MTH_DS_Vendors[14846] then
       ["vendor"] = 'AH',
     },
     ["coords"] = {
-      {41.2, 69.9, 12},
-      {36.5, 37.9, 215},
+      {41.2, 69.9, 30},
+      {36.5, 37.9, 9},
     },
   }
 end
@@ -123,8 +123,8 @@ if not MTH_DS_Vendors[80266] then
       ["vendor"] = 'A',
     },
     ["coords"] = {
-      {60, 61.6, 2040},
-      {66.4, 31.4, 5225},
+      {60, 61.6, 509},
+      {66.4, 31.4, 513},
     },
   }
 end
@@ -138,7 +138,7 @@ if not MTH_DS_Vendors[80807] then
       ["vendor"] = 'H',
     },
     ["coords"] = {
-      {25, 12.2, 406},
+      {25, 12.2, 81},
     },
   }
 end
@@ -152,7 +152,7 @@ if not MTH_DS_Vendors[80915] then
       ["vendor"] = 'H',
     },
     ["coords"] = {
-      {25.1, 12, 406},
+      {25.1, 12, 81},
     },
   }
 end
@@ -166,7 +166,7 @@ if not MTH_DS_Vendors[80941] then
       ["vendor"] = 'AH',
     },
     ["coords"] = {
-      {36.5, 81.2, 405},
+      {36.5, 81.2, 101},
     },
   }
 end
@@ -180,7 +180,7 @@ if not MTH_DS_Vendors[80942] then
       ["vendor"] = 'AH',
     },
     ["coords"] = {
-      {73.9, 73.8, 405},
+      {73.9, 73.8, 101},
     },
   }
 end
@@ -194,8 +194,8 @@ if not MTH_DS_Vendors[80943] then
       ["vendor"] = 'AH',
     },
     ["coords"] = {
-      {63.5, 57.7, 440},
-      {67.2, 56.8, 1941},
+      {63.5, 57.7, 161},
+      {67.2, 56.8, 523},
     },
   }
 end
@@ -212,7 +212,7 @@ if not MTH_DS_Vendors[543] then
       ["pettrainer"] = 'A',
     },
     ["coords"] = {
-      {62.2, 24.4, 361},
+      {62.2, 24.4, 182},
     },
   }
 end
@@ -226,7 +226,7 @@ if not MTH_DS_Vendors[895] then
       ["huntertrainer"] = 'A',
     },
     ["coords"] = {
-      {29.2, 67.5, 1},
+      {29.2, 67.5, 27},
     },
   }
 end
@@ -240,7 +240,7 @@ if not MTH_DS_Vendors[987] then
       ["huntertrainer"] = 'H',
     },
     ["coords"] = {
-      {47.3, 53.4, 8},
+      {47.3, 53.4, 38},
     },
   }
 end
@@ -254,7 +254,7 @@ if not MTH_DS_Vendors[1231] then
       ["huntertrainer"] = 'A',
     },
     ["coords"] = {
-      {45.8, 53, 1},
+      {45.8, 53, 27},
     },
   }
 end
@@ -268,7 +268,7 @@ if not MTH_DS_Vendors[1404] then
       ["huntertrainer"] = 'H',
     },
     ["coords"] = {
-      {31.2, 28.7, 33},
+      {31.2, 28.7, 37},
     },
   }
 end
@@ -282,8 +282,8 @@ if not MTH_DS_Vendors[2878] then
       ["pettrainer"] = 'A',
     },
     ["coords"] = {
-      {46.7, 54, 1},
-      {71, 38, 1},
+      {46.7, 54, 27},
+      {71, 38, 27},
     },
   }
 end
@@ -297,8 +297,8 @@ if not MTH_DS_Vendors[2879] then
       ["pettrainer"] = 'A',
     },
     ["coords"] = {
-      {67.3, 36.8, 1519},
-      {52.6, 97.1, 5581},
+      {67.3, 36.8, 301},
+      {52.6, 97.1, 686},
     },
   }
 end
@@ -312,8 +312,8 @@ if not MTH_DS_Vendors[3038] then
       ["huntertrainer"] = 'H',
     },
     ["coords"] = {
-      {41.7, 34.8, 215},
-      {58.5, 88.3, 1638},
+      {41.7, 34.8, 9},
+      {58.5, 88.3, 362},
     },
   }
 end
@@ -327,8 +327,8 @@ if not MTH_DS_Vendors[3039] then
       ["huntertrainer"] = 'H',
     },
     ["coords"] = {
-      {41.4, 35.1, 215},
-      {57.3, 89.8, 1638},
+      {41.4, 35.1, 9},
+      {57.3, 89.8, 362},
     },
   }
 end
@@ -342,8 +342,8 @@ if not MTH_DS_Vendors[3040] then
       ["huntertrainer"] = 'H',
     },
     ["coords"] = {
-      {41.8, 34.5, 215},
-      {59.1, 86.9, 1638},
+      {41.8, 34.5, 9},
+      {59.1, 86.9, 362},
     },
   }
 end
@@ -357,7 +357,7 @@ if not MTH_DS_Vendors[3061] then
       ["huntertrainer"] = 'H',
     },
     ["coords"] = {
-      {44.3, 75.7, 215},
+      {44.3, 75.7, 9},
     },
   }
 end
@@ -371,7 +371,7 @@ if not MTH_DS_Vendors[3065] then
       ["huntertrainer"] = 'H',
     },
     ["coords"] = {
-      {47.8, 55.7, 215},
+      {47.8, 55.7, 9},
     },
   }
 end
@@ -385,7 +385,7 @@ if not MTH_DS_Vendors[3154] then
       ["huntertrainer"] = 'H',
     },
     ["coords"] = {
-      {42.8, 69.3, 14},
+      {42.8, 69.3, 4},
     },
   }
 end
@@ -399,7 +399,7 @@ if not MTH_DS_Vendors[3171] then
       ["huntertrainer"] = 'H',
     },
     ["coords"] = {
-      {51.8, 43.5, 14},
+      {51.8, 43.5, 4},
     },
   }
 end
@@ -413,7 +413,7 @@ if not MTH_DS_Vendors[3306] then
       ["pettrainer"] = 'A',
     },
     ["coords"] = {
-      {56.8, 59.8, 141},
+      {56.8, 59.8, 41},
     },
   }
 end
@@ -427,7 +427,7 @@ if not MTH_DS_Vendors[3352] then
       ["huntertrainer"] = 'H',
     },
     ["coords"] = {
-      {66, 18.5, 1637},
+      {66, 18.5, 321},
     },
   }
 end
@@ -441,7 +441,7 @@ if not MTH_DS_Vendors[3406] then
       ["huntertrainer"] = 'H',
     },
     ["coords"] = {
-      {67.2, 20.2, 1637},
+      {67.2, 20.2, 321},
     },
   }
 end
@@ -455,7 +455,7 @@ if not MTH_DS_Vendors[3407] then
       ["huntertrainer"] = 'H',
     },
     ["coords"] = {
-      {68, 17.8, 1637},
+      {68, 17.8, 321},
     },
   }
 end
@@ -469,8 +469,8 @@ if not MTH_DS_Vendors[3545] then
       ["pettrainer"] = 'A',
     },
     ["coords"] = {
-      {82.2, 62.8, 38},
-      {40.6, 76.4, 5602},
+      {82.2, 62.8, 35},
+      {40.6, 76.4, 684},
     },
   }
 end
@@ -484,7 +484,7 @@ if not MTH_DS_Vendors[3596] then
       ["huntertrainer"] = 'A',
     },
     ["coords"] = {
-      {58.7, 40.4, 141},
+      {58.7, 40.4, 41},
     },
   }
 end
@@ -498,7 +498,7 @@ if not MTH_DS_Vendors[3601] then
       ["huntertrainer"] = 'A',
     },
     ["coords"] = {
-      {56.7, 59.5, 141},
+      {56.7, 59.5, 41},
     },
   }
 end
@@ -512,7 +512,7 @@ if not MTH_DS_Vendors[3620] then
       ["pettrainer"] = 'H',
     },
     ["coords"] = {
-      {52, 43.5, 14},
+      {52, 43.5, 4},
     },
   }
 end
@@ -526,7 +526,7 @@ if not MTH_DS_Vendors[3622] then
       ["pettrainer"] = 'H',
     },
     ["coords"] = {
-      {47.4, 52.9, 8},
+      {47.4, 52.9, 38},
     },
   }
 end
@@ -540,7 +540,7 @@ if not MTH_DS_Vendors[3624] then
       ["pettrainer"] = 'H',
     },
     ["coords"] = {
-      {31.1, 28.9, 33},
+      {31.1, 28.9, 37},
     },
   }
 end
@@ -554,7 +554,7 @@ if not MTH_DS_Vendors[3688] then
       ["pettrainer"] = 'H',
     },
     ["coords"] = {
-      {47.7, 55.7, 215},
+      {47.7, 55.7, 9},
     },
   }
 end
@@ -568,8 +568,8 @@ if not MTH_DS_Vendors[3698] then
       ["pettrainer"] = 'A',
     },
     ["coords"] = {
-      {18, 60, 331},
-      {54.6, 26.8, 406},
+      {18, 60, 43},
+      {54.6, 26.8, 81},
     },
   }
 end
@@ -583,7 +583,7 @@ if not MTH_DS_Vendors[3963] then
       ["huntertrainer"] = 'A',
     },
     ["coords"] = {
-      {50.1, 67.9, 331},
+      {50.1, 67.9, 43},
     },
   }
 end
@@ -597,8 +597,8 @@ if not MTH_DS_Vendors[4138] then
       ["huntertrainer"] = 'A',
     },
     ["coords"] = {
-      {25.5, 48.1, 141},
-      {39.7, 5.4, 1657},
+      {25.5, 48.1, 41},
+      {39.7, 5.4, 381},
     },
   }
 end
@@ -612,8 +612,8 @@ if not MTH_DS_Vendors[4146] then
       ["huntertrainer"] = 'A',
     },
     ["coords"] = {
-      {25.6, 48.7, 141},
-      {40.4, 8.5, 1657},
+      {25.6, 48.7, 41},
+      {40.4, 8.5, 381},
     },
   }
 end
@@ -627,8 +627,8 @@ if not MTH_DS_Vendors[4205] then
       ["huntertrainer"] = 'A',
     },
     ["coords"] = {
-      {26, 48.4, 141},
-      {42.2, 7.3, 1657},
+      {26, 48.4, 41},
+      {42.2, 7.3, 381},
     },
   }
 end
@@ -642,7 +642,7 @@ if not MTH_DS_Vendors[4320] then
       ["pettrainer"] = 'A',
     },
     ["coords"] = {
-      {49.7, 67, 331},
+      {49.7, 67, 43},
     },
   }
 end
@@ -656,7 +656,7 @@ if not MTH_DS_Vendors[5115] then
       ["huntertrainer"] = 'A',
     },
     ["coords"] = {
-      {71, 89.8, 1537},
+      {71, 89.8, 341},
     },
   }
 end
@@ -670,7 +670,7 @@ if not MTH_DS_Vendors[5116] then
       ["huntertrainer"] = 'A',
     },
     ["coords"] = {
-      {70.9, 83.6, 1537},
+      {70.9, 83.6, 341},
     },
   }
 end
@@ -684,7 +684,7 @@ if not MTH_DS_Vendors[5117] then
       ["huntertrainer"] = 'A',
     },
     ["coords"] = {
-      {69.9, 82.9, 1537},
+      {69.9, 82.9, 341},
     },
   }
 end
@@ -698,7 +698,7 @@ if not MTH_DS_Vendors[5501] then
       ["huntertrainer"] = 'A',
     },
     ["coords"] = {
-      {61.9, 23.6, 361},
+      {61.9, 23.6, 182},
     },
   }
 end
@@ -712,8 +712,8 @@ if not MTH_DS_Vendors[5515] then
       ["huntertrainer"] = 'A',
     },
     ["coords"] = {
-      {67.4, 36.3, 1519},
-      {52.6, 96.8, 5581},
+      {67.4, 36.3, 301},
+      {52.6, 96.8, 686},
     },
   }
 end
@@ -727,8 +727,8 @@ if not MTH_DS_Vendors[5516] then
       ["huntertrainer"] = 'A',
     },
     ["coords"] = {
-      {67.6, 35.8, 1519},
-      {52.7, 96.6, 5581},
+      {67.6, 35.8, 301},
+      {52.7, 96.6, 686},
     },
   }
 end
@@ -742,8 +742,8 @@ if not MTH_DS_Vendors[5517] then
       ["huntertrainer"] = 'A',
     },
     ["coords"] = {
-      {68, 36, 1519},
-      {53, 96.7, 5581},
+      {68, 36, 301},
+      {53, 96.7, 686},
     },
   }
 end
@@ -757,7 +757,7 @@ if not MTH_DS_Vendors[6749] then
       ["stablemaster"] = 'A',
     },
     ["coords"] = {
-      {42.9, 65.9, 12},
+      {42.9, 65.9, 30},
     },
   }
 end
@@ -771,8 +771,8 @@ if not MTH_DS_Vendors[8308] then
       ["huntertrainer"] = 'A',
     },
     ["coords"] = {
-      {18, 59.8, 331},
-      {54.6, 26.6, 406},
+      {18, 59.8, 43},
+      {54.6, 26.6, 81},
     },
   }
 end
@@ -786,7 +786,7 @@ if not MTH_DS_Vendors[9976] then
       ["stablemaster"] = 'H',
     },
     ["coords"] = {
-      {73.9, 33.1, 45},
+      {73.9, 33.1, 16},
     },
   }
 end
@@ -800,7 +800,7 @@ if not MTH_DS_Vendors[9977] then
       ["stablemaster"] = 'A',
     },
     ["coords"] = {
-      {42.6, 64.1, 1519},
+      {42.6, 64.1, 301},
     },
   }
 end
@@ -814,7 +814,7 @@ if not MTH_DS_Vendors[9978] then
       ["stablemaster"] = 'A',
     },
     ["coords"] = {
-      {50.4, 58.8, 267},
+      {50.4, 58.8, 24},
     },
   }
 end
@@ -828,7 +828,7 @@ if not MTH_DS_Vendors[9979] then
       ["stablemaster"] = 'H',
     },
     ["coords"] = {
-      {43.5, 41.2, 130},
+      {43.5, 41.2, 21},
     },
   }
 end
@@ -842,7 +842,7 @@ if not MTH_DS_Vendors[9980] then
       ["stablemaster"] = 'A',
     },
     ["coords"] = {
-      {47, 52.7, 1},
+      {47, 52.7, 27},
     },
   }
 end
@@ -856,7 +856,7 @@ if not MTH_DS_Vendors[9981] then
       ["stablemaster"] = 'H',
     },
     ["coords"] = {
-      {51.7, 29.7, 17},
+      {51.7, 29.7, 11},
     },
   }
 end
@@ -870,7 +870,7 @@ if not MTH_DS_Vendors[9982] then
       ["stablemaster"] = 'A',
     },
     ["coords"] = {
-      {26.8, 46.6, 44},
+      {26.8, 46.6, 36},
     },
   }
 end
@@ -884,7 +884,7 @@ if not MTH_DS_Vendors[9983] then
       ["stablemaster"] = 'H',
     },
     ["coords"] = {
-      {45.3, 58.7, 17},
+      {45.3, 58.7, 11},
     },
   }
 end
@@ -898,7 +898,7 @@ if not MTH_DS_Vendors[9984] then
       ["stablemaster"] = 'A',
     },
     ["coords"] = {
-      {69.3, 83.6, 1537},
+      {69.3, 83.6, 341},
     },
   }
 end
@@ -912,7 +912,7 @@ if not MTH_DS_Vendors[9985] then
       ["stablemaster"] = 'AH',
     },
     ["coords"] = {
-      {52.3, 28.4, 440},
+      {52.3, 28.4, 161},
     },
   }
 end
@@ -926,7 +926,7 @@ if not MTH_DS_Vendors[9986] then
       ["stablemaster"] = 'H',
     },
     ["coords"] = {
-      {74.5, 43.3, 357},
+      {74.5, 43.3, 121},
     },
   }
 end
@@ -940,7 +940,7 @@ if not MTH_DS_Vendors[9987] then
       ["stablemaster"] = 'H',
     },
     ["coords"] = {
-      {52, 41.8, 14},
+      {52, 41.8, 4},
     },
   }
 end
@@ -954,7 +954,7 @@ if not MTH_DS_Vendors[9988] then
       ["stablemaster"] = 'H',
     },
     ["coords"] = {
-      {70.4, 15, 1637},
+      {70.4, 15, 321},
     },
   }
 end
@@ -968,8 +968,8 @@ if not MTH_DS_Vendors[9989] then
       ["stablemaster"] = 'A',
     },
     ["coords"] = {
-      {34.6, 48.1, 38},
-      {16.3, 68.9, 5602},
+      {34.6, 48.1, 35},
+      {16.3, 68.9, 684},
     },
   }
 end
@@ -983,7 +983,7 @@ if not MTH_DS_Vendors[10045] then
       ["stablemaster"] = 'A',
     },
     ["coords"] = {
-      {52.9, 53.1, 40},
+      {52.9, 53.1, 39},
     },
   }
 end
@@ -997,7 +997,7 @@ if not MTH_DS_Vendors[10046] then
       ["stablemaster"] = 'A',
     },
     ["coords"] = {
-      {10.5, 59.7, 11},
+      {10.5, 59.7, 40},
     },
   }
 end
@@ -1011,7 +1011,7 @@ if not MTH_DS_Vendors[10047] then
       ["stablemaster"] = 'A',
     },
     ["coords"] = {
-      {66, 45.5, 15},
+      {66, 45.5, 141},
     },
   }
 end
@@ -1025,7 +1025,7 @@ if not MTH_DS_Vendors[10048] then
       ["stablemaster"] = 'H',
     },
     ["coords"] = {
-      {50.6, 62.9, 406},
+      {50.6, 62.9, 81},
     },
   }
 end
@@ -1039,7 +1039,7 @@ if not MTH_DS_Vendors[10049] then
       ["stablemaster"] = 'H',
     },
     ["coords"] = {
-      {45.6, 55.2, 8},
+      {45.6, 55.2, 38},
     },
   }
 end
@@ -1053,7 +1053,7 @@ if not MTH_DS_Vendors[10050] then
       ["stablemaster"] = 'H',
     },
     ["coords"] = {
-      {46.8, 60.4, 215},
+      {46.8, 60.4, 9},
     },
   }
 end
@@ -1067,7 +1067,7 @@ if not MTH_DS_Vendors[10051] then
       ["stablemaster"] = 'A',
     },
     ["coords"] = {
-      {56.6, 59.6, 141},
+      {56.6, 59.6, 41},
     },
   }
 end
@@ -1081,7 +1081,7 @@ if not MTH_DS_Vendors[10052] then
       ["stablemaster"] = 'A',
     },
     ["coords"] = {
-      {36.5, 50.4, 331},
+      {36.5, 50.4, 43},
     },
   }
 end
@@ -1095,7 +1095,7 @@ if not MTH_DS_Vendors[10053] then
       ["stablemaster"] = 'H',
     },
     ["coords"] = {
-      {67.4, 37.6, 1497},
+      {67.4, 37.6, 382},
     },
   }
 end
@@ -1109,8 +1109,8 @@ if not MTH_DS_Vendors[10054] then
       ["stablemaster"] = 'H',
     },
     ["coords"] = {
-      {39, 29.1, 215},
-      {45.1, 60.2, 1638},
+      {39, 29.1, 9},
+      {45.1, 60.2, 362},
     },
   }
 end
@@ -1124,7 +1124,7 @@ if not MTH_DS_Vendors[10055] then
       ["stablemaster"] = 'H',
     },
     ["coords"] = {
-      {60, 52.2, 85},
+      {60, 52.2, 20},
     },
   }
 end
@@ -1138,8 +1138,8 @@ if not MTH_DS_Vendors[10056] then
       ["stablemaster"] = 'A',
     },
     ["coords"] = {
-      {25.4, 49, 141},
-      {39.3, 10, 1657},
+      {25.4, 49, 41},
+      {39.3, 10, 381},
     },
   }
 end
@@ -1153,8 +1153,8 @@ if not MTH_DS_Vendors[10057] then
       ["stablemaster"] = 'H',
     },
     ["coords"] = {
-      {61.1, 81.4, 36},
-      {62.3, 19.7, 267},
+      {61.1, 81.4, 15},
+      {62.3, 19.7, 24},
     },
   }
 end
@@ -1168,8 +1168,8 @@ if not MTH_DS_Vendors[10058] then
       ["stablemaster"] = 'H',
     },
     ["coords"] = {
-      {3.7, 47.6, 3},
-      {82.8, 38.9, 51},
+      {3.7, 47.6, 17},
+      {82.8, 38.9, 28},
     },
   }
 end
@@ -1183,7 +1183,7 @@ if not MTH_DS_Vendors[10059] then
       ["stablemaster"] = 'A',
     },
     ["coords"] = {
-      {31.5, 43.1, 357},
+      {31.5, 43.1, 121},
     },
   }
 end
@@ -1197,7 +1197,7 @@ if not MTH_DS_Vendors[10060] then
       ["stablemaster"] = 'AH',
     },
     ["coords"] = {
-      {27.3, 77.2, 33},
+      {27.3, 77.2, 37},
     },
   }
 end
@@ -1211,8 +1211,8 @@ if not MTH_DS_Vendors[10061] then
       ["stablemaster"] = 'A',
     },
     ["coords"] = {
-      {14.4, 45.2, 47},
-      {99.9, 4.4, 267},
+      {14.4, 45.2, 26},
+      {99.9, 4.4, 24},
     },
   }
 end
@@ -1226,7 +1226,7 @@ if not MTH_DS_Vendors[10062] then
       ["stablemaster"] = 'A',
     },
     ["coords"] = {
-      {74, 46.1, 10},
+      {74, 46.1, 34},
     },
   }
 end
@@ -1240,7 +1240,7 @@ if not MTH_DS_Vendors[10063] then
       ["stablemaster"] = 'AH',
     },
     ["coords"] = {
-      {62.2, 39.2, 17},
+      {62.2, 39.2, 11},
     },
   }
 end
@@ -1254,7 +1254,7 @@ if not MTH_DS_Vendors[10085] then
       ["stablemaster"] = 'A',
     },
     ["coords"] = {
-      {37.4, 44.3, 148},
+      {37.4, 44.3, 42},
     },
   }
 end
@@ -1268,8 +1268,8 @@ if not MTH_DS_Vendors[10086] then
       ["pettrainer"] = 'H',
     },
     ["coords"] = {
-      {40.8, 33.9, 215},
-      {54.1, 84, 1638},
+      {40.8, 33.9, 9},
+      {54.1, 84, 362},
     },
   }
 end
@@ -1283,7 +1283,7 @@ if not MTH_DS_Vendors[10088] then
       ["pettrainer"] = 'H',
     },
     ["coords"] = {
-      {66.3, 14.8, 1637},
+      {66.3, 14.8, 321},
     },
   }
 end
@@ -1297,8 +1297,8 @@ if not MTH_DS_Vendors[10089] then
       ["pettrainer"] = 'A',
     },
     ["coords"] = {
-      {26, 48.8, 141},
-      {42.5, 9.2, 1657},
+      {26, 48.8, 41},
+      {42.5, 9.2, 381},
     },
   }
 end
@@ -1312,7 +1312,7 @@ if not MTH_DS_Vendors[10090] then
       ["pettrainer"] = 'A',
     },
     ["coords"] = {
-      {70.9, 85.8, 1537},
+      {70.9, 85.8, 341},
     },
   }
 end
@@ -1326,8 +1326,8 @@ if not MTH_DS_Vendors[10930] then
       ["huntertrainer"] = 'A',
     },
     ["coords"] = {
-      {35, 47.7, 38},
-      {16.5, 68.7, 5602},
+      {35, 47.7, 35},
+      {16.5, 68.7, 684},
     },
   }
 end
@@ -1341,8 +1341,8 @@ if not MTH_DS_Vendors[11069] then
       ["stablemaster"] = 'A',
     },
     ["coords"] = {
-      {67.2, 37.7, 1519},
-      {52.6, 97.6, 5581},
+      {67.2, 37.7, 301},
+      {52.6, 97.6, 686},
     },
   }
 end
@@ -1356,8 +1356,8 @@ if not MTH_DS_Vendors[11104] then
       ["stablemaster"] = 'A',
     },
     ["coords"] = {
-      {65.6, 7.8, 405},
-      {44.3, 80.4, 406},
+      {65.6, 7.8, 101},
+      {44.3, 80.4, 81},
     },
   }
 end
@@ -1371,8 +1371,8 @@ if not MTH_DS_Vendors[11105] then
       ["stablemaster"] = 'H',
     },
     ["coords"] = {
-      {24.9, 68.7, 405},
-      {11.4, 92.8, 2100},
+      {24.9, 68.7, 101},
+      {11.4, 92.8, 517},
     },
   }
 end
@@ -1386,7 +1386,7 @@ if not MTH_DS_Vendors[11117] then
       ["stablemaster"] = 'H',
     },
     ["coords"] = {
-      {45.8, 51.1, 400},
+      {45.8, 51.1, 61},
     },
   }
 end
@@ -1400,7 +1400,7 @@ if not MTH_DS_Vendors[11119] then
       ["stablemaster"] = 'AH',
     },
     ["coords"] = {
-      {60.4, 37.9, 618},
+      {60.4, 37.9, 281},
     },
   }
 end
@@ -1414,7 +1414,7 @@ if not MTH_DS_Vendors[13616] then
       ["stablemaster"] = 'H',
     },
     ["coords"] = {
-      {57.1, 82.5, 2597},
+      {57.1, 82.5, 401},
     },
   }
 end
@@ -1428,7 +1428,7 @@ if not MTH_DS_Vendors[13617] then
       ["stablemaster"] = 'A',
     },
     ["coords"] = {
-      {42.6, 16.8, 2597},
+      {42.6, 16.8, 401},
     },
   }
 end
@@ -1442,7 +1442,7 @@ if not MTH_DS_Vendors[14741] then
       ["stablemaster"] = 'H',
     },
     ["coords"] = {
-      {79.2, 79.5, 47},
+      {79.2, 79.5, 26},
     },
   }
 end
@@ -1456,7 +1456,7 @@ if not MTH_DS_Vendors[15131] then
       ["stablemaster"] = 'H',
     },
     ["coords"] = {
-      {73.4, 61, 331},
+      {73.4, 61, 43},
     },
   }
 end
@@ -1470,7 +1470,7 @@ if not MTH_DS_Vendors[15722] then
       ["stablemaster"] = 'AH',
     },
     ["coords"] = {
-      {49.3, 36.4, 1377},
+      {49.3, 36.4, 261},
     },
   }
 end
@@ -1484,7 +1484,7 @@ if not MTH_DS_Vendors[16094] then
       ["stablemaster"] = 'H',
     },
     ["coords"] = {
-      {31.9, 29.5, 33},
+      {31.9, 29.5, 37},
     },
   }
 end
@@ -1498,11 +1498,11 @@ if not MTH_DS_Vendors[16156] then
       ["stablemaster"] = 'AH',
     },
     ["coords"] = {
-      {38.7, 64.4, 3456},
-      {38.5, 63.6, 3456},
-      {37.9, 60.5, 3456},
-      {41.9, 59.5, 3456},
-      {47.2, 58.3, 3456},
+      {38.7, 64.4, 667},
+      {38.5, 63.6, 667},
+      {37.9, 60.5, 667},
+      {41.9, 59.5, 667},
+      {47.2, 58.3, 667},
     },
   }
 end
@@ -1516,7 +1516,7 @@ if not MTH_DS_Vendors[60483] then
       ["huntertrainer"] = 'H',
     },
     ["coords"] = {
-      {31, 64.3, 85},
+      {31, 64.3, 20},
     },
   }
 end
@@ -1530,7 +1530,7 @@ if not MTH_DS_Vendors[60484] then
       ["huntertrainer"] = 'H',
     },
     ["coords"] = {
-      {60.1, 51.5, 85},
+      {60.1, 51.5, 20},
     },
   }
 end
@@ -1544,7 +1544,7 @@ if not MTH_DS_Vendors[60485] then
       ["huntertrainer"] = 'H',
     },
     ["coords"] = {
-      {61.4, 24.8, 1497},
+      {61.4, 24.8, 382},
     },
   }
 end
@@ -1558,7 +1558,7 @@ if not MTH_DS_Vendors[60486] then
       ["huntertrainer"] = 'H',
     },
     ["coords"] = {
-      {58.7, 30.9, 1497},
+      {58.7, 30.9, 382},
     },
   }
 end
@@ -1572,7 +1572,7 @@ if not MTH_DS_Vendors[60487] then
       ["huntertrainer"] = 'H',
     },
     ["coords"] = {
-      {62, 26.2, 1497},
+      {62, 26.2, 382},
     },
   }
 end
@@ -1586,7 +1586,7 @@ if not MTH_DS_Vendors[60488] then
       ["pettrainer"] = 'H',
     },
     ["coords"] = {
-      {54.6, 37.2, 1497},
+      {54.6, 37.2, 382},
     },
   }
 end
@@ -1600,7 +1600,7 @@ if not MTH_DS_Vendors[60768] then
       ["stablemaster"] = 'H',
     },
     ["coords"] = {
-      {93, 23.9, 46},
+      {93, 23.9, 29},
     },
   }
 end
@@ -1614,7 +1614,7 @@ if not MTH_DS_Vendors[61266] then
       ["stablemaster"] = 'A',
     },
     ["coords"] = {
-      {57.8, 69.5, 5179},
+      {57.8, 69.5, 510},
     },
   }
 end
@@ -1628,7 +1628,7 @@ if not MTH_DS_Vendors[61624] then
       ["huntertrainer"] = 'A',
     },
     ["coords"] = {
-      {34.1, 72.1, 1519},
+      {34.1, 72.1, 301},
     },
   }
 end
@@ -1642,7 +1642,7 @@ if not MTH_DS_Vendors[61625] then
       ["huntertrainer"] = 'A',
     },
     ["coords"] = {
-      {40.9, 65.9, 12},
+      {40.9, 65.9, 30},
     },
   }
 end
@@ -1656,7 +1656,7 @@ if not MTH_DS_Vendors[61626] then
       ["huntertrainer"] = 'A',
     },
     ["coords"] = {
-      {34.1, 56.5, 5179},
+      {34.1, 56.5, 510},
     },
   }
 end
@@ -1670,7 +1670,7 @@ if not MTH_DS_Vendors[61627] then
       ["huntertrainer"] = 'A',
     },
     ["coords"] = {
-      {50.8, 40, 12},
+      {50.8, 40, 30},
     },
   }
 end
@@ -1684,7 +1684,7 @@ if not MTH_DS_Vendors[61628] then
       ["huntertrainer"] = 'A',
     },
     ["coords"] = {
-      {34.1, 71.2, 1519},
+      {34.1, 71.2, 301},
     },
   }
 end
@@ -1698,7 +1698,7 @@ if not MTH_DS_Vendors[61629] then
       ["pettrainer"] = 'A',
     },
     ["coords"] = {
-      {33.5, 71.8, 1519},
+      {33.5, 71.8, 301},
     },
   }
 end
@@ -1725,7 +1725,7 @@ if not MTH_DS_Vendors[61722] then
       ["stablemaster"] = 'AH',
     },
     ["coords"] = {
-      {48.5, 65.7, 5536},
+      {48.5, 65.7, 512},
     },
   }
 end
@@ -1739,7 +1739,7 @@ if not MTH_DS_Vendors[62098] then
       ["stablemaster"] = 'AH',
     },
     ["coords"] = {
-      {42.4, 77.3, 5121},
+      {42.4, 77.3, 507},
     },
   }
 end
@@ -1753,7 +1753,7 @@ if not MTH_DS_Vendors[62099] then
       ["stablemaster"] = 'AH',
     },
     ["coords"] = {
-      {37, 51.7, 406},
+      {37, 51.7, 81},
     },
   }
 end
@@ -1767,7 +1767,7 @@ if not MTH_DS_Vendors[62161] then
       ["stablemaster"] = 'A',
     },
     ["coords"] = {
-      {45.7, 58.4, 5581},
+      {45.7, 58.4, 686},
     },
   }
 end
@@ -1781,7 +1781,7 @@ if not MTH_DS_Vendors[62401] then
       ["stablemaster"] = 'A',
     },
     ["coords"] = {
-      {52.9, 57.7, 5602},
+      {52.9, 57.7, 684},
     },
   }
 end
@@ -1795,7 +1795,7 @@ if not MTH_DS_Vendors[80105] then
       ["huntertrainer"] = 'AH',
     },
     ["coords"] = {
-      {49.3, 63.1, 5536},
+      {49.3, 63.1, 512},
     },
   }
 end
@@ -1809,8 +1809,8 @@ if not MTH_DS_Vendors[80219] then
       ["huntertrainer"] = 'A',
     },
     ["coords"] = {
-      {6.6, 22.7, 139},
-      {46.5, 84.4, 5225},
+      {6.6, 22.7, 23},
+      {46.5, 84.4, 513},
     },
   }
 end
@@ -1824,8 +1824,8 @@ if not MTH_DS_Vendors[80245] then
       ["huntertrainer"] = 'A',
     },
     ["coords"] = {
-      {40.7, 68.5, 2040},
-      {57.2, 34.6, 5225},
+      {40.7, 68.5, 509},
+      {57.2, 34.6, 513},
     },
   }
 end
@@ -1839,8 +1839,8 @@ if not MTH_DS_Vendors[80457] then
       ["stablemaster"] = 'A',
     },
     ["coords"] = {
-      {40.7, 68.3, 2040},
-      {57.2, 34.5, 5225},
+      {40.7, 68.3, 509},
+      {57.2, 34.5, 513},
     },
   }
 end
@@ -1854,7 +1854,7 @@ if not MTH_DS_Vendors[80458] then
       ["huntertrainer"] = 'A',
     },
     ["coords"] = {
-      {65.2, 45.4, 1519},
+      {65.2, 45.4, 301},
     },
   }
 end
@@ -1868,7 +1868,7 @@ if not MTH_DS_Vendors[80810] then
       ["stablemaster"] = 'H',
     },
     ["coords"] = {
-      {24.4, 12.8, 406},
+      {24.4, 12.8, 81},
     },
   }
 end
@@ -1882,7 +1882,7 @@ if not MTH_DS_Vendors[80855] then
       ["huntertrainer"] = 'A',
     },
     ["coords"] = {
-      {46.7, 54, 1},
+      {46.7, 54, 27},
     },
   }
 end
@@ -1896,7 +1896,7 @@ if not MTH_DS_Vendors[80856] then
       ["huntertrainer"] = 'AH',
     },
     ["coords"] = {
-      {42.4, 72.9, 15},
+      {42.4, 72.9, 141},
     },
   }
 end
@@ -1914,6 +1914,62 @@ if not MTH_DS_Vendors[80903] then
   }
 end
 
+if not MTH_DS_Vendors[63058] then
+  MTH_DS_Vendors[63058] = {
+    ["name"] = 'Hula Swiftmane',
+    ["lvl"] = '53',
+    ["fac"] = 'H',
+    ["meta"] = {
+      ["stablemaster"] = 'H',
+    },
+    ["coords"] = {
+      {66.1, 39.1, 699},
+    },
+  }
+end
+
+if not MTH_DS_Vendors[62843] then
+  MTH_DS_Vendors[62843] = {
+    ["name"] = 'Ornala',
+    ["lvl"] = '53',
+    ["fac"] = 'H',
+    ["meta"] = {
+      ["vendor"] = 'H',
+    },
+    ["coords"] = {
+      {67.3, 37.1, 699},
+    },
+  }
+end
+
+if not MTH_DS_Vendors[62909] then
+  MTH_DS_Vendors[62909] = {
+    ["name"] = 'Badel Wildlance',
+    ["lvl"] = '44',
+    ["fac"] = 'A',
+    ["meta"] = {
+      ["stablemaster"] = 'A',
+    },
+    ["coords"] = {
+      {59.0, 24.9, 699},
+    },
+  }
+end
+
+if not MTH_DS_Vendors[62906] then
+  MTH_DS_Vendors[62906] = {
+    ["name"] = 'Elendon Truebough',
+    ["lvl"] = '44',
+    ["fac"] = 'A',
+    ["meta"] = {
+      ["vendor"] = 'A',
+    },
+    ["coords"] = {
+      {58.8, 24.5, 699},
+    },
+  }
+end
+
 if not MTH_DS_Vendors[81050] then
   MTH_DS_Vendors[81050] = {
     ["name"] = 'Dark Ranger Lanissa',
@@ -1923,7 +1979,7 @@ if not MTH_DS_Vendors[81050] then
       ["huntertrainer"] = 'H',
     },
     ["coords"] = {
-      {60.7, 53.5, 85},
+      {60.7, 53.5, 20},
     },
   }
 end

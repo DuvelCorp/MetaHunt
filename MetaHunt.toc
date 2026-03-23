@@ -1,5 +1,5 @@
 ## Interface: 11200
-## Version: 1.3.0
+## Version: 1.4.0
 ## Title: MetaHunt - |cff00ff00Hunter
 ## Author: Metasploit and his Copilot ;)
 ## Notes: Unified addon suite for huntards making old addons compatible with TurtleWoW, and adding an arsenal of never seen Hunter's utilities.
@@ -20,8 +20,6 @@ init\skins.xml
 
 ## Load database files (DB files must come before data\init.lua)
 data\ds-beasts.lua
-data\ds-beasts-extra.lua
-data\ds-beasts-html-enrichment.lua
 data\ds-vendors.lua
 data\ds-vendors-extra.lua
 data\ds-items.lua
@@ -31,6 +29,7 @@ data\ds-bags.lua
 data\ds-items-atlas-sources.lua
 data\ds-zones.lua
 data\ds-zones-fallback.lua
+data\ds-zones-wma.lua
 data\ds-minimap-sizes.lua
 data\ds-unit-coords.lua
 data\ds-creature-coords.lua
@@ -39,6 +38,8 @@ data\ds-beasts-families-dbc.lua
 data\ds-beasts-skins.lua
 data\ds-pet-spells.lua
 data\ds-pet-spells-trainer.lua
+data\ds-hunter-spells.lua
+data\ds-hunter-spells-dbc.lua
 data\ds-racial.lua
 data\init.lua
 

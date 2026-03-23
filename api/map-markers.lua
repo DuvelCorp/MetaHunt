@@ -12,6 +12,7 @@ MTH_Map = {
 	mapZoneCache = {},
 	focusNodes = {},
 	pendingZoneOpenId = nil,
+	pendingZoneOpenPfqId = nil,
 	pendingZoneOpenSourceId = nil,
 	pendingZoneOpenAttempts = 0,
 	pendingZoneOpenNextAttemptAt = 0,
@@ -60,11 +61,6 @@ local function MTH_Map_Mod(a, b)
 	return 0
 end
 
-local function MTH_Map_Log(msg)
-	if MTH and MTH.debug and MTH.Print then
-		MTH:Print("[MAP] " .. tostring(msg), "debug")
-	end
-end
 
 local function MTH_Map_NormalizeName(name)
 	if not name then return "" end
@@ -130,12 +126,18 @@ local function MTH_Map_GetZoneNameById(zoneId)
 	local normalizedId = tonumber(zoneId) or zoneId
 	if not normalizedId then return nil end
 
-	if MTH_DS_ZoneNamesFallback and MTH_DS_ZoneNamesFallback[normalizedId] then
-		return MTH_DS_ZoneNamesFallback[normalizedId]
+	-- Translate WMA→pfQ first so WMA IDs don't accidentally hit wrong pfQ entries.
+	local pfqId = normalizedId
+	if type(MTH_MAP_WMA_TO_PFQ) == "table" then
+		pfqId = MTH_MAP_WMA_TO_PFQ[normalizedId] or normalizedId
+	end
+
+	if MTH_DS_ZoneNamesFallback and MTH_DS_ZoneNamesFallback[pfqId] then
+		return MTH_DS_ZoneNamesFallback[pfqId]
 	end
 
 	if not MTH_DS_Zones then return nil end
-	local row = MTH_DS_Zones[normalizedId] or MTH_DS_Zones[tostring(normalizedId)]
+	local row = MTH_DS_Zones[pfqId] or MTH_DS_Zones[tostring(pfqId)]
 	if not row or not row.names then return nil end
 	return row.names.enUS or row.names[GetLocale()] or row.names.deDE or row.names.frFR
 end
@@ -327,7 +329,6 @@ function MTH_Map:BuildZoneLookup()
 	for _ in pairs(self.zoneNameNormToId) do
 		count = count + 1
 	end
-	MTH_Map_Log("Zone lookup rebuilt: " .. tostring(count) .. " entries")
 end
 
 function MTH_Map:GetMapIDByName(name)
@@ -418,6 +419,15 @@ function MTH_Map:ResolveZoneHierarchy(zoneId)
 	return resolved
 end
 
+-- Translate a pfQ AreaTable ID to a WMA ID (for zone matching against coord tuples).
+-- Falls back to the pfQ ID itself if no mapping exists (sub-zones, custom zones).
+local function MTH_Map_PfqToWma(pfqId)
+	if type(MTH_MAP_PFQ_TO_WMA) == "table" then
+		return MTH_MAP_PFQ_TO_WMA[pfqId] or pfqId
+	end
+	return pfqId
+end
+
 function MTH_Map:GetCurrentMapID()
 	local continent = GetCurrentMapContinent and GetCurrentMapContinent() or nil
 	local zone = GetCurrentMapZone and GetCurrentMapZone() or nil
@@ -434,6 +444,7 @@ function MTH_Map:GetCurrentMapID()
 		if mapId then
 			local resolved = self:ResolveZoneHierarchy(mapId)
 			local normalized = resolved.zoneId or mapId
+			normalized = MTH_Map_PfqToWma(normalized)
 			self.lastMapContext = string.format("continent=%s zone=%s mapZone='%s' real=nil mapId=%s normalized=%s", tostring(continent), tostring(zone), tostring(zoneName), tostring(mapId), tostring(normalized))
 			return normalized
 		end
@@ -449,6 +460,7 @@ function MTH_Map:GetCurrentMapID()
 		mapId = self:GetMapIDByName(real)
 		local resolved = self:ResolveZoneHierarchy(mapId)
 		local normalized = resolved.zoneId or mapId
+		normalized = MTH_Map_PfqToWma(normalized)
 		self.lastMapContext = string.format("continent=%s zone=%s mapZone='%s' real='%s' mapId=%s normalized=%s", tostring(continent), tostring(zone), tostring(zoneName), tostring(real), tostring(mapId), tostring(normalized))
 		return normalized
 	end
@@ -467,6 +479,7 @@ end
 
 local function MTH_Map_ClearPendingZoneOpen()
 	MTH_Map.pendingZoneOpenId = nil
+	MTH_Map.pendingZoneOpenPfqId = nil
 	MTH_Map.pendingZoneOpenSourceId = nil
 	MTH_Map.pendingZoneOpenAttempts = 0
 	MTH_Map.pendingZoneOpenNextAttemptAt = 0
@@ -532,8 +545,12 @@ end
 function MTH_Map:OpenWorldMapForZone(zoneId)
 	local zid = tonumber(zoneId)
 	if not zid then return false end
-	local resolved = self:ResolveZoneHierarchy(zid)
-	local targetZoneId = tonumber(resolved.zoneId or zid) or zid
+	-- Translate WMA ID → pfQ so game map APIs (pfMap, SetMapZoom) work correctly.
+	local pfqZid = (type(MTH_MAP_WMA_TO_PFQ) == "table" and MTH_MAP_WMA_TO_PFQ[zid]) or zid
+	local resolved = self:ResolveZoneHierarchy(pfqZid)
+	local targetZoneId = tonumber(resolved.zoneId or pfqZid) or pfqZid
+	-- WMA ID of this zone, for comparing against GetCurrentMapID() which returns WMA IDs.
+	local targetWmaId = (type(MTH_MAP_PFQ_TO_WMA) == "table" and MTH_MAP_PFQ_TO_WMA[targetZoneId]) or zid
 
 	if ToggleWorldMap then
 		if not WorldMapFrame or not WorldMapFrame:IsShown() then
@@ -546,32 +563,37 @@ function MTH_Map:OpenWorldMapForZone(zoneId)
 	if pfMap and pfMap.SetMapByID then
 		pfMap:SetMapByID(targetZoneId)
 		local currentAfterPF = self:GetCurrentMapID()
-		if tonumber(currentAfterPF) == tonumber(targetZoneId) then
+		if tonumber(currentAfterPF) == tonumber(targetWmaId) then
 			MTH_Map_ClearPendingZoneOpen()
 			return true
 		end
 	end
 
-	local zoomApplied = MTH_Map_ApplyWorldMapZone(targetZoneId, zid)
+	local zoomApplied = MTH_Map_ApplyWorldMapZone(zid, zid)
 	if zoomApplied then
 		local currentAfterZoom = self:GetCurrentMapID()
-		if tonumber(currentAfterZoom) == tonumber(targetZoneId) then
+		if tonumber(currentAfterZoom) == tonumber(targetWmaId) then
 			MTH_Map_ClearPendingZoneOpen()
 			return true
 		end
 	end
 
 	local nowMapId = self:GetCurrentMapID()
-	if tonumber(nowMapId) == tonumber(targetZoneId) then
+	if tonumber(nowMapId) == tonumber(targetWmaId) then
 		MTH_Map_ClearPendingZoneOpen()
 		return true
 	end
 
-	self.pendingZoneOpenId = targetZoneId
-	self.pendingZoneOpenSourceId = zid
+	self.pendingZoneOpenId = targetWmaId
+	self.pendingZoneOpenPfqId = targetZoneId
+	self.pendingZoneOpenSourceId = pfqZid
 	self.pendingZoneOpenAttempts = 8
 	self.pendingZoneOpenNextAttemptAt = (GetTime and GetTime() or 0) + 0.25
 	return true
+end
+
+function MTH_Map:GetFamilyColor(family)
+	return MTH_Map_GetFamilyColor(family)
 end
 
 function MTH_Map:FocusBeast(beastId, beast)
@@ -890,7 +912,6 @@ function MTH_Map:RebuildNodes()
 		end
 	end
 
-	MTH_Map_Log("Rebuilt nodes for source '" .. tostring(self.activeSource) .. "'")
 end
 
 function MTH_Map:UpdateWorldMap()
@@ -1019,6 +1040,11 @@ function MTH_Map:UpdateMinimap()
 
 	local minimapSizes = MTH_DS_MinimapSizes or (pfDB and pfDB["minimap"])
 	local mapSize = minimapSizes and minimapSizes[mapId]
+	if not mapSize and type(MTH_MAP_WMA_TO_PFQ) == "table" then
+		-- Fallback: try the pfQ key (for sub-zones not yet mapped to WMA)
+		local pfqId = MTH_MAP_WMA_TO_PFQ[mapId]
+		mapSize = pfqId and minimapSizes and minimapSizes[pfqId]
+	end
 	if not mapSize then
 		self.lastMiniReason = self.verboseMiniReasons and "missing-minimap-size" or "missing-size"
 		self._lastMiniState = nil
@@ -1227,7 +1253,6 @@ function MTH_Map:RegisterDefaultProviders()
 			end
 
 			if unresolvedCount > 0 then
-				MTH_Map_Log("drops source: " .. tostring(unresolvedCount) .. " drop-creature links have no loaded coordinates (sample IDs: " .. table.concat(unresolvedSamples, ", ") .. ")")
 			end
 
 			return nodes
@@ -1274,9 +1299,9 @@ function MTH_Map:Init()
 
 					if WorldMapFrame and WorldMapFrame:IsShown() then
 						if pfMap and pfMap.SetMapByID then
-							pfMap:SetMapByID(MTH_Map.pendingZoneOpenId)
+							pfMap:SetMapByID(MTH_Map.pendingZoneOpenPfqId or MTH_Map.pendingZoneOpenId)
 						end
-						MTH_Map_ApplyWorldMapZone(MTH_Map.pendingZoneOpenId, MTH_Map.pendingZoneOpenSourceId)
+						MTH_Map_ApplyWorldMapZone(MTH_Map.pendingZoneOpenId or MTH_Map.pendingZoneOpenPfqId, MTH_Map.pendingZoneOpenId or MTH_Map.pendingZoneOpenPfqId)
 						local nowMapId = MTH_Map:GetCurrentMapID()
 						if tonumber(nowMapId) == tonumber(MTH_Map.pendingZoneOpenId) then
 							MTH_Map_ClearPendingZoneOpen()
@@ -1318,5 +1343,4 @@ function MTH_Map:Init()
 		end)
 	end
 
-	MTH_Map_Log("Map system initialized")
 end

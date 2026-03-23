@@ -6,7 +6,7 @@
 local MTH_Tooltips = {
 	name = "tooltips",
 	enabled = true,
-	version = "1.3.0",
+	version = "1.4.0",
 	events = {
 		"UPDATE_MOUSEOVER_UNIT",
 		"UNIT_NAME_UPDATE",
@@ -1389,7 +1389,6 @@ local function MTH_TT_AddPetActionNotLearnedHint()
 		return
 	end
 
-	local ownerName = MTH_TT_GetTooltipOwnerName()
 	local ownerMatch = MTH_TT_IsPetActionTooltipOwner()
 	local barMatch = MTH_TT_IsSpellOnPetActionBar(spellName)
 	if not ownerMatch and not barMatch then
@@ -1406,11 +1405,13 @@ local function MTH_TT_AddPetActionNotLearnedHint()
 	end
 
 	local canonicalLower = MTH_TT_Lower(canonical)
-	local known = MTH_TT_HunterKnowsAbility(canonicalLower, rankNumber)
-	if not known then
-		known = MTH_TT_CurrentPetKnowsAbility(canonicalLower, rankNumber)
-	end
-	if known then
+	local hunterKnown = MTH_TT_HunterKnowsAbility(canonicalLower, rankNumber)
+	-- Only fall back to petKnown for ranked abilities: rankless abilities have no rank
+	-- filter in CurrentPetKnowsAbility, so they always match on name alone -> false positive.
+	local petKnown = (not hunterKnown)
+		and MTH_TT_AbilityHasPositiveRanks(canonical)
+		and MTH_TT_CurrentPetKnowsAbility(canonicalLower, rankNumber)
+	if hunterKnown or petKnown then
 		return
 	end
 
@@ -1485,8 +1486,11 @@ local function MTH_TT_AddTooltip(unit)
 	local ammoVendorTooltipsEnabled = MTH_TT_IsAmmoVendorTooltipsEnabled()
 	local vendorInfo = ammoVendorTooltipsEnabled and MTH_TT_FindVendorInfo(name) or nil
 	local row = beastTooltipsEnabled and MTH_TT_FindBeastRow(name) or nil
+	local savedEntry = beastTooltipsEnabled
+		and (type(MTH_BLS_FindSavedBeastByName) == "function")
+		and MTH_BLS_FindSavedBeastByName(name) or nil
 	local scorpokAdded = MTH_TT_AddScorpokTargetsTooltip(unit, name)
-	if not row and not vendorInfo and not scorpokAdded then
+	if not row and not vendorInfo and not scorpokAdded and not savedEntry then
 		state.lookupMiss = (state.lookupMiss or 0) + 1
 		MTH_TT_StateSet("lookup-miss", name, normalized)
 		MTH_TT_Log("lookup miss: unit='" .. tostring(name) .. "' normalized='" .. tostring(normalized) .. "'")
@@ -1510,8 +1514,16 @@ local function MTH_TT_AddTooltip(unit)
 		MTH_TT_Log("vendor tooltip added: unit='" .. tostring(name) .. "'")
 	end
 
+	-- Determine which abilities source to display.
+	local abilitiesSource = nil
 	if row then
-		local abilities = MTH_TT_ParseAbilities(row.abilities)
+		abilitiesSource = row.abilities
+	elseif savedEntry and savedEntry.abilities and savedEntry.abilities ~= "" then
+		abilitiesSource = savedEntry.abilities
+	end
+
+	if abilitiesSource then
+		local abilities = MTH_TT_ParseAbilities(abilitiesSource)
 		if table.getn(abilities) == 0 then
 			MTH_TT_StateSet("skip-no-abilities", name, normalized)
 			MTH_TT_Log("skip: beast has no abilities ('" .. tostring(name) .. "')")
@@ -1532,6 +1544,11 @@ local function MTH_TT_AddTooltip(unit)
 			addedAnything = 1
 			MTH_TT_Log("beast tooltip added: unit='" .. tostring(name) .. "' entries='" .. tostring(table.getn(abilities)) .. "'")
 		end
+	end
+
+	if savedEntry then
+		GameTooltip:AddLine("Beast recorded by you", 1.0, 0.85, 0.0)
+		addedAnything = 1
 	end
 
 	if addedAnything then

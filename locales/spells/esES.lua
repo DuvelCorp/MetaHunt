@@ -2,6 +2,11 @@ MTH_LocaleData = MTH_LocaleData or {}
 MTH_LocaleData.spells = MTH_LocaleData.spells or {}
 
 MTH_LocaleData.spells.esES = {
+  ["Aimed Shot"] = "Aimed Shot",
+  ["Aspect of the Viper"] = "Aspect of the Viper",
+  ["Kill Command"] = "Kill Command",
+  ["Lock and Load"] = "Lock and Load",
+  ["Scent of Blood"] = "Scent of Blood",
   ["Banish"] = "Banish",
   ["Bestial Wrath"] = "Bestial Wrath",
   ["Concussive Shot"] = "Concussive Shot",

@@ -97,10 +97,6 @@ local function zButtonRanged_IsRangedItem(subtype, equipLoc)
 	if subtypeText == tostring(MTH_WEAPON_BOWS or "Bows") then return true end
 	if subtypeText == tostring(MTH_WEAPON_GUNS or "Guns") then return true end
 	if subtypeText == tostring(MTH_WEAPON_CROSSBOWS or "Crossbows") then return true end
-	if subtypeText == "Thrown" then return true end
-	if equipLoc == "INVTYPE_RANGED" or equipLoc == "INVTYPE_RANGEDRIGHT" or equipLoc == "INVTYPE_THROWN" then
-		return true
-	end
 	return false
 end
 
