@@ -301,46 +301,6 @@ if type(MTH_CommandPetSpellScan) ~= "function" then
 	end
 end
 
-------------------------------------------------------
--- /mth diag — Runtime Diagnostics
-------------------------------------------------------
-function MTH_CommandDiag()
-	MTH:Print("======= MetaHunt Diagnostics =======", "debug")
-
-	-- 1. Lua version
-	local luaVer = _VERSION or "unknown"
-	MTH:Print("[DIAG] _VERSION = " .. tostring(luaVer), "debug")
-	MTH:Print("[DIAG] string.match = " .. tostring(type(string.match) == "function"), "debug")
-	MTH:Print("[DIAG] string.gfind = " .. tostring(type(string.gfind) == "function"), "debug")
-
-	-- 2. Active modules
-	local moduleCount = 0
-	local enabledModules = {}
-	if MTH.modules then
-		for name, mod in pairs(MTH.modules) do
-			moduleCount = moduleCount + 1
-			if mod.enabled then
-				table.insert(enabledModules, name)
-			end
-		end
-	end
-	MTH:Print("[DIAG] Registered modules: " .. tostring(moduleCount), "debug")
-	MTH:Print("[DIAG] Enabled: " .. table.concat(enabledModules, ", "), "debug")
-
-	-- 3. Event router state
-	local routerFrame = (MTH._eventRouter and MTH._eventRouter.frame) or nil
-	local routerEvents = (MTH._eventRouter and MTH._eventRouter.eventRefs) or {}
-	local eventCount = 0
-	for _ in pairs(routerEvents) do eventCount = eventCount + 1 end
-	MTH:Print("[DIAG] EventRouter frame: " .. tostring(routerFrame ~= nil) .. ", events: " .. tostring(eventCount), "debug")
-
-	-- 4. Debug frame initialized?
-	local dfInit = (MTH_DebugFrame and MTH_DebugFrame.initialized) and true or false
-	MTH:Print("[DIAG] DebugFrame initialized: " .. tostring(dfInit), "debug")
-
-	MTH:Print("======= End Diagnostics =======", "debug")
-end
-
 function SlashCmdList.MTH(msg, editbox)
 	if MTH and MTH.ApplyClassGate and MTH:ApplyClassGate("slash") then
 		return
@@ -352,24 +312,128 @@ function SlashCmdList.MTH(msg, editbox)
 	local lowerMsg = string.lower(msg)
 	local _, _, lowerCmd, lowerArg = string.find(lowerMsg, "^(%S+)%s*(.-)%s*$")
 	if msg == "" then
-		MTH:Print("Available: /mth options, /mth book, /mth diag, /mth err")
-	elseif lowerMsg == "options" then
-		MTH_CommandOptions()
-	elseif lowerMsg == "book" or lowerMsg == "hunterbook" then
-		MTH_CommandBook()
-	elseif lowerMsg == "peers" or lowerMsg == "who" then
-		MTH_CommandPeers()
-	elseif lowerMsg == "diag" then
-		MTH_CommandDiag()
+		MTH:Print("Available: /mth options, /mth book")
 	elseif lowerMsg == "err" or lowerMsg == "errors" or lowerMsg == "debug" then
 		if MTH_DebugFrame and MTH_DebugFrame.Toggle then
 			MTH_DebugFrame:Toggle()
 		else
 			MTH:Print("Debug frame is not available.")
 		end
+	elseif lowerMsg == "options" then
+		MTH_CommandOptions()
+	elseif lowerMsg == "book" or lowerMsg == "hunterbook" then
+		MTH_CommandBook()
+	elseif lowerMsg == "peers" or lowerMsg == "who" then
+		MTH_CommandPeers()
+	elseif lowerMsg == "zoneinfo" then
+		-- Dumps all available zone data for the current zone, for adding to ds-zones / ds-minimap-sizes
+		pcall(SetMapToCurrentZone)
+		local zoneName    = (type(GetRealZoneText) == "function" and GetRealZoneText()) or ""
+		local subZone     = (type(GetSubZoneText)  == "function" and GetSubZoneText())  or ""
+		local zoneText    = (type(GetZoneText)      == "function" and GetZoneText())     or ""
+		local areaId      = nil
+		if type(GetCurrentMapAreaID) == "function" then
+			local ok, v = pcall(GetCurrentMapAreaID)
+			if ok then areaId = v end
+		end
+		local cx, cy = nil, nil
+		if type(GetPlayerMapPosition) == "function" then
+			local ok, x, y = pcall(GetPlayerMapPosition, "player")
+			if ok then cx, cy = x, y end
+		end
+		local contId = nil
+		if type(GetCurrentMapContinent) == "function" then
+			local ok, v = pcall(GetCurrentMapContinent)
+			if ok then contId = v end
+		end
+		MTH:Print("|cffffff00=== Zone Info ===|r")
+		MTH:Print("GetRealZoneText: |cffffaa00" .. tostring(zoneName) .. "|r")
+		MTH:Print("GetZoneText:     |cffffaa00" .. tostring(zoneText) .. "|r")
+		MTH:Print("GetSubZoneText:  |cffffaa00" .. tostring(subZone) .. "|r")
+		MTH:Print("AreaID (GetCurrentMapAreaID): |cff88ffff" .. tostring(areaId) .. "|r")
+		MTH:Print("ContinentID: |cff88ffff" .. tostring(contId) .. "|r")
+		if cx and cy then
+			MTH:Print(string.format("Player map pos: |cff88ffff%.4f, %.4f|r  (display: %.1f, %.1f)", cx, cy, cx*100, cy*100))
+		end
+		-- Also check if zone is in our tables
+		local inZones = MTH_DS_Zones and MTH_DS_Zones[tonumber(areaId)] and "YES" or "not in MTH_DS_Zones"
+		local inSizes = MTH_DS_MinimapSizes and MTH_DS_MinimapSizes[tonumber(areaId)] and "YES" or "not in ds-minimap-sizes"
+		MTH:Print("MTH_DS_Zones entry:        " .. inZones)
+		MTH:Print("MTH_DS_MinimapSizes entry: " .. inSizes)
+	elseif lowerMsg == "npcid" then
+		-- Print the creature entry ID of the current target, or arm a listener for next NPC interaction
+		local function MTH_ParseCreatureEntryFromAnyGuid(guid)
+			if type(guid) ~= "string" or guid == "" then return nil end
+			-- Format 1: TBC-style "Creature-realm-map-inst-?-ENTRY-spawn"
+			local _, _, id1 = string.find(guid, "^Creature%-%d+%-%d+%-%d+%-%d+%-(%d+)%-%d+$")
+			if id1 then return tonumber(id1) end
+			-- Format 2: vanilla hex "0xF130EEEEEECCCCCC" — entry is bits 24-47 = hex chars 7-12
+			if string.sub(guid, 1, 2) == "0x" and string.len(guid) >= 14 then
+				local entryHex = string.sub(guid, 7, 12)  -- 24 bits = up to 16M
+				local parsed = tonumber(entryHex, 16)
+				if parsed and parsed > 0 then return parsed end
+			end
+			return nil
+		end
+
+		local function MTH_PrintNpcId(unitToken)
+			unitToken = unitToken or "target"
+			local name  = (type(UnitName)  == "function") and UnitName(unitToken)  or "?"
+			local level = (type(UnitLevel) == "function") and UnitLevel(unitToken) or "?"
+			-- Try UnitGUID first, then GetUnitGUID (TurtleWoW nameplate API)
+			local guid = nil
+			if type(UnitGUID) == "function" then
+				local ok, g = pcall(UnitGUID, unitToken)
+				if ok and g and g ~= "" then guid = g end
+			end
+			if (not guid or guid == "") and type(GetUnitGUID) == "function" then
+				local ok, g = pcall(GetUnitGUID, unitToken)
+				if ok and g and g ~= "" then guid = g end
+			end
+			local creatureId = MTH_ParseCreatureEntryFromAnyGuid(guid)
+			if creatureId then
+				MTH:Print(string.format("|cffffff00NPC:|r %s  |cffffff00ID:|r |cff88ffff%s|r  lvl: %s", tostring(name), tostring(creatureId), tostring(level)))
+			else
+				MTH:Print(string.format("|cffffff00NPC:|r %s  lvl: %s  |cffff8800GUID: %s|r", tostring(name), tostring(level), tostring(guid or "nil")))
+				MTH:Print("|cffaaaaaa(Could not parse creature ID from GUID)|r")
+			end
+		end
+
+		-- Try current target first
+		local hasTarget = (type(UnitExists) == "function") and UnitExists("target")
+		if hasTarget then
+			MTH_PrintNpcId("target")
+		end
+
+		-- Arm a one-shot frame for MERCHANT_SHOW / TRAINER_LIST_UPDATE / GOSSIP_SHOW
+		if not _G["MTH_NpcIdListenerFrame"] then
+			local f = CreateFrame("Frame", "MTH_NpcIdListenerFrame")
+			f:RegisterEvent("MERCHANT_SHOW")
+			f:RegisterEvent("TRAINER_LIST_UPDATE")
+			f:RegisterEvent("GOSSIP_SHOW")
+			f:SetScript("OnEvent", function()
+				MTH_PrintNpcId("target")
+				this:UnregisterEvent("MERCHANT_SHOW")
+				this:UnregisterEvent("TRAINER_LIST_UPDATE")
+				this:UnregisterEvent("GOSSIP_SHOW")
+				_G["MTH_NpcIdListenerFrame"] = nil
+			end)
+			if not hasTarget then
+				MTH:Print("|cffaaffaaArmed.|r Open any vendor, trainer, or stable master to capture their ID.")
+			end
+		end
+	elseif lowerCmd == "bls" then
+		if lowerArg == "reset" then
+			if type(MTH_SavedVariables) == "table" then
+				MTH_SavedVariables.beastLoreScan = { entries = {} }
+			end
+			MTH:Print("|cffff4444Beast Lore scan data wiped.|r All recorded beasts cleared.")
+		else
+			MTH:Print("Beast Lore Scan: |cffffff00/mth bls reset|r — wipe all recorded beast data")
+		end
 	else
 		MTH:Print("Unknown command: " .. tostring(msg))
-		MTH:Print("Available: /mth options, /mth book, /mth diag, /mth err")
+		MTH:Print("Available: /mth options, /mth book, /mth npcid, /mth bls reset")
 	end
 end
 

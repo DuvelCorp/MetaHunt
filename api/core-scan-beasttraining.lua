@@ -623,13 +623,11 @@ function MTH_PT_ApplyScan(triggerReason)
 			local msg = "New pet data recorded (" .. tostring(added) .. " new rank(s)): " .. detailsText .. ". Known totals for this character: " .. tostring(totalBaselines) .. " ability type(s), " .. tostring(totalRanks) .. " rank(s)."
 			if MTH_PT_IsScanMessageEnabled() then
 				MTH:Print(msg)
-				MTH:Print("INFO: " .. msg, "debug")
 			end
 		else
 			local msg = "New pet data recorded (" .. tostring(added) .. " new rank(s)). Known totals for this character: " .. tostring(totalBaselines) .. " ability type(s), " .. tostring(totalRanks) .. " rank(s)."
 			if MTH_PT_IsScanMessageEnabled() then
 				MTH:Print(msg)
-				MTH:Print("INFO: " .. msg, "debug")
 			end
 		end
 	end

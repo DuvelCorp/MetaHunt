@@ -72,4 +72,6 @@ MTH_DS_ZoneNamesFallback = {
   [5581] = "Northwind",
   [5601] = "Dragonmaw Retreat",
   [5602] = "Grim Reaches",
+  [5641] = "Windhorn Canyon",
+  [5642] = "Moonwhisper Coast",
 }

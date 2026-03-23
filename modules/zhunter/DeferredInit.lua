@@ -37,13 +37,6 @@ local function ZHunterMod_RunButtonInit(frame, onEventFunc)
 	event = oldEvent
 end
 
-local function ZHunterMod_LogDeferred(msg)
-	local deferredDebug = _G and _G["MTH_ZH_DEFERRED_DEBUG"]
-	if not (MTH and MTH.debug and deferredDebug) then
-		return
-	end
-	MTH_ZH_Print("[ZHUNTER] " .. tostring(msg), "error")
-end
 
 local function ZHunterMod_EnsureButtonFrame(buttonName)
 	local frame = getglobal(buttonName)
@@ -77,7 +70,6 @@ local function ZHunterMod_EnsureButtonFrame(buttonName)
 		else
 			created:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 		end
-		ZHunterMod_LogDeferred("DeferredInit: created missing frame " .. tostring(buttonName))
 	end
 	return created
 end
@@ -94,15 +86,6 @@ function ZHunterMod_DeferredInit()
 	local companions = ZHunterMod_EnsureButtonFrame("zButtonCompanions")
 	local toys = ZHunterMod_EnsureButtonFrame("zButtonToys")
 	
-	ZHunterMod_LogDeferred("DeferredInit: Pet=" .. tostring(pet ~= nil))
-	ZHunterMod_LogDeferred("DeferredInit: Aspect=" .. tostring(aspect ~= nil))
-	ZHunterMod_LogDeferred("DeferredInit: Track=" .. tostring(track ~= nil))
-	ZHunterMod_LogDeferred("DeferredInit: Trap=" .. tostring(trap ~= nil))
-	ZHunterMod_LogDeferred("DeferredInit: Ranged=" .. tostring(ranged ~= nil))
-	ZHunterMod_LogDeferred("DeferredInit: Ammo=" .. tostring(ammo ~= nil))
-	ZHunterMod_LogDeferred("DeferredInit: Mounts=" .. tostring(mounts ~= nil))
-	ZHunterMod_LogDeferred("DeferredInit: Companions=" .. tostring(companions ~= nil))
-	ZHunterMod_LogDeferred("DeferredInit: Toys=" .. tostring(toys ~= nil))
 
 	-- Continue with all frames that exist; do not hard-abort when one optional frame is missing.
 	local missing = {}
@@ -202,7 +185,7 @@ function ZHunterMod_DeferredInit()
 
 	if type(MTH_ZH_OnDeferredInitComplete) == "function" then
 		local ok, err = pcall(MTH_ZH_OnDeferredInitComplete)
-		if not ok and MTH_DebugFrame and MTH_DebugFrame.AddError then
+		if not ok then
 			MTH_ZH_Print("[ZHUNTER] DeferredInit callback error: " .. tostring(err), "error")
 		end
 	end

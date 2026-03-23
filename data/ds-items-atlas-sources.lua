@@ -137,6 +137,11 @@ local MTH_DS_AtlasSources = {
   [9426] = {["boss"] = true, },
   [9456] = {["boss"] = true, },
   [9487] = {["boss"] = true, },
+  [42198] = {["crafted"] = true, },
+  [42199] = {["crafted"] = true, },
+  [42200] = {["crafted"] = true, },
+  [42201] = {["crafted"] = true, },
+  [42202] = {["crafted"] = true, },
 }
 
 for itemId, sourceMap in pairs(MTH_DS_AtlasSources) do

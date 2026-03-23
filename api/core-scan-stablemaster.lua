@@ -429,9 +429,7 @@ local function MTH_PETS_LogConsistency(line)
 	return
 end
 
-local function MTH_PETS_LogTame(line)
-	return
-end
+local function MTH_PETS_LogTame(_) end
 
 local function MTH_PETS_FormatRowConsistency(row)
 	if type(row) ~= "table" then
@@ -856,9 +854,19 @@ local function MTH_PETS_ParseCreatureIdFromGuid(guid)
 		return nil
 	end
 
+	-- TBC-style string GUID: "Creature-realm-map-inst-?-ENTRY-spawn"
 	local _, _, creatureIdText = string.find(guidText, "^Creature%-%d+%-%d+%-%d+%-%d+%-(%d+)%-%d+$")
 	if creatureIdText then
 		return tonumber(creatureIdText)
+	end
+
+	-- Vanilla/TurtleWoW hex GUID: "0xF130EEEEEECCCCCC" — entry is bits 24-47 (hex chars 7-12)
+	if string.sub(guidText, 1, 2) == "0x" and string.len(guidText) >= 14 then
+		local entryHex = string.sub(guidText, 7, 12)
+		local parsed = tonumber(entryHex, 16)
+		if parsed and parsed > 0 then
+			return parsed
+		end
 	end
 
 	return nil
@@ -2553,7 +2561,6 @@ function MTH_PETS_RunSavedVarCleanup(pets)
 	pets._betaFreshStoreApplied = nil
 
 	if purged > 0 and MTH and MTH.Print then
-		MTH:Print("Cleaned up " .. tostring(purged) .. " stale pet-update records from SavedVariables.", "debug")
 	end
 end
 
@@ -3400,7 +3407,6 @@ end
 
 local function MTH_ST_DebugDumpLine(line)
 	if MTH and MTH.Print then
-		MTH:Print(tostring(line or ""), "debug")
 	end
 end
 
@@ -3543,7 +3549,6 @@ function MTH_CommandPetsState()
 		.. " petTrainingLastScan=" .. tostring(petTraining and petTraining.lastScan or 0)
 		.. " hasCompletedPetScan=" .. tostring(petTraining and petTraining.hasCompletedPetScan or nil)
 	MTH:Print(summary)
-	MTH:Print("[PETSSTATE] " .. summary, "debug")
 end
 
 function MTH_CommandPetsReset()
@@ -3628,7 +3633,6 @@ function MTH_CommandPetsReset()
 		.. " preservedHistory=" .. tostring(historyCount)
 		.. " nextId=" .. tostring(store.nextId)
 	MTH:Print(line)
-	MTH:Print("[PETSRESET] " .. line, "debug")
 	return true
 end
 
@@ -3784,9 +3788,8 @@ function MTH_ST_HandleSpellcastEvent(evt, eventArg1, eventArg2)
 
 	if evt == "SPELLCAST_START" or evt == "SPELLCAST_CHANNEL_START"
 		or evt == "UNIT_SPELLCAST_START" or evt == "UNIT_SPELLCAST_CHANNEL_START" then
-		if not MTH_PETS_IsTameBeastSpellName(castSpellName) then
-			return true
-		end
+		-- For vanilla SPELLCAST_* events arg1 is a duration (ms), not spell name.
+		-- Always forward to RecordTameAttempt — it has all the fallback/heuristic logic.
 		MTH_PETS_RecordTameAttempt(evt, castSpellName)
 		return true
 	end
@@ -4156,6 +4159,12 @@ function MTH_ST_InitService()
 	MTH_PetLifecycleEventFrame:RegisterEvent("UNIT_PET")
 	MTH_PetLifecycleEventFrame:RegisterEvent("PET_BAR_UPDATE")
 	MTH_PetLifecycleEventFrame:RegisterEvent("UNIT_HAPPINESS")
+	MTH_PetLifecycleEventFrame:RegisterEvent("SPELLCAST_CHANNEL_START")
+	MTH_PetLifecycleEventFrame:RegisterEvent("SPELLCAST_CHANNEL_STOP")
+	MTH_PetLifecycleEventFrame:RegisterEvent("SPELLCAST_START")
+	MTH_PetLifecycleEventFrame:RegisterEvent("SPELLCAST_STOP")
+	MTH_PetLifecycleEventFrame:RegisterEvent("SPELLCAST_FAILED")
+	MTH_PetLifecycleEventFrame:RegisterEvent("SPELLCAST_INTERRUPTED")
 	MTH_PetLifecycleEventFrame:RegisterEvent("CHAT_MSG_COMBAT_XP_GAIN")
 	MTH_PetLifecycleEventFrame:RegisterEvent("PLAYER_XP_UPDATE")
 	MTH_PetLifecycleEventFrame:RegisterEvent("CHAT_MSG_SYSTEM")
@@ -4172,7 +4181,6 @@ function MTH_ST_InitService()
 	MTH_PETS_InstallCoreRenameHook()
 	MTH_PETS_EmitLiveState("service:init", true)
 	if MTH_PETS_TRACE_CONSISTENCY and MTH and MTH.Print then
-		MTH:Print("[PETCONSIST] trace enabled", "debug")
 	end
 end
 

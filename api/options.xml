@@ -46,12 +46,12 @@
 		<Frames>
 			<Frame name="$parentNav" enableMouse="true">
 				<Size>
-					<AbsDimension x="120" y="540"/>
+					<AbsDimension x="120" y="566"/>
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="12" y="-72"/>
+							<AbsDimension x="12" y="-58"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -82,6 +82,7 @@
 			<Frame name="$parentAutoBuy" hidden="true" enableMouse="true"/>
 			<Frame name="$parentAutoQuest" hidden="true" enableMouse="true"/>
 			<Frame name="$parentICU" hidden="true" enableMouse="true"/>
+			<Frame name="$parentExpAmmo" hidden="true" enableMouse="true"/>
 			<Frame name="$parentChronometer" hidden="true" enableMouse="true"/>
 			<Frame name="$parentCredits" hidden="true" enableMouse="true"/>
 

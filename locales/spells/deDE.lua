@@ -2,6 +2,11 @@ MTH_LocaleData = MTH_LocaleData or {}
 MTH_LocaleData.spells = MTH_LocaleData.spells or {}
 
 MTH_LocaleData.spells.deDE = {
+  ["Aimed Shot"] = "Gezielter Schuss",
+  ["Kill Command"] = "Todesbefehl",
+  ["Lock and Load"] = "Lock and Load",
+  ["Scent of Blood"] = "Blutgeruch",
+  ["Aspect of the Viper"] = "Aspekt der Viper",
   ["Banish"] = "Verbannen",
   ["Bestial Wrath"] = "Zorn des Wildtiers",
   ["Concussive Shot"] = "Erschütternder Schuss",

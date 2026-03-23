@@ -1,7 +1,6 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI.xsd">
   <Include file="..\api\constants.lua"/>
-  <Include file="..\api\debug-frame.lua"/>
   <Include file="..\api\minimap-button.lua"/>
   <Include file="..\api\AutoStrip.xml"/>
   <Include file="..\api\AutoStrip.lua"/>
@@ -17,6 +16,7 @@
   <Include file="..\api\options-autobuy.lua"/>
   <Include file="..\api\options-autoquest.lua"/>
   <Include file="..\api\options-icu.lua"/>
+  <Include file="..\api\options-expammo.lua"/>
   <Include file="..\api\profile.lua"/>
   <Include file="..\api\options-profiles.lua"/>
   <Include file="..\api\options-shell.lua"/>
@@ -33,6 +33,7 @@
   <Include file="..\api\hunterbook-tab-pethistory.lua"/>
   <Include file="..\api\hunterbook-model-viewer.lua"/>
   <Include file="..\api\map-markers.lua"/>
+  <Include file="..\api\debug-frame.lua"/>
   <Include file="..\api\core-framework.lua"/>
   <Include file="..\api\core-scan-stablemaster.lua"/>
   <Include file="..\api\pets-service-lifecycle.lua"/>
@@ -41,6 +42,8 @@
   <Include file="..\api\pets-service-stablescan.lua"/>
   <Include file="..\api\core-scan-beasttraining.lua"/>
   <Include file="..\api\core-scan-spellbookpet.lua"/>
+  <Include file="..\api\beastlore-scan.lua"/>
+  <Include file="..\api\core-scan-huntertalents.lua"/>
   <Include file="..\api\core.lua"/>
   <Include file="..\api\version-check.lua"/>
   <Include file="..\api\localization.lua"/>

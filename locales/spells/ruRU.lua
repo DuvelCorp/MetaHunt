@@ -2,6 +2,11 @@ MTH_LocaleData = MTH_LocaleData or {}
 MTH_LocaleData.spells = MTH_LocaleData.spells or {}
 
 MTH_LocaleData.spells.ruRU = {
+  ["Aimed Shot"] = "Прицельный выстрел",
+  ["Aspect of the Viper"] = "Аспект гадюки",
+  ["Kill Command"] = "Приказ убивать",
+  ["Lock and Load"] = "Lock and Load",
+  ["Scent of Blood"] = "Запах крови",
   ["Banish"] = "Изгнание",
   ["Bestial Wrath"] = "Звериный гнев",
   ["Concussive Shot"] = "Контузящий выстрел",

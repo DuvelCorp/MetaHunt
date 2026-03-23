@@ -1,0 +1,6 @@
+<!--
+  MetaHunt: Experimental Ammunition Module Loader
+-->
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+  <Include file="engine.lua"/>
+</Ui>

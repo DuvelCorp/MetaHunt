@@ -118,4 +118,9 @@
 	<Binding name="ZPet 6" header="ZPetHeader">
 		zButtonPet_KeyBinding(6)
 	</Binding>
+
+	<!-- ExpAmmo Action Button -->
+	<Binding name="ExpAmmo Action" header="ExpAmmoHeader">
+		MTH_EA_CastActionSpell();
+	</Binding>
 </Ui>

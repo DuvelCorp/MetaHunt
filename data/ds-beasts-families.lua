@@ -233,7 +233,7 @@ MTH_DS_Families = {
       "Scorpid Poison",
     },
   },
-  ["Serpents (Cobra)"] = {
+  ["Serpents"] = {
     ["icon"] = "Ability_Hunter_Pet_Serpent1",
     ["named"] = 10,
     ["coords"] = 13,
@@ -331,6 +331,23 @@ MTH_DS_Families = {
       "Dash",
       "Furious Howl",
       "Growl",
+    },
+  },
+  -- ── Added TWoW 1.18.1 "Nightmares of Ursol" ──────────────────
+  ["Moths"] = {
+    ["icon"] = "Ability_Hunter_Pet_Moth",  -- TODO: confirm MPQ icon name
+    ["named"] = 0,
+    ["coords"] = 0,
+    ["food"] = {
+      "fruit",
+      "fungus",
+    },
+    ["abilities"] = {
+      "Bite",
+      "Cower",
+      "Growl",
+      "Pollen Burst",  -- family unique: 40 Focus, Instant, 30s CD
+                       -- Heals party 308-338 (30yd), -20% atk speed targets (10yd, 8s)
     },
   },
 }

@@ -6,7 +6,7 @@
 local MTH_FeedOMatic = {
 	name = "feedomatic",
 	enabled = false,
-	version = "1.3.0",
+	version = "1.4.0",
 	events = {
 		"VARIABLES_LOADED",
 			"MERCHANT_SHOW",
@@ -112,10 +112,6 @@ local function MTH_FeedOMatic_CallLegacyOnEvent(evt, a1, a2, a3, a4, a5, a6, a7,
 	event = oldEvent
 	arg1, arg2, arg3, arg4, arg5 = oldArg1, oldArg2, oldArg3, oldArg4, oldArg5
 	arg6, arg7, arg8, arg9 = oldArg6, oldArg7, oldArg8, oldArg9
-
-	if not ok and MTH and MTH.DebugPrint then
-		MTH:DebugPrint("FeedOMatic legacy OnEvent call failed for event: " .. tostring(evt))
-	end
 end
 
 local function MTH_FeedOMatic_EnsureVariablesLoaded(module)
@@ -166,8 +162,7 @@ end
 
 local function MTH_FeedOMatic_Log(message, severity)
 	if type(MTH_Log) == "function" then
-		local logSeverity = severity or "debug"
-		MTH_Log("[FeedOMatic] " .. tostring(message or ""), logSeverity)
+		MTH_Log("[FeedOMatic] " .. tostring(message or ""), severity)
 	end
 end
 
@@ -198,10 +193,8 @@ local function MTH_FeedOMatic_DebugMerchantScan(sourceEvent)
 			if type(rows) == "table" then
 				dietCount = table.getn(rows)
 			end
-			MTH_FeedOMatic_Log("diet " .. tostring(dietName) .. ": " .. tostring(dietCount) .. " item(s)", "debug")
 			if type(rows) == "table" then
 				for _, row in rows do
-					MTH_FeedOMatic_Log("  - [" .. tostring(row.id) .. "] " .. tostring(row.name) .. " (slot=" .. tostring(row.index) .. ")", "debug")
 				end
 			end
 		end
@@ -209,7 +202,6 @@ local function MTH_FeedOMatic_DebugMerchantScan(sourceEvent)
 
 	if unknownCount > 0 and type(merchantFoods.unknown) == "table" then
 		for _, row in merchantFoods.unknown do
-			MTH_FeedOMatic_Log("unknown map: [" .. tostring(row.id) .. "] " .. tostring(row.name) .. " (slot=" .. tostring(row.index) .. ")", "debug")
 		end
 	end
 end
@@ -228,7 +220,6 @@ local function MTH_FeedOMatic_SetMerchantProbeEnabled(enabled)
 		MTH_FOM_MerchantProbe:SetScript("OnEvent", function()
 			local evt = event
 			if evt == "MERCHANT_SHOW" or evt == "MERCHANT_UPDATE" then
-				MTH_FeedOMatic_Log("probe event received: " .. tostring(evt), "debug")
 				MTH_FeedOMatic_DebugMerchantScan(evt)
 			end
 		end)
@@ -236,7 +227,6 @@ local function MTH_FeedOMatic_SetMerchantProbeEnabled(enabled)
 
 	MTH_FOM_MerchantProbe:RegisterEvent("MERCHANT_SHOW")
 	MTH_FOM_MerchantProbe:RegisterEvent("MERCHANT_UPDATE")
-	MTH_FeedOMatic_Log("merchant probe enabled", "debug")
 end
 
 function MTH_FeedOMatic:init()

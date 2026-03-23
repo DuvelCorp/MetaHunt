@@ -56,6 +56,11 @@ local function MTH_DS_ApplyCapturedProjectileQualities()
 		[18042] = 2,
 		[19316] = 2,
 		[19317] = 2,
+		[42198] = 2,
+		[42199] = 2,
+		[42200] = 2,
+		[42201] = 3,
+		[42202] = 3,
 	}
 
 	for itemId, quality in pairs(capturedQualityByItemId) do

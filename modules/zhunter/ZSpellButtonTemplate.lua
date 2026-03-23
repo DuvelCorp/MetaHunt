@@ -536,13 +536,6 @@ local function ZSpellButton_SaveParentPosition(parent)
 	saved["parent"]["relativePoint"] = tostring(relPoint)
 	saved["parent"]["x"] = math.floor(x + 0.5)
 	saved["parent"]["y"] = math.floor(y + 0.5)
-	if type(MTH_ZH_Trace) == "function" then
-		MTH_ZH_Trace("persist-parent-position key=" .. tostring(key)
-			.. " point=" .. tostring(saved["parent"]["point"])
-			.. " rel=" .. tostring(saved["parent"]["relativePoint"])
-			.. " x=" .. tostring(saved["parent"]["x"])
-			.. " y=" .. tostring(saved["parent"]["y"]))
-	end
 end
 
 local function ZSpellButton_RestoreParentPosition(parent)
@@ -580,13 +573,6 @@ local function ZSpellButton_RestoreParentPosition(parent)
 
 	parent:ClearAllPoints()
 	parent:SetPoint(point, UIParent, relPoint, px, py)
-	if type(MTH_ZH_Trace) == "function" then
-		MTH_ZH_Trace("restore-parent-position key=" .. tostring(key)
-			.. " point=" .. tostring(point)
-			.. " rel=" .. tostring(relPoint)
-			.. " x=" .. tostring(px)
-			.. " y=" .. tostring(py))
-	end
 	return true
 end
 
@@ -697,9 +683,6 @@ function ZSpellButtonParent_OnLoad()
 	if this.SetScript then
 		this:SetScript("OnDragStart", function()
 			if IsAltKeyDown() then
-				if type(MTH_ZH_TraceButtonPoint) == "function" then
-					MTH_ZH_TraceButtonPoint(this, "drag-start")
-				end
 				this:StartMoving()
 				this.isMoving = true
 			end
@@ -713,9 +696,6 @@ function ZSpellButtonParent_OnLoad()
 			end
 			ZSpellButton_SaveParentPosition(this)
 			this.isMoving = false
-			if type(MTH_ZH_TraceButtonPoint) == "function" then
-				MTH_ZH_TraceButtonPoint(this, "drag-stop")
-			end
 		end)
 		this:SetScript("OnMouseUp", function()
 			if this and this.isMoving then
@@ -724,9 +704,6 @@ function ZSpellButtonParent_OnLoad()
 				end
 				ZSpellButton_SaveParentPosition(this)
 				this.isMoving = false
-				if type(MTH_ZH_TraceButtonPoint) == "function" then
-					MTH_ZH_TraceButtonPoint(this, "mouse-up-stop")
-				end
 			end
 		end)
 	end

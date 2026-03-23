@@ -5,7 +5,7 @@ end
 local root = zButtonAspect_GetRoot()
 if not root["zButtonAspect"] then
 	root["zButtonAspect"] = {}
-	root["zButtonAspect"]["spells"] = {1, 2, 3, 4, 5, 6, 7}
+	root["zButtonAspect"]["spells"] = {1, 2, 3, 4, 5, 6, 7, 8}
 	root["zButtonAspect"]["rows"] = 1
 	root["zButtonAspect"]["horizontal"] = nil
 	root["zButtonAspect"]["vertical"] = nil
@@ -28,7 +28,8 @@ ZHunterMod_Aspect_Spells = {
 	ZHUNTER_ASPECT_CHEETAH,
 	ZHUNTER_ASPECT_PACK,
 	ZHUNTER_ASPECT_WILD,
-	ZHUNTER_ASPECT_BEAST
+	ZHUNTER_ASPECT_BEAST,
+	ZHUNTER_ASPECT_VIPER
 }
 
 local ZHUNTER_ASPECT_MAX = table.getn(ZHunterMod_Aspect_Spells)
