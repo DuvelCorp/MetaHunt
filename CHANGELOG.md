@@ -8,11 +8,11 @@ All notable changes to MetaHunt will be documented in this file.
 
 - **Complete beast database overhaul**: The MTH beast datastore was reconstructed from scratch, based on a full (beasts) 1.18.1 extract from live DB, gladly provided by Twow staff (thanks @Haaxor!). The beast data should now be 100% accurate, and notably all spawn coordinates, respawn times and pet abilities learnable on all beasts in the world.
 
-- The **Beast Lore** page of the Book now allows to filter the list by Zone. Additionaly, the beast inspector has been reformated and all meaningful beast's data is displayed nicely.
+- The **Beast Lore** page of the Book now allows to filter the list by Zone. Additionally, the beast inspector has been reformatted and all meaningful beast's data is displayed nicely.
 
 - All new and missing **Beasts Models** have been (re)scanned from MPQ game files and are viewable in the Beast Lore page, and browsable in the Family Model viewer. 
 
-- Added **MM widget** module: tracks the new 3-state of Experimental ammo cycle (Fire → Nature → Arcane), the Lock and Load procs, and has adynamic cell that shows either Aimed Shot availability or the right shot to use following the current Experimental ammo proc if any. Lets Make MM great again.
+- Added **MM widget** module: tracks the new 3-state of Experimental ammo cycle (Fire → Nature → Arcane), the Lock and Load procs, and has a dynamic cell that shows either Aimed Shot availability or the right shot to use following the current Experimental ammo proc if any. Lets Make MM great again.
 
 - Added new **Moth** pet family.
 
@@ -46,7 +46,7 @@ All notable changes to MetaHunt will be documented in this file.
 ### Fixed
 
 - Fixed **Chronometer** bars appearing from nearby players' combat events (e.g. another hunter's traps or DoTs triggering your own bars).
-- Fixed the list in Families Book's page, that wasnt tall enough to display all famillies (wolves were hidden).
+- Fixed the list in Families Book's page, that wasn't tall enough to display all families (wolves were hidden).
 
 ## [1.3.0] - 2026-03-19
 
