@@ -40,10 +40,13 @@ function MTH_ChronometerHunterInstallData(engine)
 		engine:AddTimer(engine.SPELL, BS["Wyvern Sting"], 12, 1, 0, 0, { gr = 2, cr = "MAROON", rc = true })
 		engine:AddTimer(engine.SPELL, BS["Feed Pet"], 20, 0, 0, 0, { cr = "MAROON" })
 
-		engine:AddTimer(engine.EVENT, BS["Explosive Trap Effect"], 20, 1, 0, 1, { gr = 1, cr = "ORANGE", a = 1, xn = BS["Explosive Trap"] })
-		engine:AddTimer(engine.EVENT, BS["Freezing Trap Effect"], 10, 1, 0, 1, { gr = 1, cr = "CYAN", a = 1, d = { rs = 5, tn = BS["Clever Traps"], tb = 0.15, tp = 1 }, xn = BS["Freezing Trap"] })
-		engine:AddTimer(engine.EVENT, BS["Frost Trap Aura"], 30, 0, 0, 0, { gr = 1, cr = "CYAN", a = 1, d = { tn = BS["Clever Traps"], tb = 0.15, tp = 1 }, xn = BS["Frost Trap"] })
-		engine:AddTimer(engine.EVENT, BS["Immolation Trap Effect"], 15, 1, 0, 1, { gr = 1, cr = "ORANGE", a = 1, xn = BS["Immolation Trap"] })
+		-- Trap effects: no "a=1" here — primed by the SPELL timer's "ea" chain (cast hook sets timer.v
+		-- and timer.t). Using "a=1" would trigger on any hunter's affliction message since
+		-- CHAT_MSG_SPELL_PERIODIC_CREATURE_BUFFS never embeds a caster name.
+		engine:AddTimer(engine.EVENT, BS["Explosive Trap Effect"], 20, 1, 0, 1, { gr = 1, cr = "ORANGE", xn = BS["Explosive Trap"] })
+		engine:AddTimer(engine.EVENT, BS["Freezing Trap Effect"], 10, 1, 0, 1, { gr = 1, cr = "CYAN", d = { rs = 5, tn = BS["Clever Traps"], tb = 0.15, tp = 1 }, xn = BS["Freezing Trap"] })
+		engine:AddTimer(engine.EVENT, BS["Frost Trap Aura"], 30, 0, 0, 0, { gr = 1, cr = "CYAN", d = { tn = BS["Clever Traps"], tb = 0.15, tp = 1 }, xn = BS["Frost Trap"] })
+		engine:AddTimer(engine.EVENT, BS["Immolation Trap Effect"], 15, 1, 0, 1, { gr = 1, cr = "ORANGE", xn = BS["Immolation Trap"] })
 		engine:AddTimer(engine.EVENT, BS["Improved Concussive Shot"], 3, 1, 0, 0, { a = 1, cr = "BLUE", xn = BS["Concussive Shot"] })
 		engine:AddTimer(engine.EVENT, BS["Improved Wing Clip"], 5, 1, 0, 0, { a = 1, cr = "MAROON", xn = BS["Wing Clip"] })
 		engine:AddTimer(engine.EVENT, BS["Lock and Load"], 10, 0, 1, 1, { a = 1, cr = "MAROON", tx = "Interface\\Icons\\ability_hunter_lockandload" })  -- 10s (tooltip confirmed; expires on Aimed Shot cast)

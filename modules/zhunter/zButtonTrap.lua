@@ -154,7 +154,8 @@ function zButtonTrap_SetupSizeAndPosition()
 	zButtonTrap_EnsureConfig()
 	local saved = zButtonTrap_GetSaved()
 	if saved["enabled"] == false or saved["enabled"] == 0 then
-		if MTH_ZH_TrapAdjust and MTH_ZH_TrapAdjust.SetScript then
+		if MTH_ZH_TrapAdjust then
+			MTH_ZH_TrapAdjust:UnregisterAllEvents()
 			MTH_ZH_TrapAdjust:SetScript("OnEvent", nil)
 		end
 		if zButtonTrap and zButtonTrap.Hide then
@@ -162,7 +163,12 @@ function zButtonTrap_SetupSizeAndPosition()
 		end
 		return
 	end
-	if MTH_ZH_TrapAdjust and MTH_ZH_TrapAdjust.SetScript then
+	if MTH_ZH_TrapAdjust then
+		MTH_ZH_TrapAdjust:RegisterEvent("PLAYER_REGEN_ENABLED")
+		MTH_ZH_TrapAdjust:RegisterEvent("PLAYER_REGEN_DISABLED")
+		MTH_ZH_TrapAdjust:RegisterEvent("PLAYER_ENTERING_WORLD")
+		MTH_ZH_TrapAdjust:RegisterEvent("SPELLS_CHANGED")
+		MTH_ZH_TrapAdjust:RegisterEvent("CHARACTER_POINTS_CHANGED")
 		MTH_ZH_TrapAdjust:SetScript("OnEvent", MTH_ZH_TrapAdjust_OnEvent)
 	end
 	local displayCount = zButtonTrap.found or ZHUNTER_TRAP_MAX

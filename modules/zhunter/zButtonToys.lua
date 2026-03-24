@@ -249,7 +249,8 @@ end
 function zButtonToys_SetupSizeAndPosition()
 	local saved = zButtonToys_GetSaved()
 	if saved["enabled"] == false or saved["enabled"] == 0 then
-		if MTH_ZH_ToysAdjust and MTH_ZH_ToysAdjust.SetScript then
+		if MTH_ZH_ToysAdjust then
+			MTH_ZH_ToysAdjust:UnregisterAllEvents()
 			MTH_ZH_ToysAdjust:SetScript("OnEvent", nil)
 		end
 		if zButtonToys and zButtonToys.Hide then
@@ -257,7 +258,9 @@ function zButtonToys_SetupSizeAndPosition()
 		end
 		return
 	end
-	if MTH_ZH_ToysAdjust and MTH_ZH_ToysAdjust.SetScript then
+	if MTH_ZH_ToysAdjust then
+		MTH_ZH_ToysAdjust:RegisterEvent("SPELLS_CHANGED")
+		MTH_ZH_ToysAdjust:RegisterEvent("PLAYER_ENTERING_WORLD")
 		MTH_ZH_ToysAdjust:SetScript("OnEvent", MTH_ZH_ToysAdjust_OnEvent)
 	end
 	local displayCount = zButtonToys.found or 0

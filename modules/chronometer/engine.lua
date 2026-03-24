@@ -580,14 +580,18 @@ function Chronometer:OnEnable()
 	self.parser:RegisterEvent(PARSER_OWNER, "CHAT_MSG_SPELL_AURA_GONE_SELF", function(event, info) self:SPELL_FADE(event, info) end)
 	self.parser:RegisterEvent(PARSER_OWNER, "CHAT_MSG_SPELL_AURA_GONE_OTHER", function(event, info) self:SPELL_FADE(event, info) end)
 
+	-- Registered events:
+	--   SELF_BUFFS / SELF_DAMAGE   → our own procs & self-damage (source == ParserLib_SELF confirmed)
+	--   CREATURE_DAMAGE            → DOT ticks on creatures ("from your X" embeds source; filtered in SPELL_PERIODIC)
+	--   CREATURE_BUFFS             → debuff APPLICATION on creatures ("X is afflicted by Y"; no source embedded).
+	--                                Needed for non-ticking debuffs: Poisonous/Enchanted Ammunition, Piercing Shot.
+	--                                Foreign-bar risk is mitigated in SPELL_PERIODIC by requiring victim == target
+	--                                when source is nil and no confirmed cast record exists.
+	-- FRIENDLYPLAYER_*, HOSTILEPLAYER_* are other players' events → intentionally NOT registered.
 	self.parser:RegisterEvent(PARSER_OWNER, "CHAT_MSG_SPELL_PERIODIC_CREATURE_DAMAGE", function(event, info) self:SPELL_PERIODIC(event, info) end)
 	self.parser:RegisterEvent(PARSER_OWNER, "CHAT_MSG_SPELL_PERIODIC_CREATURE_BUFFS", function(event, info) self:SPELL_PERIODIC(event, info) end)
-	self.parser:RegisterEvent(PARSER_OWNER, "CHAT_MSG_SPELL_PERIODIC_HOSTILEPLAYER_BUFFS", function(event, info) self:SPELL_PERIODIC(event, info) end)
-	self.parser:RegisterEvent(PARSER_OWNER, "CHAT_MSG_SPELL_PERIODIC_HOSTILEPLAYER_DAMAGE", function(event, info) self:SPELL_PERIODIC(event, info) end)
 	self.parser:RegisterEvent(PARSER_OWNER, "CHAT_MSG_SPELL_PERIODIC_SELF_BUFFS", function(event, info) self:SPELL_PERIODIC(event, info) end)
 	self.parser:RegisterEvent(PARSER_OWNER, "CHAT_MSG_SPELL_PERIODIC_SELF_DAMAGE", function(event, info) self:SPELL_PERIODIC(event, info) end)
-	self.parser:RegisterEvent(PARSER_OWNER, "CHAT_MSG_SPELL_PERIODIC_FRIENDLYPLAYER_BUFFS", function(event, info) self:SPELL_PERIODIC(event, info) end)
-	self.parser:RegisterEvent(PARSER_OWNER, "CHAT_MSG_SPELL_PERIODIC_FRIENDLYPLAYER_DAMAGE", function(event, info) self:SPELL_PERIODIC(event, info) end)
 
 	local enableRoM = false
 	for _, timer in pairs(self.timers[self.SPELL] or {}) do
@@ -1274,11 +1278,20 @@ end
 function Chronometer:SPELL_PERIODIC(event, info)
 	local aura, rank, unit, isgain
 
-	-- Ignore events not caused by the player (e.g. other players' DOTs/traps nearby)
+	-- Primary filter: explicit non-self source → always ignore (other player's confirmed event)
 	if info.source and info.source ~= ParserLib_SELF then return end
+
+	-- Secondary filter: creature/friendly periodic events do NOT embed a caster name,
+	-- so info.source is nil even for other players' effects.  Track whether this event
+	-- was provably ours (SELF_BUFFS / SELF_DAMAGE events give source == ParserLib_SELF).
+	local sourceIsConfirmedSelf = (info.source == ParserLib_SELF)
 
 	if info.type == "buff" then
 		isgain = 1
+		-- Buff gained by someone other than self with no source confirmation → another player's proc
+		if not sourceIsConfirmedSelf and info.victim ~= nil and info.victim ~= ParserLib_SELF then
+			return
+		end
 	elseif info.type == "debuff" then
 		isgain = nil
 	elseif not info.isDOT then
@@ -1306,7 +1319,27 @@ function Chronometer:SPELL_PERIODIC(event, info)
 		if timer.k.t then
 			if not unit then unit = UnitName("player") end
 			if timer.k.s then
-				if timer.t and timer.t ~= unit then return end
+				-- Selforselect: four-tier confirmation.
+				-- 1. Confirmed cast record (timer.t set by CastSpell hook): require target match.
+				-- 2. Confirmed self source (SELF_BUFFS / SELF_DAMAGE events, source == SELF): accept.
+				-- 3. Cast-window confirmed (timer.v fresh, timer.t nil): untargeted spells like traps
+				--    where the caster is known but the trigger victim cannot be predicted in advance.
+				--    Accept unconditionally — the mob that walked into the trap may not be our target.
+				-- 4. Source unconfirmed AND no cast record (CREATURE_BUFFS affliction messages never
+				--    embed a caster name): fall back to target-check.  This lets non-ticking debuffs
+				--    (Poisonous Ammo, Enchanted Ammo, Piercing Shot…) show when applied to our current
+				--    target, while blocking the same debuff on a mob we are NOT targeting (i.e. another
+				--    player's debuff on a different dummy).
+				if timer.t then
+					if timer.t ~= unit then return end
+				elseif sourceIsConfirmedSelf then
+					-- source confirmed → accept unconditionally
+				elseif timer.v and timer.v > GetTime() then
+					-- cast-window confirmed, timer.t nil → untargeted cast (e.g. trap placed on ground)
+					-- victim unknown at cast time; accept whatever mob triggered it
+				elseif not UnitExists("target") or unit ~= UnitName("target") then
+					return
+				end
 			else
 				if not UnitExists("target") or unit ~= UnitName("target") then return end
 			end

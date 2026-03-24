@@ -249,7 +249,8 @@ end
 function zButtonMounts_SetupSizeAndPosition()
 	local saved = zButtonMounts_GetSaved()
 	if saved["enabled"] == false or saved["enabled"] == 0 then
-		if MTH_ZH_MountsAdjust and MTH_ZH_MountsAdjust.SetScript then
+		if MTH_ZH_MountsAdjust then
+			MTH_ZH_MountsAdjust:UnregisterAllEvents()
 			MTH_ZH_MountsAdjust:SetScript("OnEvent", nil)
 		end
 		if zButtonMounts and zButtonMounts.Hide then
@@ -257,7 +258,9 @@ function zButtonMounts_SetupSizeAndPosition()
 		end
 		return
 	end
-	if MTH_ZH_MountsAdjust and MTH_ZH_MountsAdjust.SetScript then
+	if MTH_ZH_MountsAdjust then
+		MTH_ZH_MountsAdjust:RegisterEvent("SPELLS_CHANGED")
+		MTH_ZH_MountsAdjust:RegisterEvent("PLAYER_ENTERING_WORLD")
 		MTH_ZH_MountsAdjust:SetScript("OnEvent", MTH_ZH_MountsAdjust_OnEvent)
 	end
 	local displayCount = zButtonMounts.found or 0
