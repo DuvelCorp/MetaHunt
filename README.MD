@@ -1,12 +1,12 @@
 # MetaHunt
 
 MetaHunt is a Turtle WoW Hunter toolkit.
-It is a modern modular addon that combines never-seen features, and improves/fixes a few old hunter add-ons.
-It provides a bunch useful tools for all huntards, wheter they are still levelling, lone-wolf, or HL raider.
+It is a modern modular addon compiling brand new features, and improving a few old hunter add-ons, that were broken on twow.
+It provides a bunch of useful tools for all huntards, wheter they are still levelling, lone-wolf, or HL raider.
 
  ## Twow Data
 
-MetaHunt ships with large up-to-date datastores for all Turtle WOW data a hunter needs :
+MetaHunt ships with large Turtle WOW datastores :
 
 - 100% accurate beasts' data, their locations, and the abilities they can learn you
 - All Pet families, their abilities and their diet
@@ -31,7 +31,7 @@ MetaHunt ships with large up-to-date datastores for all Turtle WOW data a hunter
  - Vendors : Shows if a vendor sells Arrows and/or Bullets.
  - Your pet : Shows your pet's XP, loyalty, happiness and how much you fed it this session.
 
- ## zBouttons
+ ## zButtons
 
 Old zHunterMod addon on steroids. Fully compatible with Twow, and enhanced with new functionalities
 
@@ -63,6 +63,9 @@ Define your own simple rules for auto buy ammo and pet food when you open a vend
 
 Just spam SHIFT-click on the NPC to validate quests Scorpok and Thorium arrows. Additionally you can have an enhanced tooltip that display your actual Scorpok-related items when you mouseover the mobs involved.
 
+ ## Beast model Viewer
+
+Display the model of all beasts in the world. Always know what you are going to tame exactly before running there ! You can also browse all skin models of the same pet family to find the best-looking pet according to your tastes. 
 
  ## The Great Book of Huntards
 

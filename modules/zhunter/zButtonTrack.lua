@@ -5,7 +5,7 @@ end
 local root = zButtonTrack_GetRoot()
 if not root["zButtonTrack"] then
 	root["zButtonTrack"] = {}
-	root["zButtonTrack"]["spells"] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}
+	root["zButtonTrack"]["spells"] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
 	root["zButtonTrack"]["rows"] = 1
 	root["zButtonTrack"]["horizontal"] = nil
 	root["zButtonTrack"]["vertical"] = nil
@@ -32,7 +32,8 @@ ZHunterMod_Track_Spells = {
 	ZHUNTER_TRACK_GIANTS,
 	ZHUNTER_TRACK_MINERALS,
 	ZHUNTER_TRACK_HERBS,
-	ZHUNTER_TRACK_TREASURE
+	ZHUNTER_TRACK_TREASURE,
+	ZHUNTER_TRACK_TREES
 }
 
 local ZHUNTER_TRACK_MAX = table.getn(ZHunterMod_Track_Spells)
@@ -311,7 +312,8 @@ function zButtonTrack_SetupSizeAndPosition()
 	zButtonTrack_EnsureConfig()
 	local saved = zButtonTrack_GetSaved()
 	if saved["enabled"] == false or saved["enabled"] == 0 then
-		if MTH_ZH_TrackAdjust and MTH_ZH_TrackAdjust.SetScript then
+		if MTH_ZH_TrackAdjust then
+			MTH_ZH_TrackAdjust:UnregisterAllEvents()
 			MTH_ZH_TrackAdjust:SetScript("OnEvent", nil)
 		end
 		if zButtonTrack and zButtonTrack.Hide then
@@ -319,7 +321,12 @@ function zButtonTrack_SetupSizeAndPosition()
 		end
 		return
 	end
-	if MTH_ZH_TrackAdjust and MTH_ZH_TrackAdjust.SetScript then
+	if MTH_ZH_TrackAdjust then
+		MTH_ZH_TrackAdjust:RegisterEvent("MINIMAP_UPDATE_TRACKING")
+		MTH_ZH_TrackAdjust:RegisterEvent("PLAYER_ENTERING_WORLD")
+		MTH_ZH_TrackAdjust:RegisterEvent("SPELLS_CHANGED")
+		MTH_ZH_TrackAdjust:RegisterEvent("CHARACTER_POINTS_CHANGED")
+		MTH_ZH_TrackAdjust:RegisterEvent("LEARNED_SPELL_IN_TAB")
 		MTH_ZH_TrackAdjust:SetScript("OnEvent", MTH_ZH_TrackAdjust_OnEvent)
 	end
 	local displayCount = zButtonTrack.found or ZHUNTER_TRACK_MAX

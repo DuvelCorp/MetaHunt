@@ -235,7 +235,8 @@ end
 function zButtonPet_SetupSizeAndPosition()
 	local saved = zButtonPet_GetSaved()
 	if saved["enabled"] == false or saved["enabled"] == 0 then
-		if MTH_ZH_PetAdjust and MTH_ZH_PetAdjust.SetScript then
+		if MTH_ZH_PetAdjust then
+			MTH_ZH_PetAdjust:UnregisterAllEvents()
 			MTH_ZH_PetAdjust:SetScript("OnEvent", nil)
 		end
 		if zButtonPet and zButtonPet.Hide then
@@ -243,7 +244,14 @@ function zButtonPet_SetupSizeAndPosition()
 		end
 		return
 	end
-	if MTH_ZH_PetAdjust and MTH_ZH_PetAdjust.SetScript then
+	if MTH_ZH_PetAdjust then
+		MTH_ZH_PetAdjust:RegisterEvent("UNIT_HEALTH")
+		MTH_ZH_PetAdjust:RegisterEvent("UNIT_HAPPINESS")
+		MTH_ZH_PetAdjust:RegisterEvent("UNIT_PET")
+		MTH_ZH_PetAdjust:RegisterEvent("PET_BAR_UPDATE")
+		MTH_ZH_PetAdjust:RegisterEvent("PLAYER_ENTERING_WORLD")
+		MTH_ZH_PetAdjust:RegisterEvent("SPELLS_CHANGED")
+		MTH_ZH_PetAdjust:RegisterEvent("LEARNED_SPELL_IN_TAB")
 		MTH_ZH_PetAdjust:SetScript("OnEvent", MTH_ZH_PetAdjust_OnEvent)
 	end
 	local displayCount = zButtonPet.found or ZHUNTER_PET_MAX

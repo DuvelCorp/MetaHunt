@@ -150,6 +150,10 @@ function AutoStrip_SetAutoStripToggle(enabled, silent)
 	if enabled then
 		saved["autostrip"] = 1
 		AutoStrip_On = 1
+		if AutoStrip_Frame then
+			AutoStrip_Frame:RegisterEvent("PLAYER_REGEN_DISABLED")
+			AutoStrip_Frame:RegisterEvent("PLAYER_REGEN_ENABLED")
+		end
 		if AutoStripDisplay and AutoStripDisplay:IsVisible() and AutoStripDisplayAutoCast then
 			AutoStripDisplayAutoCast:Show()
 		end
@@ -159,6 +163,10 @@ function AutoStrip_SetAutoStripToggle(enabled, silent)
 	else
 		saved["autostrip"] = nil
 		AutoStrip_On = nil
+		if AutoStrip_Frame then
+			AutoStrip_Frame:UnregisterEvent("PLAYER_REGEN_DISABLED")
+			AutoStrip_Frame:UnregisterEvent("PLAYER_REGEN_ENABLED")
+		end
 		if AutoStripDisplayAutoCast then
 			AutoStripDisplayAutoCast:Hide()
 		end
@@ -252,10 +260,12 @@ function AutoStrip_UnequipAll(weaponsOnly)
 end
 
 local function AutoStrip_OnEvent()
-	AutoStrip_Trace("OnEvent evt=" .. tostring(event or "")
-		.. " runtime=" .. tostring(AutoStrip_On and 1 or 0)
-		.. " wasInCombat=" .. tostring(AutoStrip_WasInCombat and 1 or 0)
-		.. " playerInCombat=" .. tostring((type(UnitAffectingCombat) == "function" and UnitAffectingCombat("player")) and 1 or 0))
+	if AutoStrip_TraceEnabled then
+		AutoStrip_Trace("OnEvent evt=" .. tostring(event or "")
+			.. " runtime=" .. tostring(AutoStrip_On and 1 or 0)
+			.. " wasInCombat=" .. tostring(AutoStrip_WasInCombat and 1 or 0)
+			.. " playerInCombat=" .. tostring((type(UnitAffectingCombat) == "function" and UnitAffectingCombat("player")) and 1 or 0))
+	end
 	if event == "VARIABLES_LOADED" then
 		local saved = AutoStrip_GetSaved()
 		AutoStrip_Trace("VARIABLES_LOADED saved.autostrip=" .. tostring(saved["autostrip"] and 1 or 0)
@@ -318,9 +328,11 @@ end
 
 AutoStrip_Frame = CreateFrame("Frame", "MTH_AutoStripEvent")
 if AutoStrip_Frame then
+	-- PLAYER_REGEN_DISABLED / PLAYER_REGEN_ENABLED are intentionally NOT registered here.
+	-- They are registered only when the feature is enabled via AutoStrip_SetAutoStripToggle(true),
+	-- and unregistered when it is disabled. This prevents any combat event overhead when the
+	-- feature is off.
 	AutoStrip_Frame:RegisterEvent("VARIABLES_LOADED")
-	AutoStrip_Frame:RegisterEvent("PLAYER_REGEN_DISABLED")
-	AutoStrip_Frame:RegisterEvent("PLAYER_REGEN_ENABLED")
 	AutoStrip_Frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 	AutoStrip_Frame:RegisterEvent("PLAYER_LOGOUT")
 	AutoStrip_Frame:SetScript("OnEvent", AutoStrip_OnEvent)

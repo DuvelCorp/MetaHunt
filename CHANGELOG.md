@@ -2,9 +2,31 @@
 
 All notable changes to MetaHunt will be documented in this file.
 
+## [1.4.1] - 2026-03-24
+
+### Added
+
+- **zTrack**: added `Find Trees` in tracking spells.
+
+### Changed
+
+- **Performance — MM Widget / ExpAmmo**: Replaced tooltip-based aura scanning (which triggered hidden tooltip rendering on every aura check) with direct texture/icon comparison via `UnitBuff`/`UnitDebuff`. Added a 150 ms throttle on `PLAYER_AURAS_CHANGED`, which fires 10–50+ times per second in combat. Lock and Load detection and ammo cycle recovery after `/reload` both updated to use the new zero-cost texture path.
+
+- **Performance — event frame leaks**: Some addon features were registering WoW game events at load time and never unregistering them when the feature was disabled from the options, causing their `OnEvent` handlers to fire even with the option turned off. Fixed for: Auto-Strip (`PLAYER_REGEN_*`), Smart Ammo (`SPELLCAST_*`, `START/STOP_AUTOREPEAT_SPELL`), and some zButton frames (Pet, Mounts, Track, Trap, Toys). Events are now properly registered on enable and unregistered on disable.
+
+- **Chronometer — trap effects from other hunters**: Trap effect bars (`Immolation Trap Effect`, `Explosive Trap Effect`, `Freezing Trap Effect`, `Frost Trap Aura`) were incorrectly appearing when another hunter's trap triggered on a mob you were also targeting. .
+
+- **Version check broadcast interval**: Increased update notification broadcast cooldown from 10 minutes to 1 hour to reduce channel traffic now that the user base has grown.
+
+- **Profile snapshot memory**: The auto `BuildSnapshot` (called on every `/reload` via `PLAYER_LOGOUT`) was deep-copying `feedomatic.legacy`, a large migration table mirroring `FOM_Cooking`, `FOM_QuestFood`, `FOM_AddedFoods` etc. These are runtime/operational blobs, not user configuration settings, and should never be included in a profile. Introduced `MTH_Profile_CopyModules` which skips `legacy` and `history` keys, reducing the snapshot allocation from ~1 MB to a few KB.
+
+
+
 ## [1.4.0] - 2026-03-23
 
 ### TWoW 1.18.1 "Nightmares of Ursol" support
+
+### Added
 
 - **Complete beast database overhaul**: The MTH beast datastore was reconstructed from scratch, based on a full (beasts) 1.18.1 extract from live DB, gladly provided by Twow staff (thanks @Haaxor!). The beast data should now be 100% accurate, and notably all spawn coordinates, respawn times and pet abilities learnable on all beasts in the world.
 

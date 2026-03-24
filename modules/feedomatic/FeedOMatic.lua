@@ -926,7 +926,7 @@ function FOM_OnEvent(event, arg1)
 			end
 			if (foodID) then
 				FOM_LastFood = GFWUtils.ItemLink(foodID);
-				GFWUtils.DebugLog("Manually fed "..FOM_LastFood);
+				FOM_DebugLog("Manually fed "..FOM_LastFood);
 			end
 		end
 		return;
@@ -1245,31 +1245,31 @@ end
 function FOM_CanFeed()
 	local petInfo = MTH_FOM_GetCorePetInfo();
 	if ( not (petInfo and petInfo.liveExists) ) then
-		GFWUtils.DebugLog("Can't feed; pet doesn't exist.");
+		FOM_DebugLog("Can't feed; pet doesn't exist.");
 		return false;
 	end
 	if ( tonumber(petInfo.health) and tonumber(petInfo.health) <= 0 ) then
-		GFWUtils.DebugLog("Can't feed; pet is dead.");
+		FOM_DebugLog("Can't feed; pet is dead.");
 		return false;
 	end
 	if ( UnitHealth("player") <= 0 ) then
-		GFWUtils.DebugLog("Can't feed; I'm dead.");
+		FOM_DebugLog("Can't feed; I'm dead.");
 		return false;
 	end
 	if ( CastingBarFrameStatusBar:IsVisible() ) then
-		GFWUtils.DebugLog("Can't feed; casting a spell / tradeksill.");
+		FOM_DebugLog("Can't feed; casting a spell / tradeksill.");
 		return false;
 	end
 	if ( UnitOnTaxi("player") ) then
-		GFWUtils.DebugLog("Can't feed; flying.");
+		FOM_DebugLog("Can't feed; flying.");
 		return false;
 	end
 	if ( FOM_State.InCombat ) or ( PlayerFrame.inCombat ) then
-		GFWUtils.DebugLog("Can't feed; in combat.");
+		FOM_DebugLog("Can't feed; in combat.");
 		return false;
 	end
 	if ( LootFrame:IsVisible() ) then
-		GFWUtils.DebugLog("Shouldn't feed; loot window is open.");
+		FOM_DebugLog("Shouldn't feed; loot window is open.");
 		return false;
 	end
 	
@@ -1290,7 +1290,7 @@ function FOM_CanFeed()
 		if ( buff ~= nil) then
 			for _, buffTexture in dontFeedBuffTextures do
 				if ( buff == buffTexture ) then
-					GFWUtils.DebugLog("Can't feed; currently, eating, drinking, or feigning death.");
+					FOM_DebugLog("Can't feed; currently, eating, drinking, or feigning death.");
 					return false;
 				end
 			end
@@ -1303,7 +1303,7 @@ function FOM_CanFeed()
 							msg = string.lower(msg);
 							for _, mountName in FOM_MOUNT_NAME_SUBSTRINGS do
 								if (string.find(msg, mountName)) then
-									GFWUtils.DebugLog("Can't feed; mounted.");
+									FOM_DebugLog("Can't feed; mounted.");
 									return false;
 								end
 							end
@@ -1856,13 +1856,13 @@ end
 function FOM_AddFood(diet, food)
 
 	if (FOM_Foods[diet] == nil) then
-		GFWUtils.DebugLog("FOM_Foods[diet] == nil");
+		FOM_DebugLog("FOM_Foods[diet] == nil");
 	end
 	if (FOM_AddedFoods == nil or FOM_AddedFoods[diet] == nil) then
-		GFWUtils.DebugLog("FOM_AddedFoods == nil or FOM_AddedFoods[diet] == nil");
+		FOM_DebugLog("FOM_AddedFoods == nil or FOM_AddedFoods[diet] == nil");
 	end
 	if (FOM_RemovedFoods == nil or FOM_RemovedFoods[diet] == nil) then
-		GFWUtils.DebugLog("FOM_RemovedFoods == nil or FOM_RemovedFoods[diet] == nil");
+		FOM_DebugLog("FOM_RemovedFoods == nil or FOM_RemovedFoods[diet] == nil");
 	end
 	if ( GFWTable.IndexOf(FOM_Foods[diet], food) == 0 ) then
 		if (FOM_AddedFoods == nil) then
@@ -1898,13 +1898,13 @@ end
 function FOM_RemoveFood(diet, food)
 
 	if (FOM_Foods[diet] == nil) then
-		GFWUtils.DebugLog("FOM_Foods[diet] == nil");
+		FOM_DebugLog("FOM_Foods[diet] == nil");
 	end
 	if (FOM_AddedFoods == nil or FOM_AddedFoods[diet] == nil) then
-		GFWUtils.DebugLog("FOM_AddedFoods == nil or FOM_AddedFoods[diet] == nil");
+		FOM_DebugLog("FOM_AddedFoods == nil or FOM_AddedFoods[diet] == nil");
 	end
 	if (FOM_RemovedFoods == nil or FOM_RemovedFoods[diet] == nil) then
-		GFWUtils.DebugLog("FOM_RemovedFoods == nil or FOM_RemovedFoods[diet] == nil");
+		FOM_DebugLog("FOM_RemovedFoods == nil or FOM_RemovedFoods[diet] == nil");
 	end
 	if ( GFWTable.IndexOf(FOM_Foods[diet], food) ~= 0 ) then
 		if (FOM_RemovedFoods == nil) then
@@ -2341,7 +2341,7 @@ function FOM_Feed(aFood, options)
 			foodLevel = selectedFoodLevel,
 		})
 	
-	GFWUtils.DebugLog("Picked "..FOM_LastFood.." (bag "..foodBag..", slot "..foodItem..") for feeding.");
+	FOM_DebugLog("Picked "..FOM_LastFood.." (bag "..foodBag..", slot "..foodItem..") for feeding.");
 	if (FOM_Config.Debug) then
 		-- don't actually feed anything, just show what we would choose
 		return false;
@@ -2708,12 +2708,12 @@ end
 function FOM_IsUsefulFood(itemID, quantity)
 	local foodName = GetItemInfo(itemID);
 	if (foodName == nil) then
-		GFWUtils.DebugLog("Can't get info for item ID "..itemID..", assuming it's OK to eat.");
+		FOM_DebugLog("Can't get info for item ID "..itemID..", assuming it's OK to eat.");
 		return false;
 	end
 	if (FOM_Cooking and FOM_Cooking[FOM_RealmPlayer] and FOM_Cooking[FOM_RealmPlayer][itemID]) then
 		if (FOM_Cooking[FOM_RealmPlayer][itemID] >= FOM_Config.SaveForCookingLevel) then
-			GFWUtils.DebugLog("Skipping "..quantity.."x "..foodName.."; is good for cooking.");
+			FOM_DebugLog("Skipping "..quantity.."x "..foodName.."; is good for cooking.");
 			return true;
 		end
 	end
@@ -2725,19 +2725,19 @@ function FOM_IsUsefulFood(itemID, quantity)
 				FOM_Quantity[foodName] = FOM_Quantity[foodName] + quantity;
 			end
 			if (FOM_Quantity[foodName] > FOM_QuestFood[FOM_RealmPlayer][foodName]) then
-				GFWUtils.DebugLog("Not skipping "..quantity.."x "..foodName.."; is needed for quest, but we have more than enough.");
+				FOM_DebugLog("Not skipping "..quantity.."x "..foodName.."; is needed for quest, but we have more than enough.");
 				return false;
 			else
-				GFWUtils.DebugLog("Skipping "..quantity.."x "..foodName.."; is needed for quest.");
+				FOM_DebugLog("Skipping "..quantity.."x "..foodName.."; is needed for quest.");
 				return true;
 			end
 		end
 	end
 	if (FOM_Config.AvoidBonusFood and FOM_IsInDiet(itemID, FOM_DIET_BONUS)) then
-		GFWUtils.DebugLog("Skipping "..quantity.."x "..foodName.."; has bonus effect when eaten by player.");
+		FOM_DebugLog("Skipping "..quantity.."x "..foodName.."; has bonus effect when eaten by player.");
 		return true;
 	end
-	--GFWUtils.DebugLog("Not skipping "..quantity.."x "..foodName.."; doesn't have other uses.");
+	--FOM_DebugLog("Not skipping "..quantity.."x "..foodName.."; doesn't have other uses.");
 	return false;
 end
 
@@ -2775,7 +2775,7 @@ function FOM_IsInDiet(food, dietList)
 			diet = "";
 		end
 		if (FOM_Foods[diet] == nil) then
-			GFWUtils.DebugLog("FOM_Foods[diet] == nil");
+			FOM_DebugLog("FOM_Foods[diet] == nil");
 		end
 		if (FOM_RemovedFoods ~= nil and FOM_RemovedFoods[diet] ~= nil and GFWTable.IndexOf(FOM_RemovedFoods[diet], food) ~= 0) then
 			return false;

@@ -19,6 +19,30 @@ local function MTH_Profile_DeepCopy(orig)
 	return copy
 end
 
+-- Shallow-copy a module's saved data, skipping keys that hold large operational
+-- blobs (e.g. feedomatic's "legacy" table which mirrors FOM_Cooking, FOM_QuestFood
+-- etc.) — those are runtime migration artifacts, not user configuration settings.
+local MTH_PROFILE_SKIP_KEYS = { legacy = true, history = true }
+
+local function MTH_Profile_CopyModules(src)
+	if type(src) ~= "table" then return {} end
+	local out = {}
+	for modName, modData in src do
+		if type(modData) == "table" then
+			local modCopy = {}
+			for k, v in modData do
+				if not MTH_PROFILE_SKIP_KEYS[k] then
+					modCopy[MTH_Profile_DeepCopy(k)] = MTH_Profile_DeepCopy(v)
+				end
+			end
+			out[modName] = modCopy
+		else
+			out[modName] = modData
+		end
+	end
+	return out
+end
+
 local function MTH_Profile_EnsureStore()
 	if type(MTH_SavedVariables) ~= "table" then
 		MTH_SavedVariables = {}
@@ -47,13 +71,13 @@ local function MTH_Profile_BuildSnapshot()
 	-- Account-wide module option values (e.g. feedomatic)
 	snap.config = (type(MTH_SavedVariables) == "table"
 		and type(MTH_SavedVariables.modules) == "table")
-		and MTH_Profile_DeepCopy(MTH_SavedVariables.modules)
+		and MTH_Profile_CopyModules(MTH_SavedVariables.modules)
 		or {}
 
 	-- Per-character module option values (ICU, Chronometer, AutoBuy, SmartAmmo, etc.)
 	snap.charConfig = (type(MTH_CharSavedVariables) == "table"
 		and type(MTH_CharSavedVariables.modules) == "table")
-		and MTH_Profile_DeepCopy(MTH_CharSavedVariables.modules)
+		and MTH_Profile_CopyModules(MTH_CharSavedVariables.modules)
 		or {}
 
 	-- Per-character module enabled/disabled states

@@ -169,26 +169,64 @@ local function MTH_EA_GetLnLRemaining()
 	return nil
 end
 
--- Scan all player auras (buffs then debuffs) for an active ammo state.
--- Returns the matching STATE_ORDER key, or nil if none found.
-local function MTH_EA_FindAmmoAura()
-	-- Try buffs first
+-- ── Fast texture-based aura scanners (no tooltip, no pcall) ─────────────────
+-- UnitBuff("player", i)   → icon texture path for buff slot i  (nil = end)
+-- UnitDebuff("player", i) → icon texture path for debuff slot i (nil = end)
+-- We match by icon basename instead of buff name: zero rendering cost.
+
+-- Known icon basenames (lower-case, no path prefix, no extension):
+local MTH_EA_AMMO_TEX = {
+	[EXPLOSIVE] = "ability_searingarrow",
+	[POISONOUS] = "ability_poisonarrow",
+	[ENCHANTED] = "ability_theblackarrow",
+}
+local MTH_EA_LNL_TEX = "lockandload"   -- matches "ability_hunter_lockandload"
+
+local function MTH_EA_IconBasename(texturePath)
+	if not texturePath then return "" end
+	local s = string.lower(tostring(texturePath))
+	local _, _, base = string.find(s, "([^\\]+)$")
+	return base or s
+end
+
+-- Scan player buffs+debuffs for an active ammo state via texture comparison.
+local function MTH_EA_FindAmmoStateByTexture()
 	for i = 1, 32 do
-		local name = MTH_EA_GetAuraName(false, i)
-		if not name then break end
-		for _, stateKey in ipairs(STATE_ORDER) do
-			if name == STATE_BUFF[stateKey] then return stateKey end
+		local t = UnitBuff("player", i)
+		if not t then break end
+		local base = MTH_EA_IconBasename(t)
+		for stateKey, frag in pairs(MTH_EA_AMMO_TEX) do
+			if base == frag then return stateKey end
 		end
 	end
-	-- Fall back to debuffs ("You are afflicted by" = player debuff)
 	for i = 1, 16 do
-		local name = MTH_EA_GetAuraName(true, i)
-		if not name then break end
-		for _, stateKey in ipairs(STATE_ORDER) do
-			if name == STATE_BUFF[stateKey] then return stateKey end
+		local t = UnitDebuff("player", i)
+		if not t then break end
+		local base = MTH_EA_IconBasename(t)
+		for stateKey, frag in pairs(MTH_EA_AMMO_TEX) do
+			if base == frag then return stateKey end
 		end
 	end
 	return nil
+end
+
+-- Returns true if LnL buff is currently on the player.
+local function MTH_EA_HasLnLByTexture()
+	for i = 1, 32 do
+		local t = UnitBuff("player", i)
+		if not t then break end
+		if string.find(MTH_EA_IconBasename(t), MTH_EA_LNL_TEX, 1, true) then
+			return true
+		end
+	end
+	return false
+end
+
+-- Scan all player auras (buffs then debuffs) for an active ammo state.
+-- Returns the matching STATE_ORDER key, or nil if none found.
+-- (Delegates to the fast texture path; tooltip path kept for debug use only.)
+local function MTH_EA_FindAmmoAura()
+	return MTH_EA_FindAmmoStateByTexture()
 end
 
 -- Restore cycle state from active auras (survives /reload within session).
@@ -233,6 +271,10 @@ end
 
 -- Combat state flag (avoids needing InCombatLockdown, which doesn't exist in 1.12)
 local inCombat = false
+
+-- Throttle for PLAYER_AURAS_CHANGED: even with the fast texture path this event
+-- fires 10-50+/sec in combat, so cap processing at ~6/sec.
+local MTH_EA_AurasChangedLastTime = 0
 
 -- UI frame handles — declared here so MTH_EA_RefreshVisibility (and every
 -- function defined below) all close over the SAME locals.
@@ -834,47 +876,40 @@ frame:SetScript("OnEvent", function()
 
 	if event == "PLAYER_AURAS_CHANGED" then
 		if not MTH_EA_IsEnabled() then return end
-		-- Pending LnL icon capture: buff is now on the unit, do the diff.
+
+		-- Throttle: cap processing at ~6/sec.  Chat-message handlers cover all
+		-- real-time state transitions; this path is only for /reload recovery
+		-- and LnL sync, so a 150 ms gate is perfectly safe.
+		local now = GetTime()
+		if (now - MTH_EA_AurasChangedLastTime) < 0.15 then return end
+		MTH_EA_AurasChangedLastTime = now
+
+		-- Pending LnL icon capture (no-op stub; kept to avoid errors).
 		if lnlPendingCapture then
 			MTH_EA_TryCaptureNewBuffIcon()
 		end
-		-- ── LnL detection: always sync timer from tooltip ────────────────
-		-- PLAYER_AURAS_CHANGED fires for every buff change (unrelated to LnL),
-		-- so we CANNOT just reset to DURATION on each fire.  Instead we read
-		-- the actual remaining time from the game's own buff tooltip — this
-		-- gives correct values for both initial proc AND mid-buff refresh.
-		local lnlBuffIndex = nil
-		for i = 1, 32 do
-			local name = MTH_EA_GetAuraName(false, i)
-			if not name then break end
-			if string.find(name, "Lock and Load", 1, true) then
-				lnlBuffIndex = i
-				break
-			end
-		end
-		if lnlBuffIndex then
-			local rem = MTH_EA_GetLnLRemaining()
-			if rem and rem > 0 then
-				-- Sync to game's real remaining time (handles refresh correctly too).
+
+		-- ── LnL sync: texture-based, zero tooltip cost ───────────────────
+		-- We only SET active here (initial gain / missed chat message).
+		-- LOSS is authoritative from the AURA_GONE_SELF chat handler + OnUpdate
+		-- expiry, so we deliberately do NOT clear lnl.active when not found —
+		-- AURAS_CHANGED fires for every unrelated buff change and a transient
+		-- miss during slot reordering would prematurely kill the timer.
+		if MTH_EA_HasLnLByTexture() then
+			if not lnl.active then
 				lnl.active    = true
-				lnl.expiresAt = GetTime() + rem
-			elseif not lnl.active then
-				-- Tooltip parse failed; first-gain fallback only.
-				lnl.active    = true
-				lnl.expiresAt = GetTime() + lnl.DURATION
+				lnl.expiresAt = now + lnl.DURATION
 			end
-			-- If already active and parse failed: leave expiresAt as-is.
 			lnlPendingCapture = false
 		end
-		-- NOTE: do NOT set lnl.active=false here when the buff is not found.
-		-- AURAS_CHANGED fires for every unrelated buff change and the tooltip
-		-- scan can transiently miss LnL during slot reordering.
-		-- Loss is handled by the "fades from you" chat handler + OnUpdate expiry.
-		-- Recovery path: resync ammo state after /reload.
+
+		-- ── Recovery: resync ammo state after /reload ─────────────────────
 		if rt.state == IDLE then
-			local before = rt.state
-			MTH_EA_RecoverStateFromBuffs()
-			if MTH_EA_DebugMode and rt.state ~= before then
+			local stateKey = MTH_EA_FindAmmoStateByTexture()
+			if stateKey then
+				rt.state     = stateKey
+				rt.expiresAt = now + CYCLE_DURATION
+				rt.consumed  = false
 			end
 			MTH_EA_UpdateUI()
 		end

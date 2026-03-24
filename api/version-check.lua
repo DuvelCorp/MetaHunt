@@ -221,8 +221,8 @@ end
 
 function VC:ResetPublishDelay()
 	local now = VC_GetTimeNow()
-	if self.lastPublishedAt and (now - self.lastPublishedAt) < 600 then
-		return  -- 10-minute cooldown between publishes
+	if self.lastPublishedAt and (now - self.lastPublishedAt) < 3600 then
+		return  -- 1-hour cooldown between publishes
 	end
 	self.nextPublishAt = now + math.random(10, 20)
 end

@@ -48,10 +48,25 @@ end
 local MTHSmartAmmo_InitializeHooks
 MTHSmartAmmo_EnsureHooks = nil
 
+local MTH_SA_SPELL_EVENTS = {
+	"START_AUTOREPEAT_SPELL",
+	"STOP_AUTOREPEAT_SPELL",
+	"SPELLCAST_INTERRUPTED",
+	"SPELLCAST_FAILED",
+	"SPELLCAST_STOP",
+	"SPELLCAST_DELAYED",
+}
+
 function MTHSmartAmmo_SetSmartEnabled(enabled, silent)
 	local saved = MTHSmartAmmo_GetSaved()
 	if enabled then
 		saved["enabled"] = 1
+		local evFrame = getglobal("MTH_SA_EventFrame")
+		if evFrame then
+			for _, ev in ipairs(MTH_SA_SPELL_EVENTS) do
+				evFrame:RegisterEvent(ev)
+			end
+		end
 		if MTHSmartAmmo_InitializeHooks then
 			MTHSmartAmmo_InitializeHooks()
 		end
@@ -63,6 +78,12 @@ function MTHSmartAmmo_SetSmartEnabled(enabled, silent)
 		end
 	else
 		saved["enabled"] = false
+		local evFrame = getglobal("MTH_SA_EventFrame")
+		if evFrame then
+			for _, ev in ipairs(MTH_SA_SPELL_EVENTS) do
+				evFrame:UnregisterEvent(ev)
+			end
+		end
 		if not silent and DEFAULT_CHAT_FRAME then
 			MTH_SA_Print("Smart Ammo Disabled.")
 		end
