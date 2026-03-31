@@ -5,6 +5,7 @@ MTH_Map = {
 	activeSource = "focus",
 	providers = {},
 	nodesByZone = {},
+	minimapNodesByZone = {},
 	worldPins = {},
 	minimapPins = {},
 	zoneNameToId = {},
@@ -24,7 +25,7 @@ MTH_Map = {
 	nodeRevision = 0,
 	minimapForceRefreshInterval = 1.0,
 	verboseMiniReasons = false,
-	minimapTickActive = 0.20,
+	minimapTickActive = 0.05,
 	minimapTickIdle = 0.75,
 }
 
@@ -122,15 +123,47 @@ local function MTH_Map_StripThePrefix(name)
 	return nil
 end
 
+local function MTH_Map_WmaToPfq(zoneId)
+	if type(MTH_MAP_WMA_TO_PFQ) == "table" then
+		return MTH_MAP_WMA_TO_PFQ[zoneId] or zoneId
+	end
+	return zoneId
+end
+
+local function MTH_Map_PfqToWma(pfqId)
+	if type(MTH_MAP_PFQ_TO_WMA) == "table" then
+		return MTH_MAP_PFQ_TO_WMA[pfqId] or pfqId
+	end
+	return pfqId
+end
+
+local function MTH_Map_GetMinimapSizes()
+	if pfDB and pfDB["minimap"] and MTH_DS_MinimapSizes then
+		if not MTH_Map._mergedMinimapSizes then
+			local merged = {}
+			for zoneId, size in pairs(pfDB["minimap"]) do
+				merged[zoneId] = size
+			end
+			for zoneId, size in pairs(MTH_DS_MinimapSizes) do
+				if merged[zoneId] == nil then
+					merged[zoneId] = size
+				end
+			end
+			MTH_Map._mergedMinimapSizes = merged
+		end
+		return MTH_Map._mergedMinimapSizes
+	elseif pfDB and pfDB["minimap"] then
+		return pfDB["minimap"]
+	end
+	return MTH_DS_MinimapSizes or {}
+end
+
 local function MTH_Map_GetZoneNameById(zoneId)
 	local normalizedId = tonumber(zoneId) or zoneId
 	if not normalizedId then return nil end
 
 	-- Translate WMA→pfQ first so WMA IDs don't accidentally hit wrong pfQ entries.
-	local pfqId = normalizedId
-	if type(MTH_MAP_WMA_TO_PFQ) == "table" then
-		pfqId = MTH_MAP_WMA_TO_PFQ[normalizedId] or normalizedId
-	end
+	local pfqId = MTH_Map_WmaToPfq(normalizedId)
 
 	if MTH_DS_ZoneNamesFallback and MTH_DS_ZoneNamesFallback[pfqId] then
 		return MTH_DS_ZoneNamesFallback[pfqId]
@@ -364,6 +397,8 @@ end
 
 function MTH_Map:ResolveZoneHierarchy(zoneId)
 	local inputId = tonumber(zoneId)
+	local pfqInputId = MTH_Map_WmaToPfq(inputId)
+	local inputIsWma = inputId and pfqInputId ~= inputId or false
 	local resolved = {
 		inputId = inputId,
 		zoneId = inputId,
@@ -377,9 +412,9 @@ function MTH_Map:ResolveZoneHierarchy(zoneId)
 		return resolved
 	end
 
-	local sizes = MTH_DS_MinimapSizes or (pfDB and pfDB["minimap"]) or {}
+	local sizes = MTH_Map_GetMinimapSizes()
 	local visited = {}
-	local cursor = inputId
+	local cursor = pfqInputId
 	local depth = 0
 
 	while cursor and not visited[cursor] and depth < 8 do
@@ -390,15 +425,17 @@ function MTH_Map:ResolveZoneHierarchy(zoneId)
 		end
 
 		local parent = tonumber(row.parent or row.continent)
+		local outputCursor = inputIsWma and MTH_Map_PfqToWma(cursor) or cursor
+		local outputParent = parent and (inputIsWma and MTH_Map_PfqToWma(parent) or parent) or nil
 		if parent and not resolved.continentId then
-			resolved.continentId = parent
+			resolved.continentId = outputParent
 		end
 
 		if parent and parent > 0 and parent ~= cursor then
-			resolved.subzoneId = resolved.subzoneId or cursor
-			resolved.parentId = parent
+			resolved.subzoneId = resolved.subzoneId or outputCursor
+			resolved.parentId = outputParent
 			cursor = parent
-			resolved.zoneId = cursor
+			resolved.zoneId = inputIsWma and MTH_Map_PfqToWma(cursor) or cursor
 			depth = depth + 1
 		else
 			break
@@ -406,11 +443,17 @@ function MTH_Map:ResolveZoneHierarchy(zoneId)
 	end
 
 	local renderZoneId = resolved.zoneId
+	local pfqRenderId = tonumber(cursor or pfqInputId)
+	local pfqParentId = resolved.parentId and MTH_Map_WmaToPfq(resolved.parentId) or nil
 	if not sizes[renderZoneId] then
 		if sizes[inputId] then
 			renderZoneId = inputId
 		elseif resolved.parentId and sizes[resolved.parentId] then
 			renderZoneId = resolved.parentId
+		elseif pfqRenderId and sizes[pfqRenderId] then
+			renderZoneId = pfqRenderId
+		elseif pfqParentId and sizes[pfqParentId] then
+			renderZoneId = pfqParentId
 		end
 	end
 
@@ -419,21 +462,13 @@ function MTH_Map:ResolveZoneHierarchy(zoneId)
 	return resolved
 end
 
--- Translate a pfQ AreaTable ID to a WMA ID (for zone matching against coord tuples).
--- Falls back to the pfQ ID itself if no mapping exists (sub-zones, custom zones).
-local function MTH_Map_PfqToWma(pfqId)
-	if type(MTH_MAP_PFQ_TO_WMA) == "table" then
-		return MTH_MAP_PFQ_TO_WMA[pfqId] or pfqId
-	end
-	return pfqId
-end
-
-function MTH_Map:GetCurrentMapID()
+function MTH_Map:GetCurrentMapID(space)
 	local continent = GetCurrentMapContinent and GetCurrentMapContinent() or nil
 	local zone = GetCurrentMapZone and GetCurrentMapZone() or nil
 	local zoneName = nil
 	local mapId = nil
 	local worldMapShown = WorldMapFrame and WorldMapFrame.IsShown and WorldMapFrame:IsShown() or false
+	local preferPfq = space == "pfq"
 
 	if continent and zone and continent > 0 and zone > 0 and GetMapZones then
 		if not self.mapZoneCache[continent] then
@@ -444,7 +479,9 @@ function MTH_Map:GetCurrentMapID()
 		if mapId then
 			local resolved = self:ResolveZoneHierarchy(mapId)
 			local normalized = resolved.zoneId or mapId
-			normalized = MTH_Map_PfqToWma(normalized)
+			if not preferPfq then
+				normalized = MTH_Map_PfqToWma(normalized)
+			end
 			self.lastMapContext = string.format("continent=%s zone=%s mapZone='%s' real=nil mapId=%s normalized=%s", tostring(continent), tostring(zone), tostring(zoneName), tostring(mapId), tostring(normalized))
 			return normalized
 		end
@@ -460,12 +497,38 @@ function MTH_Map:GetCurrentMapID()
 		mapId = self:GetMapIDByName(real)
 		local resolved = self:ResolveZoneHierarchy(mapId)
 		local normalized = resolved.zoneId or mapId
-		normalized = MTH_Map_PfqToWma(normalized)
+		if not preferPfq then
+			normalized = MTH_Map_PfqToWma(normalized)
+		end
 		self.lastMapContext = string.format("continent=%s zone=%s mapZone='%s' real='%s' mapId=%s normalized=%s", tostring(continent), tostring(zone), tostring(zoneName), tostring(real), tostring(mapId), tostring(normalized))
 		return normalized
 	end
 
 	self.lastMapContext = string.format("continent=%s zone=%s mapZone='%s' real=nil mapId=nil", tostring(continent), tostring(zone), tostring(zoneName))
+
+	return nil
+end
+
+function MTH_Map:GetCurrentMinimapMapID()
+	local realZoneName = GetRealZoneText and GetRealZoneText() or nil
+	if realZoneName and realZoneName ~= "" then
+		local mapId = self:GetMapIDByName(realZoneName)
+		if mapId then
+			return mapId
+		end
+	end
+
+	local continent = GetCurrentMapContinent and GetCurrentMapContinent() or nil
+	local zone = GetCurrentMapZone and GetCurrentMapZone() or nil
+	if continent and zone and continent > 0 and zone > 0 and GetMapZones then
+		if not self.mapZoneCache[continent] then
+			self.mapZoneCache[continent] = { GetMapZones(continent) }
+		end
+		local zoneName = self.mapZoneCache[continent][zone]
+		if zoneName and zoneName ~= "" then
+			return self:GetMapIDByName(zoneName)
+		end
+	end
 
 	return nil
 end
@@ -886,6 +949,7 @@ end
 function MTH_Map:RebuildNodes()
 	self:BuildZoneLookup()
 	self.nodesByZone = {}
+	self.minimapNodesByZone = {}
 	self.nodeRevision = (tonumber(self.nodeRevision) or 0) + 1
 	self._lastWorldRenderKey = nil
 	self._lastMiniState = nil
@@ -899,15 +963,22 @@ function MTH_Map:RebuildNodes()
 		local node = allNodes[i]
 		if node and node.zoneId then
 			local sourceZoneId = tonumber(node.zoneId)
-			local resolved = self:ResolveZoneHierarchy(sourceZoneId)
-			local zoneId = tonumber(resolved.zoneId or sourceZoneId)
-			if zoneId then
+			local worldResolved = self:ResolveZoneHierarchy(sourceZoneId)
+			local worldZoneId = tonumber(worldResolved.zoneId or sourceZoneId)
+			local pfqSourceZoneId = MTH_Map_WmaToPfq(sourceZoneId)
+			local minimapZoneId = tonumber(pfqSourceZoneId)
+			if worldZoneId then
 				node.sourceZoneId = sourceZoneId
-				node.zoneId = zoneId
-				node.parentZoneId = resolved.parentId
-				node.subzoneId = resolved.subzoneId
-				if not self.nodesByZone[zoneId] then self.nodesByZone[zoneId] = {} end
-				table.insert(self.nodesByZone[zoneId], node)
+				node.zoneId = worldZoneId
+				node.parentZoneId = worldResolved.parentId
+				node.subzoneId = worldResolved.subzoneId
+				node.minimapZoneId = minimapZoneId
+				if not self.nodesByZone[worldZoneId] then self.nodesByZone[worldZoneId] = {} end
+				table.insert(self.nodesByZone[worldZoneId], node)
+				if minimapZoneId then
+					if not self.minimapNodesByZone[minimapZoneId] then self.minimapNodesByZone[minimapZoneId] = {} end
+					table.insert(self.minimapNodesByZone[minimapZoneId], node)
+				end
 			end
 		end
 	end
@@ -996,8 +1067,8 @@ function MTH_Map:UpdateMinimap()
 		return
 	end
 
-	local mapId = self:GetCurrentMapID()
-	local nodes = mapId and self.nodesByZone[mapId] or nil
+	local mapId = self:GetCurrentMinimapMapID()
+	local nodes = mapId and self.minimapNodesByZone[mapId] or nil
 	if not mapId or not nodes then
 		self.lastMiniReason = "no-mapid-or-nodes"
 		self._lastMiniState = nil
@@ -1030,20 +1101,17 @@ function MTH_Map:UpdateMinimap()
 		and miniState.zoom == zoom
 		and miniState.nodeRevision == (self.nodeRevision or 0)
 	then
-		local dx = math.abs((xPlayer or 0) - (miniState.xPlayer or 0))
-		local dy = math.abs((yPlayer or 0) - (miniState.yPlayer or 0))
-		if dx < 0.05 and dy < 0.05 and now < (miniState.nextForceAt or 0) then
-			self.lastMiniReason = self.verboseMiniReasons and "throttled-small-move" or "throttle"
+		if xPlayer == miniState.xPlayer and yPlayer == miniState.yPlayer and now < (miniState.nextForceAt or 0) then
+			self.lastMiniReason = self.verboseMiniReasons and "throttled-still" or "throttle"
 			return
 		end
 	end
 
-	local minimapSizes = MTH_DS_MinimapSizes or (pfDB and pfDB["minimap"])
+	local minimapSizes = MTH_Map_GetMinimapSizes()
 	local mapSize = minimapSizes and minimapSizes[mapId]
-	if not mapSize and type(MTH_MAP_WMA_TO_PFQ) == "table" then
-		-- Fallback: try the pfQ key (for sub-zones not yet mapped to WMA)
-		local pfqId = MTH_MAP_WMA_TO_PFQ[mapId]
-		mapSize = pfqId and minimapSizes and minimapSizes[pfqId]
+	if not mapSize then
+		local wmaId = MTH_Map_PfqToWma(mapId)
+		mapSize = wmaId and minimapSizes and minimapSizes[wmaId]
 	end
 	if not mapSize then
 		self.lastMiniReason = self.verboseMiniReasons and "missing-minimap-size" or "missing-size"
@@ -1278,6 +1346,9 @@ function MTH_Map:Init()
 
 		self.controller:SetScript("OnEvent", function(frame, eventName)
 			eventName = eventName or event
+			if eventName == "WORLD_MAP_UPDATE" and MTH_Map._syncingMapContext then
+				return
+			end
 			if eventName == "PLAYER_ENTERING_WORLD" or eventName == "ZONE_CHANGED" or eventName == "ZONE_CHANGED_NEW_AREA" or eventName == "MINIMAP_ZONE_CHANGED" then
 				if SetMapToCurrentZone and (not WorldMapFrame or not WorldMapFrame:IsShown()) then
 					SetMapToCurrentZone()
@@ -1320,15 +1391,15 @@ function MTH_Map:Init()
 			end
 
 			if MTH_Map.enabled and MTH_Map.showMinimap then
-				local mapId = MTH_Map:GetCurrentMapID()
+				local mapId = MTH_Map:GetCurrentMinimapMapID()
 				if not mapId and (frame._mthMapRecoverAt or 0) <= now then
 					frame._mthMapRecoverAt = now + 2.0
 					if SetMapToCurrentZone and (not WorldMapFrame or not WorldMapFrame:IsShown()) then
 						SetMapToCurrentZone()
-						mapId = MTH_Map:GetCurrentMapID()
+						mapId = MTH_Map:GetCurrentMinimapMapID()
 					end
 				end
-				local nodes = mapId and MTH_Map.nodesByZone and MTH_Map.nodesByZone[mapId] or nil
+				local nodes = mapId and MTH_Map.minimapNodesByZone and MTH_Map.minimapNodesByZone[mapId] or nil
 				local hasNodes = nodes and table.getn(nodes) > 0
 				frame._mthTick = now + (hasNodes and (tonumber(MTH_Map.minimapTickActive) or 0.20) or (tonumber(MTH_Map.minimapTickIdle) or 0.75))
 				if hasNodes then

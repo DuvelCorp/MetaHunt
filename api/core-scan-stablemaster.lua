@@ -4,6 +4,7 @@ end
 
 local MTH_PETS_SCHEMA_VERSION = 2
 local MTH_PETS_CORE_HOOK_BOUNDARY_KEY = "core-pet-rename-hook"
+local MTH_ST_FULL_DEBUG_TRACE = false
 MTH_PETS_TRACE_CONSISTENCY = false
 
 local MTH_PetLifecycleEventFrame = nil
@@ -24,8 +25,8 @@ local MTH_ST_Profile = {
 	runawayMaxMs = 0,
 }
 local MTH_ST_Trace = {
-	enabled = false,
-	verbose = false,
+	enabled = MTH_ST_FULL_DEBUG_TRACE and true or false,
+	verbose = MTH_ST_FULL_DEBUG_TRACE and true or false,
 	windowStart = 0,
 	windowSeconds = 5,
 	eventCount = 0,
@@ -36,7 +37,7 @@ local MTH_ST_Trace = {
 local MTH_ST_Diag = {
 	lines = {},
 	maxLines = 200,
-	chatEcho = false,
+	chatEcho = MTH_ST_FULL_DEBUG_TRACE and true or false,
 }
 local MTH_ST_DiagCopyFrame = nil
 local MTH_ST_PrintStableDiag
@@ -268,21 +269,27 @@ local function MTH_ST_EnsureDiagCopyFrame()
 end
 
 function MTH_CommandStableDiag(mode)
+	local lowerMode = string.lower(tostring(mode or "on"))
 	MTH_ST_Diag.lines = {}
-	MTH_ST_Diag.chatEcho = false
+	MTH_ST_Diag.chatEcho = (lowerMode ~= "off") and true or false
 	if MTH and MTH.Print then
-		MTH:Print("Stable diagnostics are disabled.")
+		MTH:Print("Stable diagnostics chat echo " .. (MTH_ST_Diag.chatEcho and "enabled" or "disabled") .. ".", "debug")
 	end
-	return false
+	return MTH_ST_Diag.chatEcho
 end
 
 function MTH_CommandStableTrace(mode)
-	MTH_ST_Trace.enabled = false
-	MTH_ST_Trace.verbose = false
-	if MTH and MTH.Print then
-		MTH:Print("Stable trace is disabled.")
+	local lowerMode = string.lower(tostring(mode or "verbose"))
+	MTH_ST_Trace.enabled = (lowerMode ~= "off") and true or false
+	MTH_ST_Trace.verbose = (lowerMode == "verbose" or lowerMode == "on") and MTH_ST_Trace.enabled or false
+	if MTH_ST_Trace.enabled then
+		MTH_ST_TraceResetCounters()
 	end
-	return false
+	if MTH and MTH.Print then
+		MTH:Print("Stable trace " .. (MTH_ST_Trace.enabled and "enabled" or "disabled")
+			.. " (verbose=" .. tostring(MTH_ST_Trace.verbose) .. ").", "debug")
+	end
+	return MTH_ST_Trace.enabled
 end
 
 local function MTH_ST_ProfileNow()
@@ -418,18 +425,29 @@ local function MTH_ST_ProfileFlushIfDue(force)
 end
 
 function MTH_CommandStableProfile(mode)
-	MTH_ST_Profile.enabled = false
-	if MTH and MTH.Print then
-		MTH:Print("Stable profiler is disabled.")
+	local lowerMode = string.lower(tostring(mode or "off"))
+	MTH_ST_Profile.enabled = (lowerMode ~= "off") and true or false
+	if MTH_ST_Profile.enabled then
+		MTH_ST_ProfileResetCounters()
 	end
-	return false
+	if MTH and MTH.Print then
+		MTH:Print("Stable profiler " .. (MTH_ST_Profile.enabled and "enabled" or "disabled") .. ".", "debug")
+	end
+	return MTH_ST_Profile.enabled
 end
 
 local function MTH_PETS_LogConsistency(line)
-	return
+	if not MTH_PETS_TRACE_CONSISTENCY then
+		return
+	end
+	if MTH and MTH.Print then
+		MTH:Print("[PETS] " .. tostring(line or ""), "debug")
+	end
 end
 
-local function MTH_PETS_LogTame(_) end
+local function MTH_PETS_LogTame(_)
+	return
+end
 
 local function MTH_PETS_FormatRowConsistency(row)
 	if type(row) ~= "table" then
@@ -814,6 +832,30 @@ local function MTH_PETS_NormalizeSystemMessageKey(rawMessage)
 	return message
 end
 
+local function MTH_PETS_GetUnitGuid(unitToken)
+	local token = tostring(unitToken or "")
+	if token == "" then
+		return nil
+	end
+
+	local getUnitGuid = (type(getglobal) == "function" and getglobal("GetUnitGUID")) or (_G and _G["GetUnitGUID"])
+	if type(getUnitGuid) == "function" then
+		local ok, guid = pcall(getUnitGuid, token)
+		if ok and type(guid) == "string" and guid ~= "" then
+			return guid
+		end
+	end
+
+	if type(UnitGUID) == "function" then
+		local ok, guid = pcall(UnitGUID, token)
+		if ok and type(guid) == "string" and guid ~= "" then
+			return guid
+		end
+	end
+
+	return nil
+end
+
 local function MTH_PETS_IsRunawaySystemMessage(rawMessage)
 	local message = MTH_PETS_NormalizeSystemMessage(rawMessage)
 	if message == "" then
@@ -979,7 +1021,7 @@ local function MTH_PETS_CaptureTargetSnapshot()
 	if MTH_PETS_IsPlaceholderPetName(targetName) then
 		return nil
 	end
-	local targetGuid = (type(UnitGUID) == "function") and UnitGUID("target") or nil
+	local targetGuid = MTH_PETS_GetUnitGuid("target")
 	local beastId = MTH_PETS_ParseCreatureIdFromGuid(targetGuid)
 	local targetFamily = (type(UnitCreatureFamily) == "function") and UnitCreatureFamily("target") or nil
 	local targetLevel = (type(UnitLevel) == "function") and UnitLevel("target") or nil
@@ -1193,6 +1235,22 @@ local function MTH_PETS_ResolveTameBeastIdForRow(row, snapshot)
 	return nil
 end
 
+local function MTH_PETS_IsTameConfirmationSource(source)
+	local sourceText = tostring(source or "")
+	return sourceText == "unit-pet-acquire" or sourceText == "refresh-current-pet"
+end
+
+local function MTH_PETS_ResolveConfirmedTameBeastId(source, snapshot)
+	if not MTH_PETS_IsTameConfirmationSource(source) then
+		return nil
+	end
+	local resolved = MTH_PETS_GetPendingTameBeastId(snapshot)
+	if resolved and resolved > 0 then
+		return resolved
+	end
+	return nil
+end
+
 local function MTH_PETS_MakeSignature(name, family, level)
 	local cleanName = MTH_PETS_SafeLower(MTH_PETS_NormalizeText(name))
 	local cleanFamily = MTH_PETS_SafeLower(MTH_PETS_NormalizeText(family))
@@ -1200,7 +1258,7 @@ local function MTH_PETS_MakeSignature(name, family, level)
 	return cleanName .. "|" .. cleanFamily .. "|" .. tostring(numericLevel)
 end
 
-local function MTH_PETS_RowHasTameRecord(row)
+local function MTH_PETS_RowHasAnyTameMetadata(row)
 	if type(row) ~= "table" then
 		return false
 	end
@@ -1219,11 +1277,33 @@ local function MTH_PETS_RowHasTameRecord(row)
 	return false
 end
 
+function MTH_PETS_HasVerifiedTameRecord(row)
+	if type(row) ~= "table" then
+		return false
+	end
+	if row.tameVerified == true then
+		return true
+	end
+	local legacyTameContext = type(row.tameContext) == "table" and row.tameContext or nil
+	if legacyTameContext and (legacyTameContext.name or legacyTameContext.zone or legacyTameContext.timestamp) then
+		return true
+	end
+	if type(row.events) == "table" then
+		for i = 1, table.getn(row.events) do
+			local ev = row.events[i]
+			if type(ev) == "table" and tostring(ev.type or "") == "pet-tamed" then
+				return true
+			end
+		end
+	end
+	return false
+end
+
 local function MTH_PETS_BackfillTameMetadataFromEvents(row)
 	if type(row) ~= "table" then
 		return false
 	end
-	if MTH_PETS_RowHasTameRecord(row) then
+	if MTH_PETS_HasVerifiedTameRecord(row) then
 		return false
 	end
 	if type(row.events) ~= "table" then
@@ -1234,7 +1314,7 @@ local function MTH_PETS_BackfillTameMetadataFromEvents(row)
 	local stableFirstSeenAt = tonumber(row.stableFirstSeenAt) or tonumber(row.stabledAt) or 0
 	for i = 1, table.getn(row.events) do
 		local ev = row.events[i]
-		if type(ev) == "table" and tostring(ev.type or "") == "pet-acquired" then
+		if type(ev) == "table" and tostring(ev.type or "") == "pet-tamed" then
 			local evAt = tonumber(ev.at) or 0
 			local timelineOk = true
 			if stableFirstSeenAt > 0 and evAt > 0 and evAt > stableFirstSeenAt then
@@ -1302,10 +1382,202 @@ local function MTH_PETS_BackfillTameMetadataFromEvents(row)
 
 	if changed then
 		row.tameRecorded = true
+		row.tameVerified = true
 		row.lastUpdated = time()
 	end
 
 	return changed
+end
+
+local function MTH_PETS_ParseNumericPetId(petId)
+	local _, _, numericId = string.find(tostring(petId or ""), "^pet%-(%d+)$")
+	return tonumber(numericId)
+end
+
+local function MTH_PETS_GetActiveRowRepairScore(pets, petId, row)
+	if type(row) ~= "table" then
+		return -1, 0
+	end
+	local score = 0
+	local resolvedPetId = tostring(petId or "")
+	local petStore = type(pets) == "table" and pets.petStore or nil
+	if resolvedPetId ~= "" and tostring((pets and pets.currentPetId) or "") == resolvedPetId then
+		score = score + 1000000
+	end
+	if resolvedPetId ~= "" and type(petStore) == "table" and tostring(petStore.activeCurrentId or "") == resolvedPetId then
+		score = score + 900000
+	end
+	if tonumber(row.stableSlot) and tonumber(row.stableSlot) > 0 then
+		score = score + 500000
+	end
+	if type(row.guid) == "string" and row.guid ~= "" then
+		score = score + 100000
+	end
+	if row.tameVerified == true then
+		score = score + 50000
+	end
+	if row.tameRecorded == true then
+		score = score + 10000
+	end
+	score = score + (tonumber(row.lastSeen) or tonumber(row.lastUpdated) or 0)
+	return score, tonumber(MTH_PETS_ParseNumericPetId(resolvedPetId)) or 0
+end
+
+local function MTH_PETS_MergeActiveRows(pets, winnerId, loserId)
+	if type(pets) ~= "table" or type(pets.petStore) ~= "table" then
+		return false
+	end
+	local petStore = pets.petStore
+	local winnerRow = type(petStore.activeById) == "table" and petStore.activeById[winnerId] or nil
+	local loserRow = type(petStore.activeById) == "table" and petStore.activeById[loserId] or nil
+	if type(winnerRow) ~= "table" or type(loserRow) ~= "table" or tostring(winnerId) == tostring(loserId) then
+		return false
+	end
+
+	local copyIfMissingFields = {
+		"guid", "signature", "beastId", "name", "family", "level",
+		"happiness", "loyalty", "loyaltyLevel", "xp", "xpMax", "xpPercent",
+		"origin", "originContext", "previousName", "stableRaw", "stableInfo",
+		"zone", "subZone", "x", "y", "hunterLevel", "lastSource",
+		"tameHunterLevel", "tameZone", "tameSubZone", "tameX", "tameY",
+		"tameBeastId", "tameContext",
+	}
+	for i = 1, table.getn(copyIfMissingFields) do
+		local field = copyIfMissingFields[i]
+		local winnerValue = winnerRow[field]
+		if winnerValue == nil or winnerValue == "" then
+			local loserValue = loserRow[field]
+			if loserValue ~= nil and loserValue ~= "" then
+				winnerRow[field] = loserValue
+			end
+		end
+	end
+
+	if type(winnerRow.petSpellbook) ~= "table" and type(loserRow.petSpellbook) == "table" then
+		winnerRow.petSpellbook = loserRow.petSpellbook
+		winnerRow.lastPetSpellbookSkipAt = winnerRow.lastPetSpellbookSkipAt or loserRow.lastPetSpellbookSkipAt
+		winnerRow.lastPetSpellbookSkipSource = winnerRow.lastPetSpellbookSkipSource or loserRow.lastPetSpellbookSkipSource
+		winnerRow.lastPetSpellbookSkipReason = winnerRow.lastPetSpellbookSkipReason or loserRow.lastPetSpellbookSkipReason
+	end
+	if type(winnerRow.abilities) ~= "table" then
+		winnerRow.abilities = {}
+	end
+	if type(loserRow.abilities) == "table" then
+		for token, ability in pairs(loserRow.abilities) do
+			if winnerRow.abilities[token] == nil then
+				winnerRow.abilities[token] = ability
+			end
+		end
+	end
+
+	if type(winnerRow.events) ~= "table" then
+		winnerRow.events = {}
+	end
+	if type(loserRow.events) == "table" then
+		for i = 1, table.getn(loserRow.events) do
+			table.insert(winnerRow.events, loserRow.events[i])
+		end
+	end
+
+	local winnerCreatedAt = tonumber(winnerRow.createdAt) or 0
+	local loserCreatedAt = tonumber(loserRow.createdAt) or 0
+	if winnerCreatedAt <= 0 or (loserCreatedAt > 0 and loserCreatedAt < winnerCreatedAt) then
+		winnerRow.createdAt = loserCreatedAt > 0 and loserCreatedAt or winnerRow.createdAt
+	end
+	local winnerFirstSeen = tonumber(winnerRow.firstSeen) or 0
+	local loserFirstSeen = tonumber(loserRow.firstSeen) or 0
+	if winnerFirstSeen <= 0 or (loserFirstSeen > 0 and loserFirstSeen < winnerFirstSeen) then
+		winnerRow.firstSeen = loserFirstSeen > 0 and loserFirstSeen or winnerRow.firstSeen
+	end
+	local winnerLastSeen = tonumber(winnerRow.lastSeen) or 0
+	local loserLastSeen = tonumber(loserRow.lastSeen) or 0
+	if loserLastSeen > winnerLastSeen then
+		winnerRow.lastSeen = loserLastSeen
+	end
+	local winnerLastUpdated = tonumber(winnerRow.lastUpdated) or 0
+	local loserLastUpdated = tonumber(loserRow.lastUpdated) or 0
+	if loserLastUpdated > winnerLastUpdated then
+		winnerRow.lastUpdated = loserLastUpdated
+	end
+
+	if winnerRow.tameVerified ~= true and loserRow.tameVerified == true then
+		winnerRow.tameVerified = true
+		winnerRow.tameRecorded = true
+		winnerRow.tamedAt = winnerRow.tamedAt or loserRow.tamedAt
+		winnerRow.tameHunterLevel = winnerRow.tameHunterLevel or loserRow.tameHunterLevel
+		winnerRow.tameZone = winnerRow.tameZone or loserRow.tameZone
+		winnerRow.tameSubZone = winnerRow.tameSubZone or loserRow.tameSubZone
+		winnerRow.tameX = winnerRow.tameX or loserRow.tameX
+		winnerRow.tameY = winnerRow.tameY or loserRow.tameY
+		winnerRow.tameBeastId = winnerRow.tameBeastId or loserRow.tameBeastId
+	end
+
+	if (winnerRow.stableSlot == nil or tonumber(winnerRow.stableSlot) == nil or tonumber(winnerRow.stableSlot) <= 0)
+		and tonumber(loserRow.stableSlot) and tonumber(loserRow.stableSlot) > 0 then
+		winnerRow.stableSlot = tonumber(loserRow.stableSlot)
+	end
+
+	if type(petStore.stableSlotIndex) == "table" then
+		for slotNumber, mappedPetId in pairs(petStore.stableSlotIndex) do
+			if tostring(mappedPetId or "") == tostring(loserId) then
+				petStore.stableSlotIndex[slotNumber] = tostring(winnerId)
+			end
+		end
+	end
+
+	if tostring(petStore.activeCurrentId or "") == tostring(loserId) then
+		petStore.activeCurrentId = tostring(winnerId)
+	end
+	if tostring(pets.currentPetId or "") == tostring(loserId) then
+		pets.currentPetId = tostring(winnerId)
+	end
+	if type(pets.currentPet) == "table" and tostring(pets.currentPet.id or "") == tostring(loserId) then
+		pets.currentPet.id = tostring(winnerId)
+	end
+
+	petStore.activeById[loserId] = nil
+	return true
+end
+
+local function MTH_PETS_RepairActiveRowsByGuid(pets)
+	if type(pets) ~= "table" or type(pets.petStore) ~= "table" or type(pets.petStore.activeById) ~= "table" then
+		return
+	end
+	local groupedByGuid = {}
+	for petId, row in pairs(pets.petStore.activeById) do
+		if type(row) == "table" and type(row.guid) == "string" and row.guid ~= "" then
+			local guid = row.guid
+			if type(groupedByGuid[guid]) ~= "table" then
+				groupedByGuid[guid] = {}
+			end
+			table.insert(groupedByGuid[guid], tostring(petId))
+		end
+	end
+
+	for _, petIds in pairs(groupedByGuid) do
+		if type(petIds) == "table" and table.getn(petIds) > 1 then
+			table.sort(petIds, function(a, b)
+				local rowA = pets.petStore.activeById[a]
+				local rowB = pets.petStore.activeById[b]
+				local scoreA, numericA = MTH_PETS_GetActiveRowRepairScore(pets, a, rowA)
+				local scoreB, numericB = MTH_PETS_GetActiveRowRepairScore(pets, b, rowB)
+				if scoreA ~= scoreB then
+					return scoreA > scoreB
+				end
+				if numericA ~= numericB then
+					return numericA < numericB
+				end
+				return tostring(a) < tostring(b)
+			end)
+			local winnerId = petIds[1]
+			for i = 2, table.getn(petIds) do
+				local loserId = petIds[i]
+				if pets.petStore.activeById[winnerId] and pets.petStore.activeById[loserId] then
+					MTH_PETS_MergeActiveRows(pets, winnerId, loserId)
+				end
+			end
+		end
+	end
 end
 
 local function MTH_PETS_EnsurePetStoreSchema(pets)
@@ -1334,9 +1606,36 @@ local function MTH_PETS_EnsurePetStoreSchema(pets)
 	if petStore.activeCurrentId == nil then
 		petStore.activeCurrentId = nil
 	end
+	MTH_PETS_RepairActiveRowsByGuid(pets)
+	petStore.signatureIndex = {}
+	petStore.guidIndex = {}
+	local highestPetNumericId = 0
 
-	for _, row in pairs(petStore.activeById) do
+	for petId, row in pairs(petStore.activeById) do
 		if type(row) == "table" then
+			local resolvedPetId = tostring(petId)
+			if row.id == nil or tostring(row.id) == "" then
+				row.id = resolvedPetId
+			end
+			local numericPetId = MTH_PETS_ParseNumericPetId(resolvedPetId)
+			if numericPetId and numericPetId > highestPetNumericId then
+				highestPetNumericId = numericPetId
+			end
+			if row.tameVerified ~= true then
+				local legacyTameContext = type(row.tameContext) == "table" and row.tameContext or nil
+				if legacyTameContext and (legacyTameContext.name or legacyTameContext.zone or legacyTameContext.timestamp) then
+					row.tameVerified = true
+				end
+			end
+			if type(row.signature) == "string" and row.signature ~= "" then
+				if type(petStore.signatureIndex[row.signature]) ~= "table" then
+					petStore.signatureIndex[row.signature] = {}
+				end
+				table.insert(petStore.signatureIndex[row.signature], resolvedPetId)
+			end
+			if type(row.guid) == "string" and row.guid ~= "" then
+				petStore.guidIndex[row.guid] = resolvedPetId
+			end
 			if row.loyaltyLevel == nil and type(row.loyalty) == "string" then
 				row.loyaltyLevel = MTH_PETS_ParseLoyaltyLevelFromText(row.loyalty)
 			end
@@ -1351,8 +1650,20 @@ local function MTH_PETS_EnsurePetStoreSchema(pets)
 				end
 				row.stableInfo.loyalty = nil
 			end
+			if row.tameVerified ~= true and MTH_PETS_RowHasAnyTameMetadata(row) then
+				row.tameRecorded = nil
+			end
 			MTH_PETS_BackfillTameMetadataFromEvents(row)
 		end
+	end
+	if highestPetNumericId >= tonumber(petStore.nextId) then
+		petStore.nextId = highestPetNumericId + 1
+	end
+	if petStore.activeCurrentId ~= nil and petStore.activeById[tostring(petStore.activeCurrentId)] == nil then
+		petStore.activeCurrentId = nil
+	end
+	if pets.currentPetId ~= nil and petStore.activeById[tostring(pets.currentPetId)] == nil then
+		pets.currentPetId = petStore.activeCurrentId
 	end
 end
 
@@ -1727,10 +2038,10 @@ local function MTH_PETS_MakeSnapshotFromLivePet()
 			xpPercent = math.floor((xp / xpMax) * 1000 + 0.5) / 10
 		end
 	end
-	local petGuid = (type(UnitGUID) == "function") and UnitGUID("pet") or nil
+	local petGuid = MTH_PETS_GetUnitGuid("pet")
 	local beastId = MTH_PETS_ParseCreatureIdFromGuid(petGuid)
-	if beastId == nil and type(UnitGUID) == "function" then
-		beastId = MTH_PETS_ParseCreatureIdFromGuid(UnitGUID("target"))
+	if beastId == nil then
+		beastId = MTH_PETS_ParseCreatureIdFromGuid(MTH_PETS_GetUnitGuid("target"))
 	end
 	local signature = MTH_PETS_MakeSignature(petName, petFamily, petLevel)
 	return {
@@ -1759,13 +2070,26 @@ local function MTH_PETS_SelectPetIdBySnapshot(store, snapshot, previousPetId)
 		if previousRow.guid and snapshot.guid and previousRow.guid == snapshot.guid then
 			return previousPetId
 		end
-		if previousRow.signature and snapshot.signature and previousRow.signature == snapshot.signature then
-			return previousPetId
-		end
 	end
 
 	if snapshot.guid and store.guidIndex[snapshot.guid] and store.activeById[store.guidIndex[snapshot.guid]] then
 		return store.guidIndex[snapshot.guid]
+	end
+
+	if snapshot.guid and snapshot.guid ~= "" then
+		for petId, row in pairs(store.activeById or {}) do
+			if type(row) == "table" and row.guid == snapshot.guid then
+				store.guidIndex[snapshot.guid] = tostring(petId)
+				return tostring(petId)
+			end
+		end
+	end
+
+	if previousPetId and store.activeById[previousPetId] then
+		local previousRow = store.activeById[previousPetId]
+		if previousRow.signature and snapshot.signature and previousRow.signature == snapshot.signature then
+			return previousPetId
+		end
 	end
 
 	if snapshot.signature and snapshot.signature ~= "" then
@@ -1831,21 +2155,17 @@ local function MTH_PETS_ApplySnapshotToRow(row, snapshot, source, context)
 	end
 	row.guid = snapshot.guid or row.guid
 	row.beastId = snapshot.beastId or row.beastId
-	local hasPendingTame = type(MTH_PETS_LastTameAttempt) == "table"
-	if hasPendingTame and (row.tameBeastId == nil or tonumber(row.tameBeastId) == nil) then
-		local resolvedTameBeastId = MTH_PETS_ResolveTameBeastIdForRow(row, snapshot)
-		if resolvedTameBeastId and resolvedTameBeastId > 0 then
-			row.tameBeastId = resolvedTameBeastId
-		end
-	end
-	if hasPendingTame and (source == "unit-pet-acquire" or source == "refresh-current-pet") and type(context) == "table" then
+	local confirmedTameBeastId = MTH_PETS_ResolveConfirmedTameBeastId(source, snapshot)
+	if confirmedTameBeastId and type(context) == "table" then
 		row.tameRecorded = true
+		row.tameVerified = true
 		row.tamedAt = row.tamedAt or context.timestamp
 		row.tameHunterLevel = row.tameHunterLevel or context.hunterLevel
 		row.tameZone = row.tameZone or context.zone
 		row.tameSubZone = row.tameSubZone or context.subZone
 		row.tameX = row.tameX or context.x
 		row.tameY = row.tameY or context.y
+		row.tameBeastId = row.tameBeastId or confirmedTameBeastId
 	end
 	row.signature = snapshot.signature
 	row.lastUpdated = now
@@ -1868,30 +2188,6 @@ local function MTH_PETS_ApplySnapshotToRow(row, snapshot, source, context)
 			row.x = context.x or row.x
 			row.y = context.y or row.y
 			row.hunterLevel = context.hunterLevel or row.hunterLevel
-		end
-	end
-	if not isStableScan and type(context) == "table" then
-		local hasTameRecord = (row.tameRecorded == true)
-			or tonumber(row.tamedAt) ~= nil
-			or tonumber(row.tameBeastId) ~= nil
-			or (type(row.tameZone) == "string" and row.tameZone ~= "")
-		if not hasTameRecord and hasPendingTame then
-			local sourceText = tostring(source or "")
-			if sourceText == "unit-pet-acquire" or sourceText == "refresh-current-pet" then
-				row.tameRecorded = true
-				row.tamedAt = row.tamedAt or context.timestamp
-				row.tameHunterLevel = row.tameHunterLevel or context.hunterLevel
-				row.tameZone = row.tameZone or context.zone
-				row.tameSubZone = row.tameSubZone or context.subZone
-				row.tameX = row.tameX or context.x
-				row.tameY = row.tameY or context.y
-				if tonumber(row.tameBeastId) == nil then
-					local resolvedTameBeastId = MTH_PETS_ResolveTameBeastIdForRow(row, snapshot)
-					if resolvedTameBeastId and resolvedTameBeastId > 0 then
-						row.tameBeastId = resolvedTameBeastId
-					end
-				end
-			end
 		end
 	end
 	if type(row.abilities) ~= "table" then
@@ -1962,18 +2258,6 @@ local function MTH_PETS_UpsertActivePetFromSnapshot(pets, snapshot, source, opti
 	if created then
 		row.origin = source or "unknown"
 		row.originContext = context
-		local hasPendingTame = type(MTH_PETS_LastTameAttempt) == "table"
-		local shouldRecordTame = hasPendingTame and (source == "unit-pet-acquire" or source == "refresh-current-pet")
-		if shouldRecordTame then
-			row.tamedAt = context.timestamp
-			row.tameHunterLevel = context.hunterLevel
-			row.tameZone = context.zone
-			row.tameSubZone = context.subZone
-			row.tameX = context.x
-			row.tameY = context.y
-			row.tameBeastId = snapshot.beastId
-			row.tameRecorded = true
-		end
 		if type(options) == "table" and options.stableSlot then
 			row.origin = "stable-slot"
 		end
@@ -2128,6 +2412,45 @@ local function MTH_PETS_RecordStableSlot(pets, slot, raw1, raw2, raw3, raw4, raw
 		MTH_PETS_AddSignatureIndex(petStore, snapshot.signature, petId)
 	end
 	petStore.stableSlotIndex[slotNumber] = petId
+	pets.updatedAt = time()
+end
+
+local function MTH_PETS_ReconcileStableSlots(pets, slotCount)
+	if type(pets) ~= "table" or type(pets.petStore) ~= "table" then
+		return
+	end
+	local petStore = pets.petStore
+	if type(petStore.activeById) ~= "table" or type(petStore.stableSlotIndex) ~= "table" then
+		return
+	end
+
+	local authoritativeByPetId = {}
+	for slotNumber, petId in pairs(petStore.stableSlotIndex) do
+		local numericSlot = tonumber(slotNumber)
+		local mappedPetId = tostring(petId or "")
+		if numericSlot and numericSlot > 0 and mappedPetId ~= "" and type(petStore.activeById[mappedPetId]) == "table" then
+			if not slotCount or numericSlot <= slotCount then
+				authoritativeByPetId[mappedPetId] = numericSlot
+			else
+				petStore.stableSlotIndex[slotNumber] = nil
+			end
+		else
+			petStore.stableSlotIndex[slotNumber] = nil
+		end
+	end
+
+	for petId, row in pairs(petStore.activeById) do
+		if type(row) == "table" then
+			local resolvedPetId = tostring(petId)
+			local authoritativeSlot = authoritativeByPetId[resolvedPetId]
+			if authoritativeSlot then
+				row.stableSlot = authoritativeSlot
+			elseif tonumber(row.stableSlot) and tonumber(row.stableSlot) > 0 then
+				row.stableSlot = nil
+			end
+		end
+	end
+
 	pets.updatedAt = time()
 end
 
@@ -2661,13 +2984,16 @@ function MTH_PETS_RefreshCurrentPet()
 			row.events = {}
 		end
 
-		local eventType = "pet-acquired"
-		if not (created and (not hadPetBeforeRefresh)) then
-			if cp.id ~= nil and previousCurrentId ~= nil and cp.id ~= previousCurrentId then
-				eventType = "pet-swapped"
+		local eventType = nil
+		local confirmedTameBeastId = MTH_PETS_ResolveConfirmedTameBeastId("refresh-current-pet", snapshot)
+		if created and (not hadPetBeforeRefresh) then
+			if confirmedTameBeastId then
+				eventType = "pet-tamed"
 			else
-				eventType = nil -- routine update, don't record
+				eventType = "pet-acquired"
 			end
+		elseif cp.id ~= nil and previousCurrentId ~= nil and cp.id ~= previousCurrentId then
+			eventType = "pet-swapped"
 		end
 
 		local eventContext = nil
@@ -2681,26 +3007,6 @@ function MTH_PETS_RefreshCurrentPet()
 			})
 		end
 
-		if eventType == "pet-acquired" then
-			local hasTameRecord = (row.tameRecorded == true)
-				or (tonumber(row.tamedAt) and tonumber(row.tamedAt) > 0)
-				or (type(row.tameZone) == "string" and row.tameZone ~= "")
-			if not hasTameRecord and type(eventContext) == "table" then
-				row.tameRecorded = true
-				row.tamedAt = row.tamedAt or eventContext.timestamp or now
-				row.tameHunterLevel = row.tameHunterLevel or eventContext.hunterLevel
-				row.tameZone = row.tameZone or eventContext.zone
-				row.tameSubZone = row.tameSubZone or eventContext.subZone
-				row.tameX = row.tameX or eventContext.x
-				row.tameY = row.tameY or eventContext.y
-				if tonumber(row.tameBeastId) == nil then
-					local resolvedTameBeastId = MTH_PETS_ResolveTameBeastIdForRow(row, snapshot)
-					if resolvedTameBeastId and resolvedTameBeastId > 0 then
-						row.tameBeastId = resolvedTameBeastId
-					end
-				end
-			end
-		end
 	end
 
 	if hadPendingTame and cp.id and cp.id ~= previousCurrentId then
@@ -3117,6 +3423,10 @@ function MTH_ST_Scan(reason)
 	if currentPetId and type(petsRoot.petStore) == "table" and type(petsRoot.petStore.activeById) == "table" then
 		local currentRow = petsRoot.petStore.activeById[currentPetId]
 		if type(currentRow) == "table" then
+			MTH_ST_PrintStableDiag("scan currentRow petId=" .. tostring(currentPetId)
+				.. " guid='" .. tostring(currentRow.guid or "") .. "'"
+				.. " signature='" .. tostring(currentRow.signature or "") .. "'"
+				.. " beastId='" .. tostring(currentRow.beastId or "") .. "'")
 			local currentIcon = tostring(c1 or "")
 			if currentIcon ~= "" then
 				currentRow.icon = currentIcon
@@ -3140,6 +3450,8 @@ function MTH_ST_Scan(reason)
 	if table.getn(slotDiagParts) > 0 then
 		MTH_ST_PrintStableDiag("scan slots " .. table.concat(slotDiagParts, " | "))
 	end
+
+	MTH_PETS_ReconcileStableSlots(petsRoot, slotCount)
 
 	MTH_PETS_MarkStableVisited(petsRoot, tostring(reason or "stable-scan"))
 
@@ -3308,7 +3620,11 @@ local function MTH_PETS_HandleUnitPetTransition(source)
 			if type(row.events) ~= "table" then
 				row.events = {}
 			end
+			local confirmedTameBeastId = MTH_PETS_ResolveConfirmedTameBeastId(transitionSource, snapshot)
 			local eventType = (not hadPet) and "pet-acquired" or "pet-updated"
+			if not hadPet and confirmedTameBeastId then
+				eventType = "pet-tamed"
+			end
 			-- Only record lifecycle events (acquire, rename, abandon), not routine updates
 			if eventType ~= "pet-updated" then
 				table.insert(row.events, {
@@ -3777,8 +4093,20 @@ function MTH_ST_HandleSpellcastEvent(evt, eventArg1, eventArg2)
 	local isUnitSpellcast = (evt == "UNIT_SPELLCAST_START" or evt == "UNIT_SPELLCAST_STOP"
 		or evt == "UNIT_SPELLCAST_FAILED" or evt == "UNIT_SPELLCAST_INTERRUPTED"
 		or evt == "UNIT_SPELLCAST_CHANNEL_START" or evt == "UNIT_SPELLCAST_CHANNEL_STOP")
+	local isSpellcast = isUnitSpellcast
+		or evt == "SPELLCAST_START" or evt == "SPELLCAST_STOP"
+		or evt == "SPELLCAST_FAILED" or evt == "SPELLCAST_INTERRUPTED"
+		or evt == "SPELLCAST_CHANNEL_START" or evt == "SPELLCAST_CHANNEL_STOP"
+	if not isSpellcast then
+		return false
+	end
 	local castSpellName = eventArg1
 	local hasPendingTame = type(MTH_PETS_LastTameAttempt) == "table"
+	MTH_PETS_LogTame("Spellcast evt=" .. tostring(evt)
+		.. " arg1='" .. tostring(eventArg1 or "") .. "'"
+		.. " arg2='" .. tostring(eventArg2 or "") .. "'"
+		.. " unitCast=" .. tostring(isUnitSpellcast)
+		.. " pending=" .. tostring(hasPendingTame))
 	if isUnitSpellcast then
 		if eventArg1 ~= "player" then
 			return true
@@ -4115,12 +4443,6 @@ local function MTH_ST_OnEvent(frame, evt, eventArg1, eventArg2)
 	if isStableUiEvt then
 		stableDiagStart = MTH_ST_ProfileNow()
 		MTH_ST_PrintStableDiag("evt=" .. tostring(evt) .. " phase=begin")
-		if MTH_ST_Trace and not MTH_ST_Trace.enabled then
-			MTH_ST_Trace.enabled = true
-			MTH_ST_Trace.verbose = false
-			MTH_ST_TraceResetCounters()
-			MTH_ST_PrintStableDiag("trace=auto-enabled")
-		end
 	end
 
 	MTH_ST_DispatchEvent(frame, evt, eventArg1, eventArg2)

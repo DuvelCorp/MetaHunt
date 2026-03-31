@@ -125,6 +125,11 @@ FOM_FamilyToLegacyMap = {
 
 
 
+-- [DISABLED] NO-BUFF quarantine: set to true to re-enable.
+-- When false, failed feeds are still logged but items are never
+-- blacklisted and the quarantine store is never consulted.
+local FOM_QUARANTINE_ENABLED = false;
+
 local function FOM_GetServerProfile()
 	return FOM_ServerProfiles[FOM_SERVER_PROFILE] or {};
 end
@@ -186,6 +191,7 @@ local function FOM_GetFamilyKeyFromInfo(petInfo)
 end
 
 local function FOM_RegisterNoBuffQuarantine(itemID, petInfo)
+	if (not FOM_QUARANTINE_ENABLED) then return; end
 	local numericItem = tonumber(itemID);
 	if (numericItem == nil) then
 		return;
@@ -217,6 +223,7 @@ local function FOM_RegisterNoBuffQuarantine(itemID, petInfo)
 end
 
 local function FOM_IsQuarantined(itemID, petLevel, familyKey)
+	if (not FOM_QUARANTINE_ENABLED) then return false; end
 	local numericItem = tonumber(itemID);
 	local numericPet = tonumber(petLevel);
 	if (numericItem == nil or numericPet == nil or numericPet <= 0) then
@@ -1187,7 +1194,7 @@ function FOM_OnUpdate(elapsed)
 			FOM_CoreFinalizeAttempt(FOM_LastFeedAttempt.coreAttemptId, "rejected", "no-buff");
 			local currentPetInfo = MTH_FOM_GetCorePetInfo();
 			FOM_RegisterNoBuffQuarantine(FOM_LastFeedAttempt.itemId, currentPetInfo);
-			if (type(MTH_FEED_BlockItemForPetLevel) == "function") then
+			if (FOM_QUARANTINE_ENABLED and type(MTH_FEED_BlockItemForPetLevel) == "function") then
 				pcall(MTH_FEED_BlockItemForPetLevel,
 					FOM_LastFeedAttempt.itemId,
 					tonumber(currentPetInfo and currentPetInfo.level) or nil,
@@ -1274,6 +1281,43 @@ function FOM_CanFeed()
 	end
 	
 	
+	-- NamPower path: scan aura array by spellId → name, no tooltip needed
+	if MTH and MTH.nampower and type(GetUnitField) == "function" and type(GetSpellRecField) == "function" then
+		local auras = GetUnitField("player", "aura")
+		if type(auras) == "table" then
+			local dontFeedNames = {
+				["Shadowmeld"] = true,
+				["Feign Death"] = true,
+				["Food"] = true,
+				["Drink"] = true,
+				["Refreshment"] = true,
+			}
+			for i = 1, 32 do
+				local sid = tonumber(auras[i])
+				if sid and sid > 0 then
+					local name = GetSpellRecField(sid, "name")
+					if name then
+						if dontFeedNames[name] then
+							FOM_DebugLog("Can't feed; buff detected: " .. name)
+							return false
+						end
+						if UnitLevel("player") >= 40 then
+							local lname = string.lower(name)
+							for _, mountSub in FOM_MOUNT_NAME_SUBSTRINGS do
+								if string.find(lname, mountSub) then
+									FOM_DebugLog("Can't feed; mounted (" .. name .. ").")
+									return false
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+		return true
+	end
+
+	-- Legacy path: texture + tooltip scanning
 	local buff, buffIndex;
 	local dontFeedBuffTextures = { 
 		"Interface\\Icons\\Ability_Ambush",				-- NE Shadowmeld (maybe not unique buff icon?)
@@ -1936,7 +1980,7 @@ function FOM_RemoveFood(diet, food)
 end
 
 -- Clear quarantine, core exception blocks, and RemovedFoods ban for a specific item (called when user explicitly re-adds via /fom add)
-local function FOM_ClearItemBans(itemID)
+function FOM_ClearItemBans(itemID)
 	local numericItem = tonumber(itemID);
 	if (numericItem == nil) then return; end
 	-- Clear from RemovedFoods across all diet lists
@@ -2076,6 +2120,9 @@ end
 
 -- Check Feed Effect
 function FOM_HasFeedEffect()
+	if type(MTH_FEED_HasPetFeedBuff) == "function" then
+		return MTH_FEED_HasPetFeedBuff()
+	end
 
 	local i = 1;
 	local buff;

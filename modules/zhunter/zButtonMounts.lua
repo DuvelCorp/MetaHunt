@@ -75,6 +75,12 @@ local function zButtonMounts_EnsureConfig()
 	if saved["parent"]["circle"] == nil then
 		saved["parent"]["circle"] = 1
 	end
+	if saved["parent"]["random"] == nil then
+		saved["parent"]["random"] = false
+	end
+	if saved["parent"]["aqfilter"] == nil then
+		saved["parent"]["aqfilter"] = true
+	end
 	if not saved["children"]["size"] then
 		saved["children"]["size"] = 36
 	end
@@ -177,7 +183,14 @@ local function zButtonMounts_ApplySpellIds(spellIds)
 	end
 
 	if found > 0 then
-		parent.id = spellIds[1]
+		local saved = zButtonMounts_GetSaved()
+		if saved["parent"]["random"] and found > 1 then
+			local pick = math.random(1, found)
+			local child = getglobal("zButtonMounts" .. pick)
+			parent.id = child and child.id or spellIds[1]
+		else
+			parent.id = spellIds[1]
+		end
 		parent.isspell = 1
 		ZSpellButton_UpdateButton(parent)
 		parent:Enable()
@@ -188,6 +201,49 @@ local function zButtonMounts_ApplySpellIds(spellIds)
 	end
 
 	return found
+end
+
+local function zButtonMounts_IsQirajiSpell(spellId)
+	local bookType = BOOKTYPE_SPELL or "spell"
+	local name = GetSpellName(spellId, bookType)
+	if name and string.find(string.lower(name), "qiraji", 1, true) then
+		return true
+	end
+	return false
+end
+
+local function zButtonMounts_IsInAQ40()
+	local zone = GetRealZoneText and GetRealZoneText() or ""
+	if zone == "Temple of Ahn'Qiraj" or zone == "Ahn'Qiraj" then
+		return true
+	end
+	return false
+end
+
+local function zButtonMounts_FilterAQ(spellIds)
+	local saved = zButtonMounts_GetSaved()
+	if not saved["parent"]["aqfilter"] then
+		return spellIds
+	end
+	local inAQ = zButtonMounts_IsInAQ40()
+	local filtered = {}
+	for i = 1, table.getn(spellIds) do
+		local isQiraji = zButtonMounts_IsQirajiSpell(spellIds[i])
+		if inAQ then
+			if isQiraji then
+				table.insert(filtered, spellIds[i])
+			end
+		else
+			if not isQiraji then
+				table.insert(filtered, spellIds[i])
+			end
+		end
+	end
+	-- Fallback: if filtering removed everything, return original list
+	if table.getn(filtered) == 0 then
+		return spellIds
+	end
+	return filtered
 end
 
 local function zButtonMounts_RefreshSpells()
@@ -207,6 +263,7 @@ local function zButtonMounts_RefreshSpells()
 	saved["spellIds"] = spellIds
 	saved["spells"] = spellNames
 	zButtonMounts.spells = spellNames
+	spellIds = zButtonMounts_FilterAQ(spellIds)
 	zButtonMounts.found = zButtonMounts_ApplySpellIds(spellIds)
 	zButtonMounts_ApplyRuntimeSettings()
 	return zButtonMounts.found or 0
@@ -227,9 +284,21 @@ function zButtonMounts_OnEvent()
 			return
 		end
 		zButtonMounts_CreateButtons()
+		zButtonMounts.afterclick = function(button)
+			local saved = zButtonMounts_GetSaved()
+			if saved["parent"]["random"] and zButtonMounts.found and zButtonMounts.found > 1 then
+				local pick = math.random(1, zButtonMounts.found)
+				local child = getglobal("zButtonMounts" .. pick)
+				if child and child.id then
+					zButtonMounts.id = child.id
+					ZSpellButton_UpdateButton(zButtonMounts)
+				end
+			end
+		end
 		MTH_ZH_MountsAdjust = CreateFrame("Frame", "MTH_ZH_MountsAdjust")
 		MTH_ZH_MountsAdjust:RegisterEvent("SPELLS_CHANGED")
 		MTH_ZH_MountsAdjust:RegisterEvent("PLAYER_ENTERING_WORLD")
+		MTH_ZH_MountsAdjust:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 		MTH_ZH_MountsAdjust:SetScript("OnEvent", MTH_ZH_MountsAdjust_OnEvent)
 		zButtonMounts_SetupSizeAndPosition()
 	end
@@ -261,18 +330,21 @@ function zButtonMounts_SetupSizeAndPosition()
 	if MTH_ZH_MountsAdjust then
 		MTH_ZH_MountsAdjust:RegisterEvent("SPELLS_CHANGED")
 		MTH_ZH_MountsAdjust:RegisterEvent("PLAYER_ENTERING_WORLD")
+		MTH_ZH_MountsAdjust:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 		MTH_ZH_MountsAdjust:SetScript("OnEvent", MTH_ZH_MountsAdjust_OnEvent)
 	end
 	local displayCount = zButtonMounts.found or 0
 	if displayCount < 0 then
 		displayCount = 0
 	end
-	ZSpellButton_SetSize(zButtonMounts, saved["parent"]["size"])
-	ZSpellButton_SetSize(zButtonMounts, saved["children"]["size"], 1)
-	ZSpellButton_SetExpandDirection(zButtonMounts, saved["firstbutton"])
-	ZSpellButton_ArrangeChildren(zButtonMounts, saved["rows"], 
-		displayCount, saved["horizontal"],
-		saved["vertical"])
+	if not (type(MTH_ZBar_ApplyToButton) == "function" and MTH_ZBar_ApplyToButton(zButtonMounts, displayCount)) then
+		ZSpellButton_SetSize(zButtonMounts, saved["parent"]["size"])
+		ZSpellButton_SetSize(zButtonMounts, saved["children"]["size"], 1)
+		ZSpellButton_SetExpandDirection(zButtonMounts, saved["firstbutton"])
+		ZSpellButton_ArrangeChildren(zButtonMounts, saved["rows"],
+			displayCount, saved["horizontal"],
+			saved["vertical"])
+	end
 end
 
 function zButtonMounts_Reset()

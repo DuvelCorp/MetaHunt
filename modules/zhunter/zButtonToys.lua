@@ -267,12 +267,14 @@ function zButtonToys_SetupSizeAndPosition()
 	if displayCount < 0 then
 		displayCount = 0
 	end
-	ZSpellButton_SetSize(zButtonToys, saved["parent"]["size"])
-	ZSpellButton_SetSize(zButtonToys, saved["children"]["size"], 1)
-	ZSpellButton_SetExpandDirection(zButtonToys, saved["firstbutton"])
-	ZSpellButton_ArrangeChildren(zButtonToys, saved["rows"], 
-		displayCount, saved["horizontal"],
-		saved["vertical"])
+	if not (type(MTH_ZBar_ApplyToButton) == "function" and MTH_ZBar_ApplyToButton(zButtonToys, displayCount)) then
+		ZSpellButton_SetSize(zButtonToys, saved["parent"]["size"])
+		ZSpellButton_SetSize(zButtonToys, saved["children"]["size"], 1)
+		ZSpellButton_SetExpandDirection(zButtonToys, saved["firstbutton"])
+		ZSpellButton_ArrangeChildren(zButtonToys, saved["rows"],
+			displayCount, saved["horizontal"],
+			saved["vertical"])
+	end
 end
 
 function zButtonToys_Reset()

@@ -84,6 +84,9 @@ local function zButtonPet_EnsureConfig()
 	if saved["parent"]["circle"] == nil then
 		saved["parent"]["circle"] = 1
 	end
+	if saved["parent"]["smart"] == nil then
+		saved["parent"]["smart"] = true
+	end
 	if saved["enabled"] == nil then
 		saved["enabled"] = 1
 	end
@@ -258,12 +261,14 @@ function zButtonPet_SetupSizeAndPosition()
 	if displayCount < 0 then
 		displayCount = 0
 	end
-	ZSpellButton_SetSize(zButtonPet, saved["parent"]["size"])
-	ZSpellButton_SetSize(zButtonPet, saved["children"]["size"], 1)
-	ZSpellButton_SetExpandDirection(zButtonPet, saved["firstbutton"])
-	ZSpellButton_ArrangeChildren(zButtonPet, saved["rows"], 
-		displayCount, saved["horizontal"],
-		saved["vertical"])
+	if not (type(MTH_ZBar_ApplyToButton) == "function" and MTH_ZBar_ApplyToButton(zButtonPet, displayCount)) then
+		ZSpellButton_SetSize(zButtonPet, saved["parent"]["size"])
+		ZSpellButton_SetSize(zButtonPet, saved["children"]["size"], 1)
+		ZSpellButton_SetExpandDirection(zButtonPet, saved["firstbutton"])
+		ZSpellButton_ArrangeChildren(zButtonPet, saved["rows"],
+			displayCount, saved["horizontal"],
+			saved["vertical"])
+	end
 end
 
 function zButtonPet_Reset()
@@ -502,7 +507,11 @@ local function zButtonPet_RefreshParentSpell()
 	local id = zButtonPet.id
 	name = nil
 
-	if hasCurrentPet == false and hasLivePet == false then
+	if saved["parent"]["smart"] == false then
+		if choiceId then
+			id = choiceId
+		end
+	elseif hasCurrentPet == false and hasLivePet == false then
 		name = ZHUNTER_PET_TAMING
 	elseif not status then
 		name = ZHUNTER_PET_CALL

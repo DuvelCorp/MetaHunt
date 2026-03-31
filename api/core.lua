@@ -312,7 +312,7 @@ function SlashCmdList.MTH(msg, editbox)
 	local lowerMsg = string.lower(msg)
 	local _, _, lowerCmd, lowerArg = string.find(lowerMsg, "^(%S+)%s*(.-)%s*$")
 	if msg == "" then
-		MTH:Print("Available: /mth options, /mth book")
+		MTH:Print("Available: /mth options, /mth book, /mth food")
 	elseif lowerMsg == "err" or lowerMsg == "errors" or lowerMsg == "debug" then
 		if MTH_DebugFrame and MTH_DebugFrame.Toggle then
 			MTH_DebugFrame:Toggle()
@@ -422,18 +422,128 @@ function SlashCmdList.MTH(msg, editbox)
 				MTH:Print("|cffaaffaaArmed.|r Open any vendor, trainer, or stable master to capture their ID.")
 			end
 		end
-	elseif lowerCmd == "bls" then
-		if lowerArg == "reset" then
-			if type(MTH_SavedVariables) == "table" then
-				MTH_SavedVariables.beastLoreScan = { entries = {} }
+	elseif lowerCmd == "food" then
+		local sub = lowerArg
+		local function MTH_FoodItemLabel(itemId)
+			local id = tonumber(itemId)
+			if not id then return tostring(itemId) end
+			if type(GetItemInfo) == "function" then
+				local name = GetItemInfo(id)
+				if name and name ~= "" then
+					return "|cffffcc00" .. name .. "|r |cffaaaaaa(" .. id .. ")|r"
+				end
 			end
-			MTH:Print("|cffff4444Beast Lore scan data wiped.|r All recorded beasts cleared.")
-		else
-			MTH:Print("Beast Lore Scan: |cffffff00/mth bls reset|r — wipe all recorded beast data")
+			return "|cffaaaaaa" .. tostring(id) .. "|r"
 		end
+		if sub == "" or sub == "status" then
+			-- Show quarantine and exception state
+			local feedStore = type(MTH_CharSavedVariables) == "table" and MTH_CharSavedVariables.feedTracking or nil
+			local quarantine = feedStore and feedStore.fomQuarantine and feedStore.fomQuarantine.byFamily or nil
+			local exceptions = feedStore and feedStore.exceptions and feedStore.exceptions.byItemId or nil
+			MTH:Print("|cffffff00=== Feed-O-Matic Status ===|r")
+			-- Quarantine
+			local qCount = 0
+			if type(quarantine) == "table" then
+				for family, byItem in pairs(quarantine) do
+					if type(byItem) == "table" then
+						for itemId, _ in pairs(byItem) do
+							qCount = qCount + 1
+							MTH:Print("  |cffff8800Quarantine:|r " .. MTH_FoodItemLabel(itemId) .. " (family=" .. tostring(family) .. ")")
+						end
+					end
+				end
+			end
+			if qCount == 0 then MTH:Print("  Quarantine: |cff00ff00empty|r") end
+			-- Core exceptions
+			local eCount = 0
+			if type(exceptions) == "table" then
+				for itemId, _ in pairs(exceptions) do
+					if type(itemId) == "number" then  -- skip string-key dupes
+						eCount = eCount + 1
+						MTH:Print("  |cffff4444Exception block:|r " .. MTH_FoodItemLabel(itemId))
+					end
+				end
+			end
+			if eCount == 0 then MTH:Print("  Exception blocks: |cff00ff00none|r") end
+			-- FOM_RemovedFoods
+			local rCount = 0
+			if type(FOM_RemovedFoods) == "table" then
+				for diet, list in pairs(FOM_RemovedFoods) do
+					if type(list) == "table" then
+						for _, itemId in ipairs(list) do
+							rCount = rCount + 1
+							MTH:Print("  |cffaaaaaaRemoved food:|r " .. MTH_FoodItemLabel(itemId) .. " (diet=" .. tostring(diet) .. ")")
+						end
+					end
+				end
+			end
+			if rCount == 0 then MTH:Print("  Removed foods: |cff00ff00none|r") end
+			MTH:Print("|cffaaaaaa/mth food unban <id>|r — unban one item   |cffaaaaaa/mth food reset|r — clear all bans")
+		elseif string.find(sub, "^unban%s") or sub == "unban" then
+			local _, _, itemArg = string.find(lowerArg, "^unban%s+(%S+)")
+			local itemId = tonumber(itemArg)
+			if not itemId then
+				MTH:Print("|cffff4444Usage:|r /mth food unban <itemId>")
+				MTH:Print("Example: /mth food unban 8952")
+			elseif type(FOM_ClearItemBans) ~= "function" then
+				MTH:Print("|cffff4444Error:|r Feed-O-Matic not loaded.")
+			else
+				local label = MTH_FoodItemLabel(itemId)
+				FOM_ClearItemBans(itemId)
+				MTH:Print("|cff00ff00Unbanned " .. label .. "|r — removed from quarantine, exceptions and removed-foods list.")
+			end
+		elseif sub == "reset" then
+			local feedStore = type(MTH_CharSavedVariables) == "table" and MTH_CharSavedVariables.feedTracking or nil
+			if feedStore then
+				if feedStore.fomQuarantine then feedStore.fomQuarantine = { byFamily = {} } end
+				if feedStore.exceptions then feedStore.exceptions = { byItemId = {} } end
+			end
+			if type(FOM_RemovedFoods) == "table" then
+				for diet, _ in pairs(FOM_RemovedFoods) do FOM_RemovedFoods[diet] = {} end
+			end
+			if type(FOM_FEED_SCAN_CACHE) ~= "nil" then FOM_FEED_SCAN_CACHE = nil end
+			MTH:Print("|cff00ff00All Feed-O-Matic bans and quarantines cleared.|r")
+		else
+			MTH:Print("|cffffff00/mth food|r — show quarantine/ban status")
+			MTH:Print("|cffffff00/mth food unban <itemId>|r — remove one item from all bans")
+			MTH:Print("|cffffff00/mth food reset|r — clear ALL bans and quarantines")
+		end
+	elseif lowerCmd == "zbar" and lowerArg == "debug" then
+		-- Dump the live state of every zBar button to chat so we can see which one is the ghost.
+		local p = function(s) MTH:Print("[zBar] " .. tostring(s), "debug") end
+		local root = (type(MTH_ZH_GetSavedRoot) == "function") and MTH_ZH_GetSavedRoot() or ZHunterMod_Saved
+		local zs   = root and root["_zbar"]
+		p("=== zBar debug ===")
+		p("enabled=" .. tostring(zs and zs.enabled) .. "  anchor=" .. tostring(getglobal("MTH_ZBar_Anchor") ~= nil))
+		p("direction=" .. tostring(zs and zs.direction) .. "  childexpand=" .. tostring(zs and zs.childexpand) .. "  childarrange=" .. tostring(zs and zs.childarrange))
+		local allButtons = {
+			"zButtonAspect","zButtonAmmo","zButtonTrack","zButtonTrap",
+			"zButtonPet","zButtonRanged","zButtonMounts","zButtonCompanions","zButtonToys",
+		}
+		for _, bname in ipairs(allButtons) do
+			local btn = getglobal(bname)
+			local shown   = btn and btn.IsShown and btn:IsShown()
+			local bsaved  = root and type(root[bname]) == "table" and root[bname]
+			local enabled = bsaved and bsaved["enabled"]
+			local zvis    = zs and zs.visible and zs.visible[bname]
+			local x, y, point = "?", "?", "?"
+			if btn and btn.GetPoint then
+				local pt, _, _, bx, by = btn:GetPoint()
+				point = tostring(pt)
+				x = tostring(bx and math.floor(bx + 0.5) or "?")
+				y = tostring(by and math.floor(by + 0.5) or "?")
+			end
+			local bmtname = btn and tostring(btn.name) or "nil"
+			p(bname .. ":  shown=" .. tostring(shown) ..
+				"  enabled=" .. tostring(enabled) ..
+				"  zbarVisible=" .. tostring(zvis) ..
+				"  btn.name=" .. bmtname ..
+				"  anchor=(" .. point .. " " .. x .. "," .. y .. ")")
+		end
+		p("=== end ===")
 	else
 		MTH:Print("Unknown command: " .. tostring(msg))
-		MTH:Print("Available: /mth options, /mth book, /mth npcid, /mth bls reset")
+		MTH:Print("Available: /mth options, /mth book, /mth npcid, /mth food")
 	end
 end
 

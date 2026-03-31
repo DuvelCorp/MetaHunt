@@ -175,12 +175,14 @@ function zButtonTrap_SetupSizeAndPosition()
 	if displayCount < 0 then
 		displayCount = 0
 	end
-	ZSpellButton_SetSize(zButtonTrap, saved["parent"]["size"])
-	ZSpellButton_SetSize(zButtonTrap, saved["children"]["size"], 1)
-	ZSpellButton_SetExpandDirection(zButtonTrap, saved["firstbutton"])
-	ZSpellButton_ArrangeChildren(zButtonTrap, saved["rows"], 
-		displayCount, saved["horizontal"],
-		saved["vertical"])
+	if not (type(MTH_ZBar_ApplyToButton) == "function" and MTH_ZBar_ApplyToButton(zButtonTrap, displayCount)) then
+		ZSpellButton_SetSize(zButtonTrap, saved["parent"]["size"])
+		ZSpellButton_SetSize(zButtonTrap, saved["children"]["size"], 1)
+		ZSpellButton_SetExpandDirection(zButtonTrap, saved["firstbutton"])
+		ZSpellButton_ArrangeChildren(zButtonTrap, saved["rows"],
+			displayCount, saved["horizontal"],
+			saved["vertical"])
+	end
 end
 
 function zButtonTrap_Reset()

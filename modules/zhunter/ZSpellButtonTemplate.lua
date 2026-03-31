@@ -138,7 +138,6 @@ local function ZHunterMod_UpdateButtonCount(parent, found)
 end
 
 function ZSpellButton_SetExpandDirection(parent, direction)
-	local button = getglobal(parent.name.."1")
 	local offset = parent:GetWidth() / 36
 	local circleVisible = true
 	if type(MTH_ZH_GetSavedTable) == "function" and parent and parent.name then
@@ -154,11 +153,14 @@ function ZSpellButton_SetExpandDirection(parent, direction)
 			parent.circle:Hide()
 		end
 	end
+	-- Children have not been created yet; circle state is already updated above.
+	if not (parent and parent.name) then return end
 	if circleVisible then
 		offset = offset * 5
 	else
 		offset = offset * 3
 	end
+	local button = getglobal(parent.name.."1")
 	button:ClearAllPoints()
 	if direction == "TOP" then
 		button:SetPoint("BOTTOM", parent, "TOP", 0, offset)
@@ -683,27 +685,52 @@ function ZSpellButtonParent_OnLoad()
 	if this.SetScript then
 		this:SetScript("OnDragStart", function()
 			if IsAltKeyDown() then
-				this:StartMoving()
-				this.isMoving = true
+				if type(MTH_ZBar_IsActive) == "function" and MTH_ZBar_IsActive() then
+					-- Alt+drag any bar button to move the whole zBar via its invisible anchor
+					local anchor = type(MTH_ZBar_GetAnchor) == "function" and MTH_ZBar_GetAnchor()
+					if anchor then
+						anchor:StartMoving()
+						anchor.isMoving = true
+					end
+				else
+					this:StartMoving()
+					this.isMoving = true
+				end
 			end
 		end)
 		this:SetScript("OnDragStop", function()
-			if not this then
-				return
+			if not this then return end
+			if type(MTH_ZBar_IsActive) == "function" and MTH_ZBar_IsActive() then
+				local anchor = type(MTH_ZBar_GetAnchor) == "function" and MTH_ZBar_GetAnchor()
+				if anchor and anchor.isMoving then
+					if anchor.StopMovingOrSizing then anchor:StopMovingOrSizing() end
+					anchor.isMoving = false
+					if type(MTH_ZBar_SavePosition) == "function" then MTH_ZBar_SavePosition() end
+					if type(MTH_ZBar_ApplyLayout)  == "function" then MTH_ZBar_ApplyLayout()  end
+				end
+			else
+				if this.StopMovingOrSizing then this:StopMovingOrSizing() end
+				ZSpellButton_SaveParentPosition(this)
+				this.isMoving = false
 			end
-			if this.StopMovingOrSizing then
-				this:StopMovingOrSizing()
-			end
-			ZSpellButton_SaveParentPosition(this)
-			this.isMoving = false
 		end)
 		this:SetScript("OnMouseUp", function()
 			if this and this.isMoving then
-				if this.StopMovingOrSizing then
-					this:StopMovingOrSizing()
+				if this.StopMovingOrSizing then this:StopMovingOrSizing() end
+				if not (type(MTH_ZBar_IsActive) == "function" and MTH_ZBar_IsActive()) then
+					ZSpellButton_SaveParentPosition(this)
 				end
-				ZSpellButton_SaveParentPosition(this)
 				this.isMoving = false
+			end
+			-- Fallback: finish anchor movement started from OnDragStart
+			if type(MTH_ZBar_IsActive) == "function" and MTH_ZBar_IsActive() then
+				local anchor = type(MTH_ZBar_GetAnchor) == "function" and MTH_ZBar_GetAnchor()
+				if anchor and anchor.isMoving then
+					if anchor.StopMovingOrSizing then anchor:StopMovingOrSizing() end
+					anchor.isMoving = false
+					if type(MTH_ZBar_SavePosition) == "function" then MTH_ZBar_SavePosition() end
+					if type(MTH_ZBar_ApplyLayout)  == "function" then MTH_ZBar_ApplyLayout()  end
+				end
 			end
 		end)
 	end

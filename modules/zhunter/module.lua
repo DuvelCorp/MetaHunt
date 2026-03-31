@@ -8,7 +8,6 @@ MTH_ZH_MANAGED_HOOKS = true
 local MTH_ZHunter = {
 	name = "zhunter",
 	enabled = true,
-	version = "1.4.1",
 	events = {
 		"VARIABLES_LOADED",
 		-- PLAYER_ENTERING_WORLD handled by bootstrap frame + adjustment frames
@@ -59,6 +58,7 @@ local function MTH_ZH_ApplyDefaultWidgetSpawnLayoutOnce()
 		"zButtonMounts",
 		"zButtonCompanions",
 		"zButtonToys",
+		"zButtonCraft",
 	}
 
 	local startY = -140
@@ -191,6 +191,7 @@ MTH_ZH_SetButtonsVisible = function(visible)
 		"zButtonMounts",
 		"zButtonCompanions",
 		"zButtonToys",
+		"zButtonCraft",
 	}
 
 	local function MTH_ZH_SetChildButtonsVisible(parentButton, parentName, show)
@@ -303,6 +304,7 @@ local function MTH_ZH_SetAdjustmentHandlersActive(active)
 		{ frame = "MTH_ZH_MountsAdjust", handler = "MTH_ZH_MountsAdjust_OnEvent", getter = "zButtonMounts_GetSaved" },
 		{ frame = "MTH_ZH_CompanionsAdjust", handler = "MTH_ZH_CompanionsAdjust_OnEvent", getter = "zButtonCompanions_GetSaved" },
 		{ frame = "MTH_ZH_ToysAdjust", handler = "MTH_ZH_ToysAdjust_OnEvent", getter = "zButtonToys_GetSaved" },
+		{ frame = "MTH_ZH_CraftAdjust", handler = "MTH_ZH_CraftAdjust_OnEvent", getter = "zButtonCraft_GetSaved" },
 	}
 
 	local function isFeatureEnabled(getterName)
@@ -348,7 +350,9 @@ local function MTH_ZH_ClearRuntimeFeatureFlags()
 end
 
 MTH_ZH_RestoreRuntimeFeatureFlags = function()
-	return
+	if type(MTH_ZBar_Init) == "function" then
+		MTH_ZBar_Init()
+	end
 end
 
 function MTH_ZHunter:init()
@@ -372,6 +376,9 @@ function MTH_ZHunter:setEnabled(enabled)
 		MTH_ZH_SetAdjustmentHandlersActive(false)
 		MTH_ZH_SetButtonsVisible(false)
 		MTH_ZH_SetAuxFramesVisible(false)
+		-- Hide the zBar anchor so it doesn't float while the module is off
+		local zbarAnchor = getglobal("MTH_ZBar_Anchor")
+		if zbarAnchor then zbarAnchor:Hide() end
 	end
 end
 

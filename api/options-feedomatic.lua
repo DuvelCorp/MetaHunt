@@ -10,7 +10,7 @@ local MTH_FOM_STATE = {
 	bindStatus = nil,
 	bindButton = nil,
 	bindClearButton = nil,
-	bindingCapture = false,
+	captureFrame = nil,
 	ctrl = {},
 }
 
@@ -93,43 +93,79 @@ local function MTH_FOM_UpdateBindingStatus()
 	if not bindStatus or not bindStatus.SetText then
 		return
 	end
-	if MTH_FOM_STATE.bindingCapture then
-		bindStatus:SetText(MTH_FOM_L("FOM_BIND_STATUS_PROMPT", "Feed key: press a key... (ESC to clear)"))
-	else
-		bindStatus:SetText(string.format(MTH_FOM_L("FOM_BIND_STATUS_VALUE", "Feed key: %s"), MTH_FOM_GetBindingDisplayText()))
-	end
+	bindStatus:SetText(string.format(MTH_FOM_L("FOM_BIND_STATUS_VALUE", "Feed key: %s"), MTH_FOM_GetBindingDisplayText()))
 end
 
 local function MTH_FOM_StopBindingCapture()
-	MTH_FOM_STATE.bindingCapture = false
+	if MTH_FOM_STATE.captureFrame then
+		MTH_FOM_STATE.captureFrame:Hide()
+	end
 	if MTH_FOM_STATE.bindButton then
-		if MTH_FOM_STATE.bindButton.SetPropagateKeyboardInput then
-			MTH_FOM_STATE.bindButton:SetPropagateKeyboardInput(true)
-		end
-		MTH_FOM_STATE.bindButton:EnableKeyboard(false)
 		MTH_FOM_STATE.bindButton:SetText(MTH_FOM_L("FOM_BIND_SET_KEY", "Set Key"))
 	end
 	MTH_FOM_UpdateBindingStatus()
 end
 
-local function MTH_FOM_StartBindingCapture()
-	MTH_FOM_STATE.bindingCapture = true
-	if MTH_FOM_STATE.bindButton then
-		MTH_FOM_STATE.bindButton:SetText(MTH_FOM_L("FOM_BIND_PRESS_KEY", "Press key..."))
-		MTH_FOM_STATE.bindButton:EnableKeyboard(true)
-		if MTH_FOM_STATE.bindButton.SetPropagateKeyboardInput then
-			MTH_FOM_STATE.bindButton:SetPropagateKeyboardInput(false)
-		end
-	end
-	MTH_FOM_UpdateBindingStatus()
+local function MTH_FOM_BuildBindingChord(key)
+	return string.format("%s%s%s%s",
+		(IsAltKeyDown and IsAltKeyDown() and "ALT-" or ""),
+		(IsControlKeyDown and IsControlKeyDown() and "CTRL-" or ""),
+		(IsShiftKeyDown and IsShiftKeyDown() and "SHIFT-" or ""),
+		key)
 end
 
-local function MTH_FOM_BuildBindingChord(key)
-	local chord = ""
-	if IsControlKeyDown and IsControlKeyDown() and key ~= "LCTRL" and key ~= "RCTRL" then chord = chord .. "CTRL-" end
-	if IsAltKeyDown and IsAltKeyDown() and key ~= "LALT" and key ~= "RALT" then chord = chord .. "ALT-" end
-	if IsShiftKeyDown and IsShiftKeyDown() and key ~= "LSHIFT" and key ~= "RSHIFT" then chord = chord .. "SHIFT-" end
-	return chord .. key
+local function MTH_FOM_MakeCaptureFrame()
+	local f = CreateFrame("Frame", "MTH_FOMBindCapture", UIParent)
+	f:SetFrameStrata("FULLSCREEN_DIALOG")
+	f:SetAllPoints(UIParent)
+	f:EnableKeyboard(true)
+	f:EnableMouse(true)
+	f:EnableMouseWheel(true)
+	f:Hide()
+	local bg = f:CreateTexture(nil, "BACKGROUND")
+	bg:SetAllPoints(f)
+	bg:SetTexture(0, 0, 0, 0.5)
+	local lbl = f:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	lbl:SetPoint("CENTER", f, "CENTER", 0, 0)
+	lbl:SetText("|cffffff00Press a key, mouse button, or scroll wheel|r\n|cffaaaaaa(ESC to cancel)|r")
+	f:SetScript("OnKeyUp", function()
+		local key = arg1
+		if not key or key == "" then return end
+		if key == "ESCAPE" then MTH_FOM_StopBindingCapture() return end
+		if key == "UNKNOWN" or key == "PRINTSCREEN" then return end
+		if key == "ALT" or key == "CTRL" or key == "SHIFT" then return end
+		MTH_FOM_SaveBinding(MTH_FOM_BuildBindingChord(key))
+		MTH_FOM_StopBindingCapture()
+	end)
+	f:SetScript("OnMouseUp", function()
+		local btmap = { LeftButton="BUTTON1", RightButton="BUTTON2", MiddleButton="BUTTON3", Button4="BUTTON4", Button5="BUTTON5" }
+		local mapped = btmap[arg1]
+		if not mapped then return end
+		local prefix = string.format("%s%s%s",
+			(IsAltKeyDown and IsAltKeyDown() and "ALT-" or ""),
+			(IsControlKeyDown and IsControlKeyDown() and "CTRL-" or ""),
+			(IsShiftKeyDown and IsShiftKeyDown() and "SHIFT-" or ""))
+		if prefix == "" and (mapped == "BUTTON1" or mapped == "BUTTON2") then return end
+		MTH_FOM_SaveBinding(prefix .. mapped)
+		MTH_FOM_StopBindingCapture()
+	end)
+	f:SetScript("OnMouseWheel", function()
+		local wheelkey = (arg1 == 1 and "MOUSEWHEELUP") or (arg1 == -1 and "MOUSEWHEELDOWN") or nil
+		if not wheelkey then return end
+		MTH_FOM_SaveBinding(MTH_FOM_BuildBindingChord(wheelkey))
+		MTH_FOM_StopBindingCapture()
+	end)
+	return f
+end
+
+local function MTH_FOM_StartBindingCapture()
+	if not MTH_FOM_STATE.captureFrame then
+		MTH_FOM_STATE.captureFrame = MTH_FOM_MakeCaptureFrame()
+	end
+	MTH_FOM_STATE.captureFrame:Show()
+	if MTH_FOM_STATE.bindButton then
+		MTH_FOM_STATE.bindButton:SetText(MTH_FOM_L("FOM_BIND_PRESS_KEY", "Press key..."))
+	end
 end
 
 local function MTH_FOM_SaveBinding(key)
@@ -254,30 +290,12 @@ function MTH_SetupFeedOMaticOptions()
 	bindButton:SetWidth(90)
 	bindButton:SetHeight(22)
 	bindButton:SetText(MTH_FOM_L("FOM_BIND_SET_KEY", "Set Key"))
-	bindButton:EnableKeyboard(false)
 	bindButton:SetScript("OnClick", function()
-		if MTH_FOM_STATE.bindingCapture then
+		if MTH_FOM_STATE.captureFrame and MTH_FOM_STATE.captureFrame:IsShown() then
 			MTH_FOM_StopBindingCapture()
 		else
 			MTH_FOM_StartBindingCapture()
 		end
-	end)
-	bindButton:SetScript("OnKeyDown", function()
-		if not MTH_FOM_STATE.bindingCapture then
-			return
-		end
-		local key = arg1
-		if not key or key == "" then
-			return
-		end
-		if key == "ESCAPE" then
-			MTH_FOM_SaveBinding(nil)
-			return
-		end
-		if key == "UNKNOWN" or key == "PRINTSCREEN" then
-			return
-		end
-		MTH_FOM_SaveBinding(MTH_FOM_BuildBindingChord(key))
 	end)
 	MTH_FOM_STATE.bindButton = bindButton
 

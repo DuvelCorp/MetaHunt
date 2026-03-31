@@ -1,8 +1,14 @@
 # MetaHunt
 
 MetaHunt is a Turtle WoW Hunter toolkit.
-It is a modern modular addon compiling brand new features, and improving a few old hunter add-ons, that were broken on twow.
+It is a modern modular addon compiling brand new features, and improving a few old hunter add-ons that were broken on Twow.
 It provides a bunch of useful tools for all huntards, wheter they are still levelling, lone-wolf, or HL raider.
+
+### Important notes
+- Altough Nampower isn't mandatory for most of the features, it is a must-have for some.
+- If you were using old versions of Feed-O-Matic, ICU, zHunterMod and HunterHelper, you dont need those with MetaHunt and you should disable them to avoid conflicts. 
+- MetaHunt is fully compatible with Quiver and is not a replacement for it.
+
 
  ## Twow Data
 
@@ -39,8 +45,8 @@ Old zHunterMod addon on steroids. Fully compatible with Twow, and enhanced with 
 - zPet : Intelligent collapsible pet Bar regrouping all pet spells and providing an intelligent button that always show you the right spell to use depending on the situation
 - zTrack: All your trackings in one collapsible bar
 - zAspect: All your trackings in one collapsible bar
-- zRanged : All the ranged weampons currently in your bags to swap them fast
-- But also zMounts, zToys and zCompanions.
+- zRanged : All the ranged weapons currently in your bags to swap them fast
+- But also zBar, zCrafts, zMounts, zToys and zCompanions.
 
  ## Feed-O-Matic
 

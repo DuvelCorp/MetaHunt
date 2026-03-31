@@ -167,7 +167,7 @@ local function MTH_FEED_IndexBagFoods()
 	return true
 end
 
-local function MTH_FEED_HasPetFeedBuff()
+function MTH_FEED_HasPetFeedBuff()
 	if type(UnitBuff) ~= "function" then
 		return false
 	end

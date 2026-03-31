@@ -22,6 +22,7 @@ Loads all zhunter addon code and wraps it in the MTH module system
   <Include file="zButtonMounts.xml"/>
   <Include file="zButtonCompanions.xml"/>
   <Include file="zButtonToys.xml"/>
+  <Include file="zButtonCraft.xml"/>
   
   <!-- Load main ZHunterMod.lua FIRST so ZHunterMod_Saved table exists before button files use it -->
   <Include file="ZHunterMod.lua"/>
@@ -47,6 +48,11 @@ Loads all zhunter addon code and wraps it in the MTH module system
   <Include file="zButtonCompanions.lua"/>
 
   <Include file="zButtonToys.lua"/>
+
+  <Include file="zButtonCraft.lua"/>
+
+  <!-- zBar: unified draggable anchor bar (must load after all zButton files) -->
+  <Include file="zBar.lua"/>
   
   <!-- Deferred initialization - runs LAST after all parsing is complete -->
   <Include file="DeferredInit.lua"/>

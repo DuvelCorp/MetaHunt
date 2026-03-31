@@ -547,7 +547,75 @@ MTH_BOOK_NormalizeStableFoodLink = function(itemId, itemLink, itemName)
 	return nil
 end
 
+local function MTH_BOOK_FindStableFoodBagIcon(itemId, itemName)
+	local getContainerNumSlots = (type(getglobal) == "function" and getglobal("GetContainerNumSlots")) or (_G and _G["GetContainerNumSlots"])
+	local getContainerItemLink = (type(getglobal) == "function" and getglobal("GetContainerItemLink")) or (_G and _G["GetContainerItemLink"])
+	local getContainerItemInfo = (type(getglobal) == "function" and getglobal("GetContainerItemInfo")) or (_G and _G["GetContainerItemInfo"])
+	if type(getContainerNumSlots) ~= "function" or type(getContainerItemLink) ~= "function" or type(getContainerItemInfo) ~= "function" then
+		return nil
+	end
+	local wantedItemId = tonumber(itemId)
+	local wantedName = string.lower(tostring(itemName or ""))
+	for bag = 0, 4 do
+		local slotCount = tonumber(getContainerNumSlots(bag)) or 0
+		for slot = 1, slotCount do
+			local link = getContainerItemLink(bag, slot)
+			if link then
+				local matched = false
+				if wantedItemId then
+					local _, _, parsedId = string.find(tostring(link), "item:(%d+)")
+					if tonumber(parsedId) == wantedItemId then
+						matched = true
+					end
+				end
+				if not matched and wantedName ~= "" then
+					local _, _, parsedName = string.find(tostring(link), "|h%[([^%]]+)%]|h")
+					if parsedName and string.lower(tostring(parsedName)) == wantedName then
+						matched = true
+					end
+				end
+				if matched then
+					local bagTexture = getContainerItemInfo(bag, slot)
+					if bagTexture and bagTexture ~= "" then
+						if type(bagTexture) == "string" and string.find(bagTexture, "\\", 1, true) then
+							return bagTexture
+						end
+					end
+				end
+			end
+		end
+	end
+	return nil
+end
+
 local function MTH_BOOK_ResolveStableFoodIcon(itemId, iconHint, itemName, itemLink)
+	local function resolveTextureCandidate(value)
+		if value == nil or value == "" then
+			return nil
+		end
+		if type(value) == "number" then
+			return nil
+		end
+		local text = tostring(value)
+		if text == "" then
+			return nil
+		end
+		if string.find(text, "|Hitem:", 1, true) or string.find(text, "^item:%d+") then
+			return nil
+		end
+		if string.find(text, "^table:", 1, true) then
+			return nil
+		end
+		if string.find(text, "\\", 1, true) then
+			return text
+		end
+		local asNumber = tonumber(text)
+		if asNumber then
+			return nil
+		end
+		return "Interface\\Icons\\" .. text
+	end
+
 	local linkText = tostring(itemLink or "")
 	local linkItemId = nil
 	if linkText ~= "" then
@@ -559,102 +627,53 @@ local function MTH_BOOK_ResolveStableFoodIcon(itemId, iconHint, itemName, itemLi
 
 	local numericItemId = tonumber(itemId) or linkItemId
 
-	if linkText ~= "" and type(GetItemInfo) == "function" then
-		local _, _, _, _, _, _, _, _, _, linkTexture = GetItemInfo(linkText)
-		if linkTexture and linkTexture ~= "" then
-			if type(linkTexture) == "number" then
-				return linkTexture
-			end
-			if string.find(tostring(linkTexture), "\\", 1, true) then
-				return tostring(linkTexture)
-			end
-			local asNumber = tonumber(tostring(linkTexture))
-			if asNumber then
-				return asNumber
-			end
-			return "Interface\\Icons\\" .. tostring(linkTexture)
-		end
-	end
-
-	if type(iconHint) == "number" then
-		return iconHint
-	end
-
-	local iconHintText = tostring(iconHint or "")
-	if iconHintText ~= "" then
-		local numericHint = tonumber(iconHintText)
-		if numericHint then
-			return numericHint
-		end
-	end
-
-	local iconPath = iconHintText
-	if iconPath ~= "" then
-		if string.find(iconPath, "\\", 1, true) then
-			return iconPath
-		end
-		return "Interface\\Icons\\" .. iconPath
-	end
-
 	if numericItemId and type(GetItemInfo) == "function" then
 		local _, _, _, _, _, _, _, _, _, infoTexture = GetItemInfo(numericItemId)
-		if infoTexture and infoTexture ~= "" then
-			if type(infoTexture) == "number" then
-				return infoTexture
-			end
-			if string.find(tostring(infoTexture), "\\", 1, true) then
-				return tostring(infoTexture)
-			end
-			local asNumber = tonumber(tostring(infoTexture))
-			if asNumber then
-				return asNumber
-			end
-			return "Interface\\Icons\\" .. tostring(infoTexture)
+		local resolvedInfoTexture = resolveTextureCandidate(infoTexture)
+		if resolvedInfoTexture then
+			return resolvedInfoTexture
 		end
 	end
 
 	if numericItemId and type(GetItemIcon) == "function" then
 		local directIcon = GetItemIcon(numericItemId)
-		if directIcon and directIcon ~= "" then
-			if type(directIcon) == "number" then
-				return directIcon
-			end
-			if string.find(tostring(directIcon), "\\", 1, true) then
-				return tostring(directIcon)
-			end
-			local asNumber = tonumber(tostring(directIcon))
-			if asNumber then
-				return asNumber
-			end
-			return "Interface\\Icons\\" .. tostring(directIcon)
+		local resolvedDirectIcon = resolveTextureCandidate(directIcon)
+		if resolvedDirectIcon then
+			return resolvedDirectIcon
+		end
+	end
+
+	local resolvedHintIcon = resolveTextureCandidate(iconHint)
+	if resolvedHintIcon then
+		return resolvedHintIcon
+	end
+
+	if linkText ~= "" and type(GetItemInfo) == "function" then
+		local _, _, _, _, _, _, _, _, _, linkTexture = GetItemInfo(linkText)
+		local resolvedLinkTexture = resolveTextureCandidate(linkTexture)
+		if resolvedLinkTexture then
+			return resolvedLinkTexture
 		end
 	end
 
 	if itemName and itemName ~= "" and type(GetItemIcon) == "function" then
 		local namedIcon = GetItemIcon(itemName)
-		if namedIcon and namedIcon ~= "" then
-			if type(namedIcon) == "number" then
-				return namedIcon
-			end
-			if string.find(tostring(namedIcon), "\\", 1, true) then
-				return tostring(namedIcon)
-			end
-			local asNumber = tonumber(tostring(namedIcon))
-			if asNumber then
-				return asNumber
-			end
-			return "Interface\\Icons\\" .. tostring(namedIcon)
+		local resolvedNamedIcon = resolveTextureCandidate(namedIcon)
+		if resolvedNamedIcon then
+			return resolvedNamedIcon
 		end
 	end
 
 	if numericItemId and type(MTH_DS_Items) == "table" and type(MTH_DS_Items[numericItemId]) == "table" then
-		local dsIcon = tostring(MTH_DS_Items[numericItemId].icon or "")
-		if dsIcon ~= "" then
-			if string.find(dsIcon, "\\", 1, true) then
-				return dsIcon
-			end
-			return "Interface\\Icons\\" .. dsIcon
+		local resolvedDsIcon = resolveTextureCandidate(MTH_DS_Items[numericItemId].icon)
+		if resolvedDsIcon then
+			return resolvedDsIcon
 		end
+	end
+
+	local bagIcon = MTH_BOOK_FindStableFoodBagIcon(numericItemId, itemName)
+	if bagIcon then
+		return bagIcon
 	end
 
 	return nil
@@ -1566,7 +1585,7 @@ function MTH_BOOKTAB_RenderStableCards()
 				local abilitiesCount = MTH_BOOK_CountPetAbilitiesMap(row.abilities)
 				local abilitiesText = MTH_BOOK_GetStableAbilitySummary(row.abilities)
 				local legacyTameContext = type(row.tameContext) == "table" and row.tameContext or nil
-				local hasRecordedTame = row.tameRecorded == true
+				local hasRecordedTame = type(MTH_PETS_HasVerifiedTameRecord) == "function" and MTH_PETS_HasVerifiedTameRecord(row) or (row.tameRecorded == true)
 				if not hasRecordedTame and legacyTameContext then
 					if legacyTameContext.name or legacyTameContext.zone or legacyTameContext.timestamp then
 						hasRecordedTame = true

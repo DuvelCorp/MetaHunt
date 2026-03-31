@@ -2,6 +2,88 @@
 
 All notable changes to MetaHunt will be documented in this file.
 
+
+## [1.5.0] - 2026-03-31
+
+
+### Changed
+
+- **Beast spawn coordinates — custom-zone remap**: Reworked 63 beast coordinate sets in the datastore. The largest changes move placeholder vanilla-zone coords onto the proper Turtle WoW custom zones for **Grim Reaches**, **Northwind**, and **Balor**, and clean up prairie beasts that were incorrectly spilling into **Thunder Bluff**.
+
+- **Beast spawn coordinates — Stonetalon recalibration**: Recalibrated several **Stonetalon Mountains** beast spawn clusters to match the Twow updated zone bounds and improve marker placement consistency.
+
+- **MM Widget — ClickThrough **: The whole widget is now clickable through, and ALT-drag to reposition it is thus no longer possible
+
+- **MM Widget — clearer bottom-cell display**: The bottom cell now shows the cooldown of the current shot you would use, and only shows `USE` when that shot is ready.
+
+- **Feed-O-Matic — NO-BUFF quarantine disabled**: The mechanism that permanently blacklisted a food item per pet family after a failed feed (no buff detected within 2.5 s) has been disabled. Foods are no longer quarantined on a no-buff timeout — the feed will simply retry without banning the item. This avoids false positives caused by server lag or client timeouts.
+
+
+### Added
+
+- **zCraft — new zButton for crafting professions**: A new `zCraft` button (Options → zButtons → zCraft) scans your spellbook and shows a child button for each crafting profession you know — Alchemy, Blacksmithing, Cooking, Disenchanting, Enchanting, Engineering, Fishing, First Aid, Herbalism, Jewelcrafting, Leatherworking, Mining (Smelting), Skinning, Survival, and Tailoring. Clicking a child opens the corresponding tradeskill window. Disabled by default.
+
+- **zBar — unified draggable toolbar for all zButtons**: A new "zBar" tab (Options → zButtons → zBar) groups all enabled zButton bars into a single draggable anchor. Alt-drag the zBar to move the whole group together. Options: Horizontal or Vertical layout; which side children pop out (Up/Down for horizontal, Left/Right for vertical); spacing between buttons; anchor icon size; per-bar include/exclude toggle and drag-to-reorder. Disabled by default — existing layouts are untouched until you enable it.
+
+- **zAspect / zTrack — Smart Parent**: A new "Smart Parent" checkbox in Options → zButtons → zAspect and zTrack. When enabled, the parent button automatically toggles between your 1st and 2nd spell: if the 1st is active, the parent shows the 2nd, and vice-versa. Perfect for PvP — put Track Hidden and Track Humanoids as your first two tracking spells, and the parent always shows the one you're *not* currently using. When disabled, the parent always shows the 1st spell. Enabled by default.
+
+- **zPet — Smart Parent**: A new "Smart Parent" checkbox in Options → zButtons → zPet. When enabled, the parent button dynamically changes based on your pet's state: Revive Pet if dead, Mend Pet if hurt, Feed Pet if unhappy, or your default spell otherwise. When disabled, the parent always shows the 1st spell. Enabled by default.
+
+- **zMounts / zCompanions — Random Parent**: A new "Random Parent" checkbox in Options → zButtons → zMounts and zCompanions. When enabled, a random child mount is picked as the parent icon on each login and after each use. Disabled by default.
+
+- **zMounts — AQ Mount Filter**: A new "AQ Mount Filter" checkbox in Options → zButtons → zMounts. When enabled, Qiraji mounts are hidden outside AQ40, and only Qiraji mounts are shown inside AQ40. Enabled by default.
+
+- **zAspect — NamPower support**: The Aspect button now listens to `NamPower` aura events when available, so aspect changes update faster and without the old polling delay.
+
+- **MM Widget — NamPower support**: The widget now uses `NamPower` aura updates when available, which makes ammo proc tracking faster and more reliable. It still falls back to the old tracking method if NamPower is not installed.
+
+- **MM Widget — keybind **: The MM Widget options panel now has a "Set Key" button. Press any key (with optional ALT/CTRL/SHIFT modifiers), or mouse button/wheel to bind the MM Widget action, turning it into a One-button rotation feature.
+
+- **MM Widget — Quiver no-clip option**: New "Use Quiver no-clip casting" checkbox in the MM Widget options. When enabled and Quiver is installed, Aimed Shot, Steady Shot, and Multi-Shot of the Action bind are routed through Quiver's no-clip system to avoid clipping your auto-shot swing timer.
+
+- **MM Widget — Anchor **: Since the widget is now clickable-through, a new anchor system was implemented to move the widget: toggling the anchor button in the options shows 4 drag handles (top, bottom, left, right) outside the widget edge. Any handle can be dragged to reposition the widget.
+
+- **Hunter Book — Families stats modifiers**: The Families page now also shows `Health`, `Damage`, and `Armor` modifiers for every family. Those modifier values can be shown as raw multipliers or as `%` with a footer checkbox, and are color-coded for easier reading. Additionaly the footer recap now also shows the total number of families, and the Named/Coord counts are plugged on the new accurate server's data instead of old pfQuest data.
+
+- **FOM — keybind**: The Feed-O-Matic "Set Key" button in options now also accepts modifiers and mouse.
+
+- **/mth food command**: Added a new slash command to inspect Feed-O-Matic state, clear one item ban, or reset all food bans and quarantines.
+
+- **AntiDaze — NamPower support**: Daze detection now uses NamPower's aura events when available, replacing chat-message parsing for faster and more reliable aspect cancellation.
+
+- **Chronometer — NamPower support**: Timer bars now start and stop instantly via NamPower aura events when available. Bar durations are read directly from the NamPower aura array instead of guessed from spell data.
+
+- **Feed-O-Matic — NamPower support**: Mount and buff detection (Shadowmeld, Feign Death, eating, etc.) now uses the NamPower aura array when available, replacing the old tooltip-scraping method.
+
+
+
+### Fixed
+
+- **Pet lifecycle — duplicate / ghost pets in Stable**: Reworked pet identity with GUID-based matching and fixed stable tracking so the same pet is no longer split into multiple rows after tame, rename, stable swap, or `/reload`. Old stale pets should also stop reappearing in the Stable tab as fake active/stabled entries.
+
+- **Pet lifecycle — wrong taming info shown on old pets**: Fixed several cases where MetaHunt could invent tame data for pets that were only seen later through stable swaps or normal pet refreshes. Taming info is now only recorded from a real tame event, so old pets should no longer show fake tame location / tame date data.
+
+- **Hunter Book — Stable tab now trusts real stable slots**: The Stable tab now shows the current pet plus the pets that are actually in your stable slots, instead of trusting stale saved slot data from older sessions.
+
+- **Hunter Book — pet training kept on the correct pet**: Fixed cases where a pet could keep its row but lose its Training section after lifecycle repairs or row merges. Training/spellbook data now stays attached to the right pet.
+
+- **Hunter Book — stable feed item icons**: Fixed broken food icons in the Stable tab feed summary, including cases where foods like `Roasted Quail` were showing as a red square or question mark.
+
+- **Minimap markers moving with the player since 1.4.0**: Reworked minimap marker zone resolution and calibration so pins stay anchored to world locations again instead of sliding with player movement. The minimap path now uses exact current-zone lookup in pfQuest space, while the world map keeps the WMA-aware logic introduced for 1.18.1 zone support.
+
+- **Chronometer — "Grow bars upward" forgotten after `/reload`**: Checking the "Grow bars upward" option and reloading the UI would revert the bars back to growing downward, even though the checkbox still appeared checked. Fixed.
+
+- **Chronometer — bars appear below the anchor instead of above when "Grow bars upward" is enabled**: Even with "Grow bars upward" checked, the bars were still spawning a bit below the anchor and stacking upward from there, because of an existing issue in old `CandyBar` library. Fixed — bars now correctly start at the anchor and grow upward.
+
+- **Chronometer — Aimed Shot tracker removed**: Chronometer no longer tracks Aimed Shot cooldowns. The MM Widget now owns that behavior, so Chronometer keeps its hunter timers focused on the remaining spell and proc bars.
+
+- **MM Widget — Quiver no-clip covers Multi-Shot**: The Quiver no-clip option now explicitly includes Multi-Shot alongside Aimed Shot and Steady Shot.
+
+- **MM Widget — stale NamPower proc state**: The widget now resyncs from the NamPower aura array after aura events, so it no longer keeps showing a proc after the debuff is gone.
+
+- **Quiver no-clip macro — Steady Shot castbar not showing**: If you were using Quiver and its no-clip macro for your shots, the Quiver castbar for those shots would not appear with MetaHunt enabled. Fixed — the castbar now appears correctly when using the macro. 
+
+
 ## [1.4.1] - 2026-03-24
 
 ### Added

@@ -1,4 +1,4 @@
-MTH_OPTIONS_TREE_STATE = MTH_OPTIONS_TREE_STATE or { zButtons = true, chronometer = true }
+MTH_OPTIONS_TREE_STATE = MTH_OPTIONS_TREE_STATE or { zButtons = false, chronometer = false }
 MTH_OPTIONS_TREE_BUTTONS = MTH_OPTIONS_TREE_BUTTONS or {}
 MTH_OPTIONS_STATE = MTH_OPTIONS_STATE or {}
 if MTH_OPTIONS_STATE.activeTab == nil and MTH_OPTIONS_ACTIVE_TAB ~= nil then
@@ -30,7 +30,8 @@ MTH_OPTIONS_TABS = MTH_OPTIONS_TABS or {
 	{ key = "General",  label = "General",  frame = "MetaHuntOptionsGeneral"  },
 	{ key = "Profiles", label = "Profiles", frame = "MetaHuntOptionsProfiles" },
 	{ key = "Messages", label = "Messages", frame = "MetaHuntOptionsMessages" },
-	{ key = "Pet", label = "ZPet", frame = "MetaHuntOptionsPet" },
+	{ key = "ZBar",        label = "zBar",        frame = "MetaHuntOptionsZBar"        },
+	{ key = "Pet",         label = "ZPet",        frame = "MetaHuntOptionsPet"         },
 	{ key = "Track", label = "ZTrack", frame = "MetaHuntOptionsTrack" },
 	{ key = "Aspect", label = "ZAspect", frame = "MetaHuntOptionsAspect" },
 	{ key = "Trap", label = "ZTrap", frame = "MetaHuntOptionsTrap" },
@@ -39,6 +40,7 @@ MTH_OPTIONS_TABS = MTH_OPTIONS_TABS or {
 	{ key = "Mounts", label = "ZMounts", frame = "MetaHuntOptionsMounts" },
 	{ key = "Companions", label = "ZCompanions", frame = "MetaHuntOptionsCompanions" },
 	{ key = "Toys", label = "ZToys", frame = "MetaHuntOptionsToys" },
+	{ key = "Craft", label = "ZCraft", frame = "MetaHuntOptionsCraft" },
 	{ key = "SmartAmmo", label = "Smart Ammo", frame = "MetaHuntOptionsSmartAmmo" },
 	{ key = "FeedOMatic", label = "FeedOMatic", frame = "MetaHuntOptionsFeedOMatic" },
 	{ key = "AutoBuy", label = "Auto Buy", frame = "MetaHuntOptionsAutoBuy" },
@@ -66,7 +68,8 @@ MTH_OPTIONS_TREE = MTH_OPTIONS_TREE or {
 		label = "zButtons",
 		node = "zButtons",
 		children = {
-			{ label = "zAmmo", key = "Ammo" },
+			{ label = "zBar",        key = "ZBar"       },
+			{ label = "zAmmo",       key = "Ammo"       },
 			{ label = "zPet", key = "Pet" },
 			{ label = "zAspect", key = "Aspect" },
 			{ label = "zTrack", key = "Track" },
@@ -75,6 +78,7 @@ MTH_OPTIONS_TREE = MTH_OPTIONS_TREE or {
 			{ label = "zMounts", key = "Mounts" },
 			{ label = "zCompanions", key = "Companions" },
 			{ label = "zToys", key = "Toys" },
+			{ label = "zCraft", key = "Craft" },
 		},
 	},
 	{
