@@ -648,10 +648,12 @@ function zButtonRanged_SetupSizeAndPosition()
 	if displayCount < 0 then
 		displayCount = 0
 	end
-	ZSpellButton_SetSize(zButtonRanged, saved["parent"]["size"])
-	ZSpellButton_SetSize(zButtonRanged, saved["children"]["size"], 1)
-	ZSpellButton_SetExpandDirection(zButtonRanged, saved["firstbutton"])
-	ZSpellButton_ArrangeChildren(zButtonRanged, saved["rows"], displayCount, saved["horizontal"], saved["vertical"])
+	if not (type(MTH_ZBar_ApplyToButton) == "function" and MTH_ZBar_ApplyToButton(zButtonRanged, displayCount)) then
+		ZSpellButton_SetSize(zButtonRanged, saved["parent"]["size"])
+		ZSpellButton_SetSize(zButtonRanged, saved["children"]["size"], 1)
+		ZSpellButton_SetExpandDirection(zButtonRanged, saved["firstbutton"])
+		ZSpellButton_ArrangeChildren(zButtonRanged, saved["rows"], displayCount, saved["horizontal"], saved["vertical"])
+	end
 	zButtonRanged_UpdateButton(zButtonRanged)
 end
 

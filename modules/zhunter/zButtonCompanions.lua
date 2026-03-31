@@ -75,6 +75,9 @@ local function zButtonCompanions_EnsureConfig()
 	if saved["parent"]["circle"] == nil then
 		saved["parent"]["circle"] = 1
 	end
+	if saved["parent"]["random"] == nil then
+		saved["parent"]["random"] = false
+	end
 	if not saved["children"]["size"] then
 		saved["children"]["size"] = 36
 	end
@@ -177,7 +180,14 @@ local function zButtonCompanions_ApplySpellIds(spellIds)
 	end
 
 	if found > 0 then
-		parent.id = spellIds[1]
+		local saved = zButtonCompanions_GetSaved()
+		if saved["parent"]["random"] and found > 1 then
+			local pick = math.random(1, found)
+			local child = getglobal("zButtonCompanions" .. pick)
+			parent.id = child and child.id or spellIds[1]
+		else
+			parent.id = spellIds[1]
+		end
 		parent.isspell = 1
 		ZSpellButton_UpdateButton(parent)
 		parent:Enable()
@@ -227,6 +237,17 @@ function zButtonCompanions_OnEvent()
 			return
 		end
 		zButtonCompanions_CreateButtons()
+		zButtonCompanions.afterclick = function(button)
+			local saved = zButtonCompanions_GetSaved()
+			if saved["parent"]["random"] and zButtonCompanions.found and zButtonCompanions.found > 1 then
+				local pick = math.random(1, zButtonCompanions.found)
+				local child = getglobal("zButtonCompanions" .. pick)
+				if child and child.id then
+					zButtonCompanions.id = child.id
+					ZSpellButton_UpdateButton(zButtonCompanions)
+				end
+			end
+		end
 		MTH_ZH_CompanionsAdjust = CreateFrame("Frame", "MTH_ZH_CompanionsAdjust")
 		MTH_ZH_CompanionsAdjust:RegisterEvent("SPELLS_CHANGED")
 		MTH_ZH_CompanionsAdjust:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -264,12 +285,14 @@ function zButtonCompanions_SetupSizeAndPosition()
 	if displayCount < 0 then
 		displayCount = 0
 	end
-	ZSpellButton_SetSize(zButtonCompanions, saved["parent"]["size"])
-	ZSpellButton_SetSize(zButtonCompanions, saved["children"]["size"], 1)
-	ZSpellButton_SetExpandDirection(zButtonCompanions, saved["firstbutton"])
-	ZSpellButton_ArrangeChildren(zButtonCompanions, saved["rows"], 
-		displayCount, saved["horizontal"],
-		saved["vertical"])
+	if not (type(MTH_ZBar_ApplyToButton) == "function" and MTH_ZBar_ApplyToButton(zButtonCompanions, displayCount)) then
+		ZSpellButton_SetSize(zButtonCompanions, saved["parent"]["size"])
+		ZSpellButton_SetSize(zButtonCompanions, saved["children"]["size"], 1)
+		ZSpellButton_SetExpandDirection(zButtonCompanions, saved["firstbutton"])
+		ZSpellButton_ArrangeChildren(zButtonCompanions, saved["rows"],
+			displayCount, saved["horizontal"],
+			saved["vertical"])
+	end
 end
 
 function zButtonCompanions_Reset()

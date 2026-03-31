@@ -76,6 +76,7 @@ local MTH_BOOK_STATE = {
 	npcZone = "all",
 	npcInZoneOnly = false,
 	npcHideNoZone = true,
+	familyStatsPercent = false,
 	petHideNoAbilities = true,
 	petHideUnknown = true,
 	forcedBeastId = nil,
@@ -1261,6 +1262,22 @@ function MTH_BOOK_ResolveCurrentPetId(store)
 	return nil
 end
 
+local function MTH_BOOK_GetAuthoritativeStableSlot(petId, store)
+	if petId == nil or type(store) ~= "table" or type(store.stableSlotIndex) ~= "table" then
+		return nil
+	end
+	local wantedId = tostring(petId)
+	for slotNumber, mappedPetId in pairs(store.stableSlotIndex) do
+		if tostring(mappedPetId or "") == wantedId then
+			local numericSlot = tonumber(slotNumber)
+			if numericSlot and numericSlot > 0 then
+				return numericSlot
+			end
+		end
+	end
+	return nil
+end
+
 function MTH_BOOK_GetStableDisplaySlot(petId, row, store)
 	if type(row) ~= "table" then return nil end
 	if type(store) ~= "table" then
@@ -1269,7 +1286,7 @@ function MTH_BOOK_GetStableDisplaySlot(petId, row, store)
 	if MTH_BOOK_IsCurrentActivePetId(store, petId) then
 		return 0
 	end
-	local slotNumber = tonumber(row.stableSlot)
+	local slotNumber = MTH_BOOK_GetAuthoritativeStableSlot(petId, store)
 	if slotNumber and slotNumber > 0 then
 		return slotNumber
 	end
@@ -1328,6 +1345,9 @@ local function MTH_BOOK_GetSortKey(entry, col)
 		if col == 3 then return tonumber(entry.coords) or 0 end
 		if col == 4 then return tonumber(entry.abilities and table.getn(entry.abilities) or 0) end
 		if col == 5 then return MTH_BOOK_SafeLower(entry.dietText or "") end
+		if col == 6 then return tonumber(entry.healthStat) end
+		if col == 7 then return tonumber(entry.damageStat) end
+		if col == 8 then return tonumber(entry.armorStat) end
 	end
 
 	if MTH_BOOK_STATE.mode == "npcs" then
@@ -1427,6 +1447,56 @@ local function MTH_BOOK_DefaultCompare(a, b)
 	if MTH_BOOK_STATE.mode == "stable" then return MTH_BOOK_StableSort(a, b) end
 	if MTH_BOOK_STATE.mode == "pethistory" then return MTH_BOOK_PetHistorySort(a, b) end
 	return MTH_BOOK_ItemSort(a, b)
+end
+
+local function MTH_BOOK_FormatFamilyStatValue(value)
+	local numeric = tonumber(value)
+	if not numeric then
+		return "-"
+	end
+	local colorPrefix = "|cFF4DA6FF"
+	if numeric < 1 then
+		colorPrefix = "|cFFFF4040"
+	elseif numeric > 1 then
+		colorPrefix = "|cFF40FF40"
+	end
+	local text = nil
+	if MTH_BOOK_STATE.familyStatsPercent == true then
+		text = tostring(math.floor((numeric * 100) + 0.5)) .. "%"
+		return colorPrefix .. text .. "|r"
+	end
+	text = string.format("%.3f", numeric)
+	text = string.gsub(text, "(%..-)0+$", "%1")
+	text = string.gsub(text, "%.$", "")
+	return colorPrefix .. text .. "|r"
+end
+
+local function MTH_BOOK_EnsureFamiliesPercentCheckbox()
+	local statsText = getglobal("MTH_BOOK_StatsText")
+	if not statsText then return nil end
+	if MTH_BOOK_STATE.familiesPercentCheckbox then
+		return MTH_BOOK_STATE.familiesPercentCheckbox
+	end
+	local parent = statsText:GetParent()
+	if not parent then return nil end
+	local check = CreateFrame("CheckButton", "MTH_BOOK_FamiliesPercentCheckbox", parent, "UICheckButtonTemplate")
+	if not check then return nil end
+	check:SetFrameStrata(parent:GetFrameStrata())
+	check:SetFrameLevel((parent:GetFrameLevel() or 0) + 20)
+	check:ClearAllPoints()
+	check:SetPoint("LEFT", parent, "TOPLEFT", 604, -540)
+	check.label = check:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+	check.label:SetPoint("LEFT", check, "RIGHT", 4, 0)
+	check.label:SetTextColor(1.00, 0.82, 0.00)
+	check.label:SetText("Show modifiers in %")
+	check:SetScript("OnClick", function()
+		if not this then return end
+		MTH_BOOK_STATE.familyStatsPercent = this:GetChecked() == 1
+		MTH_BOOK_UpdateResults()
+	end)
+	check:Hide()
+	MTH_BOOK_STATE.familiesPercentCheckbox = check
+	return check
 end
 
 local function MTH_BOOK_ApplyActiveSort(results)
@@ -3521,7 +3591,7 @@ function MTH_BOOK_UpdateDetail()
 		end
 
 		local legacyTameContext = type(row.tameContext) == "table" and row.tameContext or nil
-		local hasRecordedTame = row.tameRecorded == true
+		local hasRecordedTame = type(MTH_PETS_HasVerifiedTameRecord) == "function" and MTH_PETS_HasVerifiedTameRecord(row) or (row.tameRecorded == true)
 		if not hasRecordedTame and legacyTameContext then
 			if legacyTameContext.name or legacyTameContext.zone or legacyTameContext.timestamp then
 				hasRecordedTame = true
@@ -3630,6 +3700,7 @@ end
 local function MTH_BOOK_UpdateHeader()
 	local stats = getglobal("MTH_BOOK_StatsText")
 	if not stats then return end
+	local familiesPercentCheckbox = MTH_BOOK_EnsureFamiliesPercentCheckbox()
 	local mode = MTH_BOOK_STATE.mode or "pets"
 	local tabDef = MTH_BOOK_GetTabDefinition(mode)
 	local modeLabel = (tabDef and tabDef.headerLabel) or "Beasts"
@@ -3647,6 +3718,7 @@ local function MTH_BOOK_UpdateHeader()
 	local filtered = table.getn(MTH_BOOK_STATE.results)
 	local pages = math.max(1, math.ceil(filtered / MTH_BOOK_STATE.pageSize))
 	if mode == "families" then
+		local familyTotal = table.getn(MTH_BOOK_STATE.results or {})
 		local namedTotal = 0
 		local coordsTotal = 0
 		for i = 1, table.getn(MTH_BOOK_STATE.results or {}) do
@@ -3656,8 +3728,15 @@ local function MTH_BOOK_UpdateHeader()
 				coordsTotal = coordsTotal + (tonumber(row.coords) or 0)
 			end
 		end
-		stats:SetText("Named: " .. tostring(namedTotal) .. " | Coords: " .. tostring(coordsTotal))
+		stats:SetText("Families: " .. tostring(familyTotal) .. " | Named: " .. tostring(namedTotal) .. " | Coords: " .. tostring(coordsTotal))
+		if familiesPercentCheckbox then
+			familiesPercentCheckbox:SetChecked(MTH_BOOK_STATE.familyStatsPercent == true and 1 or nil)
+			familiesPercentCheckbox:Show()
+		end
 		return
+	end
+	if familiesPercentCheckbox then
+		familiesPercentCheckbox:Hide()
 	end
 	stats:SetText(modeLabel .. ": " .. total .. " | Filtered: " .. filtered .. " | Page " .. MTH_BOOK_STATE.page .. "/" .. pages)
 end
@@ -3946,6 +4025,9 @@ local function MTH_BOOK_GetRowValues(entry)
 			tostring(entry.coords or 0),
 			abilitiesText,
 			dietText,
+			MTH_BOOK_FormatFamilyStatValue(entry.healthStat),
+			MTH_BOOK_FormatFamilyStatValue(entry.damageStat),
+			MTH_BOOK_FormatFamilyStatValue(entry.armorStat),
 		}
 	end
 

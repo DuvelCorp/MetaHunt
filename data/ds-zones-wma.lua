@@ -298,7 +298,7 @@ MTH_DS_WMAZones = {
   [42] = { pfqAreaId=148, mapId=1, left=2941.67, right=-3608.33, top=8333.33, bottom=3966.67, width=6550.00, height=4366.66 },  -- Darkshore
   [43] = { pfqAreaId=331, mapId=1, left=1700.00, right=-4066.67, top=4672.92, bottom=829.17, width=5766.67, height=3843.75 },  -- Ashenvale
   [61] = { pfqAreaId=400, mapId=1, left=-433.33, right=-4833.33, top=-3966.67, bottom=-6900.00, width=4400.00, height=2933.33 },  -- ThousandNeedles
-  [81] = { pfqAreaId=406, mapId=1, left=3949.00, right=-2069.00, top=3441.00, bottom=-569.00, width=6018.00, height=4010.00 },  -- StonetalonMountains
+  [81] = { pfqAreaId=406, mapId=1, left=3245.83, right=-1637.50, top=2916.67, bottom=-339.58, width=4883.33, height=3256.25 },  -- StonetalonMountains
   [101] = { pfqAreaId=405, mapId=1, left=4233.33, right=-262.50, top=452.08, bottom=-2545.83, width=4495.83, height=2997.91 },  -- Desolace
   [121] = { pfqAreaId=357, mapId=1, left=5441.67, right=-1508.33, top=-2366.67, bottom=-7000.00, width=6950.00, height=4633.33 },  -- Feralas
   [141] = { pfqAreaId=15, mapId=1, left=-975.00, right=-6225.00, top=-2033.33, bottom=-5533.33, width=5250.00, height=3500.00 },  -- Dustwallow

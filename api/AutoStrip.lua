@@ -267,6 +267,12 @@ local function AutoStrip_OnEvent()
 			.. " playerInCombat=" .. tostring((type(UnitAffectingCombat) == "function" and UnitAffectingCombat("player")) and 1 or 0))
 	end
 	if event == "VARIABLES_LOADED" then
+		-- Class gate: only hunters use AutoStrip.
+		if MTH and MTH.IsClassGateBlocked and MTH:IsClassGateBlocked() then
+			AutoStrip_Frame:UnregisterAllEvents()
+			AutoStrip_Frame:SetScript("OnEvent", nil)
+			return
+		end
 		local saved = AutoStrip_GetSaved()
 		AutoStrip_Trace("VARIABLES_LOADED saved.autostrip=" .. tostring(saved["autostrip"] and 1 or 0)
 			.. " saved.display=" .. tostring(saved["display"] and 1 or 0))

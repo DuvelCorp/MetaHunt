@@ -133,6 +133,11 @@ function MTH_SelectOptionsTab(tabKey)
 				MTH_SetupMessagesOptions()
 			end
 		end
+	elseif tabKey == "ZBar" then
+		if type(MTH_SetupZBarOptions) == "function" then
+			MTH_SetupZBarOptions()
+			MTH_OPTIONS_SETUP["ZBar"] = true
+		end
 	elseif tabKey == "Pet" then
 		if not MTH_OPTIONS_SETUP["Pet"] then
 			MTH_SetupPetOptions()
@@ -181,6 +186,11 @@ function MTH_SelectOptionsTab(tabKey)
 		if not MTH_OPTIONS_SETUP["Toys"] then
 			MTH_SetupToysOptions()
 			MTH_OPTIONS_SETUP["Toys"] = true
+		end
+	elseif tabKey == "Craft" then
+		if not MTH_OPTIONS_SETUP["Craft"] then
+			MTH_SetupCraftOptions()
+			MTH_OPTIONS_SETUP["Craft"] = true
 		end
 	elseif tabKey == "SmartAmmo" then
 		if not MTH_OPTIONS_SETUP["SmartAmmo"] then

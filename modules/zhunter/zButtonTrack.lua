@@ -93,6 +93,32 @@ local function zButtonTrack_FindSpellIdByTrackingName(trackingName)
 	return nil
 end
 
+local function zButtonTrack_ScanBuffsForTrackingSpell()
+	if not zButtonTrack or not zButtonTrack.count then
+		return nil, nil
+	end
+	local childTextures = {}
+	for i = 1, zButtonTrack.count do
+		local child = getglobal("zButtonTrack" .. i)
+		if child and child.id then
+			local tex = GetSpellTexture and GetSpellTexture(child.id, "spell") or nil
+			if tex then
+				childTextures[tex] = child.id
+			end
+		end
+	end
+	local buffIndex = 1
+	local buff = UnitBuff("player", buffIndex)
+	while buff do
+		if childTextures[buff] then
+			return childTextures[buff], buff
+		end
+		buffIndex = buffIndex + 1
+		buff = UnitBuff("player", buffIndex)
+	end
+	return nil, nil
+end
+
 local function zButtonTrack_GetActiveTrackingSpellId()
 	local activeName = nil
 	local activeTexture = nil
@@ -112,10 +138,26 @@ local function zButtonTrack_GetActiveTrackingSpellId()
 		return byName, activeTexture
 	end
 	if activeTexture then
-		return zButtonTrack_FindSpellIdByTrackingTexture(activeTexture), activeTexture
+		local byTex = zButtonTrack_FindSpellIdByTrackingTexture(activeTexture)
+		if byTex then
+			return byTex, activeTexture
+		end
 	end
-	local buff = GetTrackingTexture and GetTrackingTexture() or nil
-	return zButtonTrack_FindSpellIdByTrackingTexture(buff), buff
+	-- Fallback: scan player buffs for tracking spell icon textures
+	local buffId, buffTex = zButtonTrack_ScanBuffsForTrackingSpell()
+	if buffId then
+		return buffId, buffTex
+	end
+	return nil, nil
+end
+
+local function zButtonTrack_SmartParentId(activeChildId)
+	local child1 = getglobal("zButtonTrack1")
+	local child2 = getglobal("zButtonTrack2")
+	if not child1 or not child1.id then return nil end
+	if not child2 or not child2.id then return child1.id end
+	if activeChildId == child1.id then return child2.id end
+	return child1.id
 end
 
 local function zButtonTrack_AfterClick(button)
@@ -123,9 +165,19 @@ local function zButtonTrack_AfterClick(button)
 		return
 	end
 	if button and button.id then
-		zButtonTrack.id = button.id
-		ZSpellButton_UpdateButton(zButtonTrack)
-		ZSpellButton_UpdateCooldown(zButtonTrack)
+		local saved = zButtonTrack_GetSaved()
+		local newId
+		if saved["parent"]["smart"] ~= false then
+			newId = zButtonTrack_SmartParentId(button.id)
+		else
+			local firstChild = getglobal("zButtonTrack1")
+			newId = firstChild and firstChild.id
+		end
+		if newId and newId ~= zButtonTrack.id then
+			zButtonTrack.id = newId
+			ZSpellButton_UpdateButton(zButtonTrack)
+			ZSpellButton_UpdateCooldown(zButtonTrack)
+		end
 		zButtonTrack_SyncActiveChild(button.id)
 		if GetSpellTexture then
 			zButtonTrack_LastTrackingTexture = GetSpellTexture(button.id, "spell") or zButtonTrack_LastTrackingTexture
@@ -156,34 +208,36 @@ local function zButtonTrack_RefreshTrackingState()
 	if not zButtonTrack or not zButtonTrack.count then
 		return
 	end
-	local newId, trackingTexture = zButtonTrack_GetActiveTrackingSpellId()
-	local buff = trackingTexture or (GetTrackingTexture and GetTrackingTexture() or nil)
-	if not newId and not buff then
-		if zButtonTrack.id then
-			zButtonTrack_SyncActiveChild(zButtonTrack.id)
-		else
-			zButtonTrack_LastTrackingTexture = nil
-			zButtonTrack_SyncActiveChild(nil)
+	local saved = zButtonTrack_GetSaved()
+	local firstChild = getglobal("zButtonTrack1")
+
+	-- Smart OFF: always show first child
+	if saved["parent"]["smart"] == false then
+		if firstChild and firstChild.id and zButtonTrack.id ~= firstChild.id then
+			zButtonTrack.id = firstChild.id
+			ZSpellButton_UpdateButton(zButtonTrack)
+			ZSpellButton_UpdateCooldown(zButtonTrack)
 		end
 		return
 	end
+
+	-- Smart ON: detect which tracking is active, show the OTHER one
+	local activeId = zButtonTrack_GetActiveTrackingSpellId()
+	local newId = zButtonTrack_SmartParentId(activeId)
 	if not newId then
-		newId = zButtonTrack.id or nil
+		newId = firstChild and firstChild.id
 	end
-	if not newId then
-		return
-	end
-	if zButtonTrack_NormalizeTexture(zButtonTrack_LastTrackingTexture) == zButtonTrack_NormalizeTexture(buff) and zButtonTrack.id == newId then
-		zButtonTrack_SyncActiveChild(newId)
-		return
-	end
+	if not newId then return end
+
+	-- Sync checked state on children
+	zButtonTrack_SyncActiveChild(activeId)
+
+	if zButtonTrack.id == newId then return end
 
 	local isOwned = GameTooltip and GameTooltip.IsOwned and GameTooltip:IsOwned(zButtonTrack)
-	zButtonTrack_LastTrackingTexture = buff
 	zButtonTrack.id = newId
 	ZSpellButton_UpdateButton(zButtonTrack)
 	ZSpellButton_UpdateCooldown(zButtonTrack)
-	zButtonTrack_SyncActiveChild(newId)
 	if isOwned then
 		ZSpellButtonParent_OnEnter(zButtonTrack)
 	end
@@ -220,6 +274,9 @@ local function zButtonTrack_EnsureConfig()
 	end
 	if saved["parent"]["circle"] == nil then
 		saved["parent"]["circle"] = 1
+	end
+	if saved["parent"]["smart"] == nil then
+		saved["parent"]["smart"] = true
 	end
 	if not saved["children"] then
 		saved["children"] = {}
@@ -323,6 +380,7 @@ function zButtonTrack_SetupSizeAndPosition()
 	end
 	if MTH_ZH_TrackAdjust then
 		MTH_ZH_TrackAdjust:RegisterEvent("MINIMAP_UPDATE_TRACKING")
+		MTH_ZH_TrackAdjust:RegisterEvent("PLAYER_AURAS_CHANGED")
 		MTH_ZH_TrackAdjust:RegisterEvent("PLAYER_ENTERING_WORLD")
 		MTH_ZH_TrackAdjust:RegisterEvent("SPELLS_CHANGED")
 		MTH_ZH_TrackAdjust:RegisterEvent("CHARACTER_POINTS_CHANGED")
@@ -333,12 +391,14 @@ function zButtonTrack_SetupSizeAndPosition()
 	if displayCount < 0 then
 		displayCount = 0
 	end
-	ZSpellButton_SetSize(zButtonTrack, saved["parent"]["size"])
-	ZSpellButton_SetSize(zButtonTrack, saved["children"]["size"], 1)
-	ZSpellButton_SetExpandDirection(zButtonTrack, saved["firstbutton"])
-	ZSpellButton_ArrangeChildren(zButtonTrack, saved["rows"], 
-		displayCount, saved["horizontal"],
-		saved["vertical"])
+	if not (type(MTH_ZBar_ApplyToButton) == "function" and MTH_ZBar_ApplyToButton(zButtonTrack, displayCount)) then
+		ZSpellButton_SetSize(zButtonTrack, saved["parent"]["size"])
+		ZSpellButton_SetSize(zButtonTrack, saved["children"]["size"], 1)
+		ZSpellButton_SetExpandDirection(zButtonTrack, saved["firstbutton"])
+		ZSpellButton_ArrangeChildren(zButtonTrack, saved["rows"],
+			displayCount, saved["horizontal"],
+			saved["vertical"])
+	end
 	zButtonTrack_RefreshTrackingState()
 end
 
@@ -372,7 +432,7 @@ function MTH_ZH_TrackAdjust_OnEvent()
 		zButtonTrack_CreateButtons()
 		zButtonTrack_SetupSizeAndPosition()
 	end
-	if event == "MINIMAP_UPDATE_TRACKING" or event == "PLAYER_ENTERING_WORLD"
+	if event == "MINIMAP_UPDATE_TRACKING" or event == "PLAYER_AURAS_CHANGED" or event == "PLAYER_ENTERING_WORLD"
 		or event == "SPELLS_CHANGED" or event == "CHARACTER_POINTS_CHANGED" or event == "LEARNED_SPELL_IN_TAB" then
 		zButtonTrack_RefreshTrackingState()
 	end

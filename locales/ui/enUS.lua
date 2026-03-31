@@ -8,6 +8,8 @@ MTH_LocaleData.ui.enUS = {
   BINDING_HEADER_ZTrapHeader = "[MetaHunt] ZTrap Buttons",
   BINDING_HEADER_ZPetHeader = "[MetaHunt] ZPet Buttons",
   BINDING_HEADER_ZAmmoHeader = "[MetaHunt] ZAmmo Buttons",
+  BINDING_HEADER_ExpAmmoHeader = "[MetaHunt] MM Widget",
+  BINDING_NAME_EXPAMMOACTION = "MM Widget Action",
 
   FEEDOMATIC_NAME = "Feed-O-Matic",
   FEEDOMATIC_DESC = "Helps a Hunter keep his pets well fed",

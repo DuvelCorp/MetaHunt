@@ -37,7 +37,9 @@ local function MTH_RebuildSpellOrder(buttonName, buttonObj, itemList, maxButtons
 	for i = 1, maxButtons do
 		local spellIndex = ZHunterMod_Saved[buttonName]["spells"][i]
 		if spellIndex and visible[spellIndex] ~= false then
-			info[infoIndex] = itemList[spellIndex]
+			-- String-based lists (zCraft) store names directly; numeric lists index into itemList
+			local name = (type(spellIndex) == "number") and itemList[spellIndex] or spellIndex
+			info[infoIndex] = name
 			infoIndex = infoIndex + 1
 		end
 	end
@@ -108,34 +110,34 @@ local function MTH_SetButtonEnabledState(buttonName, buttonObj, enabled)
 	ZHunterMod_Saved[buttonName]["enabled"] = enabled and true or false
 
 	local resolvedButtonObj = buttonObj or getglobal(buttonName)
-	if not resolvedButtonObj then return end
-
-	if not enabled then
-		if resolvedButtonObj.Hide then
-			resolvedButtonObj:Hide()
-		end
-		if resolvedButtonObj.count and resolvedButtonObj.name then
-			for i = 1, resolvedButtonObj.count do
-				local child = getglobal(resolvedButtonObj.name .. i)
-				if child and child.Hide then
-					child:Hide()
+	if resolvedButtonObj then
+		if not enabled then
+			if resolvedButtonObj.Hide then resolvedButtonObj:Hide() end
+			if resolvedButtonObj.count and resolvedButtonObj.name then
+				for i = 1, resolvedButtonObj.count do
+					local child = getglobal(resolvedButtonObj.name .. i)
+					if child and child.Hide then child:Hide() end
 				end
 			end
+		elseif ZHunterMod_Saved[buttonName]["parent"] and ZHunterMod_Saved[buttonName]["parent"]["hide"] then
+			if resolvedButtonObj.Hide then resolvedButtonObj:Hide() end
+		else
+			if resolvedButtonObj.Show then resolvedButtonObj:Show() end
+			MTH_RefreshButtonGeometry(buttonName, resolvedButtonObj)
 		end
-		return
 	end
-
-	if ZHunterMod_Saved[buttonName]["parent"] and ZHunterMod_Saved[buttonName]["parent"]["hide"] then
-		if resolvedButtonObj.Hide then
-			resolvedButtonObj:Hide()
+	-- If zBar is active, re-apply its layout so this button is included/excluded.
+	-- When re-enabling a button, also un-exclude it from the bar so it appears
+	-- in the bar rather than as a standalone button.
+	if type(MTH_ZBar_GetSaved) == "function" then
+		local zs = MTH_ZBar_GetSaved()
+		if enabled and zs.visible[buttonName] == false then
+			zs.visible[buttonName] = true
 		end
-		return
+		if zs.enabled and type(MTH_ZBar_ApplyLayout) == "function" then
+			MTH_ZBar_ApplyLayout()
+		end
 	end
-
-	if resolvedButtonObj.Show then
-		resolvedButtonObj:Show()
-	end
-	MTH_RefreshButtonGeometry(buttonName, resolvedButtonObj)
 end
 
 local function MTH_GetButtonItemList(buttonName)
@@ -170,7 +172,7 @@ local function MTH_GetButtonItemList(buttonName)
 		if rangedList and table.getn(rangedList) > 0 then
 			return rangedList
 		end
-	elseif buttonName == "zButtonMounts" or buttonName == "zButtonCompanions" or buttonName == "zButtonToys" then
+	elseif buttonName == "zButtonMounts" or buttonName == "zButtonCompanions" or buttonName == "zButtonToys" or buttonName == "zButtonCraft" then
 		if ZHunterMod_Saved and ZHunterMod_Saved[buttonName] and ZHunterMod_Saved[buttonName]["spells"] then
 			return ZHunterMod_Saved[buttonName]["spells"]
 		end
@@ -212,7 +214,7 @@ local function MTH_EnsureAmmoOptionsWatcher()
 end
 
 local function MTH_ZB_GetDefaultEnabled(buttonName)
-	if buttonName == "zButtonMounts" or buttonName == "zButtonCompanions" or buttonName == "zButtonToys" or buttonName == "zButtonRanged" then
+	if buttonName == "zButtonMounts" or buttonName == "zButtonCompanions" or buttonName == "zButtonToys" or buttonName == "zButtonCraft" or buttonName == "zButtonRanged" then
 		return false
 	end
 	return true
@@ -268,6 +270,27 @@ local function MTH_ZB_EnsureButtonOptionDefaults(buttonName)
 		saved["parent"]["circle"] = true
 	end
 	saved["parent"]["circle"] = saved["parent"]["circle"] and true or false
+
+	if buttonName == "zButtonAspect" or buttonName == "zButtonTrack" or buttonName == "zButtonPet" then
+		if saved["parent"]["smart"] == nil then
+			saved["parent"]["smart"] = true
+		end
+		saved["parent"]["smart"] = saved["parent"]["smart"] and true or false
+	end
+
+	if buttonName == "zButtonMounts" or buttonName == "zButtonCompanions" then
+		if saved["parent"]["random"] == nil then
+			saved["parent"]["random"] = false
+		end
+		saved["parent"]["random"] = saved["parent"]["random"] and true or false
+	end
+
+	if buttonName == "zButtonMounts" then
+		if saved["parent"]["aqfilter"] == nil then
+			saved["parent"]["aqfilter"] = true
+		end
+		saved["parent"]["aqfilter"] = saved["parent"]["aqfilter"] and true or false
+	end
 
 	if saved["firstbutton"] ~= "LEFT" and saved["firstbutton"] ~= "RIGHT" then
 		saved["firstbutton"] = "RIGHT"
@@ -350,8 +373,17 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 		end)
 	end
 
-	local parentSection = MTH_ZB_EnsureSection(containerName.."ParentSection", MTH_ZB_L("ZB_SECTION_PARENT_BUTTON", "Parent Button"), -52, 116)
-	local childrenSection = MTH_ZB_EnsureSection(containerName.."ChildrenSection", MTH_ZB_L("ZB_SECTION_CHILDREN_BUTTONS", "Children Buttons"), -184, 310)
+	local parentSectionHeight = 116
+	if buttonName == "zButtonAspect" or buttonName == "zButtonTrack" or buttonName == "zButtonPet" then
+		parentSectionHeight = 200
+	elseif buttonName == "zButtonMounts" then
+		parentSectionHeight = 225
+	elseif buttonName == "zButtonCompanions" then
+		parentSectionHeight = 196
+	end
+	local childrenSectionY = -52 - parentSectionHeight - 16
+	local parentSection = MTH_ZB_EnsureSection(containerName.."ParentSection", MTH_ZB_L("ZB_SECTION_PARENT_BUTTON", "Parent Button"), -52, parentSectionHeight)
+	local childrenSection = MTH_ZB_EnsureSection(containerName.."ChildrenSection", MTH_ZB_L("ZB_SECTION_CHILDREN_BUTTONS", "Children Buttons"), childrenSectionY, 290)
 
 	local parentYOffset = -18
 	local childrenYOffset = -18
@@ -478,7 +510,7 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 			end
 		end
 	end
-	childrenYOffset = childrenYOffset - 50
+	childrenYOffset = childrenYOffset - 40
 
 	local showTooltip = MTH_CreateCheckbox(childrenSection or container, containerName.."ShowTooltip", MTH_ZB_L("ZB_LABEL_SHOW_TOOLTIP", "Show Tooltip"), childrenYOffset)
 	if showTooltip then
@@ -496,7 +528,7 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 			if btnObj then btnObj.tooltip = checked end
 		end)
 	end
-	childrenYOffset = childrenYOffset - 25
+	childrenYOffset = childrenYOffset - 20
 
 	if buttonName == "zButtonAmmo" then
 		local showAmmoName = MTH_CreateCheckbox(childrenSection or container, containerName.."ShowAmmoName", MTH_ZB_L("ZB_LABEL_SHOW_AMMO_NAME", "Show ammo name"), childrenYOffset)
@@ -524,9 +556,9 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 				end
 			end)
 		end
-		childrenYOffset = childrenYOffset - 35
+		childrenYOffset = childrenYOffset - 25
 	else
-		childrenYOffset = childrenYOffset - 35
+		childrenYOffset = childrenYOffset - 25
 	end
 
 	local mainSize = MTH_CreateSlider(parentSection or container, containerName.."MainButtonSize", MTH_ZB_L("ZB_LABEL_BUTTON_SIZE", "Button Size"), 10, 100, 1, parentYOffset)
@@ -583,6 +615,98 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 				if checked then this.buttonObj.circle:Show() else this.buttonObj.circle:Hide() end
 			end
 		end)
+	end
+
+	-- Smart Parent: Aspect/Track/Pet
+	if buttonName == "zButtonAspect" or buttonName == "zButtonTrack" or buttonName == "zButtonPet" then
+		parentYOffset = parentYOffset - 25
+		local smartParent = MTH_CreateCheckbox(parentSection or container, containerName.."SmartParent", MTH_ZB_L("ZB_LABEL_SMART_PARENT", "Smart Parent"), parentYOffset)
+		if smartParent then
+			smartParent:SetChecked(saved["parent"]["smart"])
+			smartParent.buttonName = buttonName
+			smartParent.buttonObj = buttonObj
+			smartParent:SetScript("OnClick", function()
+				if not this then return end
+				local checked = this:GetChecked() == 1
+				ZHunterMod_Saved[this.buttonName]["parent"]["smart"] = checked
+				local btn = this.buttonObj or getglobal(this.buttonName)
+				if btn then
+					if not checked then
+						local firstChild = getglobal(this.buttonName .. "1")
+						if firstChild and firstChild.id then
+							btn.id = firstChild.id
+							ZSpellButton_UpdateButton(btn)
+							ZSpellButton_UpdateCooldown(btn)
+						end
+					else
+						local setupFunc = getglobal(this.buttonName .. "_SetupSizeAndPosition")
+						if type(setupFunc) == "function" then
+							setupFunc()
+						end
+					end
+				end
+			end)
+		end
+		local smartDescText
+		if buttonName == "zButtonAspect" then
+			smartDescText = "When ON, the parent toggles between your 1st and 2nd aspect. If the 1st is active, the parent shows the 2nd and vice-versa. Useful for quickly swapping between two aspects in combat. When OFF, the parent always shows the 1st aspect."
+		elseif buttonName == "zButtonTrack" then
+			smartDescText = "When ON, the parent toggles between your 1st and 2nd tracking. If the 1st is active, the parent shows the 2nd and vice-versa. Great for PvP to swap between Track Hidden and Track Humanoids. When OFF, the parent always shows the 1st tracking."
+		elseif buttonName == "zButtonPet" then
+			smartDescText = "When ON, the parent dynamically changes based on your pet state: Revive if dead, Mend if hurt, Feed if unhappy, or your default spell otherwise. When OFF, the parent always shows the 1st spell."
+		else
+			smartDescText = "Dynamically swap the parent icon based on context."
+		end
+		local smartDesc = (parentSection or container):CreateFontString(containerName.."SmartParentDesc", "ARTWORK", "GameFontNormalSmall")
+		smartDesc:SetPoint("TOPLEFT", parentSection or container, "TOPLEFT", 40, parentYOffset - 24)
+		smartDesc:SetWidth(leftWidth - 50)
+		smartDesc:SetJustifyH("LEFT")
+		smartDesc:SetText(smartDescText)
+		smartDesc:SetTextColor(0.5, 0.7, 1.0)
+	end
+
+	-- Random Parent: Mounts/Companions
+	if buttonName == "zButtonMounts" or buttonName == "zButtonCompanions" then
+		parentYOffset = parentYOffset - 25
+		local randomParent = MTH_CreateCheckbox(parentSection or container, containerName.."RandomParent", MTH_ZB_L("ZB_LABEL_RANDOM_PARENT", "Random Parent"), parentYOffset)
+		if randomParent then
+			randomParent:SetChecked(saved["parent"]["random"])
+			randomParent.buttonName = buttonName
+			randomParent.buttonObj = buttonObj
+			randomParent:SetScript("OnClick", function()
+				if not this then return end
+				local checked = this:GetChecked() == 1
+				ZHunterMod_Saved[this.buttonName]["parent"]["random"] = checked
+			end)
+		end
+		local randomDesc = (parentSection or container):CreateFontString(containerName.."RandomParentDesc", "ARTWORK", "GameFontNormalSmall")
+		randomDesc:SetPoint("TOPLEFT", parentSection or container, "TOPLEFT", 40, parentYOffset - 24)
+		randomDesc:SetWidth(leftWidth - 50)
+		randomDesc:SetJustifyH("LEFT")
+		randomDesc:SetText(MTH_ZB_L("ZB_DESC_RANDOM_PARENT", "Pick a random child as parent on each login and after each use."))
+		randomDesc:SetTextColor(0.5, 0.7, 1.0)
+	end
+
+	-- AQ Mount Filter: Mounts only
+	if buttonName == "zButtonMounts" then
+		parentYOffset = parentYOffset - 45
+		local aqFilter = MTH_CreateCheckbox(parentSection or container, containerName.."AQFilter", MTH_ZB_L("ZB_LABEL_AQ_FILTER", "AQ Mount Filter"), parentYOffset)
+		if aqFilter then
+			aqFilter:SetChecked(saved["parent"]["aqfilter"])
+			aqFilter.buttonName = buttonName
+			aqFilter.buttonObj = buttonObj
+			aqFilter:SetScript("OnClick", function()
+				if not this then return end
+				local checked = this:GetChecked() == 1
+				ZHunterMod_Saved[this.buttonName]["parent"]["aqfilter"] = checked
+			end)
+		end
+		local aqDesc = (parentSection or container):CreateFontString(containerName.."AQFilterDesc", "ARTWORK", "GameFontNormalSmall")
+		aqDesc:SetPoint("TOPLEFT", parentSection or container, "TOPLEFT", 40, parentYOffset - 24)
+		aqDesc:SetWidth(leftWidth - 50)
+		aqDesc:SetJustifyH("LEFT")
+		aqDesc:SetText(MTH_ZB_L("ZB_DESC_AQ_FILTER", "Hide Qiraji mounts outside AQ40. Show only Qiraji inside."))
+		aqDesc:SetTextColor(0.5, 0.7, 1.0)
 	end
 
 	MTH_SetButtonEnabledState(buttonName, buttonObj, saved["enabled"] and true or false)
@@ -714,6 +838,303 @@ local function MTH_SetupButtonOptions(containerName, buttonName, displayName, ma
 	end
 end
 
+-- ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+-- zBar options
+-- ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+
+function MTH_SetupZBarOptions()
+	if not MTH_ZBUTTONS_READY then return end
+	local container = MTH_GetFrame("MetaHuntOptionsZBar")
+	if not container then return end
+	MTH_ClearContainer(container)
+
+	if type(MTH_ZBar_GetSaved) ~= "function" then
+		local err = container:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+		err:SetPoint("CENTER", container, "CENTER", 0, 0)
+		err:SetText("zBar module not loaded")
+		err:SetTextColor(1, 0.5, 0.5)
+		return
+	end
+
+	local s               = MTH_ZBar_GetSaved()
+	local containerWidth  = container:GetWidth() or 500
+	local leftWidth       = 260
+	local rightX          = leftWidth + 44
+	local rightWidth      = containerWidth - rightX - 12
+
+	-- ===== Enable checkbox =====
+	local enableBtn = MTH_CreateCheckbox(container, "MetaHuntOptionsZBarEnable",
+		"Enable zBar — group all zButtons into a single draggable bar", -8)
+	if enableBtn then
+		enableBtn:SetChecked(s.enabled and true or false)
+		enableBtn:SetScript("OnClick", function()
+			if type(MTH_ZBar_SetEnabled) == "function" then
+				MTH_ZBar_SetEnabled(this:GetChecked() == 1)
+			end
+		end)
+	end
+
+	-- ===== Direction header =====
+	local dirLabel = container:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+	dirLabel:SetPoint("TOPLEFT", container, "TOPLEFT", 16, -46)
+	dirLabel:SetText("Bar Direction")
+
+	-- ===== Horizontal radio =====
+	local horizBtn = MTH_CreateCheckbox(container, "MetaHuntOptionsZBarHoriz",
+		"Horizontal (side by side)", -64)
+	if horizBtn then
+		horizBtn:SetChecked(s.direction ~= "VERTICAL")
+		horizBtn:SetScript("OnClick", function()
+			if this:GetChecked() == 1 then
+				local sv = MTH_ZBar_GetSaved()
+				sv.direction = "HORIZONTAL"
+				-- Auto-correct childexpand to a valid side for a horizontal bar
+				if sv.childexpand ~= "TOP" and sv.childexpand ~= "BOTTOM" then
+					sv.childexpand = "BOTTOM"
+				end
+				local v = getglobal("MetaHuntOptionsZBarVert")
+				if v then v:SetChecked(false) end
+				if sv.enabled and type(MTH_ZBar_ApplyLayout) == "function" then
+					MTH_ZBar_ApplyLayout()
+				end
+				MTH_ResetAndSelectOptionsTab("ZBar")
+			else
+				this:SetChecked(true)
+			end
+		end)
+	end
+
+	-- ===== Vertical radio =====
+	local vertBtn = MTH_CreateCheckbox(container, "MetaHuntOptionsZBarVert",
+		"Vertical (stacked)", -90)
+	if vertBtn then
+		vertBtn:SetChecked(s.direction == "VERTICAL")
+		vertBtn:SetScript("OnClick", function()
+			if this:GetChecked() == 1 then
+				local sv = MTH_ZBar_GetSaved()
+				sv.direction = "VERTICAL"
+				-- Auto-correct childexpand to a valid side for a vertical bar
+				if sv.childexpand ~= "LEFT" and sv.childexpand ~= "RIGHT" then
+					sv.childexpand = "RIGHT"
+				end
+				local h = getglobal("MetaHuntOptionsZBarHoriz")
+				if h then h:SetChecked(false) end
+				if sv.enabled and type(MTH_ZBar_ApplyLayout) == "function" then
+					MTH_ZBar_ApplyLayout()
+				end
+				MTH_ResetAndSelectOptionsTab("ZBar")
+			else
+				this:SetChecked(true)
+			end
+		end)
+	end
+
+	-- ===== Children expand side (contextual to bar direction) =====
+	local expandLbl = container:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+	expandLbl:SetPoint("TOPLEFT", container, "TOPLEFT", 16, -120)
+	if s.direction == "VERTICAL" then
+		expandLbl:SetText("Children expand side (Vertical bar):")
+	else
+		expandLbl:SetText("Children expand side (Horizontal bar):")
+	end
+
+	local exp1Val, exp2Val, exp1Lbl, exp2Lbl
+	if s.direction == "VERTICAL" then
+		exp1Val = "LEFT"  ; exp1Lbl = "Left"
+		exp2Val = "RIGHT" ; exp2Lbl = "Right"
+	else
+		exp1Val = "TOP"    ; exp1Lbl = "Top (above)"
+		exp2Val = "BOTTOM" ; exp2Lbl = "Bottom (below)"
+	end
+
+	local exp1Btn = MTH_CreateCheckbox(container, "MetaHuntOptionsZBarExp1", exp1Lbl, -138, 30)
+	if exp1Btn then
+		exp1Btn:SetChecked(s.childexpand == exp1Val)
+		exp1Btn.zbarVal = exp1Val
+		exp1Btn:SetScript("OnClick", function()
+			if this:GetChecked() == 1 then
+				local sv = MTH_ZBar_GetSaved()
+				sv.childexpand = this.zbarVal
+				if sv.enabled and type(MTH_ZBar_ApplyLayout) == "function" then MTH_ZBar_ApplyLayout() end
+				MTH_ResetAndSelectOptionsTab("ZBar")
+			else
+				this:SetChecked(true)
+			end
+		end)
+	end
+
+	local exp2Btn = MTH_CreateCheckbox(container, "MetaHuntOptionsZBarExp2", exp2Lbl, -164, 30)
+	if exp2Btn then
+		exp2Btn:SetChecked(s.childexpand == exp2Val)
+		exp2Btn.zbarVal = exp2Val
+		exp2Btn:SetScript("OnClick", function()
+			if this:GetChecked() == 1 then
+				local sv = MTH_ZBar_GetSaved()
+				sv.childexpand = this.zbarVal
+				if sv.enabled and type(MTH_ZBar_ApplyLayout) == "function" then MTH_ZBar_ApplyLayout() end
+				MTH_ResetAndSelectOptionsTab("ZBar")
+			else
+				this:SetChecked(true)
+			end
+		end)
+	end
+
+	-- ===== Children layout (how children #2+ are arranged relative to #1) =====
+	local arrLbl = container:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+	arrLbl:SetPoint("TOPLEFT", container, "TOPLEFT", 16, -196)
+	arrLbl:SetText("Children layout:")
+
+	local arrVBtn = MTH_CreateCheckbox(container, "MetaHuntOptionsZBarArrV",
+		"Vertical (stacked column)", -214, 30)
+	if arrVBtn then
+		arrVBtn:SetChecked((s.childarrange or "VERTICAL") == "VERTICAL")
+		arrVBtn:SetScript("OnClick", function()
+			if this:GetChecked() == 1 then
+				local sv = MTH_ZBar_GetSaved()
+				sv.childarrange = "VERTICAL"
+				if sv.enabled and type(MTH_ZBar_ApplyLayout) == "function" then MTH_ZBar_ApplyLayout() end
+				MTH_ResetAndSelectOptionsTab("ZBar")
+			else
+				this:SetChecked(true)
+			end
+		end)
+	end
+
+	local arrHBtn = MTH_CreateCheckbox(container, "MetaHuntOptionsZBarArrH",
+		"Horizontal (side-by-side row)", -240, 30)
+	if arrHBtn then
+		arrHBtn:SetChecked((s.childarrange or "VERTICAL") == "HORIZONTAL")
+		arrHBtn:SetScript("OnClick", function()
+			if this:GetChecked() == 1 then
+				local sv = MTH_ZBar_GetSaved()
+				sv.childarrange = "HORIZONTAL"
+				if sv.enabled and type(MTH_ZBar_ApplyLayout) == "function" then MTH_ZBar_ApplyLayout() end
+				MTH_ResetAndSelectOptionsTab("ZBar")
+			else
+				this:SetChecked(true)
+			end
+		end)
+	end
+
+	-- ===== Spacing slider =====
+	local spacingSlider = MTH_CreateSlider(container, "MetaHuntOptionsZBarSpacing",
+		"Spacing (px)", 0, 30, 1, -300)
+	if spacingSlider then
+		spacingSlider:SetWidth(leftWidth - 40)
+		spacingSlider:SetValue(tonumber(s.spacing) or 4)
+		spacingSlider.onChange = function(val)
+			local sv = MTH_ZBar_GetSaved()
+			sv.spacing = math.floor((tonumber(val) or 4) + 0.5)
+			if sv.enabled and type(MTH_ZBar_ApplyLayout) == "function" then
+				MTH_ZBar_ApplyLayout()
+			end
+		end
+	end
+
+	-- ===== Button size slider =====
+	local sizeSlider = MTH_CreateSlider(container, "MetaHuntOptionsZBarSize",
+		"Button Size", 10, 100, 1, -360)
+	if sizeSlider then
+		sizeSlider:SetWidth(leftWidth - 40)
+		sizeSlider:SetValue(tonumber(s.size) or 36)
+		sizeSlider.onChange = function(val)
+			if type(MTH_ZBar_SetSize) == "function" then
+				MTH_ZBar_SetSize(val)
+			end
+		end
+	end
+
+	-- ===== Right column: Bar Order =====
+	local orderHeader = container:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+	orderHeader:SetPoint("TOPLEFT", container, "TOPLEFT", rightX, -10)
+	orderHeader:SetText("Bar Order")
+
+	local LABELS    = MTH_ZBar_GetAllButtonLabels()
+	local numBars   = table.getn(s.order)
+	local listY     = -35
+	local downX     = rightX + 28
+	local upX       = downX + 22
+	local labelX    = upX + 26
+	local labelWidth = rightWidth - (labelX - rightX) - 8
+	if labelWidth < 80 then labelWidth = 80 end
+
+	for i = 1, numBars do
+		local buttonName  = s.order[i]
+		local displayName = (LABELS and LABELS[buttonName]) or buttonName
+
+		-- Include/exclude visibility toggle
+		local toggleName = "MetaHuntOptionsZBarToggle" .. i
+		local showToggle = CreateFrame("CheckButton", toggleName, container, "UICheckButtonTemplate")
+		if showToggle then
+			showToggle:ClearAllPoints()
+			showToggle:SetPoint("TOPLEFT", container, "TOPLEFT", rightX, listY + 2)
+			local tText = getglobal(toggleName .. "Text")
+			if tText then tText:SetText("") end
+			showToggle:SetChecked(s.visible[buttonName] ~= false)
+			showToggle.zbarName = buttonName
+			showToggle:SetScript("OnClick", function()
+				local sv = MTH_ZBar_GetSaved()
+				sv.visible[this.zbarName] = (this:GetChecked() == 1)
+				if sv.enabled and type(MTH_ZBar_ApplyLayout) == "function" then
+					MTH_ZBar_ApplyLayout()
+				end
+			end)
+		end
+
+		-- Move Down (-)
+		local downBtn = CreateFrame("Button", nil, container, "UIPanelButtonTemplate")
+		downBtn:SetPoint("TOPLEFT", container, "TOPLEFT", downX, listY)
+		downBtn:SetWidth(20)
+		downBtn:SetHeight(20)
+		downBtn:SetText("-")
+		downBtn.zbarIndex = i
+		downBtn:SetScript("OnClick", function()
+			local idx = this.zbarIndex
+			local sv  = MTH_ZBar_GetSaved()
+			local tot = table.getn(sv.order)
+			if idx < tot then
+				local tmp      = sv.order[idx + 1]
+				sv.order[idx + 1] = sv.order[idx]
+				sv.order[idx]     = tmp
+				MTH_ResetAndSelectOptionsTab("ZBar")
+				if sv.enabled and type(MTH_ZBar_ApplyLayout) == "function" then
+					MTH_ZBar_ApplyLayout()
+				end
+			end
+		end)
+
+		-- Move Up (+)
+		local upBtn = CreateFrame("Button", nil, container, "UIPanelButtonTemplate")
+		upBtn:SetPoint("TOPLEFT", container, "TOPLEFT", upX, listY)
+		upBtn:SetWidth(20)
+		upBtn:SetHeight(20)
+		upBtn:SetText("+")
+		upBtn.zbarIndex = i
+		upBtn:SetScript("OnClick", function()
+			local idx = this.zbarIndex
+			local sv  = MTH_ZBar_GetSaved()
+			if idx > 1 then
+				local tmp         = sv.order[idx - 1]
+				sv.order[idx - 1] = sv.order[idx]
+				sv.order[idx]     = tmp
+				MTH_ResetAndSelectOptionsTab("ZBar")
+				if sv.enabled and type(MTH_ZBar_ApplyLayout) == "function" then
+					MTH_ZBar_ApplyLayout()
+				end
+			end
+		end)
+
+		-- Bar name label
+		local lbl = container:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+		lbl:SetPoint("TOPLEFT", container, "TOPLEFT", labelX, listY)
+		lbl:SetText(displayName)
+		lbl:SetWidth(labelWidth)
+		lbl:SetJustifyH("LEFT")
+
+		listY = listY - 25
+	end
+end
+
 function MTH_SetupPetOptions()
 	if not MTH_ZBUTTONS_READY then return end
 	MTH_SetupButtonOptions("MetaHuntOptionsPet", "zButtonPet", "ZPet", 10)
@@ -771,6 +1192,13 @@ function MTH_SetupToysOptions()
 	local itemList = MTH_GetButtonItemList("zButtonToys")
 	local maxButtons = itemList and table.getn(itemList) or 1
 	MTH_SetupButtonOptions("MetaHuntOptionsToys", "zButtonToys", "ZToys", maxButtons)
+end
+
+function MTH_SetupCraftOptions()
+	if not MTH_ZBUTTONS_READY then return end
+	local itemList = MTH_GetButtonItemList("zButtonCraft")
+	local maxButtons = itemList and table.getn(itemList) or 1
+	MTH_SetupButtonOptions("MetaHuntOptionsCraft", "zButtonCraft", "ZCraft", maxButtons)
 end
 
 function MTH_SetupSmartAmmoOptions()
@@ -1095,7 +1523,7 @@ function MTH_SetupGeneralOptions()
 				end
 			end)
 		end
-		ensureHelpText(smartAmmoSection, "MetaHuntGeneralSmartAmmoReloadHelp", "Falls back to any available ammo when preferred ammo is missing.", -154)
+		ensureHelpText(smartAmmoSection, "MetaHuntGeneralSmartAmmoReloadHelp", "Falls back to any available ammo when equipped ammo is out of stock.", -154)
 
 		local weaponSwapEnabled = type(MTHSmartAmmo_GetWeaponSwapEnabled) == "function" and MTHSmartAmmo_GetWeaponSwapEnabled() and true or false
 		local weaponSwapToggle = ensureCheckbox(smartAmmoSection, "MetaHuntGeneralSmartAmmoWeaponSwapToggle", "Enable Weapon-Swap Auto Ammo", -180, weaponSwapEnabled)

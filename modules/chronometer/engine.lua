@@ -58,6 +58,18 @@ Chronometer.dataSetup = {}
 
 local latins = { I = 1, II = 2, III = 3, IV = 4, V = 5, VI = 6, VII = 7, VIII = 8, IX = 9, X = 10, XI = 11, XII = 12, XIII = 13, XIV = 14 }
 local BAR_GROUP = "MTHChronometer"
+
+-- When growing up the group attachment point must flip so bars stack above the
+-- anchor rather than below it. CandyBar uses the stored group point as-is when
+-- positioning each bar, so SetCandyBarGroupGrowth alone is not enough.
+local function applyGrowup(self, growup)
+	if growup then
+		self:SetCandyBarGroupPoint(BAR_GROUP, "BOTTOM", self.anchor, "TOP", 0, 0)
+	else
+		self:SetCandyBarGroupPoint(BAR_GROUP, "TOP", self.anchor, "BOTTOM", 0, 0)
+	end
+	self:SetCandyBarGroupGrowth(BAR_GROUP, growup)
+end
 local PARSER_OWNER = "MTHChronometerHunter"
 
 
@@ -556,7 +568,7 @@ function Chronometer:OnEnable()
 	self._mth_enabled = true
 
 	self.profile = ensureProfile()
-	self:SetCandyBarGroupGrowth(BAR_GROUP, self.profile.growup and true or false)
+	applyGrowup(self, self.profile.growup and true or false)
 	self:SetCandyBarGroupVerticalSpacing(BAR_GROUP, self.profile.spacing or 0)
 	if self.anchor then
 	end
@@ -650,15 +662,34 @@ function Chronometer:OnEnable()
 	self.parser:RegisterEvent(PARSER_OWNER, "CHAT_MSG_SPELL_SELF_DAMAGE", function(event, info) self:SELF_DAMAGE(event, info) end)
 	self.parser:RegisterEvent(PARSER_OWNER, "CHAT_MSG_SPELL_DAMAGESHIELDS_ON_SELF", function(event, info) self:SELF_DAMAGE(event, info) end)
 	self.parser:RegisterEvent(PARSER_OWNER, "CHAT_MSG_SPELL_FAILED_LOCALPLAYER", function(event, info) self:SPELL_FAILED(event, info) end)
+
+	-- NamPower: register authoritative self-aura events for instant bar
+	-- kill and duration resync.  The ParserLib chat paths remain active as
+	-- they handle creature/target debuffs that NamPower cannot see.
+	if MTH and MTH.nampower then
+		self._nampowerSpellIdCache = {}
+		self:RegisterEvent("BUFF_ADDED_SELF")
+		self:RegisterEvent("BUFF_REMOVED_SELF")
+		self:RegisterEvent("DEBUFF_ADDED_SELF")
+		self:RegisterEvent("DEBUFF_REMOVED_SELF")
+	end
 end
 
 function Chronometer:VARIABLES_LOADED()
 	self.profile = ensureProfile()
+	if self._mth_enabled then
+		applyGrowup(self, self.profile.growup and true or false)
+		self:SetCandyBarGroupVerticalSpacing(BAR_GROUP, self.profile.spacing or 0)
+	end
 	MTH_CHRON_RestoreAnchorFromProfile(self, "VARIABLES_LOADED")
 end
 
 function Chronometer:PLAYER_ENTERING_WORLD()
 	self.profile = ensureProfile()
+	if self._mth_enabled then
+		applyGrowup(self, self.profile.growup and true or false)
+		self:SetCandyBarGroupVerticalSpacing(BAR_GROUP, self.profile.spacing or 0)
+	end
 	MTH_CHRON_RestoreAnchorFromProfile(self, "PLAYER_ENTERING_WORLD")
 end
 
@@ -1249,6 +1280,85 @@ function Chronometer:CreateAnchor(text, r, g, b)
 	return frame
 end
 
+-- ────────────────────────────────────────────────────────────
+-- NamPower self-aura handlers
+-- ────────────────────────────────────────────────────────────
+
+-- Helper: resolve spellId → spell name, with cache
+local function NP_ResolveName(cache, spellId)
+	if not spellId or spellId == 0 then return nil end
+	local name = cache[spellId]
+	if name then return name end
+	name = GetSpellRecField(spellId, "name")
+	if name and name ~= "" then
+		cache[spellId] = name
+		return name
+	end
+	return nil
+end
+
+-- BUFF / DEBUFF removed from the player → kill matching self-bar instantly
+function Chronometer:BUFF_REMOVED_SELF()
+	if not self.profile.fadeonfade then return end
+	local spellId = arg3
+	local name = NP_ResolveName(self._nampowerSpellIdCache, spellId)
+	if not name then return end
+	self:KillBar(name)
+end
+
+Chronometer.DEBUFF_REMOVED_SELF = Chronometer.BUFF_REMOVED_SELF
+
+-- BUFF / DEBUFF added to the player → resync running bar duration
+function Chronometer:BUFF_ADDED_SELF()
+	local spellId = arg3
+	local name = NP_ResolveName(self._nampowerSpellIdCache, spellId)
+	if not name then return end
+
+	-- Find the matching self-bar
+	local bar = nil
+	for i = 1, 20 do
+		if self.bars[i].id and self.bars[i].name == name then
+			local tgt = self.bars[i].target
+			if tgt == "none" or tgt == UnitName("player") then
+				bar = self.bars[i]
+				break
+			end
+		end
+	end
+	if not bar then return end
+
+	-- Get authoritative remaining duration from NamPower aura array
+	local remaining = nil
+	local auras = GetUnitField("player", "aura")
+	if auras then
+		for slot = 1, 48 do
+			if auras[slot] == spellId then
+				local _, ms = GetPlayerAuraDuration(slot - 1)
+				if ms and ms > 0 then
+					remaining = ms / 1000
+				end
+				break
+			end
+		end
+	end
+	if not remaining then
+		-- Fallback: use base DBC duration
+		local dms = GetSpellDuration(spellId)
+		if dms and dms > 0 then
+			remaining = dms / 1000
+		end
+	end
+	if not remaining then return end
+
+	-- Resync: update total first (allows SetTimeLeft to extend), then set remaining
+	self:SetCandyBarTime(bar.id, remaining)
+	self:SetCandyBarTimeLeft(bar.id, remaining)
+end
+
+Chronometer.DEBUFF_ADDED_SELF = Chronometer.BUFF_ADDED_SELF
+
+-- ────────────────────────────────────────────────────────────
+
 function Chronometer:COMBAT_DEATH(event, info)
 	if not self.profile.fadeonkill then return end
 	if info.type == "experience" then
@@ -1399,7 +1509,9 @@ function Chronometer:UNIT_AURA(unit)
 	end
 
 	local hasFeedAura = false
-	if type(UnitBuff) == "function" then
+	if type(MTH_FEED_HasPetFeedBuff) == "function" then
+		hasFeedAura = MTH_FEED_HasPetFeedBuff()
+	elseif type(UnitBuff) == "function" then
 		for i = 1, 32 do
 			local texture = UnitBuff("pet", i)
 			if not texture then

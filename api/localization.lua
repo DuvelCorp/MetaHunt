@@ -56,6 +56,8 @@ BINDING_HEADER_ZTrackHeader = MTH_L("BINDING_HEADER_ZTrackHeader", "[MetaHunt] Z
 BINDING_HEADER_ZTrapHeader = MTH_L("BINDING_HEADER_ZTrapHeader", "[MetaHunt] ZTrap Buttons")
 BINDING_HEADER_ZPetHeader = MTH_L("BINDING_HEADER_ZPetHeader", "[MetaHunt] ZPet Buttons")
 BINDING_HEADER_ZAmmoHeader = MTH_L("BINDING_HEADER_ZAmmoHeader", "[MetaHunt] ZAmmo Buttons")
+BINDING_HEADER_ExpAmmoHeader = MTH_L("BINDING_HEADER_ExpAmmoHeader", "[MetaHunt] MM Widget")
+BINDING_NAME_EXPAMMOACTION = MTH_L("BINDING_NAME_EXPAMMOACTION", "MM Widget Action")
 
 function MTH:GetLocalization(key, default)
 	return MTH_L(key, default)

@@ -64,7 +64,7 @@
 				</Backdrop>
 			</Frame>
 
-			<!-- Content Areas -->
+			<Frame name="$parentZBar" hidden="true" enableMouse="true"/>
 			<Frame name="$parentGeneral" hidden="true" enableMouse="true"/>
 			<Frame name="$parentProfiles" hidden="true" enableMouse="true"/>
 			<Frame name="$parentMessages" hidden="true" enableMouse="true"/>
@@ -77,6 +77,7 @@
 			<Frame name="$parentMounts" hidden="true" enableMouse="true"/>
 			<Frame name="$parentCompanions" hidden="true" enableMouse="true"/>
 			<Frame name="$parentToys" hidden="true" enableMouse="true"/>
+			<Frame name="$parentCraft" hidden="true" enableMouse="true"/>
 			<Frame name="$parentSmartAmmo" hidden="true" enableMouse="true"/>
 			<Frame name="$parentFeedOMatic" hidden="true" enableMouse="true"/>
 			<Frame name="$parentAutoBuy" hidden="true" enableMouse="true"/>

@@ -252,8 +252,14 @@ local function MTH_CHRON_ApplyLiveProfile(profile)
 	end
 
 	engine.profile = profile
-	if engine.SetCandyBarGroupGrowth then
-		engine:SetCandyBarGroupGrowth("MTHChronometer", profile.growup and true or false)
+	if engine.SetCandyBarGroupGrowth and engine.SetCandyBarGroupPoint and engine.anchor then
+		local growup = profile.growup and true or false
+		if growup then
+			engine:SetCandyBarGroupPoint("MTHChronometer", "BOTTOM", engine.anchor, "TOP", 0, 0)
+		else
+			engine:SetCandyBarGroupPoint("MTHChronometer", "TOP", engine.anchor, "BOTTOM", 0, 0)
+		end
+		engine:SetCandyBarGroupGrowth("MTHChronometer", growup)
 	end
 	if engine.SetCandyBarGroupVerticalSpacing then
 		engine:SetCandyBarGroupVerticalSpacing("MTHChronometer", profile.spacing or 0)

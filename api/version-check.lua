@@ -10,7 +10,7 @@ VC.lastPublishedAt = nil
 VC.joinAt = nil
 VC.notified = false
 VC._invalidVersionWarned = false
-VC.maxPersistedPeers = 200
+VC.maxPersistedPeers = 10000
 VC.seenPeers = VC.seenPeers or {}
 
 local function VC_GetTimeNow()
@@ -141,7 +141,7 @@ end
 function VC:PrunePersistedPeers(limit)
 	local maxCount = tonumber(limit) or tonumber(self.maxPersistedPeers) or 200
 	if maxCount <= 0 then
-		maxCount = 200
+		maxCount = 10000
 	end
 	if type(self.seenPeers) ~= "table" then
 		return

@@ -25,16 +25,21 @@ local function AntiDaze_RegisterCombatEvents()
 	if not AntiDazeFrame then
 		return
 	end
-	AntiDazeFrame:RegisterEvent("CHAT_MSG_SPELL_PERIODIC_SELF_DAMAGE")
-	AntiDazeFrame:RegisterEvent("CHAT_MSG_SPELL_PERIODIC_PARTY_DAMAGE")
-	AntiDazeFrame:RegisterEvent("CHAT_MSG_SPELL_SELF_DAMAGE")
-	AntiDazeFrame:RegisterEvent("CHAT_MSG_SPELL_PARTY_DAMAGE")
+	if MTH and MTH.nampower then
+		AntiDazeFrame:RegisterEvent("DEBUFF_ADDED_SELF")
+	else
+		AntiDazeFrame:RegisterEvent("CHAT_MSG_SPELL_PERIODIC_SELF_DAMAGE")
+		AntiDazeFrame:RegisterEvent("CHAT_MSG_SPELL_PERIODIC_PARTY_DAMAGE")
+		AntiDazeFrame:RegisterEvent("CHAT_MSG_SPELL_SELF_DAMAGE")
+		AntiDazeFrame:RegisterEvent("CHAT_MSG_SPELL_PARTY_DAMAGE")
+	end
 end
 
 local function AntiDaze_UnregisterCombatEvents()
 	if not AntiDazeFrame then
 		return
 	end
+	AntiDazeFrame:UnregisterEvent("DEBUFF_ADDED_SELF")
 	AntiDazeFrame:UnregisterEvent("CHAT_MSG_SPELL_PERIODIC_SELF_DAMAGE")
 	AntiDazeFrame:UnregisterEvent("CHAT_MSG_SPELL_PERIODIC_PARTY_DAMAGE")
 	AntiDazeFrame:UnregisterEvent("CHAT_MSG_SPELL_SELF_DAMAGE")
@@ -87,10 +92,31 @@ local function AntiDaze_ResolvePlayerFromMessage(msg)
 	return nil
 end
 
+local AntiDaze_DazeSpellIdCache = {}  -- [spellId] = true/false
+
+local function AntiDaze_IsDazeSpellId(spellId)
+	local cached = AntiDaze_DazeSpellIdCache[spellId]
+	if cached ~= nil then return cached end
+	if type(GetSpellRecField) ~= "function" then return false end
+	local name = GetSpellRecField(spellId, "name")
+	if name and (name == "Daze" or name == "Dazed") then
+		AntiDaze_DazeSpellIdCache[spellId] = true
+		return true
+	end
+	AntiDaze_DazeSpellIdCache[spellId] = false
+	return false
+end
+
 local function AntiDaze_CancelRelevantAspect(isSelfDazed)
 	local packName = _G["ZHUNTER_ASPECT_PACK"] or "Aspect of the Pack"
 	local cheetahName = _G["ZHUNTER_ASPECT_CHEETAH"] or "Aspect of the Cheetah"
 
+	-- Always use GetPlayerBuff + tooltip scan for cancellation.
+	-- The aura-array slot index from GetUnitField does NOT map 1:1
+	-- to the sequential buff index that CancelPlayerBuff expects
+	-- (empty slots create gaps), so we cannot use the NamPower
+	-- array for the cancel call. NamPower is still used for daze
+	-- DETECTION via DEBUFF_ADDED_SELF in the event handler.
 	for i = 0, 32 do
 		if GetPlayerBuff(i, "HELPFUL") < 0 then
 			break
@@ -118,6 +144,12 @@ if AntiDazeFrame then
 	AntiDazeFrame:RegisterEvent("VARIABLES_LOADED")
 	AntiDazeFrame:SetScript("OnEvent", function()
 		if event == "VARIABLES_LOADED" then
+			-- Class gate: only hunters use AntiDaze.
+			if MTH and MTH.IsClassGateBlocked and MTH:IsClassGateBlocked() then
+				AntiDazeFrame:UnregisterAllEvents()
+				AntiDazeFrame:SetScript("OnEvent", nil)
+				return
+			end
 			if AntiDaze_IsEnabled() then
 				AntiDaze_RegisterCombatEvents()
 			else
@@ -126,6 +158,16 @@ if AntiDazeFrame then
 			return
 		end
 
+		-- NamPower path: DEBUFF_ADDED_SELF fires with spellId in arg3
+		if event == "DEBUFF_ADDED_SELF" then
+			local spellId = tonumber(arg3)
+			if spellId and AntiDaze_IsDazeSpellId(spellId) then
+				AntiDaze_CancelRelevantAspect(true)
+			end
+			return
+		end
+
+		-- Legacy path: parse chat messages
 		local player = AntiDaze_ResolvePlayerFromMessage(arg1)
 		if player then
 			local you = _G["ZHUNTER_YOU"] or "You"

@@ -898,12 +898,14 @@ function zButtonAmmo_SetupSizeAndPosition()
 	if arrangeCount < 0 then
 		arrangeCount = 0
 	end
-	ZSpellButton_SetSize(zButtonAmmo, saved["parent"]["size"])
-	ZSpellButton_SetSize(zButtonAmmo, saved["children"]["size"], 1)
-	ZSpellButton_SetExpandDirection(zButtonAmmo, saved["firstbutton"])
-	ZSpellButton_ArrangeChildren(zButtonAmmo, saved["rows"], 
-		arrangeCount, saved["horizontal"],
-		saved["vertical"])
+	if not (type(MTH_ZBar_ApplyToButton) == "function" and MTH_ZBar_ApplyToButton(zButtonAmmo, arrangeCount)) then
+		ZSpellButton_SetSize(zButtonAmmo, saved["parent"]["size"])
+		ZSpellButton_SetSize(zButtonAmmo, saved["children"]["size"], 1)
+		ZSpellButton_SetExpandDirection(zButtonAmmo, saved["firstbutton"])
+		ZSpellButton_ArrangeChildren(zButtonAmmo, saved["rows"],
+			arrangeCount, saved["horizontal"],
+			saved["vertical"])
+	end
 end
 
 function zButtonAmmo_Reset()

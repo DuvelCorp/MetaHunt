@@ -9,6 +9,7 @@ MTH_DS_Families = {
     ["icon"] = "Ability_Hunter_Pet_Bat",
     ["named"] = 20,
     ["coords"] = 18,
+    ["stats"] = { ["health"] = 1, ["armor"] = 1, ["damage"] = 1.07 },
     ["food"] = {
       "fruit",
       "fungus",
@@ -25,6 +26,7 @@ MTH_DS_Families = {
     ["icon"] = "Ability_Hunter_Pet_Bear",
     ["named"] = 45,
     ["coords"] = 45,
+    ["stats"] = { ["health"] = 1.08, ["armor"] = 1.05, ["damage"] = 0.91 },
     ["food"] = {
       "meat",
       "fish",
@@ -47,6 +49,7 @@ MTH_DS_Families = {
     ["icon"] = "Ability_Hunter_Pet_Boar",
     ["named"] = 45,
     ["coords"] = 87,
+    ["stats"] = { ["health"] = 1.04, ["armor"] = 1.09, ["damage"] = 0.9 },
     ["food"] = {
       "meat",
       "fish",
@@ -69,6 +72,7 @@ MTH_DS_Families = {
     ["icon"] = "Ability_Hunter_Pet_Vulture",
     ["named"] = 36,
     ["coords"] = 101,
+    ["stats"] = { ["health"] = 1, ["armor"] = 1.05, ["damage"] = 1 },
     ["food"] = {
       "meat",
       "raw meat",
@@ -86,6 +90,7 @@ MTH_DS_Families = {
     ["icon"] = "Ability_Hunter_Pet_Cat",
     ["named"] = 85,
     ["coords"] = 88,
+    ["stats"] = { ["health"] = 0.98, ["armor"] = 1, ["damage"] = 1.1 },
     ["food"] = {
       "meat",
       "fish",
@@ -105,6 +110,7 @@ MTH_DS_Families = {
     ["icon"] = "Ability_Hunter_Pet_Crab",
     ["named"] = 32,
     ["coords"] = 74,
+    ["stats"] = { ["health"] = 0.96, ["armor"] = 1.13, ["damage"] = 0.95 },
     ["food"] = {
       "fruit",
       "fish",
@@ -123,6 +129,7 @@ MTH_DS_Families = {
     ["icon"] = "Ability_Hunter_Pet_Crocolisk",
     ["named"] = 27,
     ["coords"] = 71,
+    ["stats"] = { ["health"] = 0.95, ["armor"] = 1.1, ["damage"] = 1 },
     ["food"] = {
       "meat",
       "fish",
@@ -140,6 +147,7 @@ MTH_DS_Families = {
     ["icon"] = "ability_hunter_aspectofthefox",
     ["named"] = 9,
     ["coords"] = 51,
+    ["stats"] = { ["health"] = 1, ["armor"] = 1, ["damage"] = 1.07 },
     ["food"] = {
       "meat",
       "fruit",
@@ -157,6 +165,7 @@ MTH_DS_Families = {
     ["icon"] = "Ability_Hunter_Pet_Gorilla",
     ["named"] = 24,
     ["coords"] = 117,
+    ["stats"] = { ["health"] = 1.04, ["armor"] = 1, ["damage"] = 1.02 },
     ["food"] = {
       "fruit",
       "fungus",
@@ -172,6 +181,7 @@ MTH_DS_Families = {
     ["icon"] = "Ability_Hunter_Pet_Hyena",
     ["named"] = 26,
     ["coords"] = 36,
+    ["stats"] = { ["health"] = 1, ["armor"] = 1.05, ["damage"] = 1 },
     ["food"] = {
       "meat",
       "fruit",
@@ -189,6 +199,7 @@ MTH_DS_Families = {
     ["icon"] = "Ability_Hunter_Pet_Owl",
     ["named"] = 16,
     ["coords"] = 59,
+    ["stats"] = { ["health"] = 1, ["armor"] = 1, ["damage"] = 1.07 },
     ["food"] = {
       "meat",
       "raw meat",
@@ -205,6 +216,7 @@ MTH_DS_Families = {
     ["icon"] = "Ability_Hunter_Pet_Raptor",
     ["named"] = 51,
     ["coords"] = 115,
+    ["stats"] = { ["health"] = 0.95, ["armor"] = 1.03, ["damage"] = 1.1 },
     ["food"] = {
       "meat",
       "raw meat",
@@ -222,6 +234,7 @@ MTH_DS_Families = {
     ["icon"] = "Ability_Hunter_Pet_Scorpid",
     ["named"] = 38,
     ["coords"] = 36,
+    ["stats"] = { ["health"] = 1, ["armor"] = 1.1, ["damage"] = 0.94 },
     ["food"] = {
       "meat",
       "raw meat",
@@ -237,6 +250,7 @@ MTH_DS_Families = {
     ["icon"] = "Ability_Hunter_Pet_Serpent1",
     ["named"] = 10,
     ["coords"] = 13,
+    ["stats"] = { ["health"] = 1.03, ["armor"] = 1.03, ["damage"] = 1.135 },
     ["food"] = {
       "meat",
       "fish",
@@ -254,6 +268,7 @@ MTH_DS_Families = {
     ["icon"] = "Ability_Hunter_Pet_Spider",
     ["named"] = 91,
     ["coords"] = 213,
+    ["stats"] = { ["health"] = 1, ["armor"] = 1, ["damage"] = 1.07 },
     ["food"] = {
       "meat",
       "raw meat",
@@ -269,6 +284,7 @@ MTH_DS_Families = {
     ["icon"] = "Ability_Hunter_Pet_TallStrider",
     ["named"] = 15,
     ["coords"] = 112,
+    ["stats"] = { ["health"] = 1.05, ["armor"] = 1, ["damage"] = 1 },
     ["food"] = {
       "fruit",
       "fungus",
@@ -286,6 +302,7 @@ MTH_DS_Families = {
     ["icon"] = "Ability_Hunter_Pet_Turtle",
     ["named"] = 25,
     ["coords"] = 42,
+    ["stats"] = { ["health"] = 1, ["armor"] = 1.13, ["damage"] = 0.9 },
     ["food"] = {
       "fruit",
       "fish",
@@ -303,6 +320,7 @@ MTH_DS_Families = {
     ["icon"] = "Ability_Hunter_Pet_WindSerpent",
     ["named"] = 27,
     ["coords"] = 42,
+    ["stats"] = { ["health"] = 1, ["armor"] = 1, ["damage"] = 1.07 },
     ["food"] = {
       "fish",
       "cheese",
@@ -321,6 +339,7 @@ MTH_DS_Families = {
     ["icon"] = "Ability_Hunter_Pet_Wolf",
     ["named"] = 81,
     ["coords"] = 99,
+    ["stats"] = { ["health"] = 1, ["armor"] = 1.05, ["damage"] = 1 },
     ["food"] = {
       "meat",
       "raw meat",

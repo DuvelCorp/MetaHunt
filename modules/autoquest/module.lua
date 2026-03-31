@@ -6,7 +6,6 @@
 local MTH_AutoQuest = {
 	name = "autoquest",
 	enabled = false,
-	version = "1.4.1",
 	events = {
 		"GOSSIP_SHOW",
 		"QUEST_GREETING",

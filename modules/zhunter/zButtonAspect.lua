@@ -39,6 +39,7 @@ local zButtonAspect_MinAuraIntervalCombat = 0.60
 local zButtonAspect_LastAuraTexture = nil
 local zButtonAspect_LastParentId = nil
 local zButtonAspect_AuraProbeTextLeft1 = nil
+local MTH_ZH_UseNamPower = false
 
 local function zButtonAspect_GetSaved()
 	local currentRoot = zButtonAspect_GetRoot()
@@ -71,6 +72,9 @@ local function zButtonAspect_EnsureConfig()
 	end
 	if saved["parent"]["circle"] == nil then
 		saved["parent"]["circle"] = 1
+	end
+	if saved["parent"]["smart"] == nil then
+		saved["parent"]["smart"] = true
 	end
 	if not saved["children"] then
 		saved["children"] = {}
@@ -167,6 +171,12 @@ function zButtonAspect_OnEvent()
 		MTH_ZH_AspectAdjust:RegisterEvent("CHARACTER_POINTS_CHANGED")
 		MTH_ZH_AspectAdjust:RegisterEvent("LEARNED_SPELL_IN_TAB")
 		MTH_ZH_AspectAdjust:SetScript("OnEvent", MTH_ZH_AspectAdjust_OnEvent)
+		if MTH and MTH.nampower then
+			MTH_ZH_UseNamPower = true
+			MTH_ZH_AspectAdjust:UnregisterEvent("PLAYER_AURAS_CHANGED")
+			MTH_ZH_AspectAdjust:RegisterEvent("BUFF_ADDED_SELF")
+			MTH_ZH_AspectAdjust:RegisterEvent("BUFF_REMOVED_SELF")
+		end
 		zButtonAspect_Tooltip = CreateFrame("GameTooltip", "MTH_ZH_AspectProbe", nil, "GameTooltipTemplate")
 		if zButtonAspect_Tooltip and zButtonAspect_Tooltip.GetName then
 			local tooltipName = zButtonAspect_Tooltip:GetName()
@@ -221,12 +231,14 @@ function zButtonAspect_SetupSizeAndPosition()
 	if displayCount < 0 then
 		displayCount = 0
 	end
-	ZSpellButton_SetSize(zButtonAspect, saved["parent"]["size"])
-	ZSpellButton_SetSize(zButtonAspect, saved["children"]["size"], 1)
-	ZSpellButton_SetExpandDirection(zButtonAspect, saved["firstbutton"])
-	ZSpellButton_ArrangeChildren(zButtonAspect, saved["rows"], 
-		displayCount, saved["horizontal"],
-		saved["vertical"])
+	if not (type(MTH_ZBar_ApplyToButton) == "function" and MTH_ZBar_ApplyToButton(zButtonAspect, displayCount)) then
+		ZSpellButton_SetSize(zButtonAspect, saved["parent"]["size"])
+		ZSpellButton_SetSize(zButtonAspect, saved["children"]["size"], 1)
+		ZSpellButton_SetExpandDirection(zButtonAspect, saved["firstbutton"])
+		ZSpellButton_ArrangeChildren(zButtonAspect, saved["rows"],
+			displayCount, saved["horizontal"],
+			saved["vertical"])
+	end
 end
 
 function zButtonAspect_Reset()
@@ -255,7 +267,11 @@ function MTH_ZH_AspectAdjust_OnEvent()
 	if not zButtonAspect or not zButtonAspect.count then
 		return
 	end
-	if event == "PLAYER_AURAS_CHANGED" then
+	if event == "BUFF_ADDED_SELF" or event == "BUFF_REMOVED_SELF" then
+		-- NamPower: targeted event, no throttle needed.
+		-- arg3 may not be a reliable DBC ID so we skip spell-ID filtering and let
+		-- the existing texture/change guard below handle early-exit cheaply.
+	elseif event == "PLAYER_AURAS_CHANGED" then
 		local now = GetTime and GetTime() or 0
 		local minInterval = zButtonAspect_MinAuraInterval
 		if UnitAffectingCombat and UnitAffectingCombat("player") then
@@ -271,7 +287,8 @@ function MTH_ZH_AspectAdjust_OnEvent()
 		zButtonAspect_SetupSizeAndPosition()
 		zButtonAspect_EnsureValidParentId()
 	end
-	if event == "PLAYER_AURAS_CHANGED" or event == "PLAYER_ENTERING_WORLD"
+	if event == "PLAYER_AURAS_CHANGED" or event == "BUFF_ADDED_SELF" or event == "BUFF_REMOVED_SELF"
+		or event == "PLAYER_ENTERING_WORLD"
 		or event == "SPELLS_CHANGED" or event == "CHARACTER_POINTS_CHANGED" or event == "LEARNED_SPELL_IN_TAB" then
 		zButtonAspect_EnsureValidParentId()
 		if not zButtonAspect1.id then
@@ -304,13 +321,19 @@ function MTH_ZH_AspectAdjust_OnEvent()
 			end
 		end
 		local i = 1
-		local texture = GetSpellTexture(zButtonAspect1.id, "spell")
+		local texture1 = GetSpellTexture(zButtonAspect1.id, "spell")
+		local texture2 = zButtonAspect2 and zButtonAspect2.id and GetSpellTexture(zButtonAspect2.id, "spell") or nil
 		local buff = UnitBuff("player", i)
 		local spellname, buffname
 		local newParentId = zButtonAspect1.id
+		local smartEnabled = zButtonAspect_GetSaved()["parent"]["smart"] ~= false
 		while buff do
-			if texture == buff and zButtonAspect2.id then
-				newParentId = zButtonAspect2.id
+			if smartEnabled and zButtonAspect2 and zButtonAspect2.id then
+				if texture1 == buff then
+					newParentId = zButtonAspect2.id
+				elseif texture2 and texture2 == buff then
+					newParentId = zButtonAspect1.id
+				end
 			end
 			if needChildIconScan and buttontextures[buff] then
 				if hasDuplicateChildTexture then
@@ -332,10 +355,10 @@ function MTH_ZH_AspectAdjust_OnEvent()
 			i = i + 1
 			buff = UnitBuff("player", i)
 		end
-		if event == "PLAYER_AURAS_CHANGED" and zButtonAspect_LastAuraTexture == texture and zButtonAspect.id == newParentId and zButtonAspect_LastParentId == newParentId and not isParentTooltipOwned then
+		if (event == "PLAYER_AURAS_CHANGED" or event == "BUFF_ADDED_SELF" or event == "BUFF_REMOVED_SELF") and zButtonAspect_LastAuraTexture == texture1 and zButtonAspect.id == newParentId and zButtonAspect_LastParentId == newParentId and not isParentTooltipOwned then
 			return
 		end
-		zButtonAspect_LastAuraTexture = texture
+		zButtonAspect_LastAuraTexture = texture1
 		zButtonAspect_LastParentId = newParentId
 		zButtonAspect.id = newParentId
 		ZSpellButton_UpdateButton(zButtonAspect)

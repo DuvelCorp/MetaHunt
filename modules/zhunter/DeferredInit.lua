@@ -67,6 +67,8 @@ local function ZHunterMod_EnsureButtonFrame(buttonName)
 			created:SetPoint("TOP", UIParent, "TOP", 0, -464)
 		elseif buttonName == "zButtonToys" then
 			created:SetPoint("TOP", UIParent, "TOP", 0, -518)
+		elseif buttonName == "zButtonCraft" then
+			created:SetPoint("TOP", UIParent, "TOP", 0, -572)
 		else
 			created:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 		end
@@ -85,7 +87,7 @@ function ZHunterMod_DeferredInit()
 	local mounts = ZHunterMod_EnsureButtonFrame("zButtonMounts")
 	local companions = ZHunterMod_EnsureButtonFrame("zButtonCompanions")
 	local toys = ZHunterMod_EnsureButtonFrame("zButtonToys")
-	
+	local craft = ZHunterMod_EnsureButtonFrame("zButtonCraft")
 
 	-- Continue with all frames that exist; do not hard-abort when one optional frame is missing.
 	local missing = {}
@@ -98,12 +100,13 @@ function ZHunterMod_DeferredInit()
 	if not mounts then table.insert(missing, "Mounts") end
 	if not companions then table.insert(missing, "Companions") end
 	if not toys then table.insert(missing, "Toys") end
+	if not craft then table.insert(missing, "Craft") end
 
 	if table.getn(missing) > 0 then
 		MTH_ZH_Print("[ZHUNTER] Warning: missing frames: " .. table.concat(missing, ", ") .. ". Continuing with available buttons.", "error")
 	end
 
-	if not (pet or aspect or track or trap or ranged or ammo or mounts or companions or toys) then
+	if not (pet or aspect or track or trap or ranged or ammo or mounts or companions or toys or craft) then
 		MTH_ZH_Print("zhunter buttons not created - check for addon conflicts!", "error")
 		return
 	end
@@ -174,6 +177,12 @@ function ZHunterMod_DeferredInit()
 
 	if toys and zButtonToys_OnEvent then
 		if ZHunterMod_SafeRunButtonInit(toys, zButtonToys_OnEvent, "zButtonToys") then
+			initialized = initialized + 1
+		end
+	end
+
+	if craft and zButtonCraft_OnEvent then
+		if ZHunterMod_SafeRunButtonInit(craft, zButtonCraft_OnEvent, "zButtonCraft") then
 			initialized = initialized + 1
 		end
 	end

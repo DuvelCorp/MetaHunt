@@ -1,5 +1,5 @@
 MTH = MTH or {
-	version = "1.4.1",
+	version = "1.5.0",
 	name = "MetaHunt",
 	modules = {},
 	config = {},
@@ -1311,7 +1311,17 @@ function MTH:AnnounceLoadComplete()
 		moduleList = table.concat(enabled, ", ")
 	end
 
-	self:Print("Check ignition: OK! Version " .. tostring(self.version or "unknown") .. " loaded.")
+	local namPowerStatus = ""
+	if type(GetNampowerVersion) == "function" then
+		local maj, min = GetNampowerVersion()
+		maj = tonumber(maj) or 0
+		min = tonumber(min) or 0
+		if maj > 2 or (maj == 2 and min >= 40) then
+			namPowerStatus = " | NamPower detected"
+			self.nampower = true
+		end
+	end
+	self:Print("Check Ignition.... OK! Version " .. tostring(self.version or "unknown") .. " loaded." .. namPowerStatus)
 	if self:IsMessageEnabled("initModulesLoaded", false) then
 		self:Print("Modules enabled : " .. moduleList .. ".")
 	end

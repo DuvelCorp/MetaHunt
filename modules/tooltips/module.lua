@@ -6,7 +6,6 @@
 local MTH_Tooltips = {
 	name = "tooltips",
 	enabled = true,
-	version = "1.4.1",
 	events = {
 		"UPDATE_MOUSEOVER_UNIT",
 		"UNIT_NAME_UPDATE",
@@ -1486,11 +1485,8 @@ local function MTH_TT_AddTooltip(unit)
 	local ammoVendorTooltipsEnabled = MTH_TT_IsAmmoVendorTooltipsEnabled()
 	local vendorInfo = ammoVendorTooltipsEnabled and MTH_TT_FindVendorInfo(name) or nil
 	local row = beastTooltipsEnabled and MTH_TT_FindBeastRow(name) or nil
-	local savedEntry = beastTooltipsEnabled
-		and (type(MTH_BLS_FindSavedBeastByName) == "function")
-		and MTH_BLS_FindSavedBeastByName(name) or nil
 	local scorpokAdded = MTH_TT_AddScorpokTargetsTooltip(unit, name)
-	if not row and not vendorInfo and not scorpokAdded and not savedEntry then
+	if not row and not vendorInfo and not scorpokAdded then
 		state.lookupMiss = (state.lookupMiss or 0) + 1
 		MTH_TT_StateSet("lookup-miss", name, normalized)
 		MTH_TT_Log("lookup miss: unit='" .. tostring(name) .. "' normalized='" .. tostring(normalized) .. "'")
@@ -1514,13 +1510,7 @@ local function MTH_TT_AddTooltip(unit)
 		MTH_TT_Log("vendor tooltip added: unit='" .. tostring(name) .. "'")
 	end
 
-	-- Determine which abilities source to display.
-	local abilitiesSource = nil
-	if row then
-		abilitiesSource = row.abilities
-	elseif savedEntry and savedEntry.abilities and savedEntry.abilities ~= "" then
-		abilitiesSource = savedEntry.abilities
-	end
+	local abilitiesSource = row and row.abilities or nil
 
 	if abilitiesSource then
 		local abilities = MTH_TT_ParseAbilities(abilitiesSource)
@@ -1544,11 +1534,6 @@ local function MTH_TT_AddTooltip(unit)
 			addedAnything = 1
 			MTH_TT_Log("beast tooltip added: unit='" .. tostring(name) .. "' entries='" .. tostring(table.getn(abilities)) .. "'")
 		end
-	end
-
-	if savedEntry then
-		GameTooltip:AddLine("Beast recorded by you", 1.0, 0.85, 0.0)
-		addedAnything = 1
 	end
 
 	if addedAnything then
