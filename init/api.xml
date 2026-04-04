@@ -21,6 +21,7 @@
   <Include file="..\api\options-profiles.lua"/>
   <Include file="..\api\options-shell.lua"/>
   <Include file="..\api\options-zbuttons.lua"/>
+  <Include file="..\api\bag-ammo-labels.lua"/>
   <Include file="..\api\options-feedomatic.lua"/>
   <Include file="..\api\hunterbook.xml"/>
   <Include file="..\api\hunterbook.lua"/>

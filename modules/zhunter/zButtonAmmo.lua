@@ -38,7 +38,6 @@ local zButtonAmmo_LastFullScanAt = 0
 local zButtonAmmo_MinUnknownBagScanInterval = 5.0
 local zButtonAmmo_EmptyScanStreak = 0
 local zButtonAmmo_LastEquippedAmmoSeen = nil
-local zButtonAmmo_GetKnownAmmoTypes
 
 local function zButtonAmmo_BagHasAmmoNow(bagId)
 	local bag = tonumber(bagId)
@@ -117,7 +116,7 @@ zButtonAmmo_GetKnownAmmoTypes = function()
 	return knownAmmo
 end
 
-local zButtonAmmo_ShortArrowLabels = {
+zButtonAmmo_ShortArrowLabels = {
 	[ARROWS_ROUGH] = "Rough",
 	[ARROWS_SHARP] = "Sharp",
 	[ARROWS_RAZOR] = "Razor",
@@ -131,7 +130,7 @@ local zButtonAmmo_ShortArrowLabels = {
 	[ARROWS_DOOMSHOT] = "Doom",
 }
 
-local zButtonAmmo_ShortBulletLabels = {
+zButtonAmmo_ShortBulletLabels = {
 	[BULLETS_LIGHT] = "Light",
 	[BULLETS_CRAFTLIGHT] = "C.Light",
 	[BULLETS_FLASH] = "Flash",
@@ -151,7 +150,7 @@ local zButtonAmmo_ShortBulletLabels = {
 	[BULLETS_ICETHREADED] = "Ice",
 }
 
-local function zButtonAmmo_GetColorGradient(perc)
+function zButtonAmmo_GetColorGradient(perc)
 	perc = perc > 1 and 1 or perc
 	perc = perc < 0 and 0 or perc
 	local r1, g1, b1, r2, g2, b2
@@ -188,7 +187,7 @@ local function zButtonAmmo_EnsureShortLabelText(button)
 	return button and button.ammoShortLabelText
 end
 
-local function zButtonAmmo_GetQualityColor(quality)
+function zButtonAmmo_GetQualityColor(quality)
 	local tableRef = MTH_ITEM_QUALITY_COLORS or ITEM_QUALITY_COLORS
 	if tableRef then
 		local q = tonumber(quality)
