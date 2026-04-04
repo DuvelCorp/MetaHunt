@@ -219,7 +219,7 @@ function ZSpellButton_SetSize(parent, size, setChildren)
 	local cdscale = 0.75 / 36
 	if setChildren then
 		local button
-		for i=1, parent.count do
+		for i=1, (parent.count or 0) do
 			button = getglobal(parent.name..i)
 			if button then
 				button:SetHeight(size)

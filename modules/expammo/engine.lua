@@ -91,6 +91,13 @@ local CELL_DEF = {
 	  icon = "Interface\\Icons\\Ability_TheBlackArrow" },
 }
 
+-- ── Creature-type immunity rules ──────────────────────────────
+-- Maps UnitCreatureType("target") → set of ammo states the target resists.
+-- Used by PLAYER_TARGET_CHANGED to proactively flag blocked states.
+local CREATURE_TYPE_IMMUNITIES = {
+	["Elemental"] = { [POISONOUS] = true },   -- Elementals are Nature-immune
+}
+
 -- ── Talent gate ──────────────────────────────────────────────
 -- The module only shows if the player has the talent.
 -- Checked on login and whenever MTH_HT_OnScanComplete fires.
@@ -304,10 +311,27 @@ local function MTH_EA_EnsureConfigDefaults()
 	if cfg.bigCD           == nil then cfg.bigCD           = false end
 	if cfg.hideOOC         == nil then cfg.hideOOC         = false end
 	if cfg.useQuiverNoClip == nil then cfg.useQuiverNoClip = false end
+	if cfg.blockExplosive  == nil then cfg.blockExplosive  = false end
+	if cfg.blockPoisonous  == nil then cfg.blockPoisonous  = false end
+	if cfg.blockEnchanted  == nil then cfg.blockEnchanted  = false end
 end
 
 -- Combat state flag (avoids needing InCombatLockdown, which doesn't exist in 1.12)
 local inCombat = false
+
+-- ── Runtime immunity / block tracking ─────────────────────────
+-- Volatile: refreshed on PLAYER_TARGET_CHANGED and combat-log "immune" messages.
+local MTH_EA_BlockedStates = {}   -- [state] = true if creature-type or reactive immunity
+
+function MTH_EA_IsStateBlocked(state)
+	if not state or state == IDLE then return false end
+	local cfg = MTH_EA_GetConfig()
+	if state == EXPLOSIVE and cfg.blockExplosive then return true end
+	if state == POISONOUS and cfg.blockPoisonous then return true end
+	if state == ENCHANTED and cfg.blockEnchanted then return true end
+	if MTH_EA_BlockedStates[state] then return true end
+	return false
+end
 
 -- Throttle for PLAYER_AURAS_CHANGED: even with the fast texture path this event
 -- fires 10-50+/sec in combat, so cap processing at ~6/sec.
@@ -493,6 +517,13 @@ end
 -- Action button: what spell to show and what spell to cast right now.
 -- Returns displaySpell, icon, r, g, b, cooldownRemaining, castSpell
 local function MTH_EA_GetActionSpell()
+	-- If current ammo state is blocked (creature immune or rotation toggle),
+	-- skip the consume-spell and fall through to Aimed/Steady instead.
+	if rt.state ~= IDLE and MTH_EA_IsStateBlocked(rt.state) then
+		local cd = MTH_EA_GetSpellCD(SPELL_AIMED)
+		return SPELL_AIMED, ICON_AIMED, 1.00, 0.85, 0.00, cd, (cd > 0 and SPELL_STEADY or SPELL_AIMED)
+	end
+
 	if rt.state == EXPLOSIVE then
 		local cd = MTH_EA_GetSpellCD(SPELL_MULTI)
 		return SPELL_MULTI, ICON_MULTI, 1.00, 0.60, 0.05, cd, (cd > 0 and SPELL_STEADY or SPELL_MULTI)
@@ -653,6 +684,11 @@ MTH_EA_UpdateUI = function()
 				c:SetBackdropBorderColor(0.18, 0.18, 0.18, 0.30)
 			end
 			cdTexts[i]:SetText("")
+		end
+
+		-- Red border override for blocked (immune / rotation-disabled) states
+		if MTH_EA_IsStateBlocked(def.state) then
+			c:SetBackdropBorderColor(1, 0, 0, 0.85)
 		end
 	end
 
@@ -1158,6 +1194,8 @@ frame:RegisterEvent("SPELLCAST_STOP")
 frame:RegisterEvent("SPELLCAST_FAILED")
 frame:RegisterEvent("SPELLCAST_INTERRUPTED")
 frame:RegisterEvent("ACTIONBAR_SLOT_CHANGED")           -- invalidate Aimed Shot slot cache
+frame:RegisterEvent("PLAYER_TARGET_CHANGED")             -- proactive creature-type immunity
+frame:RegisterEvent("CHAT_MSG_SPELL_SELF_DAMAGE")        -- reactive "immune" detection
 
 frame:SetScript("OnUpdate", function()
 	if not MTH_EA_IsEnabled() then return end
@@ -1301,6 +1339,34 @@ frame:SetScript("OnEvent", function()
 
 	if event == "ACTIONBAR_SLOT_CHANGED" then
 		MTH_EA_ClearActionSlotCache()
+		return
+	end
+
+	if event == "PLAYER_TARGET_CHANGED" then
+		MTH_EA_BlockedStates = {}
+		if UnitExists("target") then
+			local creatureType = UnitCreatureType("target")
+			if creatureType and CREATURE_TYPE_IMMUNITIES[creatureType] then
+				for st, _ in pairs(CREATURE_TYPE_IMMUNITIES[creatureType]) do
+					MTH_EA_BlockedStates[st] = true
+				end
+			end
+		end
+		MTH_EA_UpdateUI()
+		return
+	end
+
+	if event == "CHAT_MSG_SPELL_SELF_DAMAGE" then
+		local msg = arg1 or ""
+		if string.find(msg, "immune", 1, true) then
+			for state, spell in pairs(CONSUME_SPELL) do
+				if string.find(msg, spell, 1, true) then
+					MTH_EA_BlockedStates[state] = true
+					MTH_EA_UpdateUI()
+					break
+				end
+			end
+		end
 		return
 	end
 
@@ -1536,6 +1602,21 @@ MTH_ExpAmmo = {
 	SetUseQuiverNoClip = function(v)
 		local cfg = MTH_EA_GetConfig()
 		cfg.useQuiverNoClip = v and true or false
+	end,
+	SetBlockExplosive = function(v)
+		local cfg = MTH_EA_GetConfig()
+		cfg.blockExplosive = v and true or false
+		MTH_EA_UpdateUI()
+	end,
+	SetBlockPoisonous = function(v)
+		local cfg = MTH_EA_GetConfig()
+		cfg.blockPoisonous = v and true or false
+		MTH_EA_UpdateUI()
+	end,
+	SetBlockEnchanted = function(v)
+		local cfg = MTH_EA_GetConfig()
+		cfg.blockEnchanted = v and true or false
+		MTH_EA_UpdateUI()
 	end,
 	ToggleAnchor = MTH_EA_ToggleAnchor,
 }

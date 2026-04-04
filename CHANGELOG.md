@@ -3,6 +3,25 @@
 All notable changes to MetaHunt will be documented in this file.
 
 
+## [1.5.1] - 2026-04-01
+
+
+### Added
+
+- **zAmmo — bag ammo labels**: Quality-colored short-name labels overlaid on ammo items in bags and bank, with optional heat-colored DPS damage indicator. Three new checkboxes General options: bag labels, bank labels, and damage display. Works with both default bags and pfUI bags.
+
+- **MM Widget — immunity detection**: The MM Widget keybind now detects when the current target is immune to a damage school (Fire / Nature / Arcane) and automatically skips the useless shot, casting Aimed or Steady Shot instead. Immunity is detected in two ways: reactively via combat log "immune" messages, and proactively via hardcoded creature-type rules (e.g. Elementals are always flagged Nature-immune on target). Immune cells show a red border. 
+
+- **MM Widget — rotation toggles**: Three new checkboxes in Options → ExpAmmo → Rotation let you permanently disable individual shots (Multi-Shot, Serpent Sting, Arcane Shot) — unchecked shots are skipped during their proc window.
+
+
+### Fixed
+
+- **Zone mapping — 22 beasts with raw zone IDs**: Fixed 8 unmapped zone IDs (Blackrock Depths, Molten Core, Wailing Caverns, Maraudon, Sunnyglade, Icepoint Rock, Winter Veil Vale, Gilneas City, Karazhan) that caused 22 beasts to display as "Zone xxx" instead of their proper zone name in the Hunter Book.
+
+- **MM Widget — IsStateBlocked nil error**: Moved `MTH_EA_IsStateBlocked` definition before its first use, fixing a nil function call on load.
+
+
 ## [1.5.0] - 2026-03-31
 
 

@@ -1705,4 +1705,36 @@ function MTH_SetupGeneralOptions()
 		ensureHelpText(tooltipsSection, "MetaHuntGeneralTooltipsFoodHelp", foodHelp, -298)
 	end
 
+	local bagsSection = ensureSection("MetaHuntGeneralBagsBox", "Bag Ammo Labels", topY - 372, 168, "right")
+	if bagsSection then
+		local bagLabels = ensureCheckbox(bagsSection, "MetaHuntGeneralBagLabelsToggle", "Add text to ammunitions in bags", -10,
+			MTH_BagAmmoLabels_GetEnabled and MTH_BagAmmoLabels_GetEnabled() or false)
+		if bagLabels then
+			bagLabels:SetScript("OnClick", function()
+				local enabled = MTH_ZB_IsChecked(this)
+				if MTH_BagAmmoLabels_SetEnabled then MTH_BagAmmoLabels_SetEnabled(enabled) end
+			end)
+		end
+
+		local bankLabels = ensureCheckbox(bagsSection, "MetaHuntGeneralBankLabelsToggle", "Add text to ammunitions in bank", -36,
+			MTH_BankAmmoLabels_GetEnabled and MTH_BankAmmoLabels_GetEnabled() or false)
+		if bankLabels then
+			bankLabels:SetScript("OnClick", function()
+				local enabled = MTH_ZB_IsChecked(this)
+				if MTH_BankAmmoLabels_SetEnabled then MTH_BankAmmoLabels_SetEnabled(enabled) end
+			end)
+		end
+
+		local dmgLabels = ensureCheckbox(bagsSection, "MetaHuntGeneralBagDmgToggle", "Show ammo damage (heat-coloured)", -62,
+			MTH_BagAmmoDamage_GetEnabled and MTH_BagAmmoDamage_GetEnabled() or false)
+		if dmgLabels then
+			dmgLabels:SetScript("OnClick", function()
+				local enabled = MTH_ZB_IsChecked(this)
+				if MTH_BagAmmoDamage_SetEnabled then MTH_BagAmmoDamage_SetEnabled(enabled) end
+			end)
+		end
+
+		ensureHelpText(bagsSection, "MetaHuntGeneralBagDmgHelp", "Damage is heat-coloured from red (7.5) to green (20.5).", -88)
+	end
+
 end

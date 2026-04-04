@@ -355,6 +355,33 @@ local function MTH_EA_OPT_BuildUI(container)
 	if quiverTip then quiverTip:SetWidth(290) end
 	table.insert(rightGroup, quiverTip)
 
+	-- ── Rotation ─────────────────────────────────────────────
+	table.insert(rightGroup, MTH_EA_OPT_Header(container, "Rotation", -400, OPT_R))
+
+	local rotTip = MTH_EA_OPT_Tip(container,
+		"Uncheck a shot to permanently skip it during its proc window.\n The keybind will cast Steady/Aimed instead.",
+		-418, OPT_R, 0.65, 0.65, 0.65)
+	if rotTip then rotTip:SetWidth(290) end
+	table.insert(rightGroup, rotTip)
+
+	local multiCB = MTH_EA_OPT_CB(container, "MTH_ExpAmmoBlockMultiCB",
+		"Multi-Shot (Explosive)",
+		-452, OPT_R, cfg.blockExplosive ~= true,
+		function(v) if MTH_ExpAmmo then MTH_ExpAmmo.SetBlockExplosive(not v) end end)
+	table.insert(rightGroup, multiCB)
+
+	local serpentCB = MTH_EA_OPT_CB(container, "MTH_ExpAmmoBlockSerpentCB",
+		"Serpent Sting (Poisonous)",
+		-476, OPT_R, cfg.blockPoisonous ~= true,
+		function(v) if MTH_ExpAmmo then MTH_ExpAmmo.SetBlockPoisonous(not v) end end)
+	table.insert(rightGroup, serpentCB)
+
+	local arcaneCB = MTH_EA_OPT_CB(container, "MTH_ExpAmmoBlockArcaneCB",
+		"Arcane Shot (Enchanted)",
+		-500, OPT_R, cfg.blockEnchanted ~= true,
+		function(v) if MTH_ExpAmmo then MTH_ExpAmmo.SetBlockEnchanted(not v) end end)
+	table.insert(rightGroup, arcaneCB)
+
 	-- Apply initial enabled state
 	MTH_EA_OPT_SetGroupEnabled(rightGroup, showHint)
 end
