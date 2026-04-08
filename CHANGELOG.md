@@ -3,6 +3,18 @@
 All notable changes to MetaHunt will be documented in this file.
 
 
+## [1.5.2] - [Unreleased]
+
+
+### Added
+
+- **zTrack — Find Fish**: Added new spell Find Fish to the zTrack list of trackings.
+
+### Fixed
+
+- **zCraft — Smelting**: Smeling was previously not appearing in zCraft because incorrectly hardcoded as "Mining", this is fixed. 
+
+
 ## [1.5.1] - 2026-04-01
 
 

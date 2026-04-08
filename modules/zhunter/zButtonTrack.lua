@@ -5,7 +5,7 @@ end
 local root = zButtonTrack_GetRoot()
 if not root["zButtonTrack"] then
 	root["zButtonTrack"] = {}
-	root["zButtonTrack"]["spells"] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
+	root["zButtonTrack"]["spells"] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}
 	root["zButtonTrack"]["rows"] = 1
 	root["zButtonTrack"]["horizontal"] = nil
 	root["zButtonTrack"]["vertical"] = nil
@@ -33,7 +33,8 @@ ZHunterMod_Track_Spells = {
 	ZHUNTER_TRACK_MINERALS,
 	ZHUNTER_TRACK_HERBS,
 	ZHUNTER_TRACK_TREASURE,
-	ZHUNTER_TRACK_TREES
+	ZHUNTER_TRACK_TREES,
+	ZHUNTER_TRACK_FISH
 }
 
 local ZHUNTER_TRACK_MAX = table.getn(ZHunterMod_Track_Spells)
@@ -352,7 +353,7 @@ function zButtonTrack_CreateButtons()
 	for i=1, table.getn(ZHunterMod_Track_Spells) do
 		if not tonumber(saved["spells"][i]) then
 			info = ZHunterMod_Track_Spells
-			saved["spells"] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}
+			saved["spells"] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}
 			break
 		end
 		local spellIndex = saved["spells"][i]
@@ -406,7 +407,7 @@ function zButtonTrack_Reset()
 	local currentRoot = zButtonTrack_GetRoot()
 	currentRoot["zButtonTrack"] = {}
 	local saved = zButtonTrack_GetSaved()
-	saved["spells"] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}
+	saved["spells"] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}
 	saved["rows"] = 1
 	saved["horizontal"] = nil
 	saved["vertical"] = nil
@@ -420,7 +421,7 @@ function zButtonTrack_Reset()
 	saved["children"] = {}
 	saved["children"]["size"] = 36
 	saved["children"]["hideonclick"] = 1
-	saved["visible"] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+	saved["visible"] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
 	zButtonTrack_EnsureConfig()
 end
 

@@ -39,7 +39,7 @@ local ZCRAFT_PROFESSIONS = {
 	{ spellName = "Leatherworking", display = "Leatherworking" },
 	{ spellName = "Tailoring",      display = "Tailoring"      },
 	{ spellName = "Jewelcrafting",  display = "Jewelcrafting"  },
-	{ spellName = "Mining",         display = "Smelting"       },
+	{ spellName = "Smelting",       display = "Smelting"       },
 	{ spellName = "Cooking",        display = "Cooking"        },
 	{ spellName = "First Aid",      display = "First Aid"      },
 	{ spellName = "Herbalism",      display = "Herbalism"      },
